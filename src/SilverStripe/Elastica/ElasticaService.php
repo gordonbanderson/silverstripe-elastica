@@ -66,11 +66,9 @@ class ElasticaService {
     /**
      * Ensure that the index is present
      */
-    protected function ensureIndex()
-    {
+    protected function ensureIndex() {
         $index = $this->getIndex();
-        if (!$index->exists())
-        {
+        if (!$index->exists()) {
             $index->create();
         }
     }
@@ -82,14 +80,11 @@ class ElasticaService {
      * @param \DataObject Data record
      * @return \Elastica\Mapping Mapping object
      */
-    protected function ensureMapping(\Elastica\Type $type, \DataObject $record)
-    {
-        try
-        {
+    protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
+        try {
             $mapping = $type->getMapping();
         }
-        catch(\Elastica\Exception\ResponseException $e)
-        {
+        catch(\Elastica\Exception\ResponseException $e) {
             $this->ensureIndex();
             $mapping = $record->getElasticaMapping();
             $type->setMapping($mapping);
@@ -124,6 +119,7 @@ class ElasticaService {
 		}
 	}
 
+
 	/**
 	 * Begins a bulk indexing operation where documents are buffered rather than
 	 * indexed immediately.
@@ -131,6 +127,7 @@ class ElasticaService {
 	public function startBulkIndex() {
 		$this->buffered = true;
 	}
+
 
 	/**
 	 * Ends the current bulk index operation and indexes the buffered documents.
@@ -147,6 +144,7 @@ class ElasticaService {
 		$this->buffer = array();
 	}
 
+
 	/**
 	 * Deletes a record from the index.
 	 *
@@ -158,6 +156,7 @@ class ElasticaService {
 
 		$type->deleteDocument($record->getElasticaDocument());
 	}
+
 
 	/**
 	 * Creates the index and the type mappings.
@@ -181,20 +180,20 @@ class ElasticaService {
 		}
 	}
 
+
     /**
      * Refresh a list of records in the index
      *
      * @param \DataList $records
      */
-    protected function refreshRecords($records)
-    {
+    protected function refreshRecords($records) {
         foreach ($records as $record) {
             if ($record->showRecordInSearch()) {
                 $this->index($record);
             }
         }
-
     }
+
 
     /**
      * Get a List of all records by class. Get the "Live data" If the class has the "Versioned" extension
@@ -202,8 +201,7 @@ class ElasticaService {
      * @param string $class Class Name
      * @return \DataObject[] $records
      */
-    protected function recordsByClassConsiderVersioned($class)
-    {
+    protected function recordsByClassConsiderVersioned($class) {
         if ($class::has_extension("Versioned")) {
             $records = \Versioned::get_by_stage($class, 'Live');
         } else {
@@ -212,13 +210,13 @@ class ElasticaService {
         return $records->toArray();
     }
 
+
     /**
-     * Refresh the records of a given class within the search index
-     *
-     * @param string $class Class Name
-     */
-    protected function refreshClass($class)
-    {
+	 * Refresh the records of a given class within the search index
+	 *
+	 * @param string $class Class Name
+	 */
+    protected function refreshClass($class) {
         $records = $this->recordsByClassConsiderVersioned($class);
 
         if ($class::has_extension("Translatable")) {
@@ -244,6 +242,7 @@ class ElasticaService {
         $this->refreshRecords($records);
     }
 
+
 	/**
 	 * Re-indexes each record in the index.
 	 */
@@ -257,6 +256,7 @@ class ElasticaService {
 
 		$this->endBulkIndex();
 	}
+
 
 	/**
 	 * Gets the classes which are indexed (i.e. have the extension applied).
