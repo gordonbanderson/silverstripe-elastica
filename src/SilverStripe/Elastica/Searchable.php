@@ -148,8 +148,7 @@ class Searchable extends \DataExtension {
         $document = new Document($this->owner->ID, $fields);
 
         $callable = get_class($this->owner).'::updateElasticsearchDocument';
-        if(is_callable($callable))
-        {
+        if(is_callable($callable)) {
             $document = call_user_func($callable, $document);
         }
 
@@ -162,8 +161,7 @@ class Searchable extends \DataExtension {
      *
      * @return boolean
      */
-    public function showRecordInSearch()
-    {
+    public function showRecordInSearch() {
         return !($this->owner->hasField('ShowInSearch') AND false == $this->owner->ShowInSearch);
     }
 
@@ -172,10 +170,9 @@ class Searchable extends \DataExtension {
      * Delete the record from the search index if ShowInSearch is deactivated (non-SiteTree).
      */
     public function onBeforeWrite() {
-        if (!($this->owner instanceof \SiteTree))
-        {
-            if ($this->owner->hasField('ShowInSearch') AND $this->isChanged('ShowInSearch', 2) AND false == $this->owner->ShowInSearch)
-            {
+        if (!($this->owner instanceof \SiteTree)) {
+            if ($this->owner->hasField('ShowInSearch') AND
+            	$this->isChanged('ShowInSearch', 2) AND false == $this->owner->ShowInSearch) {
                 $this->doDeleteDocument();
             }
         }
@@ -185,13 +182,11 @@ class Searchable extends \DataExtension {
      * Delete the record from the search index if ShowInSearch is deactivated (SiteTree).
      */
     public function onBeforePublish() {
-        if (false == $this->owner->ShowInSearch)
-        {
-            if ($this->owner->isPublished())
-            {
-                $liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->byID($this->owner->ID);
-                if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch)
-                {
+        if (false == $this->owner->ShowInSearch) {
+            if ($this->owner->isPublished()) {
+                $liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
+                	byID($this->owner->ID);
+                if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
                     $this->doDeleteDocument();
                 }
             }
@@ -203,8 +198,7 @@ class Searchable extends \DataExtension {
      * Updates the record in the search index (non-SiteTree).
      */
     public function onAfterWrite() {
-        if (!($this->owner instanceof \SiteTree))
-        {
+        if (!($this->owner instanceof \SiteTree)) {
             $this->doIndexDocument();
         }
     }
@@ -220,8 +214,7 @@ class Searchable extends \DataExtension {
      * Updates the record in the search index.
      */
     protected function doIndexDocument() {
-        if ($this->showRecordInSearch())
-        {
+        if ($this->showRecordInSearch()) {
             $this->service->index($this->owner);
         }
     }
@@ -231,8 +224,7 @@ class Searchable extends \DataExtension {
      * Removes the record from the search index (non-SiteTree).
      */
     public function onAfterDelete() {
-        if (!($this->owner instanceof \SiteTree))
-        {
+        if (!($this->owner instanceof \SiteTree)) {
             $this->doDeleteDocumentIfInSearch();
         }
     }
@@ -248,8 +240,7 @@ class Searchable extends \DataExtension {
      * Removes the record from the search index if the "ShowInSearch" attribute is set to true.
      */
     protected function doDeleteDocumentIfInSearch() {
-        if ($this->showRecordInSearch())
-        {
+        if ($this->showRecordInSearch()) {
             $this->doDeleteDocument();
         }
     }
@@ -261,8 +252,7 @@ class Searchable extends \DataExtension {
         try{
             $this->service->remove($this->owner);
         }
-        catch(NotFoundException $e)
-        {
+        catch(NotFoundException $e) {
             trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
         }
 
@@ -273,8 +263,7 @@ class Searchable extends \DataExtension {
      *
      * @return array searchable fields
      */
-    public function getAllSearchableFields()
-    {
+    public function getAllSearchableFields() {
         $fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
         $labels = $this->owner->fieldLabels();
 
@@ -300,7 +289,8 @@ class Searchable extends \DataExtension {
                 //   'title' => 'My Title', // optiona.
                 // ))
                 $rewrite[$identifer] = array_merge(
-                    array('filter' => $this->owner->relObject($identifer)->stat('default_search_filter_class')),
+                    array('filter' => $this->owner->relObject($identifer)->
+                    	stat('default_search_filter_class')),
                     (array)$specOrName
                 );
             } else {
