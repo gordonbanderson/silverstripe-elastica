@@ -66,7 +66,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	/**
 	 * Converts results of type {@link \Elastica\Result}
 	 * into their respective {@link DataObject} counterparts.
-	 * 
+	 *
 	 * @return array DataObject[]
 	 */
 	public function toArray() {
