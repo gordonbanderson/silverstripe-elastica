@@ -10,7 +10,7 @@ Instructions to install Oracle's Java can be found at http://tecadmin.net/instal
 $ sudo add-apt-repository ppa:webupd8team/java
 $ sudo apt-get update
 $ sudo apt-get install oracle-java8-installer
-```bash
+```
 
 ####Elastic
 The Debian package for Elastic can be found at https://www.elastic.co/downloads/elasticsearch - download it, and to install (with administrator privileges) type

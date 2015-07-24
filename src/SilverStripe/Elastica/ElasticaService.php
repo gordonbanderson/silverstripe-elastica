@@ -20,23 +20,23 @@ class ElasticaService {
 	 */
 	protected $buffered = false;
 
-    /**
-     * @var \Elastica\Client Elastica Client object
-     */
+	/**
+	 * @var \Elastica\Client Elastica Client object
+	 */
 	private $client;
 
-    /**
-     * @var string index name
-     */
-	private $index;
+	/**
+	 * @var string index name
+	 */
+	private $indexName;
 
 	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
 	 */
-	public function __construct(Client $client, $index) {
+	public function __construct(Client $client, $newIndexName) {
 		$this->client = $client;
-		$this->index = $index;
+		$this->indexName = $newIndexName;
 	}
 
 	/**
@@ -50,7 +50,7 @@ class ElasticaService {
 	 * @return \Elastica\Index
 	 */
 	public function getIndex() {
-		return $this->getClient()->getIndex($this->index);
+		return $this->getClient()->getIndex($this->indexName);
 	}
 
 	/**
@@ -59,38 +59,49 @@ class ElasticaService {
 	 * @param \Elastica\Query|string|array $query
 	 * @return ResultList
 	 */
-	public function search($query) {
-		return new ResultList($this->getIndex(), Query::create($query));
+	public function search($searchterms) {
+		$query = Query::create($searchterms);
+		$query->setHighlight(array(
+			'pre_tags' => array('<em class="highlight">'),
+			'post_tags' => array('</em>'),
+			'fields' => array(
+				'phrase' => array(
+					'fragment_size' => 200,
+					'number_of_fragments' => 1,
+				),
+			),
+		));
+		return new ResultList($this->getIndex(), $query);
 	}
 
-    /**
-     * Ensure that the index is present
-     */
-    protected function ensureIndex() {
-        $index = $this->getIndex();
-        if (!$index->exists()) {
-            $index->create();
-        }
-    }
+	/**
+	 * Ensure that the index is present
+	 */
+	protected function ensureIndex() {
+		$index = $this->getIndex();
+		if (!$index->exists()) {
+			$index->create();
+		}
+	}
 
-    /**
-     * Ensure that there is a mapping present
-     *
-     * @param \Elastica\Type Type object
-     * @param \DataObject Data record
-     * @return \Elastica\Mapping Mapping object
-     */
-    protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
-        try {
-            $mapping = $type->getMapping();
-        }
-        catch(\Elastica\Exception\ResponseException $e) {
-            $this->ensureIndex();
-            $mapping = $record->getElasticaMapping();
-            $type->setMapping($mapping);
-        }
-        return $mapping;
-    }
+	/**
+	 * Ensure that there is a mapping present
+	 *
+	 * @param \Elastica\Type Type object
+	 * @param \DataObject Data record
+	 * @return \Elastica\Mapping Mapping object
+	 */
+	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
+		try {
+			$mapping = $type->getMapping();
+		}
+		catch(\Elastica\Exception\ResponseException $e) {
+			$this->ensureIndex();
+			$mapping = $record->getElasticaMapping();
+			$type->setMapping($mapping);
+		}
+		return $mapping;
+	}
 
 	/**
 	 * Either creates or updates a record in the index.
@@ -110,11 +121,11 @@ class ElasticaService {
 		} else {
 			$index = $this->getIndex();
 
-            $type = $index->getType($typeName);
+			$type = $index->getType($typeName);
 
-            $this->ensureMapping($type, $record);
+			$this->ensureMapping($type, $record);
 
-            $type->addDocument($document);
+			$type->addDocument($document);
 			$index->refresh();
 		}
 	}
@@ -165,10 +176,10 @@ class ElasticaService {
 		$index = $this->getIndex();
 
 		# Recreate the index
-        if ($index->exists()) {
-            $index->delete();
+		if ($index->exists()) {
+			$index->delete();
 		}
-        $index->create();
+		$index->create();
 
 		foreach ($this->getIndexedClasses() as $class) {
 			/** @var $sng Searchable */
@@ -181,66 +192,66 @@ class ElasticaService {
 	}
 
 
-    /**
-     * Refresh a list of records in the index
-     *
-     * @param \DataList $records
-     */
-    protected function refreshRecords($records) {
-        foreach ($records as $record) {
-            if ($record->showRecordInSearch()) {
-                $this->index($record);
-            }
-        }
-    }
+	/**
+	 * Refresh a list of records in the index
+	 *
+	 * @param \DataList $records
+	 */
+	protected function refreshRecords($records) {
+		foreach ($records as $record) {
+			if ($record->showRecordInSearch()) {
+				$this->indexName($record);
+			}
+		}
+	}
 
 
-    /**
-     * Get a List of all records by class. Get the "Live data" If the class has the "Versioned" extension
-     *
-     * @param string $class Class Name
-     * @return \DataObject[] $records
-     */
-    protected function recordsByClassConsiderVersioned($class) {
-        if ($class::has_extension("Versioned")) {
-            $records = \Versioned::get_by_stage($class, 'Live');
-        } else {
-            $records = $class::get();
-        }
-        return $records->toArray();
-    }
+	/**
+	 * Get a List of all records by class. Get the "Live data" If the class has the "Versioned" extension
+	 *
+	 * @param string $class Class Name
+	 * @return \DataObject[] $records
+	 */
+	protected function recordsByClassConsiderVersioned($class) {
+		if ($class::has_extension("Versioned")) {
+			$records = \Versioned::get_by_stage($class, 'Live');
+		} else {
+			$records = $class::get();
+		}
+		return $records->toArray();
+	}
 
 
-    /**
+	/**
 	 * Refresh the records of a given class within the search index
 	 *
 	 * @param string $class Class Name
 	 */
-    protected function refreshClass($class) {
-        $records = $this->recordsByClassConsiderVersioned($class);
+	protected function refreshClass($class) {
+		$records = $this->recordsByClassConsiderVersioned($class);
 
-        if ($class::has_extension("Translatable")) {
+		if ($class::has_extension("Translatable")) {
 
-            $original_locale = \Translatable::get_current_locale();
-            $existing_languages = \Translatable::get_existing_content_languages($class);
+			$original_locale = \Translatable::get_current_locale();
+			$existing_languages = \Translatable::get_existing_content_languages($class);
 
-            if (isset($existing_languages[$original_locale])) {
-                unset($existing_languages[$original_locale]);
-            }
+			if (isset($existing_languages[$original_locale])) {
+				unset($existing_languages[$original_locale]);
+			}
 
-            foreach($existing_languages as $locale => $langName) {
-                \Translatable::set_current_locale($locale);
-                $langRecords = $this->recordsByClassConsiderVersioned($class);
-                foreach ($langRecords as $record)
-                {
-                    $records[] = $record;
-                }
-            }
-            \Translatable::set_current_locale($original_locale);
-        }
+			foreach($existing_languages as $locale => $langName) {
+				\Translatable::set_current_locale($locale);
+				$langRecords = $this->recordsByClassConsiderVersioned($class);
+				foreach ($langRecords as $record)
+				{
+					$records[] = $record;
+				}
+			}
+			\Translatable::set_current_locale($original_locale);
+		}
 
-        $this->refreshRecords($records);
-    }
+		$this->refreshRecords($records);
+	}
 
 
 	/**
@@ -251,7 +262,7 @@ class ElasticaService {
 		$this->startBulkIndex();
 
 		foreach ($this->getIndexedClasses() as $class) {
-            $this->refreshClass($class);
+			$this->refreshClass($class);
 		}
 
 		$this->endBulkIndex();
