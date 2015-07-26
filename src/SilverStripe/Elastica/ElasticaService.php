@@ -50,7 +50,8 @@ class ElasticaService {
 	 * @return \Elastica\Index
 	 */
 	public function getIndex() {
-		return $this->getClient()->getIndex($this->indexName);
+		$index = $this->getClient()->getIndex($this->indexName);
+		return $index;
 	}
 
 	/**
@@ -200,7 +201,7 @@ class ElasticaService {
 	protected function refreshRecords($records) {
 		foreach ($records as $record) {
 			if ($record->showRecordInSearch()) {
-				$this->indexName($record);
+				$this->index($record);
 			}
 		}
 	}
@@ -266,6 +267,16 @@ class ElasticaService {
 		}
 
 		$this->endBulkIndex();
+	}
+
+
+	/**
+	 * Reset the current index
+	 */
+	public function reset() {
+		$index = $this->getIndex();
+		$index->delete();
+		$index->create();
 	}
 
 
