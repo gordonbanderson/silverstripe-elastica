@@ -27,7 +27,12 @@ added using the extension mechanism also.
 
 ##PHP Level Configuration
 ###Searchable Fields
-To add special fields to the index, just update $searchable_fields of an object:
+Adding fields of an object class to an index can be done in one of two ways, updating the static variable
+$searchable_fields of an object.
+
+Note that after every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
+
+###Purely PHP
 ```php
 	class YourPage extends Page
 	{
@@ -41,7 +46,28 @@ To add special fields to the index, just update $searchable_fields of an object:
 		);
 	}
 ```
-After every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
+###PHP and YML
+Static variables in SilverStripe classes can be configured from configuration classes.  This is the preferred way to
+configurable indexable fields on a class, as it means third party module classes can have fields added to Elastic
+without altering any module code.
+```php
+	class YourPage extends Page
+	{
+		private static $db = array(
+			"YourField1" => "Varchar(255)",
+			"YourField2"  => "Varchar(255)"
+		);
+	}
+```
+
+Add the following to a suitable YML file in your configuration.
+```yml
+YourPage:
+  searchable_fields:
+	- YourField1
+	- YourField2
+```
+
 
 ##Tasks
 ### Notes
