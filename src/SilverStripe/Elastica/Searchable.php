@@ -118,6 +118,14 @@ class Searchable extends \DataExtension {
 
         $fields = $this->getElasticaFields();
 
+        if ($this->owner->hasField('Locale')) {
+			$localeMapping['type'] = 'string';
+			// we wish the locale to be stored as is
+			$localeMapping['index'] = 'not_analyzed';
+			$fields['Locale'] = $localeMapping;
+        }
+
+
 		$mapping->setProperties($fields);
 
         $callable = get_class($this->owner).'::updateElasticsearchMapping';
@@ -150,6 +158,11 @@ class Searchable extends \DataExtension {
         $callable = get_class($this->owner).'::updateElasticsearchDocument';
         if(is_callable($callable)) {
             $document = $this->owner->updateElasticsearchDocument($document);
+        }
+
+
+        if (isset($this->owner->Locale)) {
+			$document->set('Locale', $this->owner->Locale);
         }
 
 		return $document;
