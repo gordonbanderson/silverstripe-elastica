@@ -149,7 +149,7 @@ class Searchable extends \DataExtension {
 
         $callable = get_class($this->owner).'::updateElasticsearchDocument';
         if(is_callable($callable)) {
-            $document = call_user_func($callable, $document);
+            $document = $this->owner->updateElasticsearchDocument($document);
         }
 
 		return $document;
