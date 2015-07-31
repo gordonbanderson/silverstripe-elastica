@@ -63,12 +63,13 @@ class ElasticaService {
 	public function search($searchterms) {
 		$query = Query::create($searchterms);
 		$query->setHighlight(array(
-			'pre_tags' => array('<em class="highlight">'),
-			'post_tags' => array('</em>'),
+			'pre_tags' => array('<strong class="highlight">'),
+			'post_tags' => array('</strong>'),
 			'fields' => array(
+				"*" => json_decode('{}'),
 				'phrase' => array(
 					'fragment_size' => 200,
-					'number_of_fragments' => 1,
+					'number_of_fragments' => 4,
 				),
 			),
 		));
