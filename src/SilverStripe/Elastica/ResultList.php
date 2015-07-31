@@ -99,6 +99,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			if(array_key_exists($item->getId(), $retrieved[$item->getType()])) {
                 $data_object = $retrieved[$item->getType()][$item->getId()];
                 $data_object->setElasticaResult($item);
+                $highlights = $item->getHighlights();
+                $snippets = new \ArrayList();
+                foreach (array_keys($highlights) as $fieldName) {
+                	foreach ($highlights[$fieldName] as $snippet) {
+                		$do = new \DataObject();
+                		$do->Snippet = $snippet;
+                		$snippets->push($do);
+                	}
+                }
+                $data_object->ElasticaSearchHighlights = $snippets;
 				$result[] = $data_object;
 			}
 		}
