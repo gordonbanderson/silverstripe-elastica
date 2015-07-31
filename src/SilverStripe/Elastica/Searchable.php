@@ -4,6 +4,7 @@ namespace SilverStripe\Elastica;
 
 use Elastica\Document;
 use Elastica\Type\Mapping;
+use ShortcodeParser;
 
 /**
  * Adds elastic search integration to a data object.
@@ -32,6 +33,12 @@ class Searchable extends \DataExtension {
      * @var ElasticaService associated elastica search service
      */
     protected $service;
+
+    /**
+     * Array of fields that need HTML parsed
+     * @var array
+     */
+    protected $html_fields = array();
 
     /**
      * @see getElasticaResult
@@ -93,9 +100,11 @@ class Searchable extends \DataExtension {
 				if (($pos = strpos($class, '('))) {
 					$class = substr($class, 0, $pos);
 				}
-
 				if (array_key_exists($class, self::$mappings)) {
 					$spec['type'] = self::$mappings[$class];
+					if ($class === 'HTMLText' || $class === 'HTMLVarchar') {
+						array_push($this->html_fields, $name);
+					}
 				}
 			} else {
                 // TODO: Generalize to the mapping types by allowing the type to be specified in $searchable_fields
@@ -147,9 +156,27 @@ class Searchable extends \DataExtension {
 
 		foreach ($this->getElasticaFields() as $field => $config) {
             if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
-                $fields[$field] = $this->owner->$field();
+            	if (in_array($field, $this->html_fields)) {
+            		$fields[$field] = $this->owner->$field;
+            		$html = ShortcodeParser::get_active()->parse($this->owner->$field());
+                	$txt = strip_tags($html);
+                	$fields[$field] = $txt;
+            	} else {
+            		$fields[$field] = $this->owner->$field();
+            	}
+
             } else {
-                $fields[$field] = $this->owner->$field;
+                if (in_array($field, $this->html_fields)) {
+                	$fields[$field] = $this->owner->$field;;
+                	if (gettype($this->owner->$field) !== 'NULL') {
+                		$html = ShortcodeParser::get_active()->parse($this->owner->$field);
+                		$txt = strip_tags($html);
+                		$fields[$field] = $txt;
+                	}
+                } else {
+                	$fields[$field] = $this->owner->$field;
+                }
+
             }
 		}
 
