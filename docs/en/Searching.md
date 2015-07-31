@@ -27,3 +27,5 @@ highlight" : {
     "Content" : [ " alongside a <em>canal</em>, offer safe passage for cyclists. The landscape varies between shacks and solid", " the pattern of houses similar to those densely located by the <em>canal</em> in the map above.\nAs can be seen", " of <em>canal</em> trail or indeed entrances to slums. Often a section is named and has a reasonably grand" ]
   }
 ```
+##Boosting Fields
+https://www.elastic.co/guide/en/elasticsearch/guide/current/query-time-boosting.html - need to repeat all fields. Maybe try with a '*'?
