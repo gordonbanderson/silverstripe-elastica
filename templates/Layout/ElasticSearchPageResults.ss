@@ -12,3 +12,5 @@ $ElasticSearchForm
 <% else %>
 No search results
 <% end_if %>
+
+<% include SearchPagination %>
