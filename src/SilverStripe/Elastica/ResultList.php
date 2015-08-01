@@ -20,6 +20,12 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
      */
 	private $query;
 
+	/**
+	 * List of types to search for, default (blank) returns all
+	 * @var string
+	 */
+	private $types = 'CyclingExploration';
+
 	public function __construct(Index $index, Query $query) {
 		$this->index = $index;
 		$this->query = $query;
@@ -37,6 +43,14 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	}
 
 	/**
+	 * Set a new list of types (SilverStripe classes) to search for
+	 * @param string $newTypes comma separated list of types to search for
+	 */
+	public function setTypes($newTypes) {
+		$this->types = $newTypes;
+	}
+
+	/**
 	 * @return \Elastica\Query
 	 */
 	public function getQuery() {
@@ -47,7 +61,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 * @return array
 	 */
 	public function getResults() {
-		return $this->index->search($this->query)->getResults();
+		// this is actually elastica service, bad naming of vars
+		return $this->index->search($this->query,$this->types)->getResults();
 	}
 
 	public function getIterator() {
