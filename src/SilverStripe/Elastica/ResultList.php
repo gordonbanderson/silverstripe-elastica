@@ -24,6 +24,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 * List of types to search for, default (blank) returns all
 	 * @var string
 	 */
+
 	private $types = '';
 
 	public function __construct(Index $index, Query $query) {
@@ -62,8 +63,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		// this is actually elastica service, bad naming of vars
-
-
 		if (!$this->_cachedResults) {
 			// get the ElasticaResultSet initally to obtain details
 			$ers = $this->index->search($this->query,$this->types);
