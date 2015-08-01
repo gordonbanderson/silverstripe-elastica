@@ -4,6 +4,7 @@ namespace SilverStripe\Elastica;
 
 use Elastica\Client;
 use Elastica\Query;
+use Elastica\Search;
 
 /**
  * A service used to interact with elastic search.
@@ -58,9 +59,10 @@ class ElasticaService {
 	 * Performs a search query and returns a result list.
 	 *
 	 * @param \Elastica\Query|string|array $query
+	 * @param array $types List of comma separated SilverStripe classes to search, or blank for all
 	 * @return ResultList
 	 */
-	public function search($searchterms) {
+	public function search($searchterms, $types = '') {
 		$query = Query::create($searchterms);
 		$query->setHighlight(array(
 			'pre_tags' => array('<strong class="highlight">'),
@@ -73,7 +75,15 @@ class ElasticaService {
 				),
 			),
 		));
-		return new ResultList($this->getIndex(), $query);
+
+		$search = new Search(new Client());
+		$search->addIndex('jakayanrides');
+        if ($types) {
+        	$search->addType($types);
+        }
+
+        return $search->search($query);
+
 	}
 
 	/**
