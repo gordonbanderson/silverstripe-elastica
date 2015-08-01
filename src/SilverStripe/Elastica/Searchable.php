@@ -140,8 +140,10 @@ class Searchable extends \DataExtension {
 			$fields['Locale'] = $localeMapping;
         }
 
+        // ADD CUSTOM FIELDS HERE THAT ARE INDEXED BY DEFAULT
         // add a mapping to flag whether or not class is in SiteTree
         $fields['IsSiteTree'] = array('type'=>'boolean');
+        $fields['Link'] = array('type' => 'string');
 
 		$mapping->setProperties($fields);
 
@@ -214,6 +216,10 @@ class Searchable extends \DataExtension {
 		}
 
 		$document->set('IsInSiteTree', $inSiteTree);
+
+		if ($inSiteTree) {
+			$document->set('Link', $this->owner->AbsoluteLink());
+		}
 
         if (isset($this->owner->Locale)) {
 			$document->set('Locale', $this->owner->Locale);
