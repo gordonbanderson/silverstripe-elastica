@@ -29,6 +29,12 @@ class Searchable extends \DataExtension {
         'DBLocale'    => 'string',
 	);
 
+	/**
+	 * Mapping of DataObject ClassName and whether it is in the SiteTree or not
+	 * @var array $site_tree_classes;
+	 */
+	private static $site_tree_classes = array();
+
     /**
      * @var ElasticaService associated elastica search service
      */
@@ -134,6 +140,8 @@ class Searchable extends \DataExtension {
 			$fields['Locale'] = $localeMapping;
         }
 
+        // add a mapping to flag whether or not class is in SiteTree
+        $fields['IsSiteTree'] = array('type'=>'boolean');
 
 		$mapping->setProperties($fields);
 
@@ -187,6 +195,25 @@ class Searchable extends \DataExtension {
             $document = $this->owner->updateElasticsearchDocument($document);
         }
 
+        // Check if the current classname is part of the site tree or not
+        // Results are cached to save reprocessing the same
+		$classname = $this->owner->ClassName;
+		$inSiteTree = false;
+		if (isset($site_tree_classes[$classname])) {
+			$inSiteTree = $site_tree_classes[$classname];
+		} else {
+			$class = new \ReflectionClass($this->owner);
+			while ($class = $class->getParentClass()) {
+			    $parentClass = $class->getName();
+			    if ($parentClass == 'SiteTree') {
+			    	$inSiteTree = true;
+			    	break;
+			    }
+			}
+			$site_tree_classes[$classname] = $inSiteTree;
+		}
+
+		$document->set('IsInSiteTree', $inSiteTree);
 
         if (isset($this->owner->Locale)) {
 			$document->set('Locale', $this->owner->Locale);
