@@ -85,23 +85,13 @@ class ElasticSearchForm extends Form {
 	public function forTemplate() {
 		$return = $this->renderWith(array_merge(
 			(array)$this->getTemplate(),
-			array('SearchForm', 'Form')
+			array('ElasticaSearchForm', 'Form')
 		));
 
 		// Now that we're rendered, clear message
 		$this->clearMessage();
 
 		return $return;
-	}
-
-
-	/**
-	 * Get the classes to search
-	 *
-	 * @return array
-	 */
-	public function getClassesToSearch() {
-		return $this->classesToSearch;
 	}
 
 
@@ -120,29 +110,15 @@ class ElasticSearchForm extends Form {
 
 		$queryString = new QueryString($_GET['Search']);
 		$query = new Query($queryString);
-		/*
-		$query->setHighlight(array(
-            //'pre_tags' => array('<em class="highlight">'),
-            //'post_tags' => array('</em>'),
-            'fields' => array(
-            	"*" => json_decode('{}'),
-                //'phrase' => array(
-                //    'fragment_size' => 200,
-                //    'number_of_fragments' => 3,
-               // ),
-            ),
-        ));
-        */
+
 
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$results = new ResultList($index, $query);
-		$results->setTypes('CyclingExploration');
+		$results->setTypes($this->types);
 
-		//$results->query->setLimit(10);
-		//$results->query->setFrom($start);
-
-
+		$results->query->setLimit($this->pageLength);
+		$results->query->setFrom($start);
 
 		return $results;
 	}
