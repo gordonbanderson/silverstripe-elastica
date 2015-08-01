@@ -11,10 +11,28 @@ class ElasticSearchPage extends Page {
 
 		private static $db = array('ClassesToSearch' => 'Text');
 
-
+		/*
+		Add a tab with details of what to search
+		 */
 		function getCMSFields() {
 			$fields = parent::getCMSFields();
 			$fields->addFieldToTab('Root.ClassesToSearch', new TextField('ClassesToSearch'));
+			$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
+				 . "SELECT DISTINCT ClassName from SiteTree "
+				 . "WHERE ClassName != 'ErrorPage'"
+				 . "ORDER BY ClassName"
+			;
+			$classes = array();
+			$records = DB::query($sql);
+			foreach ($records as $record) {
+				array_push($classes, $record['ClassName']);
+			}
+			$list = implode(',', $classes);
+			$html ="<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p><pre>";
+			$html .= $list;
+			$html .= "</pre>";
+			$infoField = new LiteralField('InfoField',$html);
+			$fields->addFieldToTab('Root.ClassesToSearch', $infoField);
 			return $fields;
 		}
 }
