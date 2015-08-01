@@ -62,11 +62,32 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		// this is actually elastica service, bad naming of vars
-		return $this->index->search($this->query,$this->types)->getResults();
+
+
+		if (!$this->_cachedResults) {
+			// get the ElasticaResultSet initally to obtain details
+			$ers = $this->index->search($this->query,$this->types);
+			$this->TotalItems = $ers->getTotalHits();
+			$this->TotalTime = $ers->getTotalTime();
+			$this->_cachedResults = $ers->getResults();
+		}
+		return $this->_cachedResults;
+	}
+
+
+	public function getTotalItems() {
+		$this->getResults();
+		return $this->TotalItems;
+	}
+
+
+	public function getTotalTime() {
+		return $this->TotalTime;
 	}
 
 	public function getIterator() {
-		return new \ArrayIterator($this->toArray());
+		//return new \ArrayIterator($this->toArray());
+		return $this->toArrayList()->getIterator();
 	}
 
 	public function limit($limit, $offset = 0) {
