@@ -31,10 +31,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	/* Results from search submission */
 	function results($data, $form) {
 		$startTime = microtime(true);
+		$resultList = $form->getResults();
+
+		// at this point ResultList object, not yet executed search query
+
+		$searchResultsPaginated = new \PaginatedList(
+			$resultList,
+			\Controller::curr()->request
+		);
+
+		$searchResultsPaginated->setTotalItems($resultList->getTotalItems());
+
+		/*
+		$list->setPageStart($start);
+		$list->setPageLength($pageLength);
+		$list->setTotalItems($totalCount);
+		 */
 
 		// basic form
 		$data = array(
-			'SearchResults' => $form->getResults(),
+			'SearchResults' => $searchResultsPaginated,
 			'Test' => 'Testing'
 			/*,
 			'Query' => $form->getSearchQuery(),
@@ -43,6 +59,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			*/
 
 		);
+
 
 
 		//$this->Query = $form->getSearchQuery();
