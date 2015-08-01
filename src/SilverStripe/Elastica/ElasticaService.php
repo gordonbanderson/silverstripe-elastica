@@ -77,7 +77,7 @@ class ElasticaService {
 		));
 
 		$search = new Search(new Client());
-		$search->addIndex('jakayanrides');
+		$search->addIndex($this->indexName);
         if ($types) {
         	$search->addType($types);
         }
