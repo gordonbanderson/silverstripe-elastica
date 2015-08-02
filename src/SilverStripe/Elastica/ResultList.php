@@ -129,24 +129,45 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			}
 		}
 
+		// Title and Link are special cases
+		$ignore = array('Title', 'Link');
+
+
 		foreach ($found as $item) {
 			// Safeguards against indexed items which might no longer be in the DB
 			if(array_key_exists($item->getId(), $retrieved[$item->getType()])) {
+
                 $data_object = $retrieved[$item->getType()][$item->getId()];
                 $data_object->setElasticaResult($item);
                 $highlights = $item->getHighlights();
                 $snippets = new \ArrayList();
+                $namedSnippets = new \ArrayList();
                 foreach (array_keys($highlights) as $fieldName) {
+                	$fieldSnippets = new \ArrayList();
+
                 	foreach ($highlights[$fieldName] as $snippet) {
                 		$do = new \DataObject();
                 		$do->Snippet = $snippet;
-                		$snippets->push($do);
+
+                		// skip title and link in the summary of highlights
+                		if (!in_array($fieldName, $ignore)) {
+                			$snippets->push($do);
+                		}
+
+                		$fieldSnippets->push($do);
+                	}
+
+                	if ($fieldSnippets->count() > 0) {
+                		$namedSnippets->$fieldName = $fieldSnippets;
                 	}
                 }
-                $data_object->ElasticaSearchHighlights = $snippets;
+                $data_object->SearchHighlights = $snippets;
+                $data_object->SearchHighlightsByField = $namedSnippets;
 				$result[] = $data_object;
+
 			}
 		}
+
 
 		return $result;
 	}
