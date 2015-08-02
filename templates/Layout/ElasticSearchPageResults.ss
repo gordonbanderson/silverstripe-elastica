@@ -5,7 +5,7 @@ $ElasticSearchForm
 <% loop $SearchResults %>
 <li>
 <h5>$Title</h5>
-<% loop $ElasticaSearchHighlights %>$Snippet &hellip;<% end_loop %>
+<% loop $SearchHighlights %>$Snippet &hellip;<% end_loop %>
 </li>
 <% end_loop %>
 </ul>
