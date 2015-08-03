@@ -1,0 +1,7 @@
+---
+Name: elastica
+After: 'framework/*','cms/*'
+---
+SiteTree:
+  extensions:
+    - FindElasticaSearchPageExtension
