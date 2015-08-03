@@ -2,6 +2,11 @@
 /**
 * Only show a page with login when not logged in
 */
+use Elastica\Document;
+use Elastica\Query;
+use \SilverStripe\Elastica\ResultList;
+use Elastica\Query\QueryString;
+
 class ElasticSearchPage extends Page {
 		static $defaults = array(
 			'ShowInMenus' => 0,
@@ -40,105 +45,83 @@ class ElasticSearchPage extends Page {
 
 class ElasticSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array('ElasticSearchForm', 'results');
+	private static $allowed_actions = array('SearchForm', 'submit');
 
 	public function init() {
 		parent::init();
 	}
 
-	/* Results from search submission */
-	function results($data, $form) {
-		$startTime = microtime(true);
-		$resultList = $form->getResults();
-
-		// at this point ResultList object, not yet executed search query
-
-		$searchResultsPaginated = new \PaginatedList(
-			$resultList,
-			\Controller::curr()->request
-		);
-
-		$searchResultsPaginated->setTotalItems($resultList->getTotalItems());
-
-		/*
-		$list->setPageStart($start);
-		$list->setPageLength($pageLength);
-		$list->setTotalItems($totalCount);
-		 */
-
-		// basic form
-		$data = array(
-			'SearchResults' => $searchResultsPaginated,
-			'Test' => 'Testing'
-			/*,
-			'Query' => $form->getSearchQuery(),
-			'Title' => $this->Title,
-			'PageNumber' => 4
-			*/
-
-		);
-
-
-
-		//$this->Query = $form->getSearchQuery();
-
-
-
-		$endTime = microtime(true);
-
-		$elapsed = round(100*($endTime-$startTime))/100;
-		$data['ElapsedTime'] = $elapsed;
-
-
-		return $this->customise($data)->renderWith(array('ElasticSearchPageResults', 'Page'));
-	}
-
-
-
 	/*
-	Search form components
-	*/
-	function ElasticSearchForm() {
+	Display the search form. If the query parameter exists, search against Elastica
+	and render results accordingly.
+	 */
+	public function index() {
+		$searchResults = new ArrayList();
 
-		// show search term or empty text
-		$searchText = isset($this->Query) ? $this->Query : '';
-
-		$tf = new TextField("Search", "", $searchText);
-		$tf->addExtraClass('small-9 medium-10 large-11 columns');
-
-		$fields = new FieldList(
-			$tf
+		$data = array(
+			'Content' => $this->Content,
+			'Title' => $this->Title,
+			'SearchPerformed' => false
 		);
 
-		// form action is here, but to which page does it go
-		$fa = new FormAction('results', _t('SearchPage.SEARCH', 'Search'));
+		if (isset($_GET['q'])) {
+			$startTime = microtime(true);
+			$resultList = $this->searchResults();
 
-		// for zurb
-		$fa->useButtonTag = true;
-		$fa->addExtraClass('button tiny small-3 medium-2 large-1 columns');
+			// at this point ResultList object, not yet executed search query
+			$searchResultsPaginated = new \PaginatedList(
+				$resultList,
+				\Controller::curr()->request
+			);
 
-		$actions = new FieldList(
-			$fa
-		);
+			$endTime = microtime(true);
 
-		$requiredFields = new RequiredFields();
-		$form = new ElasticSearchForm($this, "ElasticSearchForm", $fields, $actions, $requiredFields);
-		$form->addExtraClass('inline');
+			$elapsed = round(100*($endTime-$startTime))/100;
+			$data['ElapsedTime'] = $elapsed;
 
-		// restrict the scope to certain classes
-		$form->setTypes($this->ClassesToSearch);
-		return $form;
+			$searchResultsPaginated->setTotalItems($resultList->getTotalItems());
+
+			$data['SearchResults'] = $searchResultsPaginated;
+			$data['Elapsed'] = $elapsed;
+			$data['SearchPerformed'] = true;
+		}
+
+		return $data;
 	}
 
 
-	function forTemplate() {
-			return $this->renderWith(array(
-				 $this->class,
-				 'ElasticSearchForm'
-			));
-	 }
+	/**
+	 * Process submission of the search form, redirecting to a URL that will render search results
+	 * @param  [type] $data form data
+	 * @param  [type] $form form
+	 */
+	public function submit($data, $form) {
+		$query = $data['q'];
+		$url = str_replace('/SearchForm', '?q=', $data['url']);
+        $link = $url.$query;
+        $this->redirect($link);
+    }
 
+    /*
+    Obtain an instance of the form
+     */
+	public function SearchForm() {
+       return new ElasticSearchForm($this, 'SearchForm');
+    }
 
+    /**
+	 * Perform the search against Elastica return DataObjects, taking into account pagination
+	 */
+	private function searchResults(){
+		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$queryString = new QueryString($_GET['q']);
+		$query = new Query($queryString);
+		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$results = new ResultList($index, $query);
+		$results->setTypes($this->types);
+		$results->query->setLimit($this->pageLength);
+		$results->query->setFrom($start);
 
-
+		return $results;
+	}
 }
