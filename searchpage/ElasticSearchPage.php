@@ -11,10 +11,15 @@ class ElasticSearchPage extends Page {
 		static $defaults = array(
 			'ShowInMenus' => 0,
 		 	'ShowInSearch' => 0,
-		 	'ClassesToSearch' => 'Page'
+		 	'ClassesToSearch' => ''
 		);
 
-		private static $db = array('ClassesToSearch' => 'Text');
+		private static $db = array(
+			'ClassesToSearch' => 'Text',
+			// unique identifier used to find correct search page for results
+			// e.g. a separate search page for blog, pictures etc
+			'Identifier' => 'Varchar'
+		);
 
 		/*
 		Add a tab with details of what to search
@@ -38,6 +43,9 @@ class ElasticSearchPage extends Page {
 			$html .= "</pre>";
 			$infoField = new LiteralField('InfoField',$html);
 			$fields->addFieldToTab('Root.ClassesToSearch', $infoField);
+			$identifierField = new TextField('Identifier',
+				'Identifier to allow this page to be found in form templates');
+			$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 			return $fields;
 		}
 }
@@ -118,7 +126,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$query = new Query($queryString);
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$results = new ResultList($index, $query);
-		$results->setTypes($this->types);
+		$types = Controller::curr()->dataRecord->ClassesToSearch;
+		$results->setTypes($types);
 		$results->query->setLimit($this->pageLength);
 		$results->query->setFrom($start);
 
