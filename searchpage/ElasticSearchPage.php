@@ -10,23 +10,26 @@ use Elastica\Query\QueryString;
 class ElasticSearchPage extends Page {
 		static $defaults = array(
 			'ShowInMenus' => 0,
-		 	'ShowInSearch' => 0,
-		 	'ClassesToSearch' => ''
+			'ShowInSearch' => 0,
+			'ClassesToSearch' => '',
+			'ResultsPerPage' => 10
 		);
 
 		private static $db = array(
 			'ClassesToSearch' => 'Text',
 			// unique identifier used to find correct search page for results
 			// e.g. a separate search page for blog, pictures etc
-			'Identifier' => 'Varchar'
+			'Identifier' => 'Varchar',
+			'ResultsPerPage' => 'Int'
 		);
+
 
 		/*
 		Add a tab with details of what to search
 		 */
 		function getCMSFields() {
 			$fields = parent::getCMSFields();
-			$fields->addFieldToTab('Root.ClassesToSearch', new TextField('ClassesToSearch'));
+			$fields->addFieldToTab('Root.SearchDetails', new TextField('ClassesToSearch'));
 			$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
 				 . "SELECT DISTINCT ClassName from SiteTree "
 				 . "WHERE ClassName != 'ErrorPage'"
@@ -42,9 +45,11 @@ class ElasticSearchPage extends Page {
 			$html .= $list;
 			$html .= "</pre>";
 			$infoField = new LiteralField('InfoField',$html);
-			$fields->addFieldToTab('Root.ClassesToSearch', $infoField);
+			$fields->addFieldToTab('Root.SearchDetails', $infoField);
 			$identifierField = new TextField('Identifier',
 				'Identifier to allow this page to be found in form templates');
+			$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
+												'The number of results to return on a page'));
 			$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 			return $fields;
 		}
@@ -82,6 +87,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				\Controller::curr()->request
 			);
 
+			$searchResultsPaginated->setPageLength($this->ResultsPerPage);
+
 			$endTime = microtime(true);
 
 			$elapsed = round(100*($endTime-$startTime))/100;
@@ -94,7 +101,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['SearchPerformed'] = true;
 		}
 
-		return $data;
+		// allow the optional use of overriding the search result page, e.g. for photos or map
+		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
+			return $this->useTemplateOverride($data );
+		} else {
+			return $data;
+		}
+
 	}
 
 
@@ -121,16 +134,18 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	 * Perform the search against Elastica return DataObjects, taking into account pagination
 	 */
 	private function searchResults(){
+		//instance of ElasticPage associated with this controller
+		$ep = Controller::curr()->dataRecord;
+
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 		$queryString = new QueryString($_GET['q']);
 		$query = new Query($queryString);
+		$query->setLimit($ep->ResultsPerPage);
+		$query->setFrom($start);
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$results = new ResultList($index, $query);
-		$types = Controller::curr()->dataRecord->ClassesToSearch;
+		$types = $ep->ClassesToSearch;
 		$results->setTypes($types);
-		$results->query->setLimit($this->pageLength);
-		$results->query->setFrom($start);
-
 		return $results;
 	}
 }
