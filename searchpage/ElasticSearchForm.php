@@ -11,13 +11,6 @@ use Elastica\Query\QueryString;
 class ElasticSearchForm extends Form {
 
 	/**
-	 * @var int $pageLength How many results are shown per page.
-	 * Relies on pagination being implemented in the search results template.
-	 */
-	protected $pageLength = 10;
-
-
-	/**
 	 * List of types to search for, default (blank) returns all
 	 * @var string
 	 */
@@ -62,23 +55,4 @@ class ElasticSearchForm extends Form {
 		$this->setFormMethod('post');
 		$this->disableSecurityToken();
 	}
-
-
-	/**
-	 * Set the maximum number of records shown on each page.
-	 *
-	 * @param int $length
-	 */
-	public function setPageLength($length) {
-		$this->pageLength = $length;
-	}
-
-
-	/**
-	 * @return int
-	 */
-	public function getPageLength() {
-		return $this->pageLength;
-	}
-
 }
