@@ -27,6 +27,13 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
 	private $types = '';
 
+	/**
+	 * An array list of aggregations from this search
+	 * @var ArrayList
+	 */
+	private $aggregations;
+
+
 	public function __construct(Index $index, Query $query) {
 		$this->index = $index;
 		$this->query = $query;
@@ -58,17 +65,53 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 		return $this->query;
 	}
 
+
+	/**
+	 * Get the aggregation results for this query.  Should only be called
+	 * after $this->getResults() has been executed.
+	 * Note this will be an empty array list if there is no aggregation
+	 *
+	 * @return ArrayList ArrayList of the aggregated results for this query
+	 */
+	public function getAggregations() {
+		return $this->aggregations;
+	}
+
 	/**
 	 * @return array
 	 */
 	public function getResults() {
-		// this is actually elastica service, bad naming of vars
 		if (!$this->_cachedResults) {
 			// get the ElasticaResultSet initally to obtain details
+			// 'index' is actually elastica service, bad naming of vars
 			$ers = $this->index->search($this->query,$this->types);
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
+
+			// make the aggregations available to the templating, title casing
+			// to be consistent with normal templating conventions
+			$aggs = $ers->getAggregations();
+			$aggsTemplate = new \ArrayList();
+
+			// Convert the buckets into a form suitable for SilverStripe templates
+			foreach (array_keys($aggs) as $key) {
+				$aggDO = new \DataObject();
+				$aggDO->Name = $key;
+				// now the buckets
+				if (isset($aggs[$key]['buckets'])) {
+					$bucketsAL = new \ArrayList();
+					foreach ($aggs[$key]['buckets'] as $value) {
+						$ct = new \DataObject();
+						$ct->Key = $value['key'];
+						$ct->DocumentCount = $value['doc_count'];
+						$bucketsAL->push($ct);
+					}
+					$aggDO->Buckets = $bucketsAL;
+				}
+				$aggsTemplate->push($aggDO);
+			}
+			$this->aggregations = $aggsTemplate;
 		}
 		return $this->_cachedResults;
 	}
