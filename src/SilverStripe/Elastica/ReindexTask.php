@@ -21,6 +21,7 @@ class ReindexTask extends \BuildTask {
 	}
 
 	public function run($request) {
+		$startTime = microtime(true);
 		$message = function ($content) {
 			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
 		};
@@ -30,6 +31,14 @@ class ReindexTask extends \BuildTask {
 
 		$message('Refreshing the index');
 		$this->service->refresh();
+
+		// display indexing speed stats
+		$endTime = microtime(true);
+		$elapsed = $endTime-$startTime;
+		$perSecond = Searchable::$index_ctr / $elapsed;
+		$info = "\nReindexing completed in ".round($elapsed,2)." seconds ";
+		$info .= "at ".round($perSecond,2)." documents per second";
+		$message($info);
 	}
 
 }
