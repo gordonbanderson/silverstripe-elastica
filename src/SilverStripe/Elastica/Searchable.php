@@ -11,6 +11,8 @@ use ShortcodeParser;
  */
 class Searchable extends \DataExtension {
 
+	public static $index_ctr = 0;
+
 	public static $mappings = array(
 		'Boolean'     => 'boolean',
 		'Decimal'     => 'double',
@@ -146,13 +148,9 @@ class Searchable extends \DataExtension {
         $fields['Link'] = array('type' => 'string');
 
 		$mapping->setProperties($fields);
-
-        $callable = get_class($this->owner).'::updateElasticsearchMapping';
-        if(is_callable($callable))
-        {
-            $mapping = call_user_func($callable, $mapping);
+        if ($this->owner->hasMethod('updateElasticsearchMapping')) {
+            $mapping = $this->owner->updateElasticsearchMapping($mapping);
         }
-
 		return $mapping;
 	}
 
@@ -162,6 +160,7 @@ class Searchable extends \DataExtension {
      * @return \Elastica\Document
      */
 	public function getElasticaDocument() {
+		self::$index_ctr++;
 		$fields = array();
 
 		foreach ($this->getElasticaFields() as $field => $config) {
@@ -190,11 +189,10 @@ class Searchable extends \DataExtension {
             }
 		}
 
+		// Optionally update the document
         $document = new Document($this->owner->ID, $fields);
-
-        $callable = get_class($this->owner).'::updateElasticsearchDocument';
-        if(is_callable($callable)) {
-            $document = $this->owner->updateElasticsearchDocument($document);
+        if ($this->owner->hasMethod('updateElasticsearchDocument')) {
+        	$document = $this->owner->updateElasticsearchDocument($document);
         }
 
         // Check if the current classname is part of the site tree or not
