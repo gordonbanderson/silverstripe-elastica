@@ -20,7 +20,8 @@ class ElasticSearchPage extends Page {
 			// unique identifier used to find correct search page for results
 			// e.g. a separate search page for blog, pictures etc
 			'Identifier' => 'Varchar',
-			'ResultsPerPage' => 'Int'
+			'ResultsPerPage' => 'Int',
+			'QueryManipulator' => 'Varchar'
 		);
 
 
@@ -50,6 +51,8 @@ class ElasticSearchPage extends Page {
 				'Identifier to allow this page to be found in form templates');
 			$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
 												'The number of results to return on a page'));
+			$fields->addFieldToTab('Root.SearchDetails', new TextField('QueryManipulator',
+				'ClassName of query manipulator which can be used e.g. for aggregation. Leave blank for no effect.'));
 			$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 			return $fields;
 		}
@@ -95,6 +98,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ElapsedTime'] = $elapsed;
 
 			$searchResultsPaginated->setTotalItems($resultList->getTotalItems());
+			$this->Aggregations = $resultList->getAggregations();
 
 			$data['SearchResults'] = $searchResultsPaginated;
 			$data['Elapsed'] = $elapsed;
@@ -142,6 +146,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$query = new Query($queryString);
 		$query->setLimit($ep->ResultsPerPage);
 		$query->setFrom($start);
+
+		// this allows for the query to be altered, e.g. add aggregation
+		if ($this->QueryManipulator) {
+			$queryManipulator = Injector::inst()->create($this->QueryManipulator);
+			$queryManipulator->augmentQuery($query);
+		}
+
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$results = new ResultList($index, $query);
 		$types = $ep->ClassesToSearch;
