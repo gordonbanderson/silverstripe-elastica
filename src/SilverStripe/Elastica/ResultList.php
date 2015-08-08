@@ -92,11 +92,40 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
 			$aggs = $ers->getAggregations();
+
+			// store aggregations already selected
+			$selectedAggregations = array();
+
+			// optionally remap keys and store chosen aggregations from get params
+			if (isset($this->AggregationManipulator)) {
+				$manipulator = \Injector::inst()->create($this->AggregationManipulator);
+				$manipulator->manipulateAggregation($aggs);
+
+				$keys = array_keys($aggs);
+				foreach ($keys as $key) {
+					if(isset($_GET[$key])) {
+						$selectedAggregations[$key] = $_GET[$key];
+					}
+				}
+			}
+
 			$aggsTemplate = new \ArrayList();
 
 			// Convert the buckets into a form suitable for SilverStripe templates
+			$q = isset($_GET['q']) ? $_GET['q'] : '';
+			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+
+			// get the base URL for the current facets selected
+			$baseURL = \Controller::curr()->Link().'?';
+			$prefixAmp = false;
+			if ($q !== '') {
+				$baseURL .= 'q='.urlencode($q);
+				$prefixAmp = true;
+			}
+
 			foreach (array_keys($aggs) as $key) {
 				$aggDO = new \DataObject();
+				//FIXME - Camel case separate here
 				$aggDO->Name = $key;
 				// now the buckets
 				if (isset($aggs[$key]['buckets'])) {
@@ -105,6 +134,23 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						$ct = new \DataObject();
 						$ct->Key = $value['key'];
 						$ct->DocumentCount = $value['doc_count'];
+						$query[$key] = $value;
+						if ($prefixAmp) {
+							$url = $baseURL.'&';
+						} else {
+							$url = $baseURL;
+							$prefixAmp = true;
+						}
+						$url .= $key .'='.urlencode($value['key']);
+						$ct->URL = $url;
+
+						// check if currently selected
+						if (isset($selectedAggregations[$key])) {
+							if ($selectedAggregations[$key] === (string)$value['key']) {
+								$ct->IsSelected = true;
+							}
+						}
+
 						$bucketsAL->push($ct);
 					}
 					$aggDO->Buckets = $bucketsAL;
