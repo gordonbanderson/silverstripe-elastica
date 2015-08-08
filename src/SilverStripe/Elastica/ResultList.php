@@ -123,6 +123,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 				$prefixAmp = true;
 			}
 
+			// now add the selected facets
+			foreach ($selectedAggregations as $key => $value) {
+				if ($prefixAmp) {
+					$baseURL .= '&';
+				} else {
+					$prefixAmp = true;
+				}
+				$baseURL .= $key.'='.urlencode($value);
+			}
+
 			foreach (array_keys($aggs) as $key) {
 				$aggDO = new \DataObject();
 				//FIXME - Camel case separate here
