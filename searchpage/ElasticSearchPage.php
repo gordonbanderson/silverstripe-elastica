@@ -21,7 +21,8 @@ class ElasticSearchPage extends Page {
 			// e.g. a separate search page for blog, pictures etc
 			'Identifier' => 'Varchar',
 			'ResultsPerPage' => 'Int',
-			'QueryManipulator' => 'Varchar'
+			'QueryManipulator' => 'Varchar',
+			'AggregationManipulator' => 'Varchar'
 		);
 
 
@@ -46,6 +47,8 @@ class ElasticSearchPage extends Page {
 			$html .= $list;
 			$html .= "</pre>";
 			$infoField = new LiteralField('InfoField',$html);
+
+
 			$fields->addFieldToTab('Root.SearchDetails', $infoField);
 			$identifierField = new TextField('Identifier',
 				'Identifier to allow this page to be found in form templates');
@@ -53,6 +56,9 @@ class ElasticSearchPage extends Page {
 												'The number of results to return on a page'));
 			$fields->addFieldToTab('Root.SearchDetails', new TextField('QueryManipulator',
 				'ClassName of query manipulator which can be used e.g. for aggregation. Leave blank for no effect.'));
+			$fields->addFieldToTab('Root.SearchDetails', new TextField('AggregationManipulator',
+				'ClassName of aggregation manipulator which can be used e.g. remapping keys. Leave blank for no effect.'));
+
 			$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 			return $fields;
 		}
@@ -84,6 +90,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$startTime = microtime(true);
 			$resultList = $this->searchResults();
 
+			// set the optional aggregation manipulator
+			$resultList->AggregationManipulator = $this->AggregationManipulator;
+
 			// at this point ResultList object, not yet executed search query
 			$searchResultsPaginated = new \PaginatedList(
 				$resultList,
@@ -105,7 +114,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['SearchPerformed'] = true;
 		}
 
-		// allow the optional use of overriding the search result page, e.g. for photos or map
+		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
 			return $this->useTemplateOverride($data );
 		} else {
