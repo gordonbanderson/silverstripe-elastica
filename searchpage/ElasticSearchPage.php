@@ -6,6 +6,12 @@ use Elastica\Document;
 use Elastica\Query;
 use \SilverStripe\Elastica\ResultList;
 use Elastica\Query\QueryString;
+use Elastica\Aggregation\Filter;
+use Elastica\Filter\Term;
+use Elastica\Filter\BoolAnd;
+use Elastica\Aggregation\Terms;
+use Elastica\Query\Filtered;
+use Elastica\Query\Range;
 
 class ElasticSearchPage extends Page {
 		static $defaults = array(
@@ -106,7 +112,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$elapsed = round(100*($endTime-$startTime))/100;
 			$data['ElapsedTime'] = $elapsed;
 
-			$searchResultsPaginated->setTotalItems($resultList->getTotalItems());
+			$searchResultsPaginated->setTotalItems($resultList->getTotalItems()); // performs search
 			$this->Aggregations = $resultList->getAggregations();
 
 			$data['SearchResults'] = $searchResultsPaginated;
@@ -152,7 +158,49 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 		$queryString = new QueryString($_GET['q']);
-		$query = new Query($queryString);
+
+
+		// See https://gist.github.com/damienalexandre/5661320
+		// iterate through the parameters, and if a GET param exists add that as a filter
+		$p = $this->request->getVars();
+
+
+		$filters = array();
+		$ignore = array('url', 'start','q');
+		foreach ($this->request->getVars() as $key => $value) {
+			if (!in_array($key, $ignore)) {
+				$filter = new Term(); // new Term($key)
+				$filter->setTerm($key,$value);
+				$filters[] = $filter;
+			}
+		}
+
+		// if not facets selected, pass through null
+		$queryFilter = null;
+		switch (count($filters)) {
+			case 0:
+				// filter already null
+				break;
+			case 1:
+				$queryFilter = $filters[0];
+				break;
+
+			default:
+				$queryFilter = new BoolAnd();
+				foreach ($filters as $filter) {
+					$queryFilter->addFilter($filter);
+				}
+
+				break;
+		}
+
+		$filter = new Filtered(
+		  $queryString,
+		  $queryFilter
+		);
+
+		$query = new Query( $filter);
+
 		$query->setLimit($ep->ResultsPerPage);
 		$query->setFrom($start);
 
@@ -161,6 +209,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$queryManipulator = Injector::inst()->create($this->QueryManipulator);
 			$queryManipulator->augmentQuery($query);
 		}
+
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$results = new ResultList($index, $query);
