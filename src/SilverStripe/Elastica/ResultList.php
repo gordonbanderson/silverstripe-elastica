@@ -117,8 +117,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$q = isset($_GET['q']) ? $_GET['q'] : '';
 			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 
-			echo sizeof(array_keys($aggs))."\n";
-
 			// if not search term remove it and aggregate with a blank query
 			if ($q == '' && sizeof($aggs) > 0) {
 				$params = $this->query->getParams();
@@ -163,15 +161,39 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 							$url = $baseURL;
 							$prefixAmp = true;
 						}
-						$url .= $key .'='.urlencode($value['key']);
-						$ct->URL = $url;
+
 
 						// check if currently selected
 						if (isset($selectedAggregations[$key])) {
 							if ($selectedAggregations[$key] === (string)$value['key']) {
 								$ct->IsSelected = true;
+								// mark this facet as having been selected, so optional toggling
+								// of the display of the facet can be done via the template.
+								$aggDO->IsSelected = true;
+
+								$urlParam = $key.'='.urlencode($selectedAggregations[$key]);
+
+								// possible ampersand combos to remove
+								$v1 = '&'.$urlParam.'&';
+								$v2 = $urlParam.'&';
+								$v3 = '&'.$urlParam;
+
+
+								$url = str_replace($v1, '', $url);
+								$url = str_replace($v2, '', $url);
+								$url = str_replace($v3, '', $url);
+								$url = str_replace($urlParam, '', $url);
+								$ct->URL = $url;
 							}
+						} else {
+							$url .= $key .'='.urlencode($value['key']);
+							$prefixAmp = true;
 						}
+
+						$url = rtrim($url,'&');
+
+						$ct->URL = $url;
+
 
 						$bucketsAL->push($ct);
 					}
