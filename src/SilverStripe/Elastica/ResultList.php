@@ -81,7 +81,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 * @return array
 	 */
 	public function getResults() {
-		if (!$this->_cachedResults) {
+		if (!isset($this->_cachedResults)) {
 			// get the ElasticaResultSet initally to obtain details
 			// 'index' is actually elastica service, bad naming of vars
 			$ers = $this->index->search($this->query,$this->types);
@@ -92,6 +92,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
 			$aggs = $ers->getAggregations();
+
+
 
 			// store aggregations already selected
 			$selectedAggregations = array();
@@ -114,6 +116,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// Convert the buckets into a form suitable for SilverStripe templates
 			$q = isset($_GET['q']) ? $_GET['q'] : '';
 			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+
+			echo sizeof(array_keys($aggs))."\n";
+
+			// if not search term remove it and aggregate with a blank query
+			if ($q == '' && sizeof($aggs) > 0) {
+				$params = $this->query->getParams();
+				unset($params['query']);
+				$this->query->setParams($params);
+				$q = '';
+			}
 
 			// get the base URL for the current facets selected
 			$baseURL = \Controller::curr()->Link().'?';
