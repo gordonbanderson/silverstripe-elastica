@@ -92,7 +92,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SearchPerformed' => false
 		);
 
-		if (isset($_GET['q'])) {
+		//if (isset($_GET['q'])) {
 			$startTime = microtime(true);
 			$resultList = $this->searchResults();
 
@@ -118,7 +118,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['SearchResults'] = $searchResultsPaginated;
 			$data['Elapsed'] = $elapsed;
 			$data['SearchPerformed'] = true;
-		}
+		//}
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
@@ -157,7 +157,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$ep = Controller::curr()->dataRecord;
 
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-		$queryString = new QueryString($_GET['q']);
+		$q = '';
+		if (isset($_GET['q'])) {
+			$q = $_GET['q'];
+		}
+		$queryString = new QueryString($q);
 
 
 		// See https://gist.github.com/damienalexandre/5661320
@@ -194,12 +198,28 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				break;
 		}
 
-		$filter = new Filtered(
-		  $queryString,
-		  $queryFilter
-		);
+		// FIXME, normal /search case
+		// FIXME breaks facets chosen
+		$query = null;
 
-		$query = new Query( $filter);
+		if ($q == '') {
+			$query = new Query( $queryFilter);
+		} else {
+			$filter = new Filtered(
+			  $queryString,
+			  $queryFilter
+			);
+
+			$query = new Query( $filter);
+		}
+
+
+
+		//
+
+
+		//print_r($query);
+		//die;
 
 		$query->setLimit($ep->ResultsPerPage);
 		$query->setFrom($start);
