@@ -214,13 +214,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 
-
-		//
-
-
-		//print_r($query);
-		//die;
-
 		$query->setLimit($ep->ResultsPerPage);
 		$query->setFrom($start);
 
