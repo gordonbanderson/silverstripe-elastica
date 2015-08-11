@@ -24,7 +24,7 @@ class ElasticSearcher {
 
 	/**
 	 * Object just to manipulate the query and result, used for aggregations
-	 * @var ElasticaQueryAggregationManipulator
+	 * @var ElasticaSearchHelper
 	 */
 	private $manipulator;
 
@@ -56,7 +56,7 @@ class ElasticSearcher {
 
 	/**
 	 * Set the manipulator, mainly used for aggregation
-	 * @param ElasticaQueryAggregationManipulator $newManipulator manipulator used for aggregation
+	 * @param ElasticaSearchHelper $newManipulator manipulator used for aggregation
 	 */
 	public function setQueryResultManipulator($newManipulator) {
 		$this->manipulator = $newManipulator;
@@ -103,6 +103,16 @@ class ElasticSearcher {
 	 */
 	public function search($q) {
 		$queryString = new QueryString($q);
+
+		$manipulatorInstance = null;
+		if ($this->manipulator) {
+			$manipulatorInstance = Injector::inst()->create($this->manipulator);
+		}
+
+		// update the filters, do any necessary remapping here
+		if ($this->manipulator) {
+			$manipulatorInstance->updateFilters($this->filters);
+		}
 
 		$elFilters = array();
 		foreach ($this->filters as $key => $value) {
@@ -151,8 +161,7 @@ class ElasticSearcher {
 
 		// aggregation (optional)
 		if ($this->manipulator) {
-			$queryManipulator = Injector::inst()->create($this->manipulator);
-			$queryManipulator->augmentQuery($query);
+			$manipulatorInstance->augmentQuery($query);
 		}
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
@@ -164,7 +173,7 @@ class ElasticSearcher {
 		$resultList->setTypes($types);
 
 		// set the optional aggregation manipulator
-		$resultList->QueryAggregationManipulator = $this->manipulator;
+		$resultList->SearchHelper = $this->manipulator;
 
 		// at this point ResultList object, not yet executed search query
 		$paginated = new \PaginatedList(
