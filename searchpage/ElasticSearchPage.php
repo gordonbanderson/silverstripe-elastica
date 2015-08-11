@@ -27,7 +27,7 @@ class ElasticSearchPage extends Page {
 			// e.g. a separate search page for blog, pictures etc
 			'Identifier' => 'Varchar',
 			'ResultsPerPage' => 'Int',
-			'QueryAggregationManipulator' => 'Varchar'
+			'SearchHelper' => 'Varchar'
 		);
 
 
@@ -59,8 +59,8 @@ class ElasticSearchPage extends Page {
 				'Identifier to allow this page to be found in form templates');
 			$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
 												'The number of results to return on a page'));
-			$fields->addFieldToTab('Root.SearchDetails', new TextField('QueryAggregationManipulator',
-				'ClassName of query/aggregation manipulator.  Leave blank for standard search'));
+			$fields->addFieldToTab('Root.SearchDetails', new TextField('SearchHelper',
+				'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
 			$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 			return $fields;
@@ -132,7 +132,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// set the optional aggregation manipulator
-		$es->setQueryResultManipulator($this->QueryAggregationManipulator);
+		$es->setQueryResultManipulator($this->SearchHelper);
 
 		// now actually perform the search using the original query
 		$paginated = $es->search($q);
