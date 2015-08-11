@@ -22,4 +22,11 @@ interface ElasticaSearchHelperInterface {
 	 * @return [type]        [description]
 	 */
 	public function updateAggregation(&$aggs);
+
+
+	/**
+	 * Get a mapping from indexed field name to human readable title
+	 * @return array array of index field name to human readable title
+	 */
+	public function getIndexFieldTitleMapping();
 }
