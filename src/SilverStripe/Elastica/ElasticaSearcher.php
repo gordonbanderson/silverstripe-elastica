@@ -1,0 +1,180 @@
+<?php
+use \SilverStripe\Elastica\ResultList;
+use Elastica\Query;
+
+use Elastica\Query\QueryString;
+use Elastica\Aggregation\Filter;
+use Elastica\Filter\Term;
+use Elastica\Filter\BoolAnd;
+use Elastica\Query\Filtered;
+
+
+class ElasticSearcher {
+	/**
+	 * Comma separated list of SilverStripe ClassNames to search. Leave blank for all
+	 * @var string
+	 */
+	private $classes = '';
+
+	/**
+	 * Array of aggregation selected mapped to the value selected, e.g. 'Aperture' => '11'
+	 * @var array
+	 */
+	private $filters = array();
+
+	/**
+	 * Object just to manipulate the query and result, used for aggregations
+	 * @var ElasticaQueryAggregationManipulator
+	 */
+	private $manipulator;
+
+	/**
+	 * Offset from zero to return search results from
+	 * @var integer
+	 */
+	private $start = 0;
+
+	/**
+	 * How many search results to return
+	 * @var integer
+	 */
+	private $pageLength = 10;
+
+	/**
+	 * After a search is performed aggregrations are saved here
+	 * @var array
+	 */
+	private $aggregations = null;
+
+	/**
+	 * Update the list of Classes to search, use SilverStripe ClassName comma separated
+	 * @param string $newClasses comma separated list of SilverStripe ClassNames
+	 */
+	public function setClasses($newClasses) {
+		$this->classes = $newClasses;
+	}
+
+	/**
+	 * Set the manipulator, mainly used for aggregation
+	 * @param ElasticaQueryAggregationManipulator $newManipulator manipulator used for aggregation
+	 */
+	public function setQueryResultManipulator($newManipulator) {
+		$this->manipulator = $newManipulator;
+	}
+
+	/**
+	 * Update the start variable
+	 * @param int $newStart Offset for search
+	 */
+	public function setStart($newStart) {
+		$this->start = $newStart;
+	}
+
+	/**
+	 * Update the page length variable
+	 * @param int $newPageLength the number of results to be returned
+	 */
+	public function setPageLength($newPageLength) {
+		$this->pageLength = $newPageLength;
+	}
+
+	/**
+	 * Add a filter to the current query in the form of a key/value pair
+	 * @param string $field the name of the indexed field to filter on
+	 * @param string $value the value of the indexed field to filter on
+	 */
+	public function addFilter($field, $value) {
+		$this->filters[$field] = $value;
+	}
+
+	/**
+	 * Accessor to the aggregations, to be used after a search
+	 * @return array Aggregations returned after a search
+	 */
+	public function getAggregations() {
+		return $this->aggregations;
+	}
+
+	/**
+	 * Search against elastica using the criteria already provided, such as page length, start,
+	 * and of course the filters
+	 * @param  string $q query string
+	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
+	 */
+	public function search($q) {
+		$queryString = new QueryString($q);
+
+		$elFilters = array();
+		foreach ($this->filters as $key => $value) {
+			$filter = new Term();
+			$filter->setTerm($key,$value);
+			$elFilters[] = $filter;
+		}
+
+
+		// if not facets selected, pass through null
+		$queryFilter = null;
+		switch (count($this->filters)) {
+			case 0:
+				// filter already null
+				break;
+			case 1:
+				$queryFilter = $elFilters[0];
+				break;
+
+			default:
+				$queryFilter = new BoolAnd();
+				foreach ($elFilters as $filter) {
+					$queryFilter->addFilter($filter);
+				}
+				break;
+		}
+
+		// the Elastica query object
+		$query = null;
+
+		// search only with string
+		if ($q == '') {
+			$query = new Query( $queryFilter);
+		} else {
+			// search with string and filters
+			$filter = new Filtered(
+			  $queryString,
+			  $queryFilter
+			);
+			$query = new Query( $filter);
+		}
+
+		// pagination
+		$query->setLimit($this->pageLength);
+		$query->setFrom($this->start);
+
+		// aggregation (optional)
+		if ($this->manipulator) {
+			$queryManipulator = Injector::inst()->create($this->manipulator);
+			$queryManipulator->augmentQuery($query);
+		}
+
+		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$resultList = new ResultList($index, $query);
+
+		// restrict SilverStripe ClassNames returned
+		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
+		$types = $this->classes;
+		$resultList->setTypes($types);
+
+		// set the optional aggregation manipulator
+		$resultList->QueryAggregationManipulator = $this->manipulator;
+
+		// at this point ResultList object, not yet executed search query
+		$paginated = new \PaginatedList(
+			$resultList
+		);
+		$paginated->setPageStart($this->start);
+		$paginated->setPageLength($this->pageLength);
+		$paginated->setTotalItems($resultList->getTotalItems());
+
+		$this->aggregations = $resultList->getAggregations();
+		return $paginated;
+	}
+}
