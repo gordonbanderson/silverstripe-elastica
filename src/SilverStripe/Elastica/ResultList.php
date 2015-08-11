@@ -182,12 +182,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 								$urlParam = $key.'='.urlencode($selectedAggregations[$key]);
 
 								// possible ampersand combos to remove
-								$v1 = '&'.$urlParam.'&';
-								$v2 = $urlParam.'&';
-								$v3 = '&'.$urlParam;
-
-
-								$url = str_replace($v1, '', $url);
+								$v2 = '&'.$urlParam;
+								$v3 = $urlParam.'&';
 								$url = str_replace($v2, '', $url);
 								$url = str_replace($v3, '', $url);
 								$url = str_replace($urlParam, '', $url);
