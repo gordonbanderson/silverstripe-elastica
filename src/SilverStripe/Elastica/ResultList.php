@@ -93,14 +93,15 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// to be consistent with normal templating conventions
 			$aggs = $ers->getAggregations();
 
-
-
 			// store aggregations already selected
 			$selectedAggregations = array();
 
+			// array of index field name to human readable title
+			$indexedFieldTitleMapping = array();
+
 			// optionally remap keys and store chosen aggregations from get params
-			if (isset($this->QueryAggregationManipulator)) {
-				$manipulator = \Injector::inst()->create($this->QueryAggregationManipulator);
+			if (isset($this->SearchHelper)) {
+				$manipulator = \Injector::inst()->create($this->SearchHelper);
 				$manipulator->updateAggregation($aggs);
 
 				$keys = array_keys($aggs);
@@ -109,6 +110,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						$selectedAggregations[$key] = $_GET[$key];
 					}
 				}
+
+				$indexedFieldTitleMapping = $manipulator->getIndexFieldTitleMapping();
 			}
 
 			$aggsTemplate = new \ArrayList();
@@ -146,7 +149,12 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			foreach (array_keys($aggs) as $key) {
 				$aggDO = new \DataObject();
 				//FIXME - Camel case separate here
-				$aggDO->Name = $key;
+				if (isset($indexedFieldTitleMapping[$key])) {
+					$aggDO->Name = $indexedFieldTitleMapping[$key];
+				} else {
+					$aggDO->Name = $key;
+				}
+
 				// now the buckets
 				if (isset($aggs[$key]['buckets'])) {
 					$bucketsAL = new \ArrayList();
