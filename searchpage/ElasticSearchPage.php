@@ -70,11 +70,24 @@ class ElasticSearchPage extends Page {
 
 class ElasticSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array('SearchForm', 'submit');
+	private static $allowed_actions = array('SearchForm', 'submit', 'testing');
 
 	public function init() {
 		parent::init();
 	}
+
+
+	public function testing() {
+		echo 'Testing out the search<br/>';
+		$es = new ElasticSearcher();
+		$es->setClasses('CyclingExploration');
+		$results = $es->search('Klong');
+		foreach ($results as $result) {
+			echo $result->Title."<br/>\n";
+		}
+		die;
+	}
+
 
 	/*
 	Display the search form. If the query parameter exists, search against Elastica
@@ -89,33 +102,51 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SearchPerformed' => false
 		);
 
-		//if (isset($_GET['q'])) {
-			$startTime = microtime(true);
-			$resultList = $this->searchResults();
+		// record the time
+		$startTime = microtime(true);
 
-			// set the optional aggregation manipulator
-			$resultList->QueryAggregationManipulator = $this->QueryAggregationManipulator;
+		//instance of ElasticPage associated with this controller
+		$ep = Controller::curr()->dataRecord;
 
-			// at this point ResultList object, not yet executed search query
-			$searchResultsPaginated = new \PaginatedList(
-				$resultList,
-				\Controller::curr()->request
-			);
+		// use an Elastic Searcher, which needs primed from URL params
+		$es = new ElasticSearcher();
+		$es->setClasses($ep->ClassesToSearch);
 
-			$searchResultsPaginated->setPageLength($this->ResultsPerPage);
+		// start, and page length, i.e. pagination
+		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$es->setStart($start);
+		$es->setPageLength($ep->ResultsPerPage);
 
-			$endTime = microtime(true);
+		// query string
+		$q = '';
+		if (isset($_GET['q'])) {
+			$q = $_GET['q'];
+		}
 
-			$elapsed = round(100*($endTime-$startTime))/100;
-			$data['ElapsedTime'] = $elapsed;
+		// filters for aggregations
+		$ignore = array('url', 'start','q');
+		foreach ($this->request->getVars() as $key => $value) {
+			if (!in_array($key, $ignore)) {
+				$es->addFilter($key,$value);
+			}
+		}
 
-			$searchResultsPaginated->setTotalItems($resultList->getTotalItems()); // performs search
-			$this->Aggregations = $resultList->getAggregations();
+		// set the optional aggregation manipulator
+		$es->setQueryResultManipulator($this->QueryAggregationManipulator);
 
-			$data['SearchResults'] = $searchResultsPaginated;
-			$data['Elapsed'] = $elapsed;
-			$data['SearchPerformed'] = true;
-		//}
+		// now actually perform the search using the original query
+		$paginated = $es->search($q);
+
+		// calculate time
+		$endTime = microtime(true);
+		$elapsed = round(100*($endTime-$startTime))/100;
+
+		// store variables for the template to use
+		$data['ElapsedTime'] = $elapsed;
+		$this->Aggregations = $es->getAggregations();
+		$data['SearchResults'] = $paginated;
+		$data['Elapsed'] = $elapsed;
+		$data['SearchPerformed'] = true;
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
@@ -123,7 +154,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} else {
 			return $data;
 		}
-
 	}
 
 
@@ -146,85 +176,4 @@ class ElasticSearchPage_Controller extends Page_Controller {
        return new ElasticSearchForm($this, 'SearchForm');
     }
 
-    /**
-	 * Perform the search against Elastica return DataObjects, taking into account pagination
-	 */
-	private function searchResults(){
-		//instance of ElasticPage associated with this controller
-		$ep = Controller::curr()->dataRecord;
-
-		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
-		$q = '';
-		if (isset($_GET['q'])) {
-			$q = $_GET['q'];
-		}
-		$queryString = new QueryString($q);
-
-
-		// See https://gist.github.com/damienalexandre/5661320
-		// iterate through the parameters, and if a GET param exists add that as a filter
-		$p = $this->request->getVars();
-
-
-		$filters = array();
-		$ignore = array('url', 'start','q');
-		foreach ($this->request->getVars() as $key => $value) {
-			if (!in_array($key, $ignore)) {
-				$filter = new Term(); // new Term($key)
-				$filter->setTerm($key,$value);
-				$filters[] = $filter;
-			}
-		}
-
-		// if not facets selected, pass through null
-		$queryFilter = null;
-		switch (count($filters)) {
-			case 0:
-				// filter already null
-				break;
-			case 1:
-				$queryFilter = $filters[0];
-				break;
-
-			default:
-				$queryFilter = new BoolAnd();
-				foreach ($filters as $filter) {
-					$queryFilter->addFilter($filter);
-				}
-
-				break;
-		}
-
-		// FIXME, normal /search case
-		// FIXME breaks facets chosen
-		$query = null;
-
-		if ($q == '') {
-			$query = new Query( $queryFilter);
-		} else {
-			$filter = new Filtered(
-			  $queryString,
-			  $queryFilter
-			);
-
-			$query = new Query( $filter);
-		}
-
-
-		$query->setLimit($ep->ResultsPerPage);
-		$query->setFrom($start);
-
-		// this allows for the query to be altered, e.g. add aggregation
-		if ($this->QueryAggregationManipulator) {
-			$queryManipulator = Injector::inst()->create($this->QueryAggregationManipulator);
-			$queryManipulator->augmentQuery($query);
-		}
-
-
-		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
-		$results = new ResultList($index, $query);
-		$types = $ep->ClassesToSearch;
-		$results->setTypes($types);
-		return $results;
-	}
 }
