@@ -101,7 +101,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// optionally remap keys and store chosen aggregations from get params
 			if (isset($this->QueryAggregationManipulator)) {
 				$manipulator = \Injector::inst()->create($this->QueryAggregationManipulator);
-				$manipulator->manipulateAggregation($aggs);
+				$manipulator->updateAggregation($aggs);
 
 				$keys = array_keys($aggs);
 				foreach ($keys as $key) {
