@@ -37,16 +37,19 @@ class Searchable extends \DataExtension {
 	 */
 	private static $site_tree_classes = array();
 
+
     /**
      * @var ElasticaService associated elastica search service
      */
     protected $service;
+
 
     /**
      * Array of fields that need HTML parsed
      * @var array
      */
     protected $html_fields = array();
+
 
     /**
      * @see getElasticaResult
@@ -59,6 +62,7 @@ class Searchable extends \DataExtension {
 		parent::__construct();
 	}
 
+
     /**
      * Get the elasticsearch type name
      *
@@ -67,6 +71,7 @@ class Searchable extends \DataExtension {
     public function getElasticaType() {
         return get_class($this->owner);
     }
+
 
     /**
      * If the owner is part of a search result
@@ -79,6 +84,7 @@ class Searchable extends \DataExtension {
         return $this->elastica_result;
     }
 
+
     /**
      * Set the raw Elastica search result
      *
@@ -87,6 +93,7 @@ class Searchable extends \DataExtension {
     public function setElasticaResult(\Elastica\Result $result) {
         $this->elastica_result = $result;
     }
+
 
 	/**
 	 * Gets an array of elastic field definitions.
@@ -115,15 +122,30 @@ class Searchable extends \DataExtension {
 					}
 				}
 			} else {
-                // TODO: Generalize to the mapping types by allowing the type to be specified in $searchable_fields
-                $spec["type"] = "string";
-            }
+				// field name is not in the db, it could be a method
+				$has_lists = $this->getListRelationshipMethods();
+				$name = str_replace('()', '', $name);
+				echo "Checking for $name \n";
+				if (isset($has_lists[$name])) {
+					// FIX ME how to do nested mapping
+					// See https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-array-type.html
+					$methodMapping = array();
+					$methodMapping['name'] = array('type' => 'string');
+					$methodMapping['age'] = array('type' => 'integer');
+					$spec = array('properties' => $methodMapping);
 
+					// we now change the name to the result type, not the method name
+					$name = $has_lists[$name];
+				} else {
+	                $spec["type"] = "string";
+				}
+            }
 			$result[$name] = $spec;
 		}
 
 		return $result;
 	}
+
 
 	/**
 	 * Get the elasticsearch mapping for the current document/type
@@ -148,11 +170,13 @@ class Searchable extends \DataExtension {
         $fields['Link'] = array('type' => 'string');
 
 		$mapping->setProperties($fields);
+
         if ($this->owner->hasMethod('updateElasticsearchMapping')) {
             $mapping = $this->owner->updateElasticsearchMapping($mapping);
         }
 		return $mapping;
 	}
+
 
     /**
      * Get an elasticsearch document
@@ -226,6 +250,7 @@ class Searchable extends \DataExtension {
 		return $document;
 	}
 
+
     /**
      * Returns whether to include the document into the search index.
      * All documents are added unless they have a field "ShowInSearch" which is set to false
@@ -248,6 +273,7 @@ class Searchable extends \DataExtension {
             }
         }
     }
+
 
     /**
      * Delete the record from the search index if ShowInSearch is deactivated (SiteTree).
@@ -274,12 +300,14 @@ class Searchable extends \DataExtension {
         }
     }
 
+
     /**
      * Updates the record in the search index (SiteTree).
      */
     public function onAfterPublish() {
         $this->doIndexDocument();
     }
+
 
     /**
      * Updates the record in the search index.
@@ -307,6 +335,7 @@ class Searchable extends \DataExtension {
         $this->doDeleteDocumentIfInSearch();
     }
 
+
     /**
      * Removes the record from the search index if the "ShowInSearch" attribute is set to true.
      */
@@ -315,6 +344,7 @@ class Searchable extends \DataExtension {
             $this->doDeleteDocument();
         }
     }
+
 
     /**
      * Removes the record from the search index.
@@ -329,22 +359,81 @@ class Searchable extends \DataExtension {
 
     }
 
+
     /**
      * Return all of the searchable fields defined in $this->owner::$searchable_fields and all the parent classes.
      *
+     * @param  $depth Counter to decide when to recursing relationships.
      * @return array searchable fields
      */
-    public function getAllSearchableFields() {
+    public function getAllSearchableFields($depth = 0) {
+    	echo $this->owner->ClassName."\n-------------------\n";
         $fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
-        $labels = $this->owner->fieldLabels();
 
         // fallback to default method
         if(!$fields) {
             return $this->owner->searchableFields();
         }
 
-        // Copied from DataObject::searchableFields() as there is no separate accessible method
+        // get the values of these fields
+        $elasticaMapping = $this->fieldsToElasticaConfig($this->owner, $fields);
 
+        if ($depth < 1) {
+        	// now for the associated methods and their results
+	        $methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_methods');
+
+	        $has_ones = $this->owner->has_one();
+	        $has_lists = $this->getListRelationshipMethods();
+
+	        if (isset($methodDescs)) {
+
+	        	foreach ($methodDescs as $methodDesc) {
+	        		echo "Checking method: $methodDesc \n";
+		        	// split before the brackets which can optionally list which fields to index
+		        	$splits = explode('(', $methodDesc);
+		        	$methodName = $splits[0];
+		        	if (isset($has_lists[$methodName])) {
+		        		echo "-- checking method name ".$methodName."\n";
+
+		        		$relClass = $has_lists[$methodName];
+		        		$fields = \Config::inst()->get($relClass, 'searchable_fields');
+		        		if(!$fields) {
+		        			user_error('The field $searchable_fields must be set for class '.$relClass);
+		        			die;
+				        }
+		        		$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
+		        		$classname = $has_lists[$methodName];
+
+		        		// mark as a method, the resultant fields are correct
+		        		$elasticaMapping[$methodName.'()'] = $rewrite;
+
+
+		        	} else if (in_array($methodName,$has_ones)) {
+
+		        	} else {
+		        		echo $methodName.' not found';
+		        		die;
+		        	}
+		        }
+	        }
+        }
+
+
+        //echo "---- ELASTICA MAPPING {$this->owner->ClassName}----\n";
+        //print_r($elasticaMapping);
+        //
+        //
+        return $elasticaMapping;
+    }
+
+
+    /*
+    Evaluate each field, e.g. 'Title', 'Member.Name'
+     */
+    private function fieldsToElasticaConfig($objectInContext, $fields) {
+    	// Copied from DataObject::searchableFields() as there is no separate accessible method
+    	//echo "---- REWRITING THESE FIELDS ----";
+    	//print_r($fields);
         // rewrite array, if it is using shorthand syntax
         $rewrite = array();
         foreach($fields as $name => $specOrName) {
@@ -360,7 +449,7 @@ class Searchable extends \DataExtension {
                 //   'title' => 'My Title', // optiona.
                 // ))
                 $rewrite[$identifer] = array_merge(
-                    array('filter' => $this->owner->relObject($identifer)->
+                    array('filter' => $objectInContext->relObject($identifer)->
                     	stat('default_search_filter_class')),
                     (array)$specOrName
                 );
@@ -379,7 +468,24 @@ class Searchable extends \DataExtension {
             }
         }
 
+       // echo "---- FIELDS REWRITTEN ---\n";
+		//print_r($rewrite);
+
         return $rewrite;
+    }
+
+
+    private function getListRelationshipMethods() {
+    	$has_manys = $this->owner->has_many();
+        $many_manys = $this->owner->many_many();
+
+        // array of method name to retuned object ClassName for relationships returning lists
+        $has_lists = $has_manys;
+        foreach (array_keys($many_manys) as $key) {
+        	$has_lists[$key] = $many_manys[$key];
+        }
+
+        return $has_lists;
     }
 
 }
