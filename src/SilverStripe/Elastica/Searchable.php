@@ -11,7 +11,17 @@ use ShortcodeParser;
  */
 class Searchable extends \DataExtension {
 
-	public static $index_ctr = 0;
+	/**
+	 * Counter used to display progress of indexing
+	 * @var integer
+	 */
+	private static $index_ctr = 0;
+
+	/**
+	 * Everytime progressInterval divides $index_ctr exactly display progress
+	 * @var integer
+	 */
+	private static $progressInterval = null;
 
 	public static $mappings = array(
 		'Boolean'     => 'boolean',
@@ -204,6 +214,24 @@ class Searchable extends \DataExtension {
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
+
+		if (self::$progressInterval === null) {
+			if (isset($_GET['progress'])) {
+				$progress = $_GET['progress'];
+				self::$progressInterval = (int) $progress;
+			} else {
+				// flag value to ignore display
+				self::$progressInterval = 0;
+			}
+		}
+		if (self::$progressInterval > 0) {
+			if (self::$index_ctr % self::$progressInterval === 0) {
+				echo "Indexed ".self::$index_ctr."...\n";
+			}
+		}
+
+
+
 
 		// Optionally update the document
         $document = new Document($this->owner->ID, $fields);
