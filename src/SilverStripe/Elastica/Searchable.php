@@ -50,6 +50,11 @@ class Searchable extends \DataExtension {
      */
     protected $html_fields = array();
 
+    /**
+     * Store a mapping of relationship name to result type
+     */
+    protected $relationship_methods = array();
+
 
     /**
      * @see getElasticaResult
@@ -100,7 +105,7 @@ class Searchable extends \DataExtension {
 	 *
 	 * @return array
 	 */
-	public function getElasticaFields() {
+	public function getElasticaFields($storeMethodName = false) {
         $db = $this->owner->db();
 		$fields = $this->getAllSearchableFields();
 		$result = array();
@@ -125,17 +130,30 @@ class Searchable extends \DataExtension {
 				// field name is not in the db, it could be a method
 				$has_lists = $this->getListRelationshipMethods();
 				$name = str_replace('()', '', $name);
-				echo "Checking for $name \n";
 				if (isset($has_lists[$name])) {
 					// FIX ME how to do nested mapping
 					// See https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-array-type.html
 					$methodMapping = array();
-					$methodMapping['name'] = array('type' => 'string');
-					$methodMapping['age'] = array('type' => 'integer');
-					$spec = array('properties' => $methodMapping);
+
+					// the classes returned by the list method
+					$resultType = $has_lists[$name];
+
+					$resultTypeInstance = \Injector::inst()->create($resultType);
+
+					// get the fields for the result type, but do not recurse
+					// // FIXME avoid recursing
+					$resultTypeMapping = $resultTypeInstance->getElasticaFields();
+					$resultTypeMapping['ID'] = array('type' => 'integer');
+
+					if ($storeMethodName) {
+						$resultTypeMapping['__method'] = $name;
+					}
+
+					$spec = array('properties' => $resultTypeMapping);
+
 
 					// we now change the name to the result type, not the method name
-					$name = $has_lists[$name];
+					$name = $resultType;
 				} else {
 	                $spec["type"] = "string";
 				}
@@ -155,7 +173,7 @@ class Searchable extends \DataExtension {
 	public function getElasticaMapping() {
 		$mapping = new Mapping();
 
-        $fields = $this->getElasticaFields();
+        $fields = $this->getElasticaFields(false);
 
         if ($this->owner->hasField('Locale')) {
 			$localeMapping['type'] = 'string';
@@ -185,33 +203,7 @@ class Searchable extends \DataExtension {
      */
 	public function getElasticaDocument() {
 		self::$index_ctr++;
-		$fields = array();
-
-		foreach ($this->getElasticaFields() as $field => $config) {
-            if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
-            	if (in_array($field, $this->html_fields)) {
-            		$fields[$field] = $this->owner->$field;
-            		$html = ShortcodeParser::get_active()->parse($this->owner->$field());
-                	$txt = strip_tags($html);
-                	$fields[$field] = $txt;
-            	} else {
-            		$fields[$field] = $this->owner->$field();
-            	}
-
-            } else {
-                if (in_array($field, $this->html_fields)) {
-                	$fields[$field] = $this->owner->$field;;
-                	if (gettype($this->owner->$field) !== 'NULL') {
-                		$html = ShortcodeParser::get_active()->parse($this->owner->$field);
-                		$txt = strip_tags($html);
-                		$fields[$field] = $txt;
-                	}
-                } else {
-                	$fields[$field] = $this->owner->$field;
-                }
-
-            }
-		}
+		$fields = $this->getFieldValuesAsArray();
 
 		// Optionally update the document
         $document = new Document($this->owner->ID, $fields);
@@ -248,6 +240,56 @@ class Searchable extends \DataExtension {
         }
 
 		return $document;
+	}
+
+
+	public function getFieldValuesAsArray($recurse = true) {
+		$fields = array();
+		foreach ($this->getElasticaFields($recurse) as $field => $config) {
+            if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
+            	// call a method to get a field value
+            	if (in_array($field, $this->html_fields)) {
+            		$fields[$field] = $this->owner->$field;
+            		$html = ShortcodeParser::get_active()->parse($this->owner->$field());
+                	$txt = strip_tags($html);
+                	$fields[$field] = $txt;
+            	} else {
+            		$fields[$field] = $this->owner->$field();
+            	}
+
+            } else {
+
+                if (in_array($field, $this->html_fields)) {
+                	$fields[$field] = $this->owner->$field;;
+                	if (gettype($this->owner->$field) !== 'NULL') {
+                		$html = ShortcodeParser::get_active()->parse($this->owner->$field);
+                		$txt = strip_tags($html);
+                		$fields[$field] = $txt;
+                	}
+                } else {
+                	if (isset($config['properties']['__method'])) {
+                		$methodName = $config['properties']['__method'];
+                		$datalist = $this->owner->$methodName();
+                		$relArray = array();
+                		foreach ($datalist->getIterator() as $item) {
+                			if ($recurse) {
+                				// populate the subitem but do not recurse any further if more relationships
+                				$itemDoc = $item->getFieldValuesAsArray(false);
+                				array_push($relArray, $itemDoc);
+                			}
+                		}
+
+                		$fields[$methodName] = $relArray;
+                	} else {
+                		$fields[$field] = $this->owner->$field;
+                	}
+
+                }
+
+            }
+		}
+
+		return $fields;
 	}
 
 
@@ -363,22 +405,23 @@ class Searchable extends \DataExtension {
     /**
      * Return all of the searchable fields defined in $this->owner::$searchable_fields and all the parent classes.
      *
-     * @param  $depth Counter to decide when to recursing relationships.
+     * @param  $recuse Whether or not to traverse relationships. First time round yes, subsequently no
      * @return array searchable fields
      */
-    public function getAllSearchableFields($depth = 0) {
-    	echo $this->owner->ClassName."\n-------------------\n";
+    public function getAllSearchableFields($recurse = true) {
+    	//echo $this->owner->ClassName."\n-------------------\n";
         $fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
 
         // fallback to default method
         if(!$fields) {
-            return $this->owner->searchableFields();
+			user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
+			die;
         }
 
         // get the values of these fields
         $elasticaMapping = $this->fieldsToElasticaConfig($this->owner, $fields);
 
-        if ($depth < 1) {
+        if ($recurse) {
         	// now for the associated methods and their results
 	        $methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_methods');
 
@@ -388,12 +431,10 @@ class Searchable extends \DataExtension {
 	        if (isset($methodDescs)) {
 
 	        	foreach ($methodDescs as $methodDesc) {
-	        		echo "Checking method: $methodDesc \n";
 		        	// split before the brackets which can optionally list which fields to index
 		        	$splits = explode('(', $methodDesc);
 		        	$methodName = $splits[0];
 		        	if (isset($has_lists[$methodName])) {
-		        		echo "-- checking method name ".$methodName."\n";
 
 		        		$relClass = $has_lists[$methodName];
 		        		$fields = \Config::inst()->get($relClass, 'searchable_fields');
@@ -411,7 +452,8 @@ class Searchable extends \DataExtension {
 		        	} else if (in_array($methodName,$has_ones)) {
 
 		        	} else {
-		        		echo $methodName.' not found';
+		        		user_error($methodName.' not found in class '.$this->owner->ClassName.
+		        				', please check configuration');
 		        		die;
 		        	}
 		        }
