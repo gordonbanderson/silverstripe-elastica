@@ -15,7 +15,7 @@ class Searchable extends \DataExtension {
 	 * Counter used to display progress of indexing
 	 * @var integer
 	 */
-	private static $index_ctr = 0;
+	public static $index_ctr = 0;
 
 	/**
 	 * Everytime progressInterval divides $index_ctr exactly display progress
