@@ -102,6 +102,9 @@ class ElasticSearcher {
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
 	public function search($q) {
+		if ($q == '') {
+			$q = '*';
+		}
 		$queryString = new QueryString($q);
 
 		$manipulatorInstance = null;
@@ -134,6 +137,7 @@ class ElasticSearcher {
 				break;
 
 			default:
+			//http://dev.jakayanrides.com/gallery/search/?Tags=bike&ISO=400 now failing
 				$queryFilter = new BoolAnd();
 				foreach ($elFilters as $filter) {
 					$queryFilter->addFilter($filter);
@@ -144,20 +148,13 @@ class ElasticSearcher {
 		// the Elastica query object
 		$query = null;
 
-		// search only with string
-		if ($q == '') {
-			$query = new Query();
-			if (count($this->filters) > 0) {
-				$query->setQuery($queryFilter);
-			}
-		} else {
-			// search with string and filters
-			$filtered = new Filtered(
+
+
+		$filtered = new Filtered(
 			  $queryString,
 			  $queryFilter
 			);
 			$query = new Query( $filtered);
-		}
 
 		// pagination
 		$query->setLimit($this->pageLength);
@@ -167,6 +164,8 @@ class ElasticSearcher {
 		if ($this->manipulator) {
 			$manipulatorInstance->augmentQuery($query);
 		}
+
+
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$resultList = new ResultList($index, $query);
