@@ -139,11 +139,14 @@ class Searchable extends \DataExtension {
 			} else {
 				// field name is not in the db, it could be a method
 				$has_lists = $this->getListRelationshipMethods();
+				$has_ones = $this->owner->has_one();
+
 				$name = str_replace('()', '', $name);
+
+				// check has_many and many_many relations
 				if (isset($has_lists[$name])) {
 					// FIX ME how to do nested mapping
 					// See https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-array-type.html
-					$methodMapping = array();
 
 					// the classes returned by the list method
 					$resultType = $has_lists[$name];
@@ -164,7 +167,24 @@ class Searchable extends \DataExtension {
 
 					// we now change the name to the result type, not the method name
 					$name = $resultType;
-				} else {
+				} else if (isset($has_ones[$name])) {
+					$resultType = $has_ones[$name];
+					$resultTypeInstance = \Injector::inst()->create($resultType);
+
+					// get the fields for the result type, but do not recurse
+					// // FIXME avoid recursing
+					$resultTypeMapping = $resultTypeInstance->getElasticaFields();
+					$resultTypeMapping['ID'] = array('type' => 'integer');
+
+					if ($storeMethodName) {
+						$resultTypeMapping['__method'] = $name;
+					}
+					$spec = array('properties' => $resultTypeMapping);
+					// we now change the name to the result type, not the method name
+					$name = $resultType;
+				}
+				// otherwise fall back to string
+				else {
 	                $spec["type"] = "string";
 				}
             }
@@ -273,6 +293,7 @@ class Searchable extends \DataExtension {
 
 	public function getFieldValuesAsArray($recurse = true) {
 		$fields = array();
+		$has_ones = $this->owner->has_one();
 		foreach ($this->getElasticaFields($recurse) as $field => $config) {
             if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
             	// call a method to get a field value
@@ -297,16 +318,27 @@ class Searchable extends \DataExtension {
                 } else {
                 	if (isset($config['properties']['__method'])) {
                 		$methodName = $config['properties']['__method'];
-                		$datalist = $this->owner->$methodName();
+                		$data = $this->owner->$methodName();
                 		$relArray = array();
-                		foreach ($datalist->getIterator() as $item) {
-                			if ($recurse) {
-                				// populate the subitem but do not recurse any further if more relationships
-                				$itemDoc = $item->getFieldValuesAsArray(false);
-                				array_push($relArray, $itemDoc);
-                			}
-                		}
 
+                		// get the fields of a has_one relational object
+                		if (isset($has_ones[$methodName])) {
+                			if ($data->ID > 0) {
+                				$item = $data->getFieldValuesAsArray(false);
+                				array_push($relArray, $item);
+                			}
+
+                		// get the fields for a has_many or many_many relational list
+                		} else {
+                			foreach ($data->getIterator() as $item) {
+	                			if ($recurse) {
+	                				// populate the subitem but do not recurse any further if more relationships
+	                				$itemDoc = $item->getFieldValuesAsArray(false);
+	                				array_push($relArray, $itemDoc);
+	                			}
+	                		}
+                		}
+                		// save the relation as an array (for now)
                 		$fields[$methodName] = $relArray;
                 	} else {
                 		$fields[$field] = $this->owner->$field;
@@ -462,6 +494,7 @@ class Searchable extends \DataExtension {
 		        	// split before the brackets which can optionally list which fields to index
 		        	$splits = explode('(', $methodDesc);
 		        	$methodName = $splits[0];
+
 		        	if (isset($has_lists[$methodName])) {
 
 		        		$relClass = $has_lists[$methodName];
@@ -471,14 +504,23 @@ class Searchable extends \DataExtension {
 		        			die;
 				        }
 		        		$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
-		        		$classname = $has_lists[$methodName];
 
 		        		// mark as a method, the resultant fields are correct
 		        		$elasticaMapping[$methodName.'()'] = $rewrite;
 
 
-		        	} else if (in_array($methodName,$has_ones)) {
+		        	} else if (isset($has_ones[$methodName])) {
+		        		$relClass = $has_ones[$methodName];
+		        		$fields = \Config::inst()->get($relClass, 'searchable_fields');
+		        		if(!$fields) {
+		        			user_error('The field $searchable_fields must be set for class '.$relClass);
+		        			die;
+				        }
+		        		$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
+		        		$classname = $has_ones[$methodName];
 
+		        		// mark as a method, the resultant fields are correct
+		        		$elasticaMapping[$methodName.'()'] = $rewrite;
 		        	} else {
 		        		user_error($methodName.' not found in class '.$this->owner->ClassName.
 		        				', please check configuration');
