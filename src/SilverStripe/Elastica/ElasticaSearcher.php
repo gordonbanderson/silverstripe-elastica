@@ -129,6 +129,7 @@ class ElasticSearcher {
 				// filter already null
 				break;
 			case 1:
+				print_r($elFilters);
 				$queryFilter = $elFilters[0];
 				break;
 
@@ -145,14 +146,17 @@ class ElasticSearcher {
 
 		// search only with string
 		if ($q == '') {
-			$query = new Query( $queryFilter);
+			$query = new Query();
+			if (count($this->filters) > 0) {
+				$query->setQuery($queryFilter);
+			}
 		} else {
 			// search with string and filters
-			$filter = new Filtered(
+			$filtered = new Filtered(
 			  $queryString,
 			  $queryFilter
 			);
-			$query = new Query( $filter);
+			$query = new Query( $filtered);
 		}
 
 		// pagination
