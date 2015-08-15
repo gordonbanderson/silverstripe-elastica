@@ -121,9 +121,7 @@ class ElasticSearcher {
 		$rangeFilterKeys = RangedAggregation::getTitles();
 
 		foreach ($this->filters as $key => $value) {
-			echo "Checking for key $key \n";
 			if (!in_array($key, $rangeFilterKeys)) {
-				echo " - Adding key \n";
 				$filter = new Term();
 				$filter->setTerm($key,$value);
 				$elFilters[] = $filter;
@@ -143,12 +141,10 @@ class ElasticSearcher {
 				// filter already null
 				break;
 			case 1:
-				print_r($elFilters);
 				$queryFilter = $elFilters[0];
 				break;
 
 			default:
-			//http://dev.jakayanrides.com/gallery/search/?Tags=bike&ISO=400 now failing
 				$queryFilter = new BoolAnd();
 				foreach ($elFilters as $filter) {
 					$queryFilter->addFilter($filter);
@@ -175,8 +171,6 @@ class ElasticSearcher {
 		if ($this->manipulator) {
 			$manipulatorInstance->augmentQuery($query);
 		}
-
-		print_r($query);
 
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
