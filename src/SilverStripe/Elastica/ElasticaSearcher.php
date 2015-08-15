@@ -128,7 +128,7 @@ class ElasticSearcher {
 			} else {
 				// get the selected range filter
 				$range = \RangedAggregation::getByTitle($key);
-				$filter = $range->getFilter('Panoramic');
+				$filter = $range->getFilter($value);
 				$elFilters[] = $filter;
 			}
 		}
