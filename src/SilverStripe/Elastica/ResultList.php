@@ -148,6 +148,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			}
 
 			foreach (array_keys($aggs) as $key) {
+				//echo "MARKING SELECTED AGGS FOR $key \n";
 				$aggDO = new \DataObject();
 				//FIXME - Camel case separate here
 				if (isset($indexedFieldTitleMapping[$key])) {
@@ -158,8 +159,10 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
 				// now the buckets
 				if (isset($aggs[$key]['buckets'])) {
+					//echo "Buckets found for $key \n";
 					$bucketsAL = new \ArrayList();
 					foreach ($aggs[$key]['buckets'] as $value) {
+						//print_r($value);
 						$ct = new \DataObject();
 						$ct->Key = $value['key'];
 						$ct->DocumentCount = $value['doc_count'];
@@ -171,16 +174,20 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 							$prefixAmp = true;
 						}
 
-
 						// check if currently selected
 						if (isset($selectedAggregations[$key])) {
+							//echo " - cf ".$selectedAggregations[$key].' and '.(string)$value['key']."\n";
+
 							if ($selectedAggregations[$key] === (string)$value['key']) {
+								//echo "     - Marked as selected \n";
 								$ct->IsSelected = true;
 								// mark this facet as having been selected, so optional toggling
 								// of the display of the facet can be done via the template.
 								$aggDO->IsSelected = true;
 
 								$urlParam = $key.'='.urlencode($selectedAggregations[$key]);
+
+								//echo "    - URL PARAM : $urlParam \n";
 
 								// possible ampersand combos to remove
 								$v2 = '&'.$urlParam;
@@ -198,11 +205,24 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						$url = rtrim($url,'&');
 
 						$ct->URL = $url;
-
-
 						$bucketsAL->push($ct);
 					}
+
+					// in the case of range queries we wish to remove the non selected ones
+					if ($aggDO->IsSelected) {
+						$newList = new \ArrayList();
+						foreach ($bucketsAL->getIterator() as $bucket) {
+							if ($bucket->IsSelected) {
+								$newList->push($bucket);
+								break;
+							}
+						}
+
+						$bucketsAL = $newList;
+					}
 					$aggDO->Buckets = $bucketsAL;
+
+
 				}
 				$aggsTemplate->push($aggDO);
 			}
