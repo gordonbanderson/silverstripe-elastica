@@ -118,10 +118,21 @@ class ElasticSearcher {
 		}
 
 		$elFilters = array();
+		$rangeFilterKeys = RangedAggregation::getTitles();
+
 		foreach ($this->filters as $key => $value) {
-			$filter = new Term();
-			$filter->setTerm($key,$value);
-			$elFilters[] = $filter;
+			echo "Checking for key $key \n";
+			if (!in_array($key, $rangeFilterKeys)) {
+				echo " - Adding key \n";
+				$filter = new Term();
+				$filter->setTerm($key,$value);
+				$elFilters[] = $filter;
+			} else {
+				// get the selected range filter
+				$range = \RangedAggregation::getByTitle($key);
+				$filter = $range->getFilter('Panoramic');
+				$elFilters[] = $filter;
+			}
 		}
 
 
@@ -165,6 +176,7 @@ class ElasticSearcher {
 			$manipulatorInstance->augmentQuery($query);
 		}
 
+		print_r($query);
 
 
 		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
