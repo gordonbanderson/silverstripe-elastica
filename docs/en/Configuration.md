@@ -28,7 +28,10 @@ added using the extension mechanism also.
 ##PHP Level Configuration
 ###Searchable Fields
 Adding fields of an object class to an index can be done in one of two ways, updating the static variable
-$searchable_fields of an object.
+_$searchable_fields_ of an object.
+
+###Searchable Relationships
+
 
 Note that after every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
 
