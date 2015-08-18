@@ -1,4 +1,4 @@
-#Usage
+#Configuration
 
 ##Initial YML Configuration
 The first step is to configure the Elastic Search service. To do this, the configuration system

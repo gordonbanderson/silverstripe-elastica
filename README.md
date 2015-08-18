@@ -10,7 +10,10 @@ This module provides a SilverStripe wrapper around the powerful elastica search 
  
 ##Documentation
 * [Installation](./docs/en/Installation.md)
-* [Usage](./docs/en/Usage.md)
+* [Configuration](./docs/en/Configuration.md)
+* [Indexing](./docs/en/Indexing.md)
+* [Searching within the CMS](./docs/en/SearchCMS.md)
+* [Searching Using Code](./docs/en/SearchCoding.md)
 * [Command Line Tools](./docs/en/CommandLineTools.md)
 
 

@@ -1,3 +1,4 @@
+#Indexing
 ##Manipulation of Mapping and Document
 Sometimes you might want to change documents or mappings (eg. for special boosting settings) before
 they are sent to elasticsearch.  For that purpose add the following methods to the class whose 
@@ -20,7 +21,7 @@ extension otherwise these edits may possibly be lost after a composer update.
 	}
 ```
 
-###Workd Example - Geographic Coordinates
+###Worked Example - Geographic Coordinates
 The Mappable module allows any DataObject to have geographical coordinates assigned to it, these
 are held in fields called Lat and Lon.  They need to paired together as a geographical coordinate
 prior to being stored in Elastic.  This allows one to take advantage of geographical searching.
