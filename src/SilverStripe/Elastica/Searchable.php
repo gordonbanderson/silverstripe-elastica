@@ -483,7 +483,7 @@ class Searchable extends \DataExtension {
 
         if ($recurse) {
         	// now for the associated methods and their results
-	        $methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_methods');
+	        $methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_relationships');
 
 	        $has_ones = $this->owner->has_one();
 	        $has_lists = $this->getListRelationshipMethods();
