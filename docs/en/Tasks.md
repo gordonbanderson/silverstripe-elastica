@@ -8,7 +8,7 @@ following example as a guide:
 	sudo -u www-data framework/sake dev/tasks/SilverStripe-Elastica-ReindexTask
 ```
 
-###Reindex
+##Reindex
 Execute a reindex of all of the classes configured to be indexed.
 ```bash
 	framework/sake dev/tasks/SilverStripe-Elastica-ReindexTask
@@ -20,7 +20,7 @@ Delete the configured index.  Reindexing as above will restore the index as func
 	framework/sake dev/tasks/SilverStripe-Elastica-DeleteIndexTask
 ```
 
-###Aliases
+##Aliases
 You will probably want to add aliases for these tasks.  On Debian the file to edit is ~/.bash_aliases.  Add likes of
 the following:
 
