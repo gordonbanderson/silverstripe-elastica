@@ -31,9 +31,13 @@ Adding fields of an object class to an index can be done in one of two ways, upd
 _$searchable_fields_ of an object.
 
 ###Searchable Relationships
+Similar to the above, relationships of types has_one, one_to_many, and many_to_many can have their searchable fields
+stored as a flat array in the document being indexed.  These are indicated using a static variable
+_$searchable_relationships_, with optionally a pair of brackets '()' appended to the method name, just to make
+clearer in the configuration that a method is being used.  Note that relationships are only followed one level deep,
+this is to avoid a situation where infinite recursion occurs, and so as also not to bloat document size too much.
 
-
-Note that after every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
+After every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
 
 ###Purely PHP
 ```php
