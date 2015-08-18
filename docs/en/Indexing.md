@@ -1,4 +1,9 @@
 #Indexing
+
+##Performing the Indexing
+To perform the indexing execute the ReIndex task, see [Tasks](./Tasks.md) - this deletes the index
+and rebuilds it from scratch.
+
 ##Manipulation of Mapping and Document
 Sometimes you might want to change documents or mappings (eg. for special boosting settings) before
 they are sent to elasticsearch.  For that purpose add the following methods to the class whose 
