@@ -4,6 +4,8 @@ namespace SilverStripe\Elastica;
 
 use Elastica\Index;
 use Elastica\Query;
+use Elastica\Filter\GeoDistance;
+
 
 /**
  * A list wrapper around the results from a query. Note that not all operations are implemented.
@@ -82,6 +84,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
+			//print_r($this->query);
 			// get the ElasticaResultSet initally to obtain details
 			// 'index' is actually elastica service, bad naming of vars
 			$ers = $this->index->search($this->query,$this->types);
