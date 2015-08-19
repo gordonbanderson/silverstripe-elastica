@@ -115,7 +115,7 @@ class Searchable extends \DataExtension {
 	 *
 	 * @return array
 	 */
-	public function getElasticaFields($storeMethodName = false) {
+	public function getElasticaFields($storeMethodName = false, $recurse = true) {
         $db = $this->owner->db();
 		$fields = $this->getAllSearchableFields();
 		$result = array();
@@ -123,6 +123,9 @@ class Searchable extends \DataExtension {
 		foreach ($fields as $name => $params) {
 			$type = null;
 			$spec = array();
+
+			$name = str_replace('()', '', $name);
+			//echo "Checking $name \n";
 
 			if (array_key_exists($name, $db)) {
 				$class = $db[$name];
@@ -141,8 +144,6 @@ class Searchable extends \DataExtension {
 				$has_lists = $this->getListRelationshipMethods();
 				$has_ones = $this->owner->has_one();
 
-				$name = str_replace('()', '', $name);
-
 				// check has_many and many_many relations
 				if (isset($has_lists[$name])) {
 					// FIX ME how to do nested mapping
@@ -155,7 +156,10 @@ class Searchable extends \DataExtension {
 
 					// get the fields for the result type, but do not recurse
 					// // FIXME avoid recursing
-					$resultTypeMapping = $resultTypeInstance->getElasticaFields();
+					if ($recurse) {
+						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
+					}
+
 					$resultTypeMapping['ID'] = array('type' => 'integer');
 
 					if ($storeMethodName) {
@@ -173,7 +177,10 @@ class Searchable extends \DataExtension {
 
 					// get the fields for the result type, but do not recurse
 					// // FIXME avoid recursing
-					$resultTypeMapping = $resultTypeInstance->getElasticaFields();
+					if ($recurse) {
+						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
+					}
+
 					$resultTypeMapping['ID'] = array('type' => 'integer');
 
 					if ($storeMethodName) {
@@ -185,6 +192,7 @@ class Searchable extends \DataExtension {
 				}
 				// otherwise fall back to string
 				else {
+					echo "T5\n";
 	                $spec["type"] = "string";
 				}
             }
@@ -201,6 +209,7 @@ class Searchable extends \DataExtension {
      * @return \Elastica\Type\Mapping
 	 */
 	public function getElasticaMapping() {
+		//echo "\n\n**********************************\n\n";
 		$mapping = new Mapping();
 
         $fields = $this->getElasticaFields(false);
@@ -218,6 +227,9 @@ class Searchable extends \DataExtension {
         $fields['Link'] = array('type' => 'string');
 
 		$mapping->setProperties($fields);
+
+		//echo "\n\n--------\n".$this->owner->ClassName.'\n';
+		//print_r($fields);
 
         if ($this->owner->hasMethod('updateElasticsearchMapping')) {
             $mapping = $this->owner->updateElasticsearchMapping($mapping);
@@ -469,7 +481,6 @@ class Searchable extends \DataExtension {
      * @return array searchable fields
      */
     public function getAllSearchableFields($recurse = true) {
-    	//echo $this->owner->ClassName."\n-------------------\n";
         $fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
 
         // fallback to default method
@@ -484,12 +495,10 @@ class Searchable extends \DataExtension {
         if ($recurse) {
         	// now for the associated methods and their results
 	        $methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_relationships');
-
 	        $has_ones = $this->owner->has_one();
 	        $has_lists = $this->getListRelationshipMethods();
 
 	        if (isset($methodDescs)) {
-
 	        	foreach ($methodDescs as $methodDesc) {
 		        	// split before the brackets which can optionally list which fields to index
 		        	$splits = explode('(', $methodDesc);
