@@ -37,7 +37,7 @@ class FindElasticaSearchPageExtension extends Extension {
 
 		$cache = SS_Cache::factory('searchpagecache');
 		$searchPage = null;
-		$cachekeyname = 'searchpageuri'.$this->owner->Locale.$ck;
+		$cachekeyname = 'searchpageuri'.$identifier.$this->owner->Locale.$ck;
 
 		if(!($searchPage = unserialize($cache->load($cachekeyname)))) {
 			$searchPage = ElasticSearchPage::get()->filter('Identifier',$identifier)->first();
