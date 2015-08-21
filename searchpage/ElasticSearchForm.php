@@ -39,9 +39,13 @@ class ElasticSearchForm extends Form {
         $fields = new FieldList(
            $tf = new TextField("q", "", $searchText)
         );
+
+        $buttonText = _t('SearchPage.SEARCH', 'Search');
         $actions = new FieldList(
-            $fa = new FormAction('submit', _t('SearchPage.SEARCH', 'Search'))
+            $fa = new FormAction('submit', $buttonText)
         );
+
+        $this->SubmitButton = $fa;
 
         if (isset($_GET['q'])) {
 			$tf->setValue($_GET['q']);
@@ -54,5 +58,17 @@ class ElasticSearchForm extends Form {
 		parent::__construct($controller, $name, $fields, $actions);
 		$this->setFormMethod('post');
 		$this->disableSecurityToken();
+	}
+
+	/**
+	 * Optionally allow templates to override the text of the submit button, perhaps if using a icon font
+	 * as per the default Simple theme
+	 *
+	 * @param string $newButtonText Alternative search text
+	 */
+	public function setButtonText($newButtonText) {
+		$this->actions = new FieldList(
+            $fa = new FormAction('submit', $newButtonText)
+        );
 	}
 }
