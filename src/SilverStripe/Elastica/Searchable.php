@@ -135,6 +135,9 @@ class Searchable extends \DataExtension {
 				}
 				if (array_key_exists($class, self::$mappings)) {
 					$spec['type'] = self::$mappings[$class];
+					if ($spec['type'] == 'date') {
+						$spec['format'] = 'y-M-d H:m:s';
+					}
 					if ($class === 'HTMLText' || $class === 'HTMLVarchar') {
 						array_push($this->html_fields, $name);
 					}
