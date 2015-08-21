@@ -1,0 +1,7 @@
+Elastica:
+  Highlights:
+    PreTags: <strong class="highlight">
+    PostTags: </strong>
+    Phrase:
+      FragmentSize: 200
+      NumberOfFragments: 4

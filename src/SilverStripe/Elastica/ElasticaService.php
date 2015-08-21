@@ -64,14 +64,21 @@ class ElasticaService {
 	 */
 	public function search($searchterms, $types = '') {
 		$query = Query::create($searchterms);
+
+		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
+		$preTags = $highlightsCfg['PreTags'];
+		$postTags = $highlightsCfg['PostTags'];
+		$fragmentSize = $highlightsCfg['Phrase']['FragmentSize'];
+		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
+
 		$query->setHighlight(array(
-			'pre_tags' => array('<strong class="highlight">'),
-			'post_tags' => array('</strong>'),
+			'pre_tags' => array($preTags),
+			'post_tags' => array($postTags),
 			'fields' => array(
 				"*" => json_decode('{}'),
 				'phrase' => array(
-					'fragment_size' => 200,
-					'number_of_fragments' => 4,
+					'fragment_size' => $fragmentSize,
+					'number_of_fragments' => $nFragments,
 				),
 			),
 		));
