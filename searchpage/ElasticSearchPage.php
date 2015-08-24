@@ -18,7 +18,8 @@ class ElasticSearchPage extends Page {
 		'ShowInMenus' => 0,
 		'ShowInSearch' => 0,
 		'ClassesToSearch' => '',
-		'ResultsPerPage' => 10
+		'ResultsPerPage' => 10,
+		'SiteTreeOnly' => true
 	);
 
 	private static $db = array(
@@ -27,7 +28,8 @@ class ElasticSearchPage extends Page {
 		// e.g. a separate search page for blog, pictures etc
 		'Identifier' => 'Varchar',
 		'ResultsPerPage' => 'Int',
-		'SearchHelper' => 'Varchar'
+		'SearchHelper' => 'Varchar',
+		'SiteTreeOnly' => 'Boolean'
 	);
 
 
@@ -35,26 +37,32 @@ class ElasticSearchPage extends Page {
 	Add a tab with details of what to search
 	 */
 	function getCMSFields() {
+		Requirements::javascript('elastica/javascript/elasticaedit.js');
 		$fields = parent::getCMSFields();
+		$fields->addFieldToTab('Root.SearchDetails', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
+
 		$fields->addFieldToTab('Root.SearchDetails', new TextField('ClassesToSearch'));
 		$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
 			 . "SELECT DISTINCT ClassName from SiteTree "
 			 . "WHERE ClassName != 'ErrorPage'"
 			 . "ORDER BY ClassName"
 		;
+
+
 		$classes = array();
 		$records = DB::query($sql);
 		foreach ($records as $record) {
 			array_push($classes, $record['ClassName']);
 		}
 		$list = implode(',', $classes);
-		$html ="<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p><pre>";
+		$html = '<div class="field text" id="SiteTreeOnlyInfo">';
+		$html .= "<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p><pre>";
 		$html .= $list;
-		$html .= "</pre>";
+		$html .= "</pre></div>";
 		$infoField = new LiteralField('InfoField',$html);
-
-
 		$fields->addFieldToTab('Root.SearchDetails', $infoField);
+
+
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
 		$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
@@ -122,7 +130,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
-		$es->setClasses($ep->ClassesToSearch);
+
+		if ($this->SiteTreeOnly) {
+			$es->addFilter('IsInSiteTree', $this->SiteTreeOnly);
+		} else {
+			$es->setClasses($ep->ClassesToSearch);
+		}
+
 
 		// start, and page length, i.e. pagination
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
