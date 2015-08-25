@@ -22,6 +22,13 @@ class ElasticSearcher {
 	 */
 	private $filters = array();
 
+
+	/**
+	 * The locale to search, is set to current locale or default locale by default
+	 * but can be overriden.  This is the code in the form en_US, th_TH etc
+	 */
+	private $locale = null;
+
 	/**
 	 * Object just to manipulate the query and result, used for aggregations
 	 * @var ElasticaSearchHelper
@@ -79,6 +86,14 @@ class ElasticSearcher {
 	}
 
 	/**
+	 * Set a new locale
+	 * @param string $newLocale locale in short form, e.g. th_TH
+	 */
+	public function setLocale($newLocale) {
+		$this->locale = $newLocale;
+	}
+
+	/**
 	 * Add a filter to the current query in the form of a key/value pair
 	 * @param string $field the name of the indexed field to filter on
 	 * @param string $value the value of the indexed field to filter on
@@ -102,6 +117,15 @@ class ElasticSearcher {
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
 	public function search($q) {
+		if ($this->locale == null) {
+			if (!class_exists('Translatable')) {
+				// if no translatable we only have the default locale
+				$this->locale = \i18n::default_locale();
+			} else {
+				$this->locale = Translatable::get_current_locale();
+			}
+		}
+
 		if ($q == '') {
 			$q = '*';
 		}
