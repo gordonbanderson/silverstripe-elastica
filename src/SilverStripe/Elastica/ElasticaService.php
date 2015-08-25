@@ -32,12 +32,25 @@ class ElasticaService {
 	private $indexName;
 
 	/**
+	 * The code of the locale being indexed or searched
+	 * @var string e.g. th_TH, en_US
+	 */
+	private $locale;
+
+	/**
+	 * Mapping of DataObject ClassName and whether it is in the SiteTree or not
+	 * @var array $site_tree_classes;
+	 */
+	private static $site_tree_classes = array();
+
+	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
 	 */
 	public function __construct(Client $client, $newIndexName) {
 		$this->client = $client;
 		$this->indexName = $newIndexName;
+		$this->locale = \i18n::default_locale();
 	}
 
 	/**
@@ -51,8 +64,20 @@ class ElasticaService {
 	 * @return \Elastica\Index
 	 */
 	public function getIndex() {
-		$index = $this->getClient()->getIndex($this->indexName);
+		$index = $this->getClient()->getIndex($this->getLocaleIndexName());
 		return $index;
+	}
+
+
+	public function setLocale($newLocale) {
+		$this->locale = $newLocale;
+	}
+
+	private function getLocaleIndexName() {
+		$name = $this->indexName.'-'.$this->locale;
+		$name = strtolower($name);
+		$name = str_replace('-', '_', $name);
+		return $name;
 	}
 
 	/**
@@ -99,7 +124,7 @@ class ElasticaService {
 	protected function ensureIndex() {
 		$index = $this->getIndex();
 		if (!$index->exists()) {
-			$index->create();
+			$this->createIndex();
 		}
 	}
 
@@ -139,11 +164,8 @@ class ElasticaService {
 			}
 		} else {
 			$index = $this->getIndex();
-
 			$type = $index->getType($typeName);
-
 			$this->ensureMapping($type, $record);
-
 			$type->addDocument($document);
 			$index->refresh();
 		}
@@ -198,7 +220,7 @@ class ElasticaService {
 		if ($index->exists()) {
 			$index->delete();
 		}
-		$index->create();
+		$this->createIndex();
 
 		foreach ($this->getIndexedClasses() as $class) {
 			/** @var $sng Searchable */
@@ -249,26 +271,6 @@ class ElasticaService {
 	protected function refreshClass($class) {
 		$records = $this->recordsByClassConsiderVersioned($class);
 
-		if ($class::has_extension("Translatable")) {
-
-			$original_locale = \Translatable::get_current_locale();
-			$existing_languages = \Translatable::get_existing_content_languages($class);
-
-			if (isset($existing_languages[$original_locale])) {
-				unset($existing_languages[$original_locale]);
-			}
-
-			foreach($existing_languages as $locale => $langName) {
-				\Translatable::set_current_locale($locale);
-				$langRecords = $this->recordsByClassConsiderVersioned($class);
-				foreach ($langRecords as $record)
-				{
-					$records[] = $record;
-				}
-			}
-			\Translatable::set_current_locale($original_locale);
-		}
-
 		$this->refreshRecords($records);
 	}
 
@@ -280,8 +282,30 @@ class ElasticaService {
 		$index = $this->getIndex();
 		$this->startBulkIndex();
 
-		foreach ($this->getIndexedClasses() as $class) {
-			$this->refreshClass($class);
+		foreach ($this->getIndexedClasses() as $classname) {
+
+			$inSiteTree = false;
+			if (isset($site_tree_classes[$classname])) {
+				$inSiteTree = $site_tree_classes[$classname];
+			} else {
+				$class = new \ReflectionClass($classname);
+				while ($class = $class->getParentClass()) {
+				    $parentClass = $class->getName();
+				    if ($parentClass == 'SiteTree') {
+				    	$inSiteTree = true;
+				    	break;
+				    }
+				}
+				$site_tree_classes[$classname] = $inSiteTree;
+			}
+
+			if ($inSiteTree) {
+				if ($classname === 'SiteTree') {
+					$this->refreshClass($classname);
+				}
+			} else {
+				$this->refreshClass($classname);
+			}
 		}
 
 		$this->endBulkIndex();
@@ -294,6 +318,29 @@ class ElasticaService {
 	public function reset() {
 		$index = $this->getIndex();
 		$index->delete();
+		$this->createIndex();
+	}
+
+
+	private function createIndex() {
+		/*
+		$indexParams = array(
+            'analysis' => array(
+                'analyzer' => array(
+                    'lw' => array(
+                        'type' => 'custom',
+                        'tokenizer' => 'keyword',
+                        'filter' => array('lowercase'),
+                    ),
+                ),
+            ),
+        );
+
+        $index->create($indexParams, true);
+        $type = $index->getType('test');
+		 */
+		// FIXME INDEXING PARAMS HERE
+		$index = $this->getIndex();
 		$index->create();
 	}
 
