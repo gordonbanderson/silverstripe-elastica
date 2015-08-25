@@ -39,8 +39,8 @@ class ElasticSearchPage extends Page {
 	function getCMSFields() {
 		Requirements::javascript('elastica/javascript/elasticaedit.js');
 		$fields = parent::getCMSFields();
-		$fields->addFieldToTab('Root.SearchDetails', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
 
+		$fields->addFieldToTab('Root.SearchDetails', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
 		$fields->addFieldToTab('Root.SearchDetails', new TextField('ClassesToSearch'));
 		$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
 			 . "SELECT DISTINCT ClassName from SiteTree "
@@ -130,13 +130,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
-
-		if ($this->SiteTreeOnly) {
-			$es->addFilter('IsInSiteTree', $this->SiteTreeOnly);
-		} else {
-			$es->setClasses($ep->ClassesToSearch);
-		}
-
 
 		// start, and page length, i.e. pagination
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
