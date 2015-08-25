@@ -126,9 +126,13 @@ class ElasticSearcher {
 			}
 		}
 
+		/*
+		FIXME - this needs to go in the augmenter
 		if ($q == '') {
 			$q = '*';
 		}
+		*/
+
 		$queryString = new QueryString($q);
 
 		$manipulatorInstance = null;
