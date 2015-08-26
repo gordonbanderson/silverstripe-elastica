@@ -114,7 +114,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	and render results accordingly.
 	 */
 	public function index() {
-		$searchResults = new ArrayList();
+		//$searchResults = new ArrayList();
 
 		$data = array(
 			'Content' => $this->Content,
