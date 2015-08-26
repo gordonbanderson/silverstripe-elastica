@@ -126,6 +126,8 @@ class ElasticSearcher {
 			}
 		}
 
+		//echo "SEARCH LOCALE:$this->locale\n";
+
 		/*
 		FIXME - this needs to go in the augmenter
 		if ($q == '') {
@@ -201,8 +203,9 @@ class ElasticSearcher {
 		}
 
 
-		$index = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
-		$resultList = new ResultList($index, $query);
+		$elasticService = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$elasticService->setLocale($this->locale);
+		$resultList = new ResultList($elasticService, $query);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
@@ -216,6 +219,8 @@ class ElasticSearcher {
 		$paginated = new \PaginatedList(
 			$resultList
 		);
+
+
 		$paginated->setPageStart($this->start);
 		$paginated->setPageLength($this->pageLength);
 		$paginated->setTotalItems($resultList->getTotalItems());
