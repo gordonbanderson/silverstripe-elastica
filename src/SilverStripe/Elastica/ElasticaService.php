@@ -109,14 +109,14 @@ class ElasticaService {
 		));
 
 		$search = new Search(new Client());
-		$search->addIndex($this->indexName);
+		$search->addIndex($this->getLocaleIndexName());
         if ($types) {
         	$search->addType($types);
         }
 
         return $search->search($query);
-
 	}
+
 
 	/**
 	 * Ensure that the index is present
