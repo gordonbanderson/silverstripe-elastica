@@ -1,3 +1,8 @@
 <h1>$Title</h1>
 $Content
-$ElasticSearchForm
+
+$SearchForm
+
+<% if $SearchPerformed %>
+<% include ElasticResults %>
+<% end_if %>

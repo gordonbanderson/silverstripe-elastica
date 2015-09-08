@@ -21,24 +21,47 @@ class ReindexTask extends \BuildTask {
 	}
 
 	public function run($request) {
-		$startTime = microtime(true);
 		$message = function ($content) {
 			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
 		};
 
-		$message('Defining the mappings');
-		$this->service->define();
+		$locales = array();
+		if (!class_exists('Translatable')) {
+			// if no translatable we only have the default locale
+			array_push($locales, \i18n::default_locale());
+		} else {
+			foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
+				array_push($locales, $code);
+			}
+		}
 
-		$message('Refreshing the index');
-		$this->service->refresh();
+		// now iterate all the locales indexing each locale in turn using it's owner index settings
+		foreach ($locales as $locale) {
+			Searchable::$index_ctr = 0;
+			$message('Indexing locale '.$locale);
 
-		// display indexing speed stats
-		$endTime = microtime(true);
-		$elapsed = $endTime-$startTime;
-		$perSecond = Searchable::$index_ctr / $elapsed;
-		$info = "\nReindexing completed in ".round($elapsed,2)." seconds ";
-		$info .= "at ".round($perSecond,2)." documents per second";
-		$message($info);
+			\Translatable::set_current_locale($locale);
+			$this->service->setLocale($locale);
+
+			$message('Defining the mappings');
+			$this->service->define();
+
+			// only measure index time
+			$startTime = microtime(true);
+
+			$message('Refreshing the index');
+			$this->service->refresh();
+
+			// display indexing speed stats
+			$endTime = microtime(true);
+			$elapsed = $endTime-$startTime;
+			$perSecond = Searchable::$index_ctr / $elapsed;
+			$info = "\nReindexing $locale completed \n ".Searchable::$index_ctr." docs in ".round($elapsed,2)." seconds ";
+			$info .= "at ".round($perSecond,2)." documents per second\n\n";
+			$message($info);
+		}
+
+
 	}
 
 }
