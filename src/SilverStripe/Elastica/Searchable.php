@@ -235,13 +235,13 @@ Array
 
 
              */
-            echo "BEFORE: ($name):\n========\n";
+           // echo "BEFORE: ($name):\n========\n";
            // print_r($spec);
 
             // in the case of a relationship type will not be set
             if (isset($spec['type'])) {
             	if ($spec['type'] == 'string') {
-	            	echo "$name\n";
+	            	//echo "$name\n";
 	            	$standard = array();
 	            	$standard['type'] = "string";
 	            	$standard['analyzer'] = "standard";
@@ -252,7 +252,7 @@ Array
 	            }
             }
 
-            echo "AFTER: ($name):\n========\n";
+            //echo "AFTER: ($name):\n========\n";
             //print_r($spec);
 
 			$result[$name] = $spec;
