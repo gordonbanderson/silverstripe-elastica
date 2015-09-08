@@ -340,8 +340,40 @@ class ElasticaService {
         $type = $index->getType('test');
 		 */
 		// FIXME INDEXING PARAMS HERE
-		$index = $this->getIndex();
-		$index->create();
+		$originalLocale = $this->locale;
+		$locales = array();
+		if (!class_exists('Translatable')) {
+			// if no translatable we only have the default locale
+			array_push($locales, \i18n::default_locale());
+		} else {
+			foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
+				array_push($locales, $code);
+			}
+		}
+
+		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
+		print_r($indexSettings);
+		foreach ($locales as $contextLocale) {
+
+			$this->locale = $contextLocale;
+			$index = $this->getIndex();
+			if (isset($indexSettings[$contextLocale])) {
+				$settingsClassName = $indexSettings[$contextLocale];
+				$settingsInstance = \Injector::inst()->create($settingsClassName);
+				$settings = $settingsInstance->generateConfig();
+				print_r($settings);
+				$index->create($settings, true);
+			} else {
+				echo('ERROR: No index settings are provided for locale '.$contextLocale."\n");
+				die;
+			}
+
+
+
+		}
+
+		$this->locale = $originalLocale;
+
 	}
 
 
