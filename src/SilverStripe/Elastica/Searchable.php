@@ -162,7 +162,6 @@ class Searchable extends \DataExtension {
 					$resultTypeInstance = \Injector::inst()->create($resultType);
 
 					// get the fields for the result type, but do not recurse
-					// // FIXME avoid recursing
 					if ($recurse) {
 						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
 					}
@@ -202,6 +201,59 @@ class Searchable extends \DataExtension {
 	                $spec["type"] = "string";
 				}
             }
+
+            // if the type is string store stemmed and unstemmed
+            /*
+            curl -XPUT 'http://localhost:9200/my_index' -d '
+{
+    "settings": { "number_of_shards": 1 },
+    "mappings": {
+        "my_type": {
+            "properties": {
+                "title": {
+                    "type":     "string",
+                    "analyzer": "english",
+                    "fields": {
+                        "std":   {
+                            "type":     "string",
+                            "analyzer": "standard"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+'
+
+Title
+Array
+(
+    [type] => string
+)
+
+
+             */
+            echo "BEFORE: ($name):\n========\n";
+           // print_r($spec);
+
+            // in the case of a relationship type will not be set
+            if (isset($spec['type'])) {
+            	if ($spec['type'] == 'string') {
+	            	echo "$name\n";
+	            	$standard = array();
+	            	$standard['type'] = "string";
+	            	$standard['analyzer'] = "standard";
+	            	$extraFields = array('standard' => $standard);
+	            	$spec['fields'] = $extraFields;
+	            	// FIXME - make index/locale specific, get from settings
+	            	$spec['analyzer'] = 'english';
+	            }
+            }
+
+            echo "AFTER: ($name):\n========\n";
+            //print_r($spec);
+
 			$result[$name] = $spec;
 		}
 
@@ -244,11 +296,11 @@ class Searchable extends \DataExtension {
 	}
 
 
-    /**
-     * Get an elasticsearch document
-     *
-     * @return \Elastica\Document
-     */
+	/**
+	* Get an elasticsearch document
+	*
+	* @return \Elastica\Document
+	*/
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
@@ -267,9 +319,6 @@ class Searchable extends \DataExtension {
 				echo "Indexed ".self::$index_ctr."...\n";
 			}
 		}
-
-
-
 
 		// Optionally update the document
         $document = new Document($this->owner->ID, $fields);
