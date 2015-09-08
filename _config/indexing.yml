@@ -1,0 +1,13 @@
+---
+Name: elasticaindexing
+After: 'framework/*','cms/*'
+---
+
+#Mapping of locale to class used to provide properties for index creation,
+#e.g. analyzers, stemming etc
+Elastica:
+  indexsettings:
+    # https://www.elastic.co/guide/en/elasticsearch/guide/current/case-folding.html
+    de_DE: EnglishIndexSettings
+    en_US: EnglishIndexSettings
+    th_TH: EnglishIndexSettings
