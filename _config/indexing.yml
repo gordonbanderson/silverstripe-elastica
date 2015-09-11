@@ -8,6 +8,6 @@ After: 'framework/*','cms/*'
 Elastica:
   indexsettings:
     # https://www.elastic.co/guide/en/elasticsearch/guide/current/case-folding.html
-    de_DE: EnglishIndexSettings
+    de_DE: GermanIndexSettings
     en_US: EnglishIndexSettings
-    th_TH: EnglishIndexSettings
+    th_TH: ThaiIndexSettings
