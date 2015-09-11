@@ -177,7 +177,17 @@ class ElasticaService {
 	 * indexed immediately.
 	 */
 	public function startBulkIndex() {
+		$index = $this->getIndex();
+		echo "\n\n\n++++++++++++++++++++\n++++ Starting bulk index for ".$index->getName()."\n++++++++++++++++++++\n\n";
 		$this->buffered = true;
+	}
+
+	public function listIndexes($trace) {
+		$command = "curl 'localhost:9200/_cat/indices?v'";
+        exec($command,$op);
+        echo "\n++++ $trace ++++\n";
+        print_r($op);
+        echo "++++ /{$trace} ++++\n\n";
 	}
 
 
@@ -186,8 +196,10 @@ class ElasticaService {
 	 */
 	public function endBulkIndex() {
 		$index = $this->getIndex();
+		echo "++++ Ending bulk index for ".$index->getName()."\n";
 
 		foreach ($this->buffer as $type => $documents) {
+			echo "Adding ".sizeof($documents)." docs of type {$type}\n";
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
 		}
@@ -216,11 +228,18 @@ class ElasticaService {
 	public function define() {
 		$index = $this->getIndex();
 
+		echo "**** INDEX NAME TO BE DEFINIED:".$index->getName()."\n";
+
+		$this->listIndexes('T1');
 		# Recreate the index
 		if ($index->exists()) {
 			$index->delete();
+			$this->listIndexes('T2 DELETED INDEX '.$index->getName());
 		}
+		$this->listIndexes('T3');
 		$this->createIndex();
+
+		$this->listIndexes('T4');
 
 		foreach ($this->getIndexedClasses() as $class) {
 			/** @var $sng Searchable */
@@ -240,6 +259,7 @@ class ElasticaService {
 	 */
 	protected function refreshRecords($records) {
 		foreach ($records as $record) {
+			//echo 'Indexing '.$record->ClassName.' ('.$record->ID.")\n";
 			if ($record->showRecordInSearch()) {
 				$this->index($record);
 			}
@@ -281,6 +301,8 @@ class ElasticaService {
 	public function refresh() {
 		$index = $this->getIndex();
 		$this->startBulkIndex();
+
+		echo "Refreshing {$this->locale}\n";
 
 		foreach ($this->getIndexedClasses() as $classname) {
 
@@ -341,9 +363,9 @@ class ElasticaService {
         $type = $index->getType('test');
 		 */
 		// FIXME INDEXING PARAMS HERE
-		$originalLocale = $this->locale;
-		$locales = array();
-		if (!class_exists('Translatable')) {
+		//$originalLocale = $this->locale;
+		//$locales = array();
+		/*if (!class_exists('Translatable')) {
 			// if no translatable we only have the default locale
 			array_push($locales, \i18n::default_locale());
 		} else {
@@ -351,29 +373,23 @@ class ElasticaService {
 				array_push($locales, $code);
 			}
 		}
+		*/
 
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
-		print_r($indexSettings);
-		foreach ($locales as $contextLocale) {
 
-			$this->locale = $contextLocale;
-			$index = $this->getIndex();
-			if (isset($indexSettings[$contextLocale])) {
-				$settingsClassName = $indexSettings[$contextLocale];
-				$settingsInstance = \Injector::inst()->create($settingsClassName);
-				$settings = $settingsInstance->generateConfig();
-				print_r($settings);
-				$index->create($settings, true);
-			} else {
-				echo('ERROR: No index settings are provided for locale '.$contextLocale."\n");
-				die;
-			}
-
-
-
+		$index = $this->getIndex();
+		if (isset($indexSettings[$this->locale])) {
+			$settingsClassName = $indexSettings[$this->locale];
+			$settingsInstance = \Injector::inst()->create($settingsClassName);
+			$settings = $settingsInstance->generateConfig();
+			$index->create($settings, true);
+		} else {
+			echo('ERROR: No index settings are provided for locale '.$$this->locale."\n");
+			die;
 		}
 
-		$this->locale = $originalLocale;
+
+//		$this->locale = $originalLocale;
 
 	}
 
