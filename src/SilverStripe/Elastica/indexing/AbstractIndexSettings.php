@@ -114,9 +114,9 @@ abstract class AbstractIndexSettings {
 		$analyzers['stemmed'] = $analyzerStemmed;
 
 		$settings['analysis'] = array();
-		$settings['analysis']['analyzers'] = $analyzers;
+		$settings['analysis']['analyzer'] = $analyzers;
 
-		$properties['settings'] = $settings;
+		$properties['index'] = $settings;
 
 /*
 		$json = '{
