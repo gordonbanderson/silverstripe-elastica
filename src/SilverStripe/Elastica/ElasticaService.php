@@ -299,6 +299,7 @@ class ElasticaService {
 				$site_tree_classes[$classname] = $inSiteTree;
 			}
 
+			echo "Refresh {$classname}\n";
 			if ($inSiteTree) {
 				if ($classname === 'SiteTree') {
 					$this->refreshClass($classname);
