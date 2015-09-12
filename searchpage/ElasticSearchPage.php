@@ -48,7 +48,6 @@ class ElasticSearchPage extends Page {
 			 . "ORDER BY ClassName"
 		;
 
-
 		$classes = array();
 		$records = DB::query($sql);
 		foreach ($records as $record) {
