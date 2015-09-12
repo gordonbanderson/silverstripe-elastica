@@ -7,6 +7,7 @@ use Elastica\Aggregation\Filter;
 use Elastica\Filter\Term;
 use Elastica\Filter\BoolAnd;
 use Elastica\Query\Filtered;
+use Elastica\Query\MultiMatch;
 
 
 class ElasticSearcher {
@@ -116,7 +117,7 @@ class ElasticSearcher {
 	 * @param  string $q query string
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
-	public function search($q) {
+	public function search($q, $fieldsToSearch = null) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -135,7 +136,7 @@ class ElasticSearcher {
 		}
 		*/
 
-		$queryString = new QueryString($q);
+
 
 		$manipulatorInstance = null;
 		if ($this->manipulator) {
@@ -173,7 +174,6 @@ class ElasticSearcher {
 			case 1:
 				$queryFilter = $elFilters[0];
 				break;
-
 			default:
 				$queryFilter = new BoolAnd();
 				foreach ($elFilters as $filter) {
@@ -182,16 +182,23 @@ class ElasticSearcher {
 				break;
 		}
 
+		$textQuery = null;
+
+		if (is_array($fieldsToSearch) && sizeof($fieldsToSearch) > 0) {
+			$textQuery = new MultiMatch();
+	        $textQuery->setQuery($q);
+	        $textQuery->setFields(array('Title^4','Content','Content.*'));
+		} else {
+			// this will search all fields
+			$textQuery = new QueryString($q);
+		}
+
 		// the Elastica query object
-		$query = null;
-
-
-
 		$filtered = new Filtered(
-			  $queryString,
-			  $queryFilter
-			);
-			$query = new Query( $filtered);
+		  $textQuery, // FIXME this needs to be multimatch
+		  $queryFilter
+		);
+		$query = new Query($filtered);
 
 		// pagination
 		$query->setLimit($this->pageLength);
@@ -201,7 +208,6 @@ class ElasticSearcher {
 		if ($this->manipulator) {
 			$manipulatorInstance->augmentQuery($query);
 		}
-
 
 		$elasticService = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
@@ -219,7 +225,6 @@ class ElasticSearcher {
 		$paginated = new \PaginatedList(
 			$resultList
 		);
-
 
 		$paginated->setPageStart($this->start);
 		$paginated->setPageLength($this->pageLength);
