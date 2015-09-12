@@ -652,6 +652,36 @@ Array
     }
 
 
+    public function requireDefaultRecords() {
+		parent::requireDefaultRecords();
+		$searchableFields = $this->getElasticaFields(true,true);
+
+		foreach ($searchableFields as $name => $searchableField) {
+			$filter = array('ClazzName' => $this->owner->ClassName, 'Name' => $name);
+			$doSF = \SearchableField::get()->filter($filter)->first();
+			if (!$doSF) {
+				$doSF = new \SearchableField();
+				$doSF->ClazzName = $this->owner->ClassName;
+				$doSF->Name = $name;
+				if (isset($searchableField['type'])) {
+					$doSF->Type = $searchableField['type'];
+				} else if (isset($searchableField['__method'])) {
+					$doSF->Name = $searchableField['__method'];
+					$doSF->Type = 'relationship';
+				} else {
+					$doSF->Name = $searchableField['properties']['__method'];
+					$doSF->Type = 'relationship';
+				}
+
+				$doSF->write();
+				\DB::alteration_message("Created new searchable editable field ".$name,"changed");
+			}
+
+			// FIXME deal with deletions
+		}
+	}
+
+
     private function getListRelationshipMethods() {
     	$has_manys = $this->owner->has_many();
         $many_manys = $this->owner->many_many();
