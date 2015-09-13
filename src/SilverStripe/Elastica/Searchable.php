@@ -330,20 +330,7 @@ Array
         // Check if the current classname is part of the site tree or not
         // Results are cached to save reprocessing the same
 		$classname = $this->owner->ClassName;
-		$inSiteTree = false;
-		if (isset($site_tree_classes[$classname])) {
-			$inSiteTree = $site_tree_classes[$classname];
-		} else {
-			$class = new \ReflectionClass($this->owner);
-			while ($class = $class->getParentClass()) {
-			    $parentClass = $class->getName();
-			    if ($parentClass == 'SiteTree') {
-			    	$inSiteTree = true;
-			    	break;
-			    }
-			}
-			$site_tree_classes[$classname] = $inSiteTree;
-		}
+		$inSiteTree = $this->isInSiteTree($classname);
 
 		$document->set('IsInSiteTree', $inSiteTree);
 
@@ -659,6 +646,10 @@ Array
 		if (!$doSC) {
 			$doSC = new \SearchableClass();
 			$doSC->Name = $this->owner->ClassName;
+
+			$inSiteTree = $this->isInSiteTree($this->owner->ClassName);
+			$doSC->IsSiteTree = $inSiteTree;
+
 			$doSC->write();
 		}
 
@@ -679,6 +670,7 @@ Array
 				$doSF = new \SearchableField();
 				$doSF->ClazzName = $this->owner->ClassName;
 				$doSF->Name = $name;
+
 				if (isset($searchableField['type'])) {
 					$doSF->Type = $searchableField['type'];
 				} else if (isset($searchableField['__method'])) {
@@ -689,6 +681,8 @@ Array
 					$doSF->Type = 'relationship';
 				}
 				$doSF->SearchableClassID = $doSC->ID;
+
+
 				$doSF->write();
 				\DB::alteration_message("Created new searchable editable field ".$name,"changed");
 			}
@@ -710,5 +704,23 @@ Array
 
         return $has_lists;
     }
+
+
+    private function isInSiteTree($classname) {
+    	$inSiteTree = $classname === 'SiteTree' ? true : false;
+
+		if (!$inSiteTree) {
+			$class = new \ReflectionClass($this->owner->ClassName);
+			while ($class = $class->getParentClass()) {
+			    $parentClass = $class->getName();
+			    if ($parentClass == 'SiteTree') {
+			    	$inSiteTree = true;
+			    	break;
+			    }
+			}
+		}
+
+		return $inSiteTree;
+	}
 
 }
