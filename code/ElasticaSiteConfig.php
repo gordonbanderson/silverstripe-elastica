@@ -9,10 +9,13 @@ class ElasticaSiteConfig extends DataExtension {
 		$fields->addFieldToTab($searchTabName, $h1=new LiteralField('SearchInfo',
 			_t('SiteConfig.ELASTICA_SEARCH_INFO', "Select a class to edit the search fields of that class")));
 
-		$config = GridFieldConfig_RelationEditor::create();
+		$config = GridFieldConfig_RecordEditor::create();
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name'
+            'Name' => 'Name','IsSiteTreeHumanReadable' => 'In SiteTree?'
         ));
+
+        $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
+		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
 
         $gridField = new GridField(
             'SearchableClass', // Field name
@@ -22,6 +25,5 @@ class ElasticaSiteConfig extends DataExtension {
         );
 
         $fields->addFieldToTab($searchTabName, $gridField);
-
 	}
 }
