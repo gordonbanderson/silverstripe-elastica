@@ -13,4 +13,29 @@ class SearchableField extends DataObject {
 		'IsSearched' => true,
 		'Weight' => 1
 	);
+
+	private static $has_one = array('SearchableClass' => 'SearchableClass');
+
+	private static $display_fields = array('Name','Weight','IsSearched');
+
+
+	function getCMSFields() {
+		$fields = new FieldList();
+
+		$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
+		$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
+
+		$fields->addFieldToTab( 'Root.Main',  $nf = new TextField( 'Name', 'Name') );
+		$nf->setReadOnly(true);
+		$fields->addFieldToTab( 'Root.Main',  new NumericField( 'Weight', 'Weight') );
+		$fields->addFieldToTab( 'Root.Main',  new CheckboxField( 'IsSearched', 'Search this field?') );
+
+		return $fields;
+
+	}
+
+
+	public function HumanReadableIsSearched() {
+		return $this->IsSearched ? 'Yes':'No';
+	}
 }
