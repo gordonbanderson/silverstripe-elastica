@@ -22,10 +22,15 @@ class SearchableClass extends DataObject {
 		$nf->setReadOnly(true);
 		$nf->setDisabled(true);
 
-		$config = GridFieldConfig_RelationEditor::create();
+		$config = GridFieldConfig_RecordEditor::create();
+
+		// remove add button
+		$config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
+		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
+
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
             'Name' => 'Name',
-            'Weight' => 'Weight',
+            'Weight' => 'Weighting',
             'HumanReadableIsSearched' => 'Search this field?'
         ));
 
