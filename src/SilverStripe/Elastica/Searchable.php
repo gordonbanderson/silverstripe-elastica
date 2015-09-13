@@ -663,8 +663,18 @@ Array
 		}
 
 		foreach ($searchableFields as $name => $searchableField) {
+			// check for existence of methods and if they exist use that as the name
+			if (isset($searchableField['type'])) {
+			} else if (isset($searchableField['__method'])) {
+				$name = $searchableField['__method'];
+			} else {
+				$name = $searchableField['properties']['__method'];
+			}
+
 			$filter = array('ClazzName' => $this->owner->ClassName, 'Name' => $name);
 			$doSF = \SearchableField::get()->filter($filter)->first();
+
+
 			if (!$doSF) {
 				$doSF = new \SearchableField();
 				$doSF->ClazzName = $this->owner->ClassName;
