@@ -655,6 +655,12 @@ Array
     public function requireDefaultRecords() {
 		parent::requireDefaultRecords();
 		$searchableFields = $this->getElasticaFields(true,true);
+		$doSC = \SearchableClass::get()->filter(array('Name' => $this->owner->ClassName))->first();
+		if (!$doSC) {
+			$doSC = new \SearchableClass();
+			$doSC->Name = $this->owner->ClassName;
+			$doSC->write();
+		}
 
 		foreach ($searchableFields as $name => $searchableField) {
 			$filter = array('ClazzName' => $this->owner->ClassName, 'Name' => $name);
@@ -672,7 +678,7 @@ Array
 					$doSF->Name = $searchableField['properties']['__method'];
 					$doSF->Type = 'relationship';
 				}
-
+				$doSF->SearchableClassID = $doSC->ID;
 				$doSF->write();
 				\DB::alteration_message("Created new searchable editable field ".$name,"changed");
 			}
