@@ -28,8 +28,10 @@
 * Boost weight and mix of stem/unstemmed
 * https://www.elastic.co/guide/en/elasticsearch/guide/current/most-fields.html
 *
+* Extend this class to create your own index settings
+*
 */
-abstract class AbstractIndexSettings {
+class BaseIndexSettings {
 
 	/**
 	 * If true add a field called folded with likes of está converted to esta
@@ -94,20 +96,14 @@ abstract class AbstractIndexSettings {
 
 
 	public function generateConfig() {
+		$filters = array();
 		$properties = array();
 		$analyzers = array();
 		$analyzerStemmed = array();
 		$analyzerStemmed['type'] = $this->analyzerType;
 		if (sizeof($this->stopWords) > 0) {
-			/*
-			$quotedStopwords = array();
-			foreach ($variable as $unquoted) {
-				$quoted = '\"'.$unquoted.'\"';
-				array_push($quotedStopwords, $quoted);
-			}
-			*/
-
 			$analyzerStemmed['stopwords'] = $this->stopWords;
+			$analyzerStemmed['filter'] = array('standard', 'my_ascii_folding');
 		}
 
 		$settings = array();
@@ -117,6 +113,18 @@ abstract class AbstractIndexSettings {
 		$settings['analysis']['analyzer'] = $analyzers;
 
 		$properties['index'] = $settings;
+
+		if ($this->foldedAscii) {
+			$foldingFilter = array('my_ascii_folding' => array(
+				"type" => "asciifolding",
+				"preserve_original" => 'true'
+			));
+			array_push($filters, $foldingFilter);
+		}
+
+		if (sizeof($filters) > 0) {
+			$properties['filter'] = $filters;
+		}
 
 /*
 		$json = '{
