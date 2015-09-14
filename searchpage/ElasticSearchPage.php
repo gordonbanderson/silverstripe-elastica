@@ -158,15 +158,18 @@ class ElasticSearchPage extends Page {
 
 		$relevantNames = implode(',', $names);
 
-		$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
-		$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-		error_log($sql);
-		DB::query($sql);
+		if (sizeof($names) > 0) {
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
+			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
+			error_log($sql);
+			DB::query($sql);
 
-		$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
-		$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-		error_log($sql);
-		DB::query($sql);
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
+			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
+			error_log($sql);
+			DB::query($sql);
+		}
+
 	}
 
 
@@ -253,10 +256,17 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// set the optional aggregation manipulator
-		$fieldsToSearch = ElasticSearcher::getSearchFieldsFromDatabase();
-
-		print_r($fieldsToSearch);
 		$es->setQueryResultManipulator($this->SearchHelper);
+
+		// get the edited fields to search from the database for this search page
+		// Convert this into a name => weighting array
+		$fieldsToSearch = array();
+		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
+			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
+		foreach ($editedSearchFields as $searchField) {
+			$value = array('Weight' => $searchField->Weight, 'Type' => $searchField->Type);
+			$fieldsToSearch[$searchField->Name] = $value;
+		}
 
 		// now actually perform the search using the original query
 		$paginated = $es->search($q, $fieldsToSearch);
