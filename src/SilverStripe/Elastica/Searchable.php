@@ -648,7 +648,7 @@ Array
 			$doSC->Name = $this->owner->ClassName;
 
 			$inSiteTree = $this->isInSiteTree($this->owner->ClassName);
-			$doSC->IsSiteTree = $inSiteTree;
+			$doSC->InSiteTree = $inSiteTree;
 
 			$doSC->write();
 		}
