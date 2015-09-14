@@ -239,6 +239,7 @@ class ElasticSearcher {
 		return $paginated;
 	}
 
+
 	/**
 	 * Use the configuration from the Search settings held in the database to
 	 * form the array of fields suitable for a multimatch query.  Call this
@@ -253,7 +254,7 @@ class ElasticSearcher {
 
 		} else {
 			foreach ($fields as $fieldName => $fieldDetails) {
-				// FIXME make this one database call, maybe use cache
+				//
 				$weight = $fieldDetails['Weight'];
 				$fieldCfg = "$fieldName";
 				if ($weight != 1) {
@@ -261,11 +262,15 @@ class ElasticSearcher {
 				}
 				array_push($result, $fieldCfg);
 
-				$fieldCfg = "$fieldName";
-				if ($weight != 1) {
-					$fieldCfg .= '^'.$weight;
+				if ($fieldDetails['Type'] == 'string') {
+					$fieldCfg = "{$fieldName}.*";
+					if ($weight != 1) {
+						$fieldCfg .= '^'.$weight;
+					}
+					array_push($result, $fieldCfg);
 				}
-				array_push($result, $fieldCfg);
+
+
 
 
 			}
