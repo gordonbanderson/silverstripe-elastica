@@ -4,19 +4,12 @@ class SearchableField extends DataObject {
 	private static $db = array(
 		'Name' => 'Varchar', // the name of the field, e.g. Title
 		'ClazzName' => 'Varchar', // the ClassName this field belongs to
-		'Weight' => 'Float', // the weighting for this field, default 1
-		'Type' => 'Varchar', // the elasticsearch indexing type
-		'IsSearched' => 'Boolean' // allows the option of turning off a single field for searching
-	);
-
-	private static $defaults = array(
-		'IsSearched' => true,
-		'Weight' => 1
+		'Type' => 'Varchar' // the elasticsearch indexing type,
 	);
 
 	private static $has_one = array('SearchableClass' => 'SearchableClass');
 
-	private static $display_fields = array('Name','Weight','IsSearched');
+	private static $display_fields = array('Name','HumanReadableInSiteTree');
 
 
 	function getCMSFields() {
@@ -24,18 +17,14 @@ class SearchableField extends DataObject {
 
 		$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
 		$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
-
 		$fields->addFieldToTab( 'Root.Main',  $nf = new TextField( 'Name', 'Name') );
-		$nf->setReadOnly(true);
-		$fields->addFieldToTab( 'Root.Main',  new NumericField( 'Weight', 'Weight') );
-		$fields->addFieldToTab( 'Root.Main',  new CheckboxField( 'IsSearched', 'Search this field?') );
-
+		$nf->setDisabled(true);
 		return $fields;
 
 	}
 
 
-	public function HumanReadableIsSearched() {
+	public function HumanReadableInSiteTree() {
 		return $this->IsSearched ? 'Yes':'No';
 	}
 }
