@@ -100,6 +100,7 @@ class ElasticSearcher {
 	 * @param string $value the value of the indexed field to filter on
 	 */
 	public function addFilter($field, $value) {
+		echo "Added filter $field -> $value\n";
 		$this->filters[$field] = $value;
 	}
 
@@ -115,6 +116,8 @@ class ElasticSearcher {
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
 	 * @param  string $q query string
+	 * @param array $fieldsToSearch Mapping of name to an array of mapping Weight and Elastic mapping,
+	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
 	public function search($q, $fieldsToSearch = null) {
@@ -135,8 +138,6 @@ class ElasticSearcher {
 			$q = '*';
 		}
 		*/
-
-
 
 		$manipulatorInstance = null;
 		if ($this->manipulator) {
@@ -187,7 +188,11 @@ class ElasticSearcher {
 		if (is_array($fieldsToSearch) && sizeof($fieldsToSearch) > 0) {
 			$textQuery = new MultiMatch();
 	        $textQuery->setQuery($q);
-	        $textQuery->setFields(array('Title^4','Content','Content.*'));
+	        $elasticaFields = $this->convertWeightedFieldsForElastica($fieldsToSearch);
+	        //$textQuery->setFields(array('Title^4','Content','Content.*'));
+	        //$fieldsCSV = implode(',', $fieldsToSearch);
+	        $textQuery->setFields($elasticaFields);
+	        $textQuery->setType('most_fields');
 		} else {
 			// this will search all fields
 			$textQuery = new QueryString($q);
@@ -232,5 +237,41 @@ class ElasticSearcher {
 
 		$this->aggregations = $resultList->getAggregations();
 		return $paginated;
+	}
+
+	/**
+	 * Use the configuration from the Search settings held in the database to
+	 * form the array of fields suitable for a multimatch query.  Call this
+	 * after having called setClasses
+	 *
+	 * @return array Array of fields, name mapped to a mapping of weight and elastic mapping
+	 */
+	public function convertWeightedFieldsForElastica($fields) {
+
+		$result = array();
+		if (sizeof($fields) == 0) {
+
+		} else {
+			foreach ($fields as $fieldName => $fieldDetails) {
+				// FIXME make this one database call, maybe use cache
+				$weight = $fieldDetails['Weight'];
+				$fieldCfg = "$fieldName";
+				if ($weight != 1) {
+					$fieldCfg .= '^'.$weight;
+				}
+				array_push($result, $fieldCfg);
+
+				$fieldCfg = "$fieldName";
+				if ($weight != 1) {
+					$fieldCfg .= '^'.$weight;
+				}
+				array_push($result, $fieldCfg);
+
+
+			}
+		}
+
+		error_log('FIELDS:'.print_r($result,1));
+		return $result;
 	}
 }
