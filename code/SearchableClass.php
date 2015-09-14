@@ -5,7 +5,7 @@
 */
 class SearchableClass extends DataObject {
 
-	private static $db = array('Name' => 'Varchar', 'IsSiteTree' => 'Boolean');
+	private static $db = array('Name' => 'Varchar', 'InSiteTree' => 'Boolean');
 
 	private static $has_many = array('SearchableFields' => 'SearchableField');
 
@@ -31,7 +31,7 @@ class SearchableClass extends DataObject {
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
             'Name' => 'Name',
             'Weight' => 'Weighting',
-            'HumanReadableIsSearched' => 'Search this field?'
+            'Searchable' => 'Search this field?'
         ));
 
 
