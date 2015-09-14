@@ -3,11 +3,11 @@
 /**
 *
 */
-class ThaiIndexSettings extends AbstractIndexSettings {
+class ThaiIndexSettings extends BaseIndexSettings {
 
 	public function __construct() {
 		$this->setStopWords('_thai_');
-		$this->setAsciiFolding(true);
+		$this->setAsciiFolding(false);
 		$this->setAnalyzerType('thai');
 	}
 }

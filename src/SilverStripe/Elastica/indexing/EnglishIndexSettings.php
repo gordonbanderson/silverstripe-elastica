@@ -3,7 +3,7 @@
 /**
 *
 */
-class EnglishIndexSettings extends AbstractIndexSettings {
+class EnglishIndexSettings extends BaseIndexSettings {
 
 	public function __construct() {
 		$swords = "a,an,and,are,as,at,be,but,by,for,if,in,into,is,it,of,on,or,";

@@ -3,7 +3,7 @@
 /**
 *
 */
-class GermanIndexSettings  extends AbstractIndexSettings {
+class GermanIndexSettings  extends BaseIndexSettings {
 
 	public function __construct() {
 		$this->setStopWords('_german_');
