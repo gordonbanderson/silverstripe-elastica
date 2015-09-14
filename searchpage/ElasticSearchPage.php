@@ -32,6 +32,8 @@ class ElasticSearchPage extends Page {
 		'SiteTreeOnly' => 'Boolean'
 	);
 
+	private static $has_many = array('SearchableFields' => 'ElasticSearchPageSearchField');
+
 
 	/*
 	Add a tab with details of what to search
@@ -70,7 +72,101 @@ class ElasticSearchPage extends Page {
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
 		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
+
+		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
+		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
+				"Select a field to edit it's properties").'</p>';
+		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
+
+		$config = GridFieldConfig_RecordEditor::create();
+		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable'
+        ));
+
+        $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
+		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
+
+		$filter = array('ElasticSearchPageID' => $this->ID, 'Active' => true);
+		$searchFields = ElasticSearchPageSearchField::get()->filter($filter)->sort('Name');
+
+        $gridField = new GridField(
+            'ElasticSearchPageSearchField', // Field name
+            'Field to Search', // Field title
+            $searchFields,
+            $config
+        );
+
+        $fields->addFieldToTab('Root.SearchDetails', $gridField);
+
+        $html = '<p id="SearchFieldsMessage" class="warning message" style="display:none;">'.
+        _t('Elastica.SEARCH_FIELDS_WILL_APPEAR_AFTER_SAVE',
+        		'Search fields available will reappear after this page has been saved').'</p>';
+        $messageField = new LiteralField('SearchFieldsMessage',$html);
+        $messageField->addExtraClass('message warning');
+        $fields->addFieldToTab('Root.SearchDetails', $messageField);
+
+
 		return $fields;
+	}
+
+
+	public function onAfterWrite() {
+		// ClassesToSearch, SiteTreeOnly
+
+		// the list of classes will be either the set one or all of those in SiteTree
+		$relevantClasses = array();
+		if ($this->SiteTreeOnly) {
+			$sql = "SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name";
+			$records = DB::query($sql);
+			foreach ($records as $record) {
+				array_push($relevantClasses, $record['Name']);
+			}
+		} else {
+			$relevantClasses = explode(',', $this->ClassesToSearch);
+		}
+
+		// we now have an array of classnames, we wish them as a quoted CSV
+		$quoted = array();
+		foreach ($relevantClasses as $class) {
+			error_log('RC:'.$class);
+			$class = "'".$class."'";
+			array_push($quoted, $class);
+		}
+		$relevantClassesCSV = implode(',', $quoted);
+
+		$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
+			 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
+		error_log($relevantClassesCSV);
+		error_log($sql);
+		$records = DB::query($sql);
+		$names = array();
+		foreach ($records as $record) {
+			$name = $record['Name'];
+			array_push($names, "'".$name."'");
+			$type = $record['Type'];
+			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
+			error_log('Checking for name '.$name);
+			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
+			if (!$esf) {
+				$esf = new ElasticSearchPageSearchField();
+				$esf->Name = $name;
+				$esf->Type = $type;
+				$esf->ElasticSearchPageID = $this->ID;
+				$esf->write();
+			}
+		}
+
+		$relevantNames = implode(',', $names);
+
+		$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
+		$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
+		error_log($sql);
+		DB::query($sql);
+
+		$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
+		$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
+		error_log($sql);
+		DB::query($sql);
 	}
 
 
@@ -157,10 +253,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// set the optional aggregation manipulator
+		$fieldsToSearch = ElasticSearcher::getSearchFieldsFromDatabase();
+
+		print_r($fieldsToSearch);
 		$es->setQueryResultManipulator($this->SearchHelper);
 
 		// now actually perform the search using the original query
-		$paginated = $es->search($q);
+		$paginated = $es->search($q, $fieldsToSearch);
 
 		// calculate time
 		$endTime = microtime(true);
