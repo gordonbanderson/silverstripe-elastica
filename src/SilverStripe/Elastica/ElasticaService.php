@@ -323,6 +323,7 @@ class ElasticaService {
 
 			echo "Refresh {$classname}\n";
 			if ($inSiteTree) {
+				// this prevents the same item being indexed twice due to class inheritance
 				if ($classname === 'SiteTree') {
 					$this->refreshClass($classname);
 				}
