@@ -251,7 +251,7 @@ class ElasticSearcher {
 
 		$result = array();
 		if (sizeof($fields) == 0) {
-
+			// FIXME - this seems to work but double check
 		} else {
 			foreach ($fields as $fieldName => $fieldDetails) {
 				//
