@@ -1,7 +1,7 @@
 #Configuration
 
 ##Initial YML Configuration
-The first step is to configure the Elastic Search service. To do this, the configuration system
+The first step is to enable the Elastic Search service. To do this, the configuration system
 is used. The simplest default configuration (i.e. for `mysite/_config/elastica.yml`) is:
 
 ```yml
@@ -22,8 +22,9 @@ The following configuration allows all pages within the CMS to be searchable, ed
 	  extensions:
 		- 'SilverStripe\Elastica\Searchable'
 ```
-Elasticsearch can then be interacted with by using the `SilverStripe\Elastica\ElasticService` class.  DataObjects can be
-added using the extension mechanism also.
+Elasticsearch can then be interacted with by using the `SilverStripe\Elastica\ElasticService` class.
+
+DataObjects can be added using the extension mechanism also.
 
 ##PHP Level Configuration
 ###Searchable Fields
@@ -35,7 +36,8 @@ Similar to the above, relationships of types has_one, one_to_many, and many_to_m
 stored as a flat array in the document being indexed.  These are indicated using a static variable
 _$searchable_relationships_, with optionally a pair of brackets '()' appended to the method name, just to make
 clearer in the configuration that a method is being used.  Note that relationships are only followed one level deep,
-this is to avoid a situation where infinite recursion occurs, and so as also not to bloat document size too much.
+this is to avoid a situation where infinite recursion occurs, and so as also not to bloat the elasticsearch document
+size too much.
 
 After every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
 
@@ -47,16 +49,24 @@ After every change to your data model you should execute the `SilverStripe-Elast
 			"YourField1" => "Varchar(255)",
 			"YourField2"  => "Varchar(255)"
 		);
+
+		private static $many_many = array('Tags' => 'Tag');
+
 		private static $searchable_fields = array(
 			"YourField1",
 			"YourField2"
 		);
+
+		// example where this content type has related tags
+		private static $searchable_relationships = array(
+			'Tags()'
+		);
 	}
 ```
 ###PHP and YML
-Static variables in SilverStripe classes can be configured from configuration classes.  This is the preferred way to
-configurable indexable fields on a class, as it means third party module classes can have fields added to Elastic
-without altering any module code.
+Static variables in SilverStripe classes can be configured in YML files.  This is the preferred way to
+configure indexable fields on a class, as it means third party module classes can have fields made
+searchable without altering any module code.
 ```php
 	class YourPage extends Page
 	{
@@ -73,4 +83,6 @@ YourPage:
   searchable_fields:
 	- YourField1
 	- YourField2
+  searchable_relationships:
+    - Tags()
 ```
