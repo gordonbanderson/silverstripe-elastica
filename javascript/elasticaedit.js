@@ -6,8 +6,6 @@ console.log('el edit');
 		var node = $('#Form_EditForm_SiteTreeOnly');
 		var originalSiteTreeOnly = node.is(':checked');
 		var originalClassesToSearch = $('#Form_EditForm_ClassesToSearch').val();
-				console.log(originalClassesToSearch);
-
 
 		node.data('SiteTree', originalSiteTreeOnly);
 		node.data('Classes', originalClassesToSearch);
@@ -15,18 +13,13 @@ console.log('el edit');
 		$('#Form_EditForm_SiteTreeOnly').entwine({
 			onchange: function(e) {
 				enableOrDisableSiteTreeList();
+				showOrHideSearchFields();
 			},
 
 			// this is required to correctly show/hide the fields
 			// See http://www.silverstripe.org/community/forums/customising-the-cms/show/22067
 			onmatch: function(e) {
 				enableOrDisableSiteTreeList();
-			}
-		});
-
-		$('#Form_EditForm_SiteTreeOnly').entwine({
-			onchange: function(e) {
-				showOrHideSearchFields();
 			}
 		});
 
@@ -52,8 +45,6 @@ console.log('el edit');
 		var originalClassesToSearch = node.data('Classes');
 		var currentSiteTreeOnly = $('#Form_EditForm_SiteTreeOnly').is(':checked');
 		var currentClassesToSearch = $('#Form_EditForm_ClassesToSearch').val();
-
-		console.log(originalClassesToSearch,currentClassesToSearch);
 
 		if (
 			(currentSiteTreeOnly === originalSiteTreeOnly) &&
