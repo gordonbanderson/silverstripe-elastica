@@ -65,6 +65,28 @@ would be a BlogPost having BlogTags associated with it, whereas of course a stan
 not have this field.  Page and BlogPost however have Title and Content fields in common.
 
 
+##Overriding Template
+It is most likely necessary to override the default template when rendering serach results for
+DataObjects, as they may not have the methods _Title_ and _AbsoluteLink_ necessary to render them.
+This requires another module.
+
+###Installation of Template Override Module
+####Composer
+```bash
+composer --verbose --profile require weboftalent/template-override 3.1.x-dev
+```
+####Git
+```bash
+git clone https://github.com/gordonbanderson/template-override.git
+cd template-override
+git checkout 3.1
+```
+###Using Template Override
+Simple navigate to the tab 'Template', or i18n equivalent, and enter the name of the template
+in the text field provided.
+![Setting Templates to BlogSearchResults.ss]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica007-blog-search-results-template.png
+"Setting Templates to BlogSearchResults.ss")
 
 
 
