@@ -21,7 +21,6 @@ at an appropriate location for the search intended, e.g. /search, /blog/search, 
 ###Search Site Tree Only
 Select the 'Site Tree Only' checkbox, and then save the page.  This will simulate the standard
 SilverStripe search, namely all pages in the SiteTree, but using a dedicated searching tool.
-SCREENSHOT
 ![Search the SiteTree Only]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica001-site-tree-only.png
 "Search the SiteTree Only")
@@ -31,18 +30,31 @@ SCREENSHOT
 It is possible to restrict the classes that are searched, useful for example if searching a
 particular subset of your site likes of a blog.  In the example below only pages of type BlogPost
 are returned from the search.
-SCREENSHOT
+![Search Blogs Only]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica002-blogpost.png
+"Search Blogs Only")
+Note that a list of the available classes is shown just below for reference.
+![List of Available Classes]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica003.png
+"List of Available Classes")
+
 ###Number of Results
 The default number of results is 10, this can be changed to any number as required.  In the
 screenshot below, the number of results has been changed to 20
-SCREENSHOT
+![Change Number of Search Results]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica006-number-of-results.png
+"Change Number of Search Results")
 ###Field Weighting
 After saving an Elastic Search Page, the fields available will be shown at the bottom of the search
 tab.  The fields available from the list of selected classes will be shown and are editable.
-SCREENSHOT
+![List of Searchable Fields]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica005-fields-weighting.png
+"List of Searchable Fields")
 * Adjust the weight of that field, making it more or less important
 * Optionally remove the field from the search altogether
-SCREENSHOT
+![Editing Weighting]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica004-alter-weighting.png
+"Editing Weighting")
 Note that if a field is missing it will be ignored, the search does not crash.  An example of this
 would be a BlogPost having BlogTags associated with it, whereas of course a standard Page does
 not have this field.  Page and BlogPost however have Title and Content fields in common.
