@@ -40,4 +40,6 @@ If you wish to use this codebase, if a pull request has not been accepted:
 ```bash
 rm -rf elastica
 git clone git@github.com:gordonbanderson/silverstripe-elastica.git elastica
+cd elastica
+git checkout dev2
 ```
