@@ -57,9 +57,9 @@ class ElasticSearchPage extends Page {
 		}
 		$list = implode(',', $classes);
 		$html = '<div class="field text" id="SiteTreeOnlyInfo">';
-		$html .= "<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p><pre>";
-		$html .= $list;
-		$html .= "</pre></div>";
+		$html .= "<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p>";
+		$html .= '<p class="message">'.$list;
+		$html .= "</p></div>";
 		$infoField = new LiteralField('InfoField',$html);
 		$fields->addFieldToTab('Root.SearchDetails', $infoField);
 
