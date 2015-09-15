@@ -3,15 +3,19 @@
 It is now possible to have multiple search pages on your site, each with their own separate
 restrictions as to classes searched.  Asides the traditional 'search all of the SiteTree' this
 module provides more flexibility.  An administrator can do the following:
+2
 * Create a search page that searches just blog posts
 * Create a search page that searches your Flickr photos, represented as DataObjects
 * Fields within the search can be weighted, e.g. make the Title twice as important as the Content
 * Vary the number of search results from the default of 10
 * Add classes to manipulate the search and results, creating the possibility of facted searches
-* Override the template of search results, necessary when dealing with results not having a Title
-or Link.
+
 Note that the above changes are instant, there is no need to reindex the data, it is the query that
 is altered.
+
+* Override the template of search results, necessary when dealing with results not having a Title
+or Link.
+
 
 ##Adding a Search Page to Your Site
 Using the standard mechanism for adding a page in the CMS, add a page of type _ElasticSearchPage_
@@ -20,16 +24,15 @@ at an appropriate location for the search intended, e.g. /search, /blog/search, 
 ##Configuring a Search Page
 ###Search Site Tree Only
 Select the 'Site Tree Only' checkbox, and then save the page.  This will simulate the standard
-SilverStripe search, namely all pages in the SiteTree, but using a dedicated searching tool.
+SilverStripe search, namely all pages in the SiteTree, but using Elastic Search.
 ![Search the SiteTree Only]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica001-site-tree-only.png
 "Search the SiteTree Only")
 
-
 ###Selected List of ClassNames
 It is possible to restrict the classes that are searched, useful for example if searching a
-particular subset of your site likes of a blog.  In the example below only pages of type BlogPost
-are returned from the search.
+particular subset of your site likes of a blog.  In the example below only pages of type Blog or
+BlogPost are returned from the search.
 ![Search Blogs Only]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica002-blogpost.png
 "Search Blogs Only")
@@ -52,12 +55,18 @@ tab.  The fields available from the list of selected classes will be shown and a
 "List of Searchable Fields")
 * Adjust the weight of that field, making it more or less important
 * Optionally remove the field from the search altogether
+
 ![Editing Weighting]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica004-alter-weighting.png
 "Editing Weighting")
+
 Note that if a field is missing it will be ignored, the search does not crash.  An example of this
 would be a BlogPost having BlogTags associated with it, whereas of course a standard Page does
 not have this field.  Page and BlogPost however have Title and Content fields in common.
+
+
+
+
 
 
 ##Highlights
