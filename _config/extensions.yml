@@ -8,3 +8,6 @@ SiteTree:
 SiteConfig:
   extensions:
     ['ElasticaSiteConfig']
+DevBuildController:
+  extensions:
+    - SilverStripe\Elastica\ClearElasticFieldCacheExtension
