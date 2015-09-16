@@ -113,37 +113,16 @@ class ElasticSearchPage extends Page {
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
 
-		// the list of classes will be either the set one or all of those in SiteTree
-		$relevantClasses = array();
-		if ($this->SiteTreeOnly) {
-			$sql = "SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name";
-			$records = DB::query($sql);
-			foreach ($records as $record) {
-				array_push($relevantClasses, $record['Name']);
-			}
-		} else {
-			$relevantClasses = explode(',', $this->ClassesToSearch);
-		}
+		$nameToMapping = ElasticSearcher::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
-		// we now have an array of classnames, we wish them as a quoted CSV
-		$quoted = array();
-		foreach ($relevantClasses as $class) {
-			error_log('RC:'.$class);
-			$class = "'".$class."'";
-			array_push($quoted, $class);
-		}
-		$relevantClassesCSV = implode(',', $quoted);
+		error_log(print_r($nameToMapping,1));
 
-		$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
-			 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
-		error_log($relevantClassesCSV);
-		error_log($sql);
-		$records = DB::query($sql);
+
 		$names = array();
-		foreach ($records as $record) {
-			$name = $record['Name'];
+		foreach (array_keys($nameToMapping) as $name) {
+			$type = $nameToMapping[$name];
+			error_log("NTM: $name => $type");
 			array_push($names, "'".$name."'");
-			$type = $record['Type'];
 			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
 			error_log('Checking for name '.$name);
 			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
@@ -188,22 +167,10 @@ class ElasticSearchPage extends Page {
 
 class ElasticSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array('SearchForm', 'submit', 'testing');
+	private static $allowed_actions = array('SearchForm', 'submit');
 
 	public function init() {
 		parent::init();
-	}
-
-
-	public function testing() {
-		echo 'Testing out the search<br/>';
-		$es = new ElasticSearcher();
-		$es->setClasses('CyclingExploration');
-		$results = $es->search('Klong');
-		foreach ($results as $result) {
-			echo $result->Title."<br/>\n";
-		}
-		die;
 	}
 
 
@@ -263,9 +230,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$fieldsToSearch = array();
 		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
 			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
-		foreach ($editedSearchFields as $searchField) {
-			$value = array('Weight' => $searchField->Weight, 'Type' => $searchField->Type);
-			$fieldsToSearch[$searchField->Name] = $value;
+
+		foreach ($editedSearchFields->getIterator() as $searchField) {
+			print_r($searchField,1);
+			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
 		// now actually perform the search using the original query
