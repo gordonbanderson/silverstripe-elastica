@@ -205,6 +205,8 @@ class ElasticSearcher {
 		);
 		$query = new Query($filtered);
 
+
+
 		// pagination
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
@@ -214,8 +216,13 @@ class ElasticSearcher {
 			$manipulatorInstance->augmentQuery($query);
 		}
 
+		echo "**** QUERY ****\n";
+		print_r($query);
+
 		$elasticService = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
+
+
 		$resultList = new ResultList($elasticService, $query);
 
 		// restrict SilverStripe ClassNames returned
@@ -245,38 +252,142 @@ class ElasticSearcher {
 	 * form the array of fields suitable for a multimatch query.  Call this
 	 * after having called setClasses
 	 *
-	 * @return array Array of fields, name mapped to a mapping of weight and elastic mapping
+	 * @return array Array of fieldsname to weight
 	 */
 	public function convertWeightedFieldsForElastica($fields) {
+		echo "T1:CWFFE: \n";
+		print_r($fields);
 
 		$result = array();
+		error_log(print_r($fields));
+		$nameToType = self::getSearchFieldsMappingForClasses($this->classes,$fields); // FIXME
+		echo "NTT";
+		print_r($nameToType);
+
 		if (sizeof($fields) == 0) {
 			// FIXME - this seems to work but double check
 		} else {
-			foreach ($fields as $fieldName => $fieldDetails) {
-				//
-				$weight = $fieldDetails['Weight'];
+			foreach ($fields as $fieldName => $weight) {
 				$fieldCfg = "$fieldName";
 				if ($weight != 1) {
 					$fieldCfg .= '^'.$weight;
 				}
 				array_push($result, $fieldCfg);
 
-				if ($fieldDetails['Type'] == 'string') {
+				if ($nameToType[$fieldName] == 'string') {
 					$fieldCfg = "{$fieldName}.*";
 					if ($weight != 1) {
 						$fieldCfg .= '^'.$weight;
 					}
 					array_push($result, $fieldCfg);
 				}
-
-
-
-
 			}
 		}
 
 		error_log('FIELDS:'.print_r($result,1));
 		return $result;
 	}
+
+
+	/**
+	 * Get a hash of name to Elasticserver mapping, e.g. 'Title' => 'string'
+	 * Use SS_Cache to save on database hits, as this data only changes at build time
+	 * @param  string $classes CSV or array of ClassNames to search, or empty for
+	 *         all of SiteTree
+	 * @return array Array hash of fieldname to Elasticsearch mapping
+	 */
+	public static function getSearchFieldsMappingForClasses($classes = null, $fieldsAllowed = null) {
+		echo "T1:Classes=";
+		print_r($classes);
+		// Get a array of relevant classes to search
+		$cache = ElasticSearcher::getCache();
+		$csvClasses = $classes;
+		if (is_array($classes)) {
+			$csvClasses = implode(',', array_keys($classes)); // FIXME, this line
+		}
+		$key = 'SEARCHABLE_FIELDS3_'.str_replace(',', '_', $csvClasses);
+		$result = $cache->load($key);
+		if (!$result) {
+			echo "T2: CSV CLASSES:$csvClasses\n";
+			$relevantClasses = array();
+			if (!$csvClasses) {
+				$sql = "SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name";
+				$records = DB::query($sql);
+				foreach ($records as $record) {
+					echo "RECORD:\n";
+					print_r($record);
+					array_push($relevantClasses, $record['Name']);
+				}
+			} else {
+				$relevantClasses = explode(',', $csvClasses);
+			}
+
+			echo "T3: Relevant classes\n";
+			print_r($relevantClasses);
+
+			$relevantClassesCSV = self::convertToQuotedArray($relevantClasses);
+
+			echo "T4: Relevant CSV=".$relevantClassesCSV."\n";
+
+			//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
+			$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
+				 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
+			echo($sql."\n");
+			$records = DB::query($sql);
+			$result = array();
+			foreach ($records as $record) {
+				$name = $record['Name'];
+				$type = $record['Type'];
+
+				echo "T5: RECORD FOUND: $name => $type\n";
+
+
+				/**
+				 * FIXME:
+				 * This will overwrite duplicate keys such as Content or Title from other Classes.
+				 * Ideally need to check if the mapping being overwritten changes, e.g. if
+				 * a field such as BirthDate is date in one class and string in another
+				 * and throw an exception accordingly
+				 */
+				$result[$name] = $type;
+			}
+			echo "Saving to $key";
+			print_r($result);
+			$cache->save(json_encode($result),$key);
+		}  else {
+			// true is necessary here to decode the array hash back to an array and not a struct
+			$result = json_decode($result,true);
+		}
+
+		return $result;
+	}
+
+
+	public static function getCache() {
+		$cache = SS_Cache::factory('elasticsearch');
+		return $cache;
+	}
+
+	/**
+	 * Convert either a CSV string or an array to a CSV single quoted string, suitable for use in
+	 * an SQL IN clause
+	 * @param  [type] $csvOrArray [description]
+	 * @return [type]             [description]
+	 */
+	private static function convertToQuotedArray($csvOrArray) {
+		echo "CONVERT TO QUOTED ARRAY\n";
+		print_r($csvOrArray);
+
+		$asArray = $csvOrArray;
+		if (!is_array($csvOrArray)) {
+			$asArray = implode(',', $csvOrArray);
+		}
+		$quoted = array();
+		foreach ($asArray as $value) {
+			$item = "'".$value."'";
+			array_push($quoted, $item);
+		}
+		return implode(',', $quoted);;
+	}
+
 }
