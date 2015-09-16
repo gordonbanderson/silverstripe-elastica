@@ -20,7 +20,7 @@ class ElasticaSiteConfig extends DataExtension {
         $gridField = new GridField(
             'SearchableClass', // Field name
             'Class Name', // Field title
-            SearchableClass::get()->sort('Name'), // List of all related students
+            SearchableClass::get()->sort('Name'),
             $config
         );
 
