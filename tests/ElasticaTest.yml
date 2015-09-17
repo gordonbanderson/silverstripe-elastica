@@ -31,3 +31,9 @@ ElasticSearchPage:
     ClassesToSearch: ''
     ResultsPerPage: 4
     SiteTreeOnly: true
+
+FlickrPhoto:
+  photo0001:
+    Title: Bangkok
+    Description: Test photograph
+
