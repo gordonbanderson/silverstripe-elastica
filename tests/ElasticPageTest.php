@@ -8,15 +8,21 @@ class ElasticPageTest extends FunctionalTest {
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
 	protected $extraDataObjects = array(
-		'SearchableTestPage'
+		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
 	);
 
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$this->requireDefaultRecordsFrom = array('SearchableTestPage','SiteTree','Page');
+		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
+			'FlickrTag', 'FlickrAuthor', 'FlickrSet');
+		$this->requireDefaultRecordsFrom = $classes;
 
 		// add Searchable extension where appropriate
+		FlickrSet::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrPhoto::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrTag::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
 		// load fixtures
@@ -29,6 +35,7 @@ class ElasticPageTest extends FunctionalTest {
 	each unique field name declared in searchable_fields
 	 */
 	public function testSearchableFieldsCreatedAtBuildTime() {
+
 		$searchableTestPage = $this->objFromFixture('SearchableTestPage', 'first');
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
@@ -38,6 +45,11 @@ class ElasticPageTest extends FunctionalTest {
 			'Page' => array('Title','Content'),
 			'SiteTree' => array('Title','Content'),
 			'SearchableTestPage' => array('Title','Content','Country','PageDate'),
+			'FlickrTag' => array('RawValue'),
+			'FlickrAuthor' => array('PathAlias','DisplayName'),
+			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
+				'ShutterSpeed','FocalLength35mm','ISO'),
+			'FlickrSet' => array('Title','FlickrID','Description')
 		);
 
 		// check the expected classes
@@ -45,8 +57,6 @@ class ElasticPageTest extends FunctionalTest {
 		$nSearchableClasses = SearchableClass::get()->count();
 		$this->assertEquals(sizeof($expectedClasses), $nSearchableClasses);
 
-
-/*
 
  		$searchPage->SiteTreeOnly = true;
 		$searchPage->Content = 'some random string';
@@ -65,7 +75,7 @@ class ElasticPageTest extends FunctionalTest {
 		foreach ($sfs as $sf) {
 			echo "ESP SEARCH FIELD:".$sf->Name."\n";
 		}
-*/
+
 		// check the names expected to appear
 
 		$fieldCtr = 0;
@@ -76,7 +86,6 @@ class ElasticPageTest extends FunctionalTest {
 			$expectedNames = $expected[$expectedClass];
 			foreach ($expectedNames as $expectedName) {
 				$filter = array('Name' => $expectedName, 'SearchableClassID' => $sc->ID );
-				print_r($filter);
 				$sf = SearchableField::get()->filter($filter)->first();
 				$this->assertEquals($expectedName, $sf->Name);
 				$fieldCtr++;
@@ -90,11 +99,104 @@ class ElasticPageTest extends FunctionalTest {
 
 
 /**
- * @package comments
+ * @package elastica
+ * @subpackage tests
+ */
+class FlickrPhoto extends DataObject implements TestOnly {
+	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt',
+		'Aperture','ShutterSpeed','FocalLength35mm','ISO');
+
+	private static $db = array(
+		'Title' => 'Varchar(255)',
+		'FlickrID' => 'Varchar',
+		'Description' => 'HTMLText',
+		'TakenAt' => 'SS_Datetime',
+		'Aperture' => 'Float',
+		'ShutterSpeed' => 'Varchar',
+		'FocalLength35mm' => 'Int',
+		'ISO' => 'Int',
+		'MediumURL' => 'Varchar(255)',
+		'MediumHeight' => 'Int',
+		'MediumWidth' => 'Int'
+	);
+
+	static $belongs_many_many = array(
+		'FlickrSets' => 'FlickrSet'
+	);
+
+	static $has_one = array(
+		'Photographer' => 'FlickrAuthor'
+	);
+
+	static $many_many = array(
+		'FlickrTags' => 'FlickrTag'
+	);
+
+}
+
+
+
+/**
+ * @package elastica
+ * @subpackage tests
+ */
+class FlickrTag extends DataObject implements TestOnly {
+	private static $db = array(
+		'Value' => 'Varchar',
+		'FlickrID' => 'Varchar',
+		'RawValue' => 'HTMLText'
+	);
+
+	private static $belongs_many_many = array(
+		'FlickrPhotos' => 'FlickrPhoto'
+	);
+
+	private static $searchable_fields = array('RawValue');
+}
+
+
+/**
+ * @package elastica
+ * @subpackage tests
+ */
+class FlickrSet extends DataObject implements TestOnly {
+	private static $searchable_fields = array('Title','FlickrID','Description');
+
+	private static $db = array(
+		'Title' => 'Varchar(255)',
+		'FlickrID' => 'Varchar',
+		'Description' => 'HTMLText'
+	);
+
+	private static $many_many = array(
+		'FlickrPhotos' => 'FlickrPhoto'
+	);
+}
+
+
+
+/**
+ * @package elastica
+ * @subpackage tests
+ */
+class FlickrAuthor extends DataObject implements TestOnly {
+		private static $db = array(
+			'PathAlias' => 'Varchar',
+			'DisplayName' => 'Varchar'
+		);
+
+		private static $has_many = array('FlickrPhotos' => 'FlickrPhoto');
+
+		private static $searchable_fields = array('PathAlias', 'DisplayName');
+}
+
+
+
+/**
+ * @package elastica
  * @subpackage tests
  */
 class SearchableTestPage extends Page implements TestOnly {
-
 	private static $searchable_fields = array('Country','PageDate');
 
 	private static $db = array(
@@ -105,7 +207,7 @@ class SearchableTestPage extends Page implements TestOnly {
 }
 
 /**
- * @package comments
+ * @package elastica
  * @subpackage tests
  */
 class SearchableTestPage_Controller extends Controller implements TestOnly {
