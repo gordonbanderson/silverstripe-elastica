@@ -34,7 +34,6 @@ class ElasticSearchPage extends Page {
 
 	private static $has_many = array('SearchableFields' => 'ElasticSearchPageSearchField');
 
-
 	/*
 	Add a tab with details of what to search
 	 */
@@ -115,9 +114,6 @@ class ElasticSearchPage extends Page {
 
 		$nameToMapping = ElasticSearcher::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
-		error_log(print_r($nameToMapping,1));
-
-
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
@@ -138,12 +134,12 @@ class ElasticSearchPage extends Page {
 		$relevantNames = implode(',', $names);
 
 		if (sizeof($names) > 0) {
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'false' WHERE ";
 			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			error_log($sql);
 			DB::query($sql);
 
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'true' WHERE ";
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			error_log($sql);
 			DB::query($sql);
