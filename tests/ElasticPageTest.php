@@ -48,7 +48,7 @@ class ElasticPageTest extends FunctionalTest {
 			'FlickrTag' => array('RawValue'),
 			'FlickrAuthor' => array('PathAlias','DisplayName'),
 			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
-				'ShutterSpeed','FocalLength35mm','ISO'),
+				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets'),
 			'FlickrSet' => array('Title','FlickrID','Description')
 		);
 
@@ -105,6 +105,8 @@ class ElasticPageTest extends FunctionalTest {
 class FlickrPhoto extends DataObject implements TestOnly {
 	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt',
 		'Aperture','ShutterSpeed','FocalLength35mm','ISO');
+
+	private static $searchable_relationships = array('Photographer', 'FlickrTags', 'FlickrSets');
 
 	private static $db = array(
 		'Title' => 'Varchar(255)',
