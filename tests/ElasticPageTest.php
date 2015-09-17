@@ -83,6 +83,14 @@ class ElasticPageTest extends FunctionalTest {
 			$sc = SearchableClass::get()->filter('Name', $expectedClass)->first();
 			$this->assertEquals($expectedClass,$sc->Name);
 
+			$inSiteTree = true;
+			$start = substr($expectedClass, 0,6);
+			if ($start == 'Flickr') {
+				$inSiteTree = false;
+			};
+
+			$this->assertEquals($inSiteTree,$sc->InSiteTree);
+
 			$expectedNames = $expected[$expectedClass];
 			foreach ($expectedNames as $expectedName) {
 				$filter = array('Name' => $expectedName, 'SearchableClassID' => $sc->ID );
