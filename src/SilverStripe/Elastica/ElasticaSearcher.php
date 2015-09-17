@@ -204,8 +204,6 @@ class ElasticSearcher {
 		);
 		$query = new Query($filtered);
 
-
-
 		// pagination
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
@@ -309,13 +307,13 @@ class ElasticSearcher {
 			}
 
 
-			$relevantClassesCSV = self::convertToQuotedArray($relevantClasses);
+			$relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
 
 			//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
 			$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
 				 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
 			if ($fieldsAllowed) {
-				$fieldsAllowedCSV = self::convertToQuotedArray(array_keys($fieldsAllowed));
+				$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
 				if (strlen($fieldsAllowedCSV) > 0) {
 					$sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
 				}
@@ -357,15 +355,23 @@ class ElasticSearcher {
 	 * @param  [type] $csvOrArray [description]
 	 * @return [type]             [description]
 	 */
-	private static function convertToQuotedArray($csvOrArray) {
+	public static function convertToQuotedCSV($csvOrArray) {
 		$asArray = $csvOrArray;
 		if (!is_array($csvOrArray)) {
-			$asArray = implode(',', $csvOrArray);
+			if ($csvOrArray == null) {
+				$asArray = array();
+			} else {
+				$asArray = explode(',', $csvOrArray);
+			}
+
 		}
 		$quoted = array();
 		foreach ($asArray as $value) {
-			$item = "'".$value."'";
-			array_push($quoted, $item);
+			if (strlen($value) > 0) {
+				$item = "'".$value."'";
+				array_push($quoted, $item);
+			}
+
 		}
 		return implode(',', $quoted);;
 	}
