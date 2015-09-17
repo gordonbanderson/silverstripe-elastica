@@ -1,0 +1,33 @@
+Member:
+  elasticsearchadmin:
+    FirstName: admin
+  visitor:
+    FirstName: visitor
+
+Group:
+  elasticsearchadmins:
+    Title: Admin
+    Members: =>Member.elasticsearchadmin
+
+Permission:
+  admin:
+    Code: CMS_ACCESS_elasticsearchAdmin
+    Group: =>Group.elasticsearchadmins
+
+SearchableTestPage:
+  first:
+    Title: First
+  second:
+    Title: Second
+  third:
+    Title: Third
+  fourth:
+    Title: Fourth
+
+ElasticSearchPage:
+  search:
+    Title: Search
+    Content: Example Search Page
+    ClassesToSearch: ''
+    ResultsPerPage: 4
+    SiteTreeOnly: true
