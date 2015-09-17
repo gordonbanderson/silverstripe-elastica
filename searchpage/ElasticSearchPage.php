@@ -232,7 +232,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
 
 		foreach ($editedSearchFields->getIterator() as $searchField) {
-			print_r($searchField,1);
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
@@ -252,7 +251,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
-			return $this->useTemplateOverride($data );
+			return $this->useTemplateOverride($data);
 		} else {
 			return $data;
 		}
