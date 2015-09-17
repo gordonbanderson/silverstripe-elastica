@@ -178,7 +178,6 @@ class ElasticaService {
 	 */
 	public function startBulkIndex() {
 		$index = $this->getIndex();
-		echo "\n\n\n++++++++++++++++++++\n++++ Starting bulk index for ".$index->getName()."\n++++++++++++++++++++\n\n";
 		$this->buffered = true;
 	}
 
@@ -196,8 +195,6 @@ class ElasticaService {
 	 */
 	public function endBulkIndex() {
 		$index = $this->getIndex();
-		echo "++++ Ending bulk index for ".$index->getName()."\n";
-
 		foreach ($this->buffer as $type => $documents) {
 			echo "Adding ".sizeof($documents)." docs of type {$type}\n";
 			$index->getType($type)->addDocuments($documents);
@@ -228,23 +225,15 @@ class ElasticaService {
 	public function define() {
 		$index = $this->getIndex();
 
-		echo "**** INDEX NAME TO BE DEFINIED:".$index->getName()."\n";
-
-		$this->listIndexes('T1');
 		# Recreate the index
 		if ($index->exists()) {
 			$index->delete();
-			$this->listIndexes('T2 DELETED INDEX '.$index->getName());
 		}
-		$this->listIndexes('T3');
 		$this->createIndex();
-
-		$this->listIndexes('T4');
 
 		foreach ($this->getIndexedClasses() as $class) {
 			/** @var $sng Searchable */
 			$sng = singleton($class);
-
 			$mapping = $sng->getElasticaMapping();
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
@@ -302,10 +291,7 @@ class ElasticaService {
 		$index = $this->getIndex();
 		$this->startBulkIndex();
 
-		echo "Refreshing {$this->locale}\n";
-
 		foreach ($this->getIndexedClasses() as $classname) {
-
 			$inSiteTree = false;
 			if (isset($site_tree_classes[$classname])) {
 				$inSiteTree = $site_tree_classes[$classname];
@@ -321,7 +307,6 @@ class ElasticaService {
 				$site_tree_classes[$classname] = $inSiteTree;
 			}
 
-			echo "Refresh {$classname}\n";
 			if ($inSiteTree) {
 				// this prevents the same item being indexed twice due to class inheritance
 				if ($classname === 'SiteTree') {
