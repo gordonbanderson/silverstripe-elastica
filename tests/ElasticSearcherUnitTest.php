@@ -18,7 +18,6 @@ class ElasticSearcherUnitTest extends SapphireTest {
 		$this->assertEquals($expected, $quoted);
 	}
 
-
 	public function testToQuotedCSVFromArray() {
 		$expected = "'Bangkok','Nonthaburi','Saraburi','Chiang Mai'";
 		$items = array('Bangkok','Nonthaburi','Saraburi','Chiang Mai');
@@ -40,5 +39,4 @@ class ElasticSearcherUnitTest extends SapphireTest {
 		$quoted = ElasticSearcher::convertToQuotedCSV(null);
 		$this->assertEquals('', $quoted);
 	}
-
 }

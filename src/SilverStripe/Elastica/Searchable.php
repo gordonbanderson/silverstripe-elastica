@@ -641,6 +641,8 @@ Array
 
     public function requireDefaultRecords() {
 		parent::requireDefaultRecords();
+
+		echo "SEARCHABLE - REQUIRE DEFAULT RECORDS\n";
 		$searchableFields = $this->getElasticaFields(true,true);
 		$doSC = \SearchableClass::get()->filter(array('Name' => $this->owner->ClassName))->first();
 		if (!$doSC) {
