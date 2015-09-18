@@ -48,7 +48,8 @@ class ElasticPageTest extends FunctionalTest {
 			'FlickrTag' => array('RawValue'),
 			'FlickrAuthor' => array('PathAlias','DisplayName'),
 			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
-				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets'),
+				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets',
+				'FirstViewed'),
 			'FlickrSet' => array('Title','FlickrID','Description')
 		);
 
