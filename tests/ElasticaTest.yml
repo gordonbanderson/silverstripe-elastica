@@ -31,9 +31,19 @@ ElasticSearchPage:
     ClassesToSearch: ''
     ResultsPerPage: 4
     SiteTreeOnly: true
+    Identifier: testsearchpage
 
 FlickrPhoto:
   photo0001:
     Title: Bangkok
     Description: Test photograph
-
+    FlickrID: 1234567
+    TakenAt: 24/4/2012 18:12
+    FirstViewed: 28/4/2012
+    Aperture: 8.0
+    ShutterSpeed: 1/100
+    FocalLength35mm: 140
+    ISO: 400
+    MediumURL: 'http://www.test.com/test.jpg',
+    MediumHeight: 400,
+    MediumWidth: 300
