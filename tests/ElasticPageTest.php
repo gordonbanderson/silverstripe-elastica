@@ -62,14 +62,6 @@ class ElasticPageTest extends FunctionalTest {
 		$searchPage->Content = 'some random string';
 		$searchPage->write();
 		$scs = SearchableClass::get();
-		foreach ($scs as $sc) {
-			echo "SEARCHABLE CLASS:".$sc->Name."\n";
-		}
-
-		$sfs = SearchableField::get();
-		foreach ($sfs as $sf) {
-			echo "SEARCHABLE FIELD:".$sf->Name."\n";
-		}
 
 		$sfs = ElasticSearchPageSearchField::get();
 		foreach ($sfs as $sf) {
@@ -83,12 +75,12 @@ class ElasticPageTest extends FunctionalTest {
 			$sc = SearchableClass::get()->filter('Name', $expectedClass)->first();
 			$this->assertEquals($expectedClass,$sc->Name);
 
-			$inSiteTree = true;
+			$inSiteTree = 1;
 			$start = substr($expectedClass, 0,6);
 			if ($start == 'Flickr') {
-				$inSiteTree = false;
+				$inSiteTree = 0;
 			};
-
+			echo $sc->Name.', ist='.$sc->InSiteTree.'\n';
 			$this->assertEquals($inSiteTree,$sc->InSiteTree);
 
 			$expectedNames = $expected[$expectedClass];
@@ -106,119 +98,6 @@ class ElasticPageTest extends FunctionalTest {
 
 
 
-/**
- * @package elastica
- * @subpackage tests
- */
-class FlickrPhoto extends DataObject implements TestOnly {
-	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt',
-		'Aperture','ShutterSpeed','FocalLength35mm','ISO');
-
-	private static $searchable_relationships = array('Photographer', 'FlickrTags', 'FlickrSets');
-
-	private static $db = array(
-		'Title' => 'Varchar(255)',
-		'FlickrID' => 'Varchar',
-		'Description' => 'HTMLText',
-		'TakenAt' => 'SS_Datetime',
-		'Aperture' => 'Float',
-		'ShutterSpeed' => 'Varchar',
-		'FocalLength35mm' => 'Int',
-		'ISO' => 'Int',
-		'MediumURL' => 'Varchar(255)',
-		'MediumHeight' => 'Int',
-		'MediumWidth' => 'Int'
-	);
-
-	static $belongs_many_many = array(
-		'FlickrSets' => 'FlickrSet'
-	);
-
-	static $has_one = array(
-		'Photographer' => 'FlickrAuthor'
-	);
-
-	static $many_many = array(
-		'FlickrTags' => 'FlickrTag'
-	);
-
-}
 
 
 
-/**
- * @package elastica
- * @subpackage tests
- */
-class FlickrTag extends DataObject implements TestOnly {
-	private static $db = array(
-		'Value' => 'Varchar',
-		'FlickrID' => 'Varchar',
-		'RawValue' => 'HTMLText'
-	);
-
-	private static $belongs_many_many = array(
-		'FlickrPhotos' => 'FlickrPhoto'
-	);
-
-	private static $searchable_fields = array('RawValue');
-}
-
-
-/**
- * @package elastica
- * @subpackage tests
- */
-class FlickrSet extends DataObject implements TestOnly {
-	private static $searchable_fields = array('Title','FlickrID','Description');
-
-	private static $db = array(
-		'Title' => 'Varchar(255)',
-		'FlickrID' => 'Varchar',
-		'Description' => 'HTMLText'
-	);
-
-	private static $many_many = array(
-		'FlickrPhotos' => 'FlickrPhoto'
-	);
-}
-
-
-
-/**
- * @package elastica
- * @subpackage tests
- */
-class FlickrAuthor extends DataObject implements TestOnly {
-		private static $db = array(
-			'PathAlias' => 'Varchar',
-			'DisplayName' => 'Varchar'
-		);
-
-		private static $has_many = array('FlickrPhotos' => 'FlickrPhoto');
-
-		private static $searchable_fields = array('PathAlias', 'DisplayName');
-}
-
-
-
-/**
- * @package elastica
- * @subpackage tests
- */
-class SearchableTestPage extends Page implements TestOnly {
-	private static $searchable_fields = array('Country','PageDate');
-
-	private static $db = array(
-		'Country' => 'Varchar',
-		'PageDate' => 'Date'
-	);
-
-}
-
-/**
- * @package elastica
- * @subpackage tests
- */
-class SearchableTestPage_Controller extends Controller implements TestOnly {
-}
