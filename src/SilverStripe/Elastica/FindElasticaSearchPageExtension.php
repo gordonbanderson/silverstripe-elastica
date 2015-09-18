@@ -2,6 +2,12 @@
 
 class FindElasticaSearchPageExtension extends Extension {
 
+	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
+
+	protected $extraDataObjects = array(
+		'SearchableTestPage'
+	);
+
 	function SearchPageURI($identifier) {
 		$result = '';
 
@@ -26,7 +32,7 @@ class FindElasticaSearchPageExtension extends Extension {
 	}
 
 
-	private function getSearchPage($identifier) {
+	public function getSearchPage($identifier) {
 		if (!isset($this->_CachedLastEdited)) {
 			$this->_CachedLastEdited = ElasticSearchPage::get()->max('LastEdited');
 		}
