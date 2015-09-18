@@ -39,6 +39,52 @@ class SearchableTest extends SapphireTest {
 		//array of mapping properties
 		$properties = $mapping->getProperties();
 
+		//test FlickrPhoto relationships mapping
+		$expectedRelStringArray = array(
+			'type' => 'string',
+			'fields' => array(
+				'standard' => array(
+					'type' => 'string',
+					'analyzer' => 'standard'
+				)
+			),
+			'analyzer' => 'stemmed'
+		);
+
+		/*
+		'standard' => array(
+					array('type' => 'string', 'analyzer' => 'standard')
+				)
+		 */
+
+		$this->assertEquals($expectedRelStringArray,
+			$properties['FlickrAuthor']['properties']['DisplayName']
+		);
+		$this->assertEquals($expectedRelStringArray,
+			$properties['FlickrAuthor']['properties']['PathAlias']
+		);
+		$this->assertEquals($expectedRelStringArray,
+			$properties['FlickrTag']['properties']['RawValue']
+		);
+		$this->assertEquals($expectedRelStringArray,
+			$properties['FlickrSet']['properties']['Title']
+		);
+		$this->assertEquals($expectedRelStringArray,
+			$properties['FlickrSet']['properties']['Description']
+		);
+
+		// check constructed field, location
+
+		$locationProperties = $properties['location'];
+		$this->assertEquals('geo_point', $locationProperties['type']);
+		$this->assertEquals('compressed', $locationProperties['fielddata']['format']);
+		$this->assertEquals('1cm', $locationProperties['fielddata']['precision']);
+
+
+		//test the FlickrPhoto core model
+
+
+
 		// check strings
 		$shouldBeString = array('Title','Description');
 		$shouldBeInt = array('ISO','FlickrID','FocalLength35mm');
@@ -118,7 +164,9 @@ class SearchableTest extends SapphireTest {
 		//check shutter speed is tokenized, ie not analyzed - for aggregation purposes
 		//
 		foreach ($shouldBeTokens as $fieldName) {
+			echo "FIELD:$fieldName\n";
 			$fieldProperties = $properties[$fieldName];
+			print_r($fieldProperties);
 
 			$type = $fieldProperties['type'];
 			$analyzer = $fieldProperties['analyzer'];
@@ -127,10 +175,7 @@ class SearchableTest extends SapphireTest {
 			// check for stemmed analysis
 			$this->assertEquals('not_analyzed', $analyzer);
 
-			// check for unstemmed analaysis
-			$this->assertEquals($expectedStandardArray,$fieldProperties['fields']['standard']);
-
-			// check for only 2 entries, no subfields
+			// check for only 2 entries
 			$this->assertEquals(2, sizeof(array_keys($fieldProperties)));
 		}
 
