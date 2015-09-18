@@ -655,7 +655,6 @@ Array
 		}
 
 		foreach ($searchableFields as $name => $searchableField) {
-			echo "NAME:$name\n";
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
 			} else if (isset($searchableField['__method'])) {
