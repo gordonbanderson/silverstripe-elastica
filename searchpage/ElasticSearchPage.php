@@ -109,6 +109,22 @@ class ElasticSearchPage extends Page {
 	}
 
 
+	/**
+	 * Avoid duplicate identifiers
+	 * @return DataObject result with or without error
+	 */
+	public function validate() {
+		$result = parent::validate();
+		$where = 'ElasticSearchPage.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
+		$existing = ElasticSearchPage::get()->where($where)->count();
+		if ($existing > 0) {
+			$result->error('The identifier '.$this->Identifier.' already exists');
+		}
+
+		return $result;
+	}
+
+
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
 
@@ -117,10 +133,8 @@ class ElasticSearchPage extends Page {
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
-			error_log("NTM: $name => $type");
 			array_push($names, "'".$name."'");
 			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
-			error_log('Checking for name '.$name);
 			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
 			if (!$esf) {
 				$esf = new ElasticSearchPageSearchField();
@@ -136,12 +150,10 @@ class ElasticSearchPage extends Page {
 		if (sizeof($names) > 0) {
 			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'false' WHERE ";
 			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-			error_log($sql);
 			DB::query($sql);
 
 			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'true' WHERE ";
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-			error_log($sql);
 			DB::query($sql);
 		}
 
