@@ -4,9 +4,6 @@ class FindElasticaSearchPageExtension extends Extension {
 
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
-	protected $extraDataObjects = array(
-		'SearchableTestPage'
-	);
 
 	function SearchPageURI($identifier) {
 		$result = '';
