@@ -34,16 +34,17 @@ class FlickrPhoto extends DataObject implements TestOnly {
 		'FlickrSets' => 'FlickrSet'
 	);
 
+	//1 to many
 	static $has_one = array(
 		'Photographer' => 'FlickrAuthor'
 	);
 
+	//many to many
 	static $many_many = array(
 		'FlickrTags' => 'FlickrTag'
 	);
 
 }
-
 
 
 /**
@@ -57,6 +58,7 @@ class FlickrTag extends DataObject implements TestOnly {
 		'RawValue' => 'HTMLText'
 	);
 
+	//many to many
 	private static $belongs_many_many = array(
 		'FlickrPhotos' => 'FlickrPhoto'
 	);
@@ -95,9 +97,21 @@ class FlickrAuthor extends DataObject implements TestOnly {
 			'DisplayName' => 'Varchar'
 		);
 
+		//1 to many
 		private static $has_many = array('FlickrPhotos' => 'FlickrPhoto');
 
 		private static $searchable_fields = array('PathAlias', 'DisplayName');
+
+		/**
+		 * NOTE: You would not normally want to do this as this means that all of
+		 * each user's FlickrPhotos would be indexed against FlickrAuthor, so if
+		 * the user has 10,000 pics then the text of those 10,000 pics would
+		 * be indexed also.  This is purely for test purposes with a small and
+		 * controlled dataset
+		 *
+		 * @var array
+		 */
+		private static $searchable_relationships = array('FlickrPhotos');
 }
 
 
