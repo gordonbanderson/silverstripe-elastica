@@ -47,6 +47,10 @@ class SearchableTest extends SapphireTest {
 		$shouldBeDateTime = array('TakenAt');
 		$shouldBeDate = array('FirstViewed');
 
+		// tokens are strings that have analyzer 'not_analyzed', namely the string is indexed as is
+		$shouldBeTokens = array('ShutterSpeed','Link');
+
+
 		// check strings
 		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'standard');
 		foreach ($shouldBeString as $fieldName) {
@@ -110,6 +114,29 @@ class SearchableTest extends SapphireTest {
 			$this->assertEquals('date',$type);
 			$this->assertEquals('y-M-d H:m:s', $fieldProperties['format']);
 		}
+
+		//check shutter speed is tokenized, ie not analyzed - for aggregation purposes
+		//
+		foreach ($shouldBeTokens as $fieldName) {
+			$fieldProperties = $properties[$fieldName];
+
+			$type = $fieldProperties['type'];
+			$analyzer = $fieldProperties['analyzer'];
+			$this->assertEquals('string', $type);
+
+			// check for stemmed analysis
+			$this->assertEquals('not_analyzed', $analyzer);
+
+			// check for unstemmed analaysis
+			$this->assertEquals($expectedStandardArray,$fieldProperties['fields']['standard']);
+
+			// check for only 2 entries, no subfields
+			$this->assertEquals(2, sizeof(array_keys($fieldProperties)));
+		}
+
+
+
+		print_r($properties);
 	}
 
 
