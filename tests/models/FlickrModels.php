@@ -136,7 +136,7 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 
     	$properties['ShutterSpeed'] = array(
     		'type' => 'string',
-    		'index' => 'not_analyzed'
+    		'analyzer' => 'not_analyzed'
 		);
 
     	$properties['Aperture'] = array(
