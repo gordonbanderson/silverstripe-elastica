@@ -283,7 +283,7 @@ Array
 		// ADD CUSTOM FIELDS HERE THAT ARE INDEXED BY DEFAULT
 		// add a mapping to flag whether or not class is in SiteTree
 		$fields['IsSiteTree'] = array('type'=>'boolean');
-		$fields['Link'] = array('type' => 'string', 'analyzer' => 'not_analyzed');
+		$fields['Link'] = array('type' => 'string', 'index' => 'not_analyzed');
 
 		$mapping->setProperties($fields);
 
