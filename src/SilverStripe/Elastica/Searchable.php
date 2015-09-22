@@ -242,10 +242,10 @@ Array
 			if (isset($spec['type'])) {
 				if ($spec['type'] == 'string') {
 					//echo "$name\n";
-					$standard = array();
-					$standard['type'] = "string";
-					$standard['analyzer'] = "standard";
-					$extraFields = array('standard' => $standard);
+					$unstemmed = array();
+					$unstemmed['type'] = "string";
+					$unstemmed['analyzer'] = "unstemmed";
+					$extraFields = array('standard' => $unstemmed);
 					$spec['fields'] = $extraFields;
 					// FIXME - make index/locale specific, get from settings
 					$spec['analyzer'] = 'stemmed';
