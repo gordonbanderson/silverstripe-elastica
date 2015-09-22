@@ -43,7 +43,9 @@ class SearchIndexTask extends \BuildTask {
 		$es->addFilter('IsInSiteTree', true);
 		$results = $es->search($query);
 		foreach ($results as $result) {
-			$message($result->Title);
+			$title = '['.$result->ClassName.', '.$result->ID.']  ';
+			$title .= $result->Title;
+			$message($title);
 			if ($result->SearchHighlightsByField->Content) {
 				foreach ($result->SearchHighlightsByField->Content as $highlight) {
 					$message("- ".$highlight->Snippet);
