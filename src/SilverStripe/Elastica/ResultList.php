@@ -15,7 +15,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
     /**
      * @var \Elastica\Index
      */
-    private $index;
+    private $service;
 
     /**
      * @var \Elastica\Query
@@ -36,8 +36,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	private $aggregations;
 
 
-	public function __construct(Index $index, Query $query) {
-		$this->index = $index;
+	public function __construct(ElasticaService $service, Query $query) {
+		$this->service = $service;
 		$this->query = $query;
 	}
 
@@ -49,7 +49,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 * @return \Elastica\Index
 	 */
 	public function getIndex() {
-		return $this->index;
+		return $this->service;
 	}
 
 	/**
@@ -84,10 +84,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
-			//print_r($this->query);
-			// get the ElasticaResultSet initally to obtain details
-			// 'index' is actually elastica service, bad naming of vars
-			$ers = $this->index->search($this->query,$this->types);
+			$ers = $this->service->search($this->query,$this->types);
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
