@@ -136,7 +136,7 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 
     	$properties['ShutterSpeed'] = array(
     		'type' => 'string',
-    		'analyzer' => 'not_analyzed'
+    		'index' => 'not_analyzed'
 		);
 
     	$properties['Aperture'] = array(
@@ -164,8 +164,11 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 	public function updateElasticsearchDocument(\Elastica\Document $document)
 	{
 	//	self::$ctr++;
-		$coors = array('lat' => $this->owner->Lat, 'lon' => $this->owner->Lon);
-		$document->set('location',$coors);
+		if ($this->owner->Lat != null && $this->owner->Lon != null) {
+			$coors = array('lat' => $this->owner->Lat, 'lon' => $this->owner->Lon);
+			$document->set('location',$coors);
+		}
+
 		$sortable = $this->owner->ShutterSpeed;
 		$sortable = explode('/', $sortable);
 		if (sizeof($sortable) == 1) {
