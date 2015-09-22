@@ -83,6 +83,14 @@ class BaseIndexSettings {
 		}
 	}
 
+
+	/*
+	Accessor for stopwords
+	 */
+	public function getStopwords() {
+		return $this->stopWords;
+	}
+
 	/*
 	Valid values are arabic, armenian, basque, brazilian, bulgarian, catalan, chinese, cjk, czech,
 	 danish, dutch, english, finnish, french, galician, german, greek, hindi, hungarian,
@@ -96,23 +104,49 @@ class BaseIndexSettings {
 
 
 	public function generateConfig() {
+		$settings = array();
+		$settings['analysis'] = array();
+
+		// create redefined filters in this array, e.g. tweaked stopwords
 		$filters = array();
+
 		$properties = array();
 		$analyzers = array();
 		$analyzerStemmed = array();
+		$analyzerNotStemmed = array();
 		$analyzerStemmed['type'] = $this->analyzerType;
+		$analyzerNotStemmed['type'] = 'custom';
+
+
 		if (sizeof($this->stopWords) > 0) {
-			$analyzerStemmed['stopwords'] = $this->stopWords;
-			$analyzerStemmed['filter'] = array('standard', 'my_ascii_folding');
+			$stopwordFilter = array();
+			$stopwordFilter['type'] = 'stop';
+			$stopwordFilter['stopwords'] = $this->stopWords;
+			$filters['stopword_filter'] = $stopwordFilter;
 		}
 
-		$settings = array();
-		$analyzers['stemmed'] = $analyzerStemmed;
+		$analyzerStemmed['char_filter'] = array('html_strip');
+		$analyzerStemmed['tokenizer'] = array('standard');
+		$filterNames = array_keys($filters);
 
-		$settings['analysis'] = array();
+		$analyzerStemmed['filter'] =  $filterNames;
+
+		$analyzerNotStemmed['char_filter'] = array('html_strip');
+		$analyzerNotStemmed['tokenizer'] = 'standard';
+		//array_push($filterNames, 'lowercase');
+		$analyzerNotStemmed['filter'] = $filterNames;
+
+
+		//HTML needs removed for all indexes
+		$analyzers['stemmed'] = $analyzerStemmed;
+		$analyzers['unstemmed'] = $analyzerNotStemmed;
 		$settings['analysis']['analyzer'] = $analyzers;
+		$settings['analysis']['filter'] = $filters;
+
 
 		$properties['index'] = $settings;
+
+		/*
 
 		if ($this->foldedAscii) {
 			$foldingFilter = array('my_ascii_folding' => array(
@@ -121,10 +155,8 @@ class BaseIndexSettings {
 			));
 			array_push($filters, $foldingFilter);
 		}
+		*/
 
-		if (sizeof($filters) > 0) {
-			$properties['filter'] = $filters;
-		}
 
 /*
 		$json = '{
@@ -147,6 +179,9 @@ class BaseIndexSettings {
 		}';
 		*/
 		//$this->extend('alterIndexingProperties', $properties);
+		//
+
+		print_r($properties);
 		return $properties;
 	}
 }
