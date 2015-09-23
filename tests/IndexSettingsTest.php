@@ -49,6 +49,8 @@ class IndexSettingsTest extends SapphireTest {
 		$indexSettings = new EnglishIndexSettings();
 		$config = $indexSettings->generateConfig();
 		$config = $config['index'];
+
+		// check stemmed settings first
 		print_r($config);
 
 		// check for existence and then actual values of analysis
@@ -68,10 +70,14 @@ class IndexSettingsTest extends SapphireTest {
 		$actual = $stemmedAnalyzer['tokenizer'];
 		$filterNames = $stemmedAnalyzer['filter'];
 
-		print_r($filterNames);
-
 		$this->assertEquals('stopword_filter', $filterNames[0]);
 
+		// check the unstemmed analyzer
+		$unstemmedAnalyzer = $analyzers['unstemmed'];
+		$this->assertEquals('custom', $unstemmedAnalyzer['type']);
+		$this->assertEquals('standard', $unstemmedAnalyzer['tokenizer']);
+		$this->assertEquals('html_strip', $unstemmedAnalyzer['char_filter'][0]);
+		$this->assertEquals('stopword_filter', $unstemmedAnalyzer['filter'][0]);
 	}
 
 
