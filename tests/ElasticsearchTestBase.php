@@ -41,7 +41,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 	 */
 	public function checkTabExists($fields, $tabName) {
 		$tab = $fields->findOrMakeTab("Root.{$tabName}");
-		$this->assertEquals('Main', $tab->getName());
+		$this->assertEquals($tabName, $tab->getName());
 		$this->assertEquals("Root_${tabName}", $tab->id());
 		return $tab;
 	}
