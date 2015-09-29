@@ -14,14 +14,10 @@ class SearchableFieldTest extends ElasticsearchBaseTest {
 
 		$fields = $sf->getCMSFields();
 
-		//Check tabs existence
-		$tab = $fields->findOrMakeTab('Root.Main');
-		$this->assertEquals('Main', $tab->getName());
-		$this->assertEquals('Root_Main', $tab->id());
+		$tab = $this->checkTabExists($fields,'Main');
 
 		//Check fields
-		$nf = $tab->fieldByName('Name');
-		$this->assertTrue($nf != null);
+		$nf = $this->checkFieldExists($tab, 'Name');
 		$this->assertTrue($nf->isDisabled());
 	}
 
