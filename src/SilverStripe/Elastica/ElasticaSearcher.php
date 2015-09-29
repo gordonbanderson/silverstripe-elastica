@@ -23,7 +23,6 @@ class ElasticSearcher {
 	 */
 	private $filters = array();
 
-
 	/**
 	 * The locale to search, is set to current locale or default locale by default
 	 * but can be overriden.  This is the code in the form en_US, th_TH etc
@@ -129,8 +128,6 @@ class ElasticSearcher {
 			}
 		}
 
-		//echo "SEARCH LOCALE:$this->locale\n";
-
 		/*
 		FIXME - this needs to go in the augmenter
 		if ($q == '') {
@@ -192,17 +189,28 @@ class ElasticSearcher {
 	        //$fieldsCSV = implode(',', $fieldsToSearch);
 	        $textQuery->setFields($elasticaFields);
 	        $textQuery->setType('most_fields');
+
+	        //Setting the lenient flag means that numeric fields can be searched for text values
+	        $textQuery->setParam('lenient', true);
 		} else {
 			// this will search all fields
 			$textQuery = new QueryString($q);
+
+			//Setting the lenient flag means that numeric fields can be searched for text values
+			$textQuery->setParam('lenient', true);
 		}
 
 		// the Elastica query object
-		$filtered = new Filtered(
-		  $textQuery,
-		  $queryFilter
-		);
-		$query = new Query($filtered);
+		if ($queryFilter == null) {
+			$query = new Query($textQuery);
+		} else {
+			$filtered = new Filtered(
+			  $textQuery,
+			  $queryFilter
+			);
+			$query = new Query($filtered);
+		}
+
 
 		// pagination
 		$query->setLimit($this->pageLength);
@@ -348,6 +356,7 @@ class ElasticSearcher {
 		$cache = SS_Cache::factory('elasticsearch');
 		return $cache;
 	}
+
 
 	/**
 	 * Convert either a CSV string or an array to a CSV single quoted string, suitable for use in
