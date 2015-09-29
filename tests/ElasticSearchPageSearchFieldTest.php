@@ -67,9 +67,18 @@ class ElasticSearchPageSearchFieldTest extends ElasticsearchBaseTest {
 		$sf->Name = 'TestField';
 		$sf->Weight = 10;
 		$sf->write();
-		$this->assertEquals(1, $sf->Weight);
 		$this->assertEquals(10, $sf->Weight);
 		$this->assertTrue($sf->ID > 0);
+	}
+
+
+	public function testHumanReadableSearchable() {
+		$sf = new ElasticSearchPageSearchField();
+		$sf->Name = 'TestField';
+		$sf->Searchable = false;
+		$this->assertEquals('No', $sf->HumanReadableSearchable());
+		$sf->Searchable = true;
+		$this->assertEquals('Yes', $sf->HumanReadableSearchable());
 	}
 
 }
