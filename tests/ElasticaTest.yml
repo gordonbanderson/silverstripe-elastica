@@ -38,8 +38,8 @@ FlickrPhoto:
     Title: Bangkok
     Description: Test photograph
     FlickrID: 1234567
-    TakenAt: 24/4/2012 18:12
-    FirstViewed: 28/4/2012
+    TakenAt: 2012-4-24 18:12:00
+    FirstViewed: 2012-4-28
     Aperture: 8.0
     ShutterSpeed: 1/100
     FocalLength35mm: 140
