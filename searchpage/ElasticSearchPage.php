@@ -120,7 +120,6 @@ class ElasticSearchPage extends Page {
 		if ($existing > 0) {
 			$result->error('The identifier '.$this->Identifier.' already exists');
 		}
-
 		return $result;
 	}
 
