@@ -125,15 +125,15 @@ class BaseIndexSettings {
 			$filters['stopword_filter'] = $stopwordFilter;
 		}
 
-		$analyzerStemmed['char_filter'] = array('html_strip');
+		//$analyzerStemmed['char_filter'] = array('html_strip');
 		$analyzerStemmed['tokenizer'] = array('standard');
 		$filterNames = array_keys($filters);
 
 		$analyzerStemmed['filter'] =  $filterNames;
 
-		$analyzerNotStemmed['char_filter'] = array('html_strip');
+		//$analyzerNotStemmed['char_filter'] = array('html_strip');
 		$analyzerNotStemmed['tokenizer'] = 'standard';
-		//array_push($filterNames, 'lowercase');
+		array_push($filterNames, 'lowercase');
 		$analyzerNotStemmed['filter'] = $filterNames;
 
 
@@ -180,8 +180,6 @@ class BaseIndexSettings {
 		*/
 		//$this->extend('alterIndexingProperties', $properties);
 		//
-
-		print_r($properties);
 		return $properties;
 	}
 }
