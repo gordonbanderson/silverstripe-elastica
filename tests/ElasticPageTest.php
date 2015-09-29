@@ -3,30 +3,25 @@
 /**
  * @package comments
  */
-class ElasticPageTest extends FunctionalTest {
+class ElasticPageTest extends ElasticsearchBaseTest {
 
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
-	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
-	);
 
-	public function setUp() {
-		// this needs to be called in order to create the list of searchable
-		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
-			'FlickrTag', 'FlickrAuthor', 'FlickrSet');
-		$this->requireDefaultRecordsFrom = $classes;
+	public function testCMSFields() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
-		// add Searchable extension where appropriate
-		FlickrSet::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhoto::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTag::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
-		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
+		$fields = $searchPage->getCMSFields();
 
-		// load fixtures
-		parent::setUp();
+		$mainTab = $this->checkTabExists($fields,'Main');
+		$this->checkFieldExists($mainTab, 'Identifier');
+
+		$searchTab = $this->checkTabExists($fields,'SearchDetails');
+
+		$this->checkFieldExists($searchTab, 'InfoField');
+		$this->checkFieldExists($searchTab, 'SearchHelper');
+		$this->checkFieldExists($searchTab, 'ElasticSearchPageSearchField');
+		$this->checkFieldExists($searchTab, 'SearchFieldsMessage');
 	}
 
 
@@ -46,7 +41,7 @@ class ElasticPageTest extends FunctionalTest {
 			'SiteTree' => array('Title','Content'),
 			'SearchableTestPage' => array('Title','Content','Country','PageDate'),
 			'FlickrTag' => array('RawValue'),
-			'FlickrAuthor' => array('PathAlias','DisplayName'),
+			'FlickrAuthor' => array('PathAlias','DisplayName','FlickrPhotos'),
 			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
 				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets',
 				'FirstViewed'),
