@@ -35,4 +35,17 @@ class ElasticSearchPageSearchField extends DataObject {
 	public function HumanReadableSearchable() {
 		return $this->Searchable ? 'Yes':'No';
 	}
+
+
+	/**
+	 * Check for weighting > 0
+	 * @return DataObject result with or without error
+	 */
+	public function validate() {
+		$result = parent::validate();
+		if ($this->Weight <= 0) {
+			$result->error('Weight must be more than zero');
+		}
+		return $result;
+	}
 }
