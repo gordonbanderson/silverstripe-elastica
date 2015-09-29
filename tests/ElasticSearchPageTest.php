@@ -3,7 +3,7 @@
 /**
  * @package comments
  */
-class ElasticPageTest extends ElasticsearchBaseTest {
+class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
