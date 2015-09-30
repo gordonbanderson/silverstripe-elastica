@@ -78,8 +78,7 @@ class BaseIndexSettings {
 		} else if (is_string($newStopWords)) {
 			$this->stopWords = explode(',', $newStopWords);
 		} else {
-			echo "\nERROR: Stopwords must be a string or an array\n";
-			die;
+			throw new Exception("ERROR: Stopwords must be a string or an array");
 		}
 	}
 
