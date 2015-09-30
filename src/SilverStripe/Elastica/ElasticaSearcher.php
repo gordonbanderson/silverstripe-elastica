@@ -271,13 +271,19 @@ class ElasticSearcher {
 				}
 				array_push($result, $fieldCfg);
 
-				if ($nameToType[$fieldName] == 'string') {
-					$fieldCfg = "{$fieldName}.*";
-					if ($weight != 1) {
-						$fieldCfg .= '^'.$weight;
+				if (isset($nameToType[$fieldName])) {
+					if ($nameToType[$fieldName] == 'string') {
+						$fieldCfg = "{$fieldName}.*";
+						if ($weight != 1) {
+							$fieldCfg .= '^'.$weight;
+						}
+						array_push($result, $fieldCfg);
 					}
-					array_push($result, $fieldCfg);
+				} else {
+					throw new Exception("Field .$fieldName does not exist");
 				}
+
+
 			}
 		}
 
