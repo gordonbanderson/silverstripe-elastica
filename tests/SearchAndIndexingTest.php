@@ -34,10 +34,46 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	}
 
+
+
+	public function testSetStopwordsConfigurationCSV() {
+		$stopwords = "a,the,then,this";
+		$englishIndex = new EnglishIndexSettings();
+		$englishIndex->setStopwords($stopwords);
+		$expected = array('a','the','then','this');
+		$this->assertEquals($expected, $englishIndex->getStopwords());
+	}
+
+
+	public function testSetStopwordsConfigurationArray() {
+		$stopwords = array('a','the','then','this');
+		$englishIndex = new EnglishIndexSettings();
+		$englishIndex->setStopwords($stopwords);
+		$expected = array('a','the','then','this');
+		$this->assertEquals($expected, $englishIndex->getStopwords());
+	}
+
+
+	public function testConfigurationInvalidStopwords() {
+		$stopwords = 45; // deliberately invalid
+		$englishIndex = new EnglishIndexSettings();
+		try {
+			$englishIndex->setStopwords($stopwords);
+			// should not get this far, should fail
+			$this->assertTrue(false, "Invalid stopwords were not correctly prevented");
+		} catch (Exception $e) {
+			$this->assertTrue(true, "Invalid stopwords correctly prevented");
+		}
+
+
+
+	}
+
+
 	/*
 	Search for stop words and assert that they are not found
 	 */
-	public function testStopWords() {
+	public function testConfiguredStopWords() {
 		//Commenting::set_config_value('CommentableItem','require_moderation', true);
 		$englishIndex = new EnglishIndexSettings();
 		$stopwords = $englishIndex->getStopwords();
@@ -66,14 +102,30 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 			// this tests numeric fields also
 			$this->search($stopword, 0, $allFields);
-
 		}
 
 	}
 
 
+	public function testFoldedIndexes() {
+		$this->assertTrue(false, 'To do');
+	}
+
+
+	public function testSynonymIndexes() {
+		$this->assertTrue(false, 'To do');
+	}
+
+
 	public function testNonExistentField() {
-		$this->search('zealand', 0, array('Fwlubble' => 1));
+		try {
+			// this should fail as field Fwlubble does not exist
+			$this->search('zealand', 0, array('Fwlubble' => 1));
+			$this->assertTrue(false, "Field Fwlubble does not exist and an exception should have been thrown");
+		} catch (Exception $e) {
+			$this->assertTrue(true, "Field Fwlubble does not exist, exception thrown as expected");
+		}
+
 	}
 
 
