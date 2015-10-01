@@ -45,7 +45,7 @@ class SearchableTest extends SapphireTest {
 			'fields' => array(
 				'standard' => array(
 					'type' => 'string',
-					'analyzer' => 'standard'
+					'analyzer' => 'unstemmed'
 				)
 			),
 			'analyzer' => 'stemmed'
