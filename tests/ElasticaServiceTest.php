@@ -13,7 +13,36 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
-	//TODO - check toggling search visible flag and publish/unpublish
+
+	public function testCreateIndexInvalidLocale() {
+		// fake locale
+		$this->service->setLocale('sw_NZ');
+		try {
+			$this->invokeMethod($this->service, 'createIndex', array());
+			$this->assertFalse(true, "Creation of index with unknown locale should have failed");
+		} catch (Exception $e) {
+			$this->assertTrue(true,"Creation of index with unknown locale failed as expected");
+		}
+
+
+	}
+
+
+	public function testEnsureMapping() {
+		$this->service->reset();
+
+		$index = $this->service->getIndex();
+
+
+		$mapping = $index->getMapping();
+		print_r($mapping);
+
+		$type = $index->getType('FlickrPhoto');
+		$record = FlickrPhoto::get()->first();
+		$mapping = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
+ 		//assertTrue(false, 'Figure out what this method should do');
+		print_r($mapping);
+	}
 
 
 	public function testEnsureIndex() {
@@ -35,10 +64,8 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testShowInSearch() {
-		echo "//// TEST SHOW IN SEARCH PAGE ////\n";
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
-		echo "Starting with $nDocsAtStart\n";
 
 		$fp = Page::get()->first();
 		$fp->ShowInSearch = false;
@@ -47,7 +74,6 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
 
-		echo "Page removed successfully, now trying to add back\n\n\n";
 		$fp->ShowInSearch = true;
 		$fp->write();
 		$this->service->getIndex()->refresh();
@@ -57,10 +83,8 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testUnpublish() {
-		echo "//// TEST DELETE PAGE ////\n";
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
-		echo "Starting with $nDocsAtStart\n";
 
 		$fp = Page::get()->first();
 		$fp->doUnpublish();
@@ -71,13 +95,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testDeleteFromSiteTree() {
-		echo "//// TEST DELETE PAGE ////\n";
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
-		echo "Starting with $nDocsAtStart\n";
 
 		$fp = Page::get()->first();
-		echo "Trying to delete {$fp->ClassName} [{$fp->ID}]\n";
 		$fp->delete();
 
 		$this->service->getIndex()->refresh();
@@ -86,13 +107,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testDeleteDataObject() {
-		echo "//// TEST DELETE FP ////\n";
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
-		echo "Starting with $nDocsAtStart\n";
 
 		$fp = FlickrPhoto::get()->first();
-		echo "Trying to delete {$fp->ClassName} [{$fp->ID}]\n";
 		$fp->delete();
 
 		$this->service->getIndex()->refresh();
