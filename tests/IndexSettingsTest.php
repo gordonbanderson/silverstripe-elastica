@@ -76,7 +76,6 @@ class IndexSettingsTest extends SapphireTest {
 		$unstemmedAnalyzer = $analyzers['unstemmed'];
 		$this->assertEquals('custom', $unstemmedAnalyzer['type']);
 		$this->assertEquals('standard', $unstemmedAnalyzer['tokenizer']);
-		$this->assertEquals('html_strip', $unstemmedAnalyzer['char_filter'][0]);
 		$this->assertEquals('stopword_filter', $unstemmedAnalyzer['filter'][0]);
 	}
 
