@@ -67,6 +67,17 @@ class Searchable extends \DataExtension {
 
 
 	/**
+	 * If importing a large number of items from a fixtures file, or indeed some other source, then
+	 * it is quicker to set a flag of value IndexingOff => false.  This has the effect of ensuring
+	 * no indexing happens, a request is normally made per fixture when loading.  One can then run
+	 * the reindexing teask to bulk index in one HTTP POST request to Elasticsearch
+	 *
+	 * @var boolean
+	 */
+	private static $IndexingOff = false;
+
+
+	/**
 	 * @see getElasticaResult
 	 * @var \Elastica\Result
 	 */
@@ -423,9 +434,9 @@ Array
 	 * Delete the record from the search index if ShowInSearch is deactivated (non-SiteTree).
 	 */
 	public function onBeforeWrite() {
-		if (!($this->owner instanceof \SiteTree)) {
+		if (($this->owner instanceof \SiteTree)) {
 			if ($this->owner->hasField('ShowInSearch') AND
-				$this->isChanged('ShowInSearch', 2) AND false == $this->owner->ShowInSearch) {
+				$this->owner->isChanged('ShowInSearch', 2) AND false == $this->owner->ShowInSearch) {
 				$this->doDeleteDocument();
 			}
 		}
@@ -441,6 +452,7 @@ Array
 				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 					byID($this->owner->ID);
 				if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
+					echo "Deleting due to show in search set to false\n";
 					$this->doDeleteDocument();
 				}
 			}
@@ -452,9 +464,15 @@ Array
 	 * Updates the record in the search index (non-SiteTree).
 	 */
 	public function onAfterWrite() {
+					$this->doIndexDocument();
+/*
 		if (!($this->owner instanceof \SiteTree)) {
+			echo "SEARCHABLE: onAfterWrite T1 - INDEXING\n";
 			$this->doIndexDocument();
+		} else {
+			echo "SEARCHABLE: onAfterWrite T1 - NOT INDEXING\n";
 		}
+		*/
 	}
 
 
@@ -471,7 +489,12 @@ Array
 	 */
 	protected function doIndexDocument() {
 		if ($this->showRecordInSearch()) {
-			$this->service->index($this->owner);
+			echo "SEARCHABLE: doIndexDocument T1 - INDEXING\n";
+			if (!$this->owner->IndexingOff) {
+				$this->service->index($this->owner);
+			}
+		} else {
+			echo "SEARCHABLE: doIndexDocument T2 - NOT INDEXING DUE TO showRecordInSearch flag\n";
 		}
 	}
 
@@ -480,15 +503,25 @@ Array
 	 * Removes the record from the search index (non-SiteTree).
 	 */
 	public function onAfterDelete() {
+		echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T1 - owner is {$this->owner}\n";
+		echo "$this->owner instanceof \SiteTree = ".$this->owner instanceof \SiteTree."\n";
+
 		if (!($this->owner instanceof \SiteTree)) {
+			echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T2\n";
+			$this->doDeleteDocumentIfInSearch();
+		} else {
+			echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T3 - **** PREVIOUSLY NOT DELETING FROM INDEX ****\n";
+
 			$this->doDeleteDocumentIfInSearch();
 		}
 	}
+
 
 	/**
 	 * Removes the record from the search index (non-SiteTree).
 	 */
 	public function onAfterUnpublish() {
+		echo "SEARCHABLE: onAfterUnpublish T1 - TRYING TO DELETE\n";
 		$this->doDeleteDocumentIfInSearch();
 	}
 
@@ -497,8 +530,12 @@ Array
 	 * Removes the record from the search index if the "ShowInSearch" attribute is set to true.
 	 */
 	protected function doDeleteDocumentIfInSearch() {
+		echo "SEARCHABLE: doDeleteDocumentIfInSearch T1\n";
 		if ($this->showRecordInSearch()) {
+			echo "SEARCHABLE: doDeleteDocumentIfInSearch T2\n";
 			$this->doDeleteDocument();
+		} else {
+			echo "SEARCHABLE: doDeleteDocumentIfInSearch T3 - NOT DELETING due to showRecordInSearchFlag\n";
 		}
 	}
 
@@ -507,8 +544,13 @@ Array
 	 * Removes the record from the search index.
 	 */
 	protected function doDeleteDocument() {
+		echo "SEARCHABLE: doDeleteDocument T1\n";
 		try{
-			$this->service->remove($this->owner);
+			echo "SEARCHABLE: doDeleteDocument T2\n";
+			if (!$this->owner->IndexingOff) {
+				$this->service->remove($this->owner);
+			}
+
 		}
 		catch(NotFoundException $e) {
 			trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
