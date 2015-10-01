@@ -134,6 +134,7 @@ class ElasticaService {
 		}
 	}
 
+
 	/**
 	 * Ensure that there is a mapping present
 	 *
@@ -152,6 +153,7 @@ class ElasticaService {
 		}
 		return $mapping;
 	}
+
 
 	/**
 	 * Either creates or updates a record in the index.
@@ -220,10 +222,15 @@ class ElasticaService {
 	 * @param Searchable $record
 	 */
 	public function remove($record) {
+		echo "ELASTICA SERVICE: Removing {$record->getElasticaType()} - {$record->ID}\n";
+		$this->listIndexes('BEFORE DELETE');
+		echo "\t deleting now\n";
+
 		$index = $this->getIndex();
 		$type = $index->getType($record->getElasticaType());
 
 		$type->deleteDocument($record->getElasticaDocument());
+		$this->listIndexes('AFTER DELETE');
 	}
 
 
@@ -340,35 +347,6 @@ class ElasticaService {
 
 
 	private function createIndex() {
-		/*
-		$indexParams = array(
-            'analysis' => array(
-                'analyzer' => array(
-                    'lw' => array(
-                        'type' => 'custom',
-                        'tokenizer' => 'keyword',
-                        'filter' => array('lowercase'),
-                    ),
-                ),
-            ),
-        );
-
-        $index->create($indexParams, true);
-        $type = $index->getType('test');
-		 */
-		// FIXME INDEXING PARAMS HERE
-		//$originalLocale = $this->locale;
-		//$locales = array();
-		/*if (!class_exists('Translatable')) {
-			// if no translatable we only have the default locale
-			array_push($locales, \i18n::default_locale());
-		} else {
-			foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
-				array_push($locales, $code);
-			}
-		}
-		*/
-
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 
 		$index = $this->getIndex();
@@ -378,13 +356,9 @@ class ElasticaService {
 			$settings = $settingsInstance->generateConfig();
 			$index->create($settings, true);
 		} else {
-			echo('ERROR: No index settings are provided for locale '.$$this->locale."\n");
-			die;
+			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
+
 		}
-
-
-//		$this->locale = $originalLocale;
-
 	}
 
 
