@@ -35,6 +35,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+
+		// A previous test may have deleted the index and then failed, so check for this
+		if (!$this->service->getIndex()->exists()) {
+			$this->service->getIndex()->create();
+		}
 		$this->service->reset();
 
 		// load fixtures
