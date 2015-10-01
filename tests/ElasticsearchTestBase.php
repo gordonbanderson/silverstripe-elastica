@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\Elastica\ReindexTask;
+
 class ElasticsearchBaseTest extends SapphireTest {
 	protected $extraDataObjects = array(
 		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
@@ -31,13 +33,18 @@ class ElasticsearchBaseTest extends SapphireTest {
 		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
+		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$this->service->reset();
-		$this->service->startBulkIndex();
 
 		// load fixtures
 		parent::setUp();
-		$this->service->endBulkIndex();
+
+		// index loaded fixtures
+		$task = new ReindexTask($this->service);
+
+		// null request is fine as no parameters used
+		$task->run(null);
 
 	}
 
