@@ -29,6 +29,7 @@ class SearchableTest extends SapphireTest {
 		parent::setUp();
 	}
 
+
 	/**
 	 * Test a valid identifier
 	 */
@@ -192,6 +193,34 @@ class SearchableTest extends SapphireTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
 		$type = $flickrPhoto->getElasticaType();
 		$this->assertEquals('FlickrPhoto', $type);
+	}
+
+
+	/*
+	Get a record as an Elastic document and check values
+	 */
+	public function testElasticaDocument() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		$doc = $flickrPhoto->getElasticaDocument()->getData();
+
+		$expected = array();
+		$expected['Title'] = 'Bangkok' ;
+		$expected['FlickrID'] = '1234567';
+		$expected['Description'] = 'Test photograph';
+		$expected['TakenAt'] = '2012-04-24 18:12:00';
+		$expected['FirstViewed'] = '2012-04-28';
+		$expected['Aperture'] = 8.0;
+
+		//Shutter speed is altered for aggregations
+		$expected['ShutterSpeed'] = '0.01|1/100';
+		$expected['FocalLength35mm'] = 140;
+		$expected['ISO'] = 400;
+		$expected['Photographer'] = array();
+		$expected['FlickrTags'] = array();
+		$expected['FlickrSets'] = array();
+		$expected['IsInSiteTree'] = false;
+		$this->assertEquals($expected, $doc);
+		print_r($doc);
 	}
 
 
