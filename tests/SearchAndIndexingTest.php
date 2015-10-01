@@ -29,8 +29,8 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 		$this->search('New Zealand', 0, $numericFields);
 
-		//There are 10 entries in the fixtures
-		$this->search(400, 10, $numericFields);
+		//There are 10 entries in the fixtures, 3 default indexed pages
+		$this->search(400, 13, $numericFields);
 
 	}
 
