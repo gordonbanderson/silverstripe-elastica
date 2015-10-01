@@ -1,6 +1,7 @@
 <?php
 
 use SilverStripe\Elastica\ElasticaService;
+use SilverStripe\Elastica\ReindexTask;
 use SilverStripe\Elastica\DeleteIndexTask;
 use SilverStripe\Elastica\Searchable;
 
@@ -10,62 +11,58 @@ use SilverStripe\Elastica\Searchable;
  */
 class ElasticaServiceTest extends ElasticsearchBaseTest {
 
-	public static $fixture_file = 'elastica/tests/aFewPhotos.yml';
+	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
 	public function testBulkIndexing() {
-		echo "\n\n++++++++++++ BULK INDEXING TEST +++++++++++\n";
-		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		//Reset the index, so that nothing is indexed
+		$this->service->reset();
 
-		echo "DOCS AT START:".$nDocsAtStart."\n";
+		//Number of requests indexing wise made to Elasticsearch server
+		$reqs = $this->service->getIndexingRequestCtr();
 
-		Injector::inst()->get('FlickrPhoto')->startBulkIndex();
+		$task = new ReindexTask($this->service);
 
-		$fp = new FlickrPhoto();
-		$fp->Title = 'The cat sits on the mat';
-		$fp->write();
+		// null request is fine as no parameters used
+		$task->run(null);
 
-		// not yet indexed, so should still be 100
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		//Check that the number of indexing requests has increased by 3
+		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
 
-		$fp2 = new FlickrPhoto();
-		$fp2->Title = 'The cat sat on the hat';
-		$fp2->write();
-		// not yet indexed, so should still be the same
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		//Each SilverStripe class invocates a bulk index call, here we have
+		//Page and FlickrPhoto
+		$this->assertEquals(2,$deltaReqs);
 
-		Injector::inst()->get('FlickrPhoto')->endBulkIndex();
-
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart+2);
+		$this->checkNumberOfIndexedDocuments(103);
 	}
 
 
 
 	public function testNonBulkIndexing() {
-		echo "\n\n++++++++++++ NON BULK INDEXING TEST +++++++++++\n";
-
+		//Number of requests indexing wise made to Elasticsearch server
+		$reqs = $this->service->getIndexingRequestCtr();
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
-		echo "DOCS AT START:".$nDocsAtStart."\n";
-
-		echo "COUNT:".$this->service->getIndex()->count();
-
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
-
+		//Check index size after each document indexed
 		$fp = new FlickrPhoto();
 		$fp->Title = 'The cat sits on the mat';
 		$fp->write();
-		echo "T1\n";
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart+1);
 
 		$fp2 = new FlickrPhoto();
 		$fp2->Title = 'The cat sat on the hat';
 		$fp2->write();
-		echo "T2\n";
-
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart+2);
-		echo "T3\n";
+
+		$fp3 = new FlickrPhoto();
+		$fp3->Title = 'The bat flew around the cat';
+		$fp3->write();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart+3);
+
+		//Check that the number of indexing requests has increased by 3
+		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
+		$this->assertEquals(3,$deltaReqs);
 	}
 
 
