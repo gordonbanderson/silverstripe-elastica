@@ -47,3 +47,9 @@ FlickrPhoto:
     MediumURL: 'http://www.test.com/test.jpg',
     MediumHeight: 400,
     MediumWidth: 300
+
+#Test for check on duplicate indexing
+SiteTree:
+  sitetree001:
+    Title: Test Title
+    Content: Test content
