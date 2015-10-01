@@ -31,8 +31,14 @@ class ElasticsearchBaseTest extends SapphireTest {
 		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
+		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$this->service->reset();
+		$this->service->startBulkIndex();
+
 		// load fixtures
 		parent::setUp();
+		$this->service->endBulkIndex();
+
 	}
 
 
@@ -50,5 +56,54 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$field = $tab->fieldByName($fieldName);
 		$this->assertTrue($field != null);
 		return $field;
+	}
+
+
+	/**
+	 * From https://jtreminio.com/2013/03/unit-testing-tutorial-part-3-testing-protected-private-methods-coverage-reports-and-crap/
+	 * Call protected/private method of a class.
+	 *
+	 * @param object &$object    Instantiated object that we will run method on.
+	 * @param string $methodName Method name to call
+	 * @param array  $parameters Array of parameters to pass into method.
+	 *
+	 * @return mixed Method return.
+	 */
+	public function invokeMethod(&$object, $methodName, array $parameters = array())
+	{
+	    $reflection = new \ReflectionClass(get_class($object));
+	    $method = $reflection->getMethod($methodName);
+	    $method->setAccessible(true);
+
+	    return $method->invokeArgs($object, $parameters);
+	}
+
+
+	public function checkNumberOfIndexedDocuments($expectedAmount) {
+		$index = $this->service->getIndex();
+		$status = $index->getStatus()->getData();
+
+		$numberDocsInIndex = -1; // flag value for not yet indexed
+		if (isset($status['indices']['elastica_ss_module_test_en_us']['docs'])) {
+			$numberDocsInIndex = $status['indices']['elastica_ss_module_test_en_us']['docs']['num_docs'];
+		}
+
+		$this->assertEquals($expectedAmount,$numberDocsInIndex);
+	}
+
+	/*
+	Get the number of documents in an index.  It is assumed the index exists, if not the test will fail
+	 */
+	public function getNumberOfIndexedDocuments() {
+		$index = $this->service->getIndex();
+		$status = $index->getStatus()->getData();
+
+		$numberDocsInIndex = -1; // flag value for not yet indexed
+		if (isset($status['indices']['elastica_ss_module_test_en_us']['docs'])) {
+			$numberDocsInIndex = $status['indices']['elastica_ss_module_test_en_us']['docs']['num_docs'];
+		}
+
+		$this->assertGreaterThan(-1, $numberDocsInIndex);
+		return $numberDocsInIndex;
 	}
 }
