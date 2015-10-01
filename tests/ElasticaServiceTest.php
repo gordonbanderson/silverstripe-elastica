@@ -13,6 +13,92 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
+	//TODO - check toggling search visible flag and publish/unpublish
+
+
+	public function testEnsureIndex() {
+		// Check that an index currently exists, it will from setup method
+		$this->assertTrue($this->service->getIndex()->exists());
+
+		// Ensure the index exists when it already exists case
+		$this->invokeMethod($this->service, 'ensureIndex', array());
+		$this->assertTrue($this->service->getIndex()->exists());
+
+		// Delete and assert that it does not exist
+		$this->service->getIndex()->delete();
+		$this->assertFalse($this->service->getIndex()->exists());
+
+		// Ensure the index exists when it does not exist case
+		$this->invokeMethod($this->service, 'ensureIndex', array());
+		$this->assertTrue($this->service->getIndex()->exists());
+	}
+
+
+	public function testShowInSearch() {
+		echo "//// TEST SHOW IN SEARCH PAGE ////\n";
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		echo "Starting with $nDocsAtStart\n";
+
+		$fp = Page::get()->first();
+		$fp->ShowInSearch = false;
+		$fp->write();
+		$this->service->getIndex()->refresh();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+
+		echo "Page removed successfully, now trying to add back\n\n\n";
+		$fp->ShowInSearch = true;
+		$fp->write();
+		$this->service->getIndex()->refresh();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
+
+	public function testUnpublish() {
+		echo "//// TEST DELETE PAGE ////\n";
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		echo "Starting with $nDocsAtStart\n";
+
+		$fp = Page::get()->first();
+		$fp->doUnpublish();
+
+		$this->service->getIndex()->refresh();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+	}
+
+
+	public function testDeleteFromSiteTree() {
+		echo "//// TEST DELETE PAGE ////\n";
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		echo "Starting with $nDocsAtStart\n";
+
+		$fp = Page::get()->first();
+		echo "Trying to delete {$fp->ClassName} [{$fp->ID}]\n";
+		$fp->delete();
+
+		$this->service->getIndex()->refresh();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+	}
+
+
+	public function testDeleteDataObject() {
+		echo "//// TEST DELETE FP ////\n";
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		echo "Starting with $nDocsAtStart\n";
+
+		$fp = FlickrPhoto::get()->first();
+		echo "Trying to delete {$fp->ClassName} [{$fp->ID}]\n";
+		$fp->delete();
+
+		$this->service->getIndex()->refresh();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+	}
+
 
 	public function testBulkIndexing() {
 		//Reset the index, so that nothing is indexed
@@ -33,6 +119,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		//Page and FlickrPhoto
 		$this->assertEquals(2,$deltaReqs);
 
+		// default installed pages plus 100 FlickrPhotos
 		$this->checkNumberOfIndexedDocuments(103);
 	}
 
@@ -93,32 +180,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 	public function testResetIndex() {
 		$index = $this->service->getIndex();
-		$this->checkNumberOfIndexedDocuments(100);
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 		$this->service->reset();
 		$this->checkNumberOfIndexedDocuments(-1);
-	}
-
-	public function testEnsureIndex() {
-		$index = $this->service->getIndex();
-		$this->assertTrue($index->exists());
-
-		// Check the number of documents
-		$this->checkNumberOfIndexedDocuments(100);
-
-
-		// Delete the index
-		$task = new DeleteIndexTask($this->service);
-
-		// null request is fine as no parameters used
-		$task->run(null);
-
-		// call protected method
-		$this->invokeMethod($this->service, 'ensureIndex', array());
-
-		$this->checkNumberOfIndexedDocuments(-1);
-
-
-		//FIXME better options for testing here?
 	}
 
 
@@ -127,7 +192,8 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$this->assertTrue($index->exists());
 
 		// Check the number of documents
-		$this->checkNumberOfIndexedDocuments(100);
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
 
 		// Delete the index
@@ -140,10 +206,5 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 		//FIXME better options for testing here?
 	}
-
-
-
-
-
 
 }
