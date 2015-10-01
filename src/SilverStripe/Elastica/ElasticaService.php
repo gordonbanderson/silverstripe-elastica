@@ -44,6 +44,12 @@ class ElasticaService {
 	private static $site_tree_classes = array();
 
 	/**
+	 * Counter used to for testing, records indexing requests
+	 * @var integer
+	 */
+	public static $indexing_request_ctr = 0;
+
+	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
 	 */
@@ -168,6 +174,7 @@ class ElasticaService {
 			$this->ensureMapping($type, $record);
 			$type->addDocument($document);
 			$index->refresh();
+			self::$indexing_request_ctr++;
 		}
 	}
 
@@ -199,6 +206,7 @@ class ElasticaService {
 			echo "Adding ".sizeof($documents)." docs of type {$type}\n";
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
+			self::$indexing_request_ctr++;
 		}
 
 		$this->buffered = false;
@@ -395,6 +403,15 @@ class ElasticaService {
 		}
 
 		return $classes;
+	}
+
+
+	/**
+	 * Get the number of indexing requests made.  Used for testing bulk indexing
+	 * @return [type] [description]
+	 */
+	public function getIndexingRequestCtr() {
+		return self::$indexing_request_ctr;
 	}
 
 }
