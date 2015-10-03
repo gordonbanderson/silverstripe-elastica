@@ -115,7 +115,15 @@ class ElasticSearchPage extends Page {
 	 */
 	public function validate() {
 		$result = parent::validate();
-		$where = 'ElasticSearchPage.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
+		$mode = Versioned::get_reading_mode();
+
+		$suffix =  '';
+		if ($mode == 'Stage.Live') {
+			$suffix = '_Live';
+		}
+
+		echo "$mode => $suffix\n";
+		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
 		if ($existing > 0) {
 			$result->error('The identifier '.$this->Identifier.' already exists');
