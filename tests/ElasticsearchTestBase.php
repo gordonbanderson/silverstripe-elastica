@@ -4,7 +4,8 @@ use SilverStripe\Elastica\ReindexTask;
 
 class ElasticsearchBaseTest extends SapphireTest {
 	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
+		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag',
+		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
 	);
 
 	public function setUpOnce() {
