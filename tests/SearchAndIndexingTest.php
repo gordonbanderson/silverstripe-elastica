@@ -108,11 +108,40 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	The search term 'New Zealand' was used against Flickr to create the fixtures file, so this means
 	that all of the fixtures should have 'New Zealand' in them.  Test page length from 1 to 100
 	 */
-	public function testPageLength() {
+	public function testResultListPageLength() {
 		for ($i=1; $i <= 100 ; $i++) {
 			$resultList = $this->getResultsFor('New Zealand',$i);
 			$this->assertEquals($i, $resultList->count());
 		}
+	}
+
+
+	public function testResultListIndex() {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		$index = $resultList->getService()->getIndex();
+		$this->assertEquals('elastica_ss_module_test_en_us', $index->getName());
+	}
+
+
+	public function testResultListGetQuery() {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		$query = $resultList->getQuery()->toArray();
+
+		$expected = array();
+		$expected['query'] = array('multi_match' => array(
+				'query' => 'New Zealand',
+				'fields' => array('Title', 'Title.*', 'Description', 'Description.*'),
+				'type' => 'most_fields',
+				'lenient' => true
+			)
+		);
+		$expected['size'] = 10;
+		$expected['from'] = 0;
+
+
+		$this->assertEquals($expected['size'], $query['size']);
+		$this->assertEquals($expected['from'], $query['from']);
+		$this->assertEquals($expected['query'], $query['query']);
 	}
 
 
