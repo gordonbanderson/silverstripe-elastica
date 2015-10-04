@@ -64,9 +64,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		} catch (Exception $e) {
 			$this->assertTrue(true, "Invalid stopwords correctly prevented");
 		}
-
-
-
 	}
 
 
@@ -145,7 +142,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		}*/
 
 		$this->assertEquals(27, $searchableFields->count());
-
 	}
 
 
