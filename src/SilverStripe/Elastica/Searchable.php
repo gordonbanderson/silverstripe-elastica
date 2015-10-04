@@ -489,13 +489,12 @@ Array
 	 */
 	protected function doIndexDocument() {
 		if ($this->showRecordInSearch()) {
-			echo "SEARCHABLE: doIndexDocument T1 - INDEXING\n";
 			if (!$this->owner->IndexingOff) {
 				$this->service->index($this->owner);
 			}
-		} else {
-			echo "SEARCHABLE: doIndexDocument T2 - NOT INDEXING DUE TO showRecordInSearch flag\n";
 		}
+
+		$command = "curl 'localhost:9200/_cat/indices?v'";
 	}
 
 
@@ -503,15 +502,9 @@ Array
 	 * Removes the record from the search index (non-SiteTree).
 	 */
 	public function onAfterDelete() {
-		echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T1 - owner is {$this->owner}\n";
-		echo "$this->owner instanceof \SiteTree = ".$this->owner instanceof \SiteTree."\n";
-
 		if (!($this->owner instanceof \SiteTree)) {
-			echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T2\n";
 			$this->doDeleteDocumentIfInSearch();
 		} else {
-			echo "SEARCHABLE: ON AFTER DELETE DOCUMENT T3 - **** PREVIOUSLY NOT DELETING FROM INDEX ****\n";
-
 			$this->doDeleteDocumentIfInSearch();
 		}
 	}
@@ -521,7 +514,6 @@ Array
 	 * Removes the record from the search index (non-SiteTree).
 	 */
 	public function onAfterUnpublish() {
-		echo "SEARCHABLE: onAfterUnpublish T1 - TRYING TO DELETE\n";
 		$this->doDeleteDocumentIfInSearch();
 	}
 
@@ -530,12 +522,8 @@ Array
 	 * Removes the record from the search index if the "ShowInSearch" attribute is set to true.
 	 */
 	protected function doDeleteDocumentIfInSearch() {
-		echo "SEARCHABLE: doDeleteDocumentIfInSearch T1\n";
 		if ($this->showRecordInSearch()) {
-			echo "SEARCHABLE: doDeleteDocumentIfInSearch T2\n";
 			$this->doDeleteDocument();
-		} else {
-			echo "SEARCHABLE: doDeleteDocumentIfInSearch T3 - NOT DELETING due to showRecordInSearchFlag\n";
 		}
 	}
 
@@ -544,9 +532,7 @@ Array
 	 * Removes the record from the search index.
 	 */
 	protected function doDeleteDocument() {
-		echo "SEARCHABLE: doDeleteDocument T1\n";
 		try{
-			echo "SEARCHABLE: doDeleteDocument T2\n";
 			if (!$this->owner->IndexingOff) {
 				$this->service->remove($this->owner);
 			}
