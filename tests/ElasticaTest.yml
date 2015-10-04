@@ -17,12 +17,21 @@ Permission:
 SearchableTestPage:
   first:
     Title: First
+    IndexingOff: true
   second:
     Title: Second
+    IndexingOff: true
   third:
     Title: Third
+    IndexingOff: true
   fourth:
     Title: Fourth
+    IndexingOff: true
+
+Page:
+  page0001:
+    Title: Test page for indexing
+    COntent: Test content for indexing
 
 ElasticSearchPage:
   search:
@@ -32,6 +41,7 @@ ElasticSearchPage:
     ResultsPerPage: 4
     SiteTreeOnly: true
     Identifier: testsearchpage
+    IndexingOff: true
 
 FlickrPhoto:
   photo0001:
@@ -47,9 +57,11 @@ FlickrPhoto:
     MediumURL: 'http://www.test.com/test.jpg',
     MediumHeight: 400,
     MediumWidth: 300
+    IndexingOff: true
 
 #Test for check on duplicate indexing
 SiteTree:
   sitetree001:
     Title: Test Title
     Content: Test content
+    IndexingOff: true
