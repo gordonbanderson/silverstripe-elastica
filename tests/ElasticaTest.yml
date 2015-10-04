@@ -28,6 +28,21 @@ SearchableTestPage:
     Title: Fourth
     IndexingOff: true
 
+
+#Father and grandfather pages
+SearchableTestFatherPage:
+  father0001:
+    Title: Father Page
+    Content: This is a father page
+    Father: This is the father field
+
+SearchableTestGrandFatherPage:
+  grandfather0001:
+    Title: Father Page
+    Content: This is a father page
+    Father: This is the father field in a grandfather page
+    GrandFather: This is the grandfather page
+
 Page:
   page0001:
     Title: Test page for indexing
@@ -58,6 +73,9 @@ FlickrPhoto:
     MediumHeight: 400,
     MediumWidth: 300
     IndexingOff: true
+
+
+
 
 #Test for check on duplicate indexing
 SiteTree:
