@@ -4,7 +4,7 @@
  * Teste the functionality of the Searchable extension
  * @package elastica
  */
-class SearchableTest extends SapphireTest {
+class SearchableTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
 	protected $extraDataObjects = array(
@@ -99,7 +99,7 @@ class SearchableTest extends SapphireTest {
 
 
 		// check strings
-		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'standard');
+		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'unstemmed');
 		foreach ($shouldBeString as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 
@@ -111,6 +111,7 @@ class SearchableTest extends SapphireTest {
 			$this->assertEquals('stemmed', $analyzer);
 
 			// check for unstemmed analaysis
+
 			$this->assertEquals($expectedStandardArray,$fieldProperties['fields']['standard']);
 
 			// check for only 3 entries
@@ -165,24 +166,17 @@ class SearchableTest extends SapphireTest {
 		//check shutter speed is tokenized, ie not analyzed - for aggregation purposes
 		//
 		foreach ($shouldBeTokens as $fieldName) {
-			echo "FIELD:$fieldName\n";
 			$fieldProperties = $properties[$fieldName];
-			print_r($fieldProperties);
-
 			$type = $fieldProperties['type'];
-			$analyzer = $fieldProperties['analyzer'];
 			$this->assertEquals('string', $type);
 
-			// check for stemmed analysis
+			// check for no analysis
+			$analyzer = $fieldProperties['index'];
 			$this->assertEquals('not_analyzed', $analyzer);
 
 			// check for only 2 entries
 			$this->assertEquals(2, sizeof(array_keys($fieldProperties)));
 		}
-
-
-
-		print_r($properties);
 	}
 
 
@@ -220,8 +214,38 @@ class SearchableTest extends SapphireTest {
 		$expected['FlickrSets'] = array();
 		$expected['IsInSiteTree'] = false;
 		$this->assertEquals($expected, $doc);
-		print_r($doc);
 	}
 
+
+	public function testElasticaResult() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		//$doc = $flickrPhoto->getElasticaResult()->getData();
+		//TODO
+	}
+
+
+	/*
+	getFieldValuesAsArray - needs html
+	onBeforePublish
+	onAfterPublish
+	doDeleteDocumentIfInSearch - search flag
+	doDeleteDocument - delete a non existent doc
+	getAllSearchableFields - this one may be tricky, needs searchable fields not set
+	fieldsToElasticaConfig - array case
+	requireDefaultRecords - recursive method issue
+	 */
+
+	public function testUnpublishPublish() {
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		$page = $this->objFromFixture('Page', 'page0001');
+		$page->doUnpublish();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+
+		$page->doPublish();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
 
 }
