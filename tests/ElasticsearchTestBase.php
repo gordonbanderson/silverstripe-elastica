@@ -42,15 +42,31 @@ class ElasticsearchBaseTest extends SapphireTest {
 		}
 		$this->service->reset();
 
+		// FIXME - use request getVar instead?
+		$_GET['progress'] = 20;
 		// load fixtures
+
 		parent::setUp();
+
+		$this->publishSiteTree();
+
+		$this->service->reset();
 
 		// index loaded fixtures
 		$task = new ReindexTask($this->service);
-
 		// null request is fine as no parameters used
+
 		$task->run(null);
 
+	}
+
+
+	private function publishSiteTree() {
+		foreach (SiteTree::get()->getIterator() as $page) {
+			// temporarily disable Elasticsearch indexing, it will be done in a batch
+			$page->IndexingOff = true;
+			$page->doPublish();
+		}
 	}
 
 
@@ -63,6 +79,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$this->assertEquals("Root_${tabName}", $tab->id());
 		return $tab;
 	}
+
 
 	public function checkFieldExists($tab,$fieldName) {
 		$field = $tab->fieldByName($fieldName);
