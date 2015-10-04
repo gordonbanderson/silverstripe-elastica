@@ -43,6 +43,8 @@ class ReindexTask extends \BuildTask {
 			\Translatable::set_current_locale($locale);
 			$this->service->setLocale($locale);
 
+			$this->service->startBulkIndex();
+
 			$message('Defining the mappings');
 			$this->service->define();
 
@@ -51,7 +53,7 @@ class ReindexTask extends \BuildTask {
 
 			$message('Refreshing the index');
 			$this->service->refresh();
-
+			$this->service->endBulkIndex();
 			// display indexing speed stats
 			$endTime = microtime(true);
 			$elapsed = $endTime-$startTime;
