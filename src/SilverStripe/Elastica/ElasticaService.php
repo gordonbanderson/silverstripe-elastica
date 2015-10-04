@@ -190,6 +190,7 @@ class ElasticaService {
 		$this->buffered = true;
 	}
 
+/*
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
         exec($command,$op);
@@ -197,7 +198,7 @@ class ElasticaService {
         print_r($op);
         echo "++++ /{$trace} ++++\n\n";
 	}
-
+*/
 
 	/**
 	 * Ends the current bulk index operation and indexes the buffered documents.
@@ -205,7 +206,6 @@ class ElasticaService {
 	public function endBulkIndex() {
 		$index = $this->getIndex();
 		foreach ($this->buffer as $type => $documents) {
-			echo "Adding ".sizeof($documents)." docs of type {$type}\n";
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
 			self::$indexing_request_ctr++;
@@ -222,15 +222,10 @@ class ElasticaService {
 	 * @param Searchable $record
 	 */
 	public function remove($record) {
-		echo "ELASTICA SERVICE: Removing {$record->getElasticaType()} - {$record->ID}\n";
-		$this->listIndexes('BEFORE DELETE');
-		echo "\t deleting now\n";
-
 		$index = $this->getIndex();
 		$type = $index->getType($record->getElasticaType());
-
 		$type->deleteDocument($record->getElasticaDocument());
-		$this->listIndexes('AFTER DELETE');
+		$index->refresh();
 	}
 
 
@@ -294,7 +289,6 @@ class ElasticaService {
 	 */
 	protected function refreshClass($class) {
 		$records = $this->recordsByClassConsiderVersioned($class);
-
 		$this->refreshRecords($records);
 	}
 
@@ -306,10 +300,12 @@ class ElasticaService {
 		$index = $this->getIndex();
 		$this->startBulkIndex();
 
+		echo "REFRESH T1\n";
+
 		foreach ($this->getIndexedClasses() as $classname) {
 			$inSiteTree = false;
-			if (isset($site_tree_classes[$classname])) {
-				$inSiteTree = $site_tree_classes[$classname];
+			if (isset(self::$site_tree_classes[$classname])) {
+				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
 				$class = new \ReflectionClass($classname);
 				while ($class = $class->getParentClass()) {
@@ -319,17 +315,22 @@ class ElasticaService {
 				    	break;
 				    }
 				}
-				$site_tree_classes[$classname] = $inSiteTree;
+				self::$site_tree_classes[$classname] = $inSiteTree;
 			}
+
+			//$this->refreshClass($classname);
+
 
 			if ($inSiteTree) {
 				// this prevents the same item being indexed twice due to class inheritance
 				if ($classname === 'SiteTree') {
 					$this->refreshClass($classname);
 				}
+			// Data objects
 			} else {
 				$this->refreshClass($classname);
 			}
+
 		}
 
 		$this->endBulkIndex();
@@ -370,8 +371,19 @@ class ElasticaService {
 	public function getIndexedClasses() {
 		$classes = array();
 
+		//FIXME - make this configurable
+		$whitelist = array('SearchableTestPage','FlickrPhoto','FlickrTag','FlickrPhoto','FlickrAuthor','FlickrSet');
+
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
-			if (singleton($candidate)->hasExtension('SilverStripe\\Elastica\\Searchable')) {
+			$instance = singleton($candidate);
+
+			$interfaces = class_implements($candidate);
+
+			if (isset($interfaces['TestOnly']) && !in_array($candidate, $whitelist)) {
+				continue;
+			}
+
+			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
 				$classes[] = $candidate;
 			}
 		}
