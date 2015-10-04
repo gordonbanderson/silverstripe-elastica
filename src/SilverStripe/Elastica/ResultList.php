@@ -48,7 +48,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	/**
 	 * @return \Elastica\Index
 	 */
-	public function getIndex() {
+	public function getService() {
 		return $this->service;
 	}
 
