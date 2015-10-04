@@ -35,13 +35,13 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 		$mapping = $index->getMapping();
-		print_r($mapping);
+		//print_r($mapping);
 
 		$type = $index->getType('FlickrPhoto');
 		$record = FlickrPhoto::get()->first();
 		$mapping = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
  		//assertTrue(false, 'Figure out what this method should do');
-		print_r($mapping);
+		//print_r($mapping);
 	}
 
 
@@ -119,7 +119,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testBulkIndexing() {
-		//Reset the index, so that nothing is indexed
+		//Reset the index, so that nothing has been indexed
 		$this->service->reset();
 
 		//Number of requests indexing wise made to Elasticsearch server
@@ -130,11 +130,9 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		// null request is fine as no parameters used
 		$task->run(null);
 
-		//Check that the number of indexing requests has increased by 3
+		//Check that the number of indexing requests has increased by 2
 		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
-
-		//Each SilverStripe class invocates a bulk index call, here we have
-		//Page and FlickrPhoto
+		//One call is made for each of Page and FlickrPhoto
 		$this->assertEquals(2,$deltaReqs);
 
 		// default installed pages plus 100 FlickrPhotos
