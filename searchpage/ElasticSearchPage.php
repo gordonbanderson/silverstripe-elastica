@@ -122,7 +122,6 @@ class ElasticSearchPage extends Page {
 			$suffix = '_Live';
 		}
 
-		echo "$mode => $suffix\n";
 		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
 		if ($existing > 0) {
