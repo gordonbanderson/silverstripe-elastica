@@ -145,6 +145,61 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	}
 
 
+	/*
+	Check that the time for the search was more than zero
+	 */
+	public function testResultListGetTotalTime() {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		$time = $resultList->getTotalTime();
+		$this->assertGreaterThan(0, $time);
+	}
+
+
+	/*
+	Test the result list iterator function
+	 */
+	public function testResultListGetIterator() {
+		$resultList = $this->getResultsFor('New Zealand',100);
+		$ctr = 0;
+		foreach ($resultList->getIterator() as $result) {
+			$ctr++;
+		}
+		$this->assertEquals(100,$ctr);
+	}
+
+
+	/*
+	Check some basic properties of the array returned for a result
+	 */
+	public function testToArrayFunction() {
+		$resultList = $this->getResultsFor('New Zealand',1);
+		$expected = array();
+		$result = $resultList->toArray();
+
+		$this->assertEquals(1,sizeof($result));
+		$fp = $result[0];
+		$this->assertEquals('FlickrPhoto', $fp->ClassName);
+		$this->assertTrue(preg_match('/New Zealand/',$fp->Title) == 1);
+	}
+
+
+	/*
+
+	 */
+	public function testResultListUnimplementedMethods() {
+		$this->testResultListMethodDoesNotExist('offsetExists');
+		$this->testResultListMethodDoesNotExist('offsetGet');
+		$this->testResultListMethodDoesNotExist('offsetSet');
+		$this->testResultListMethodDoesNotExist('offsetUnset');
+		$this->testResultListMethodDoesNotExist('add');
+		$this->testResultListMethodDoesNotExist('remove');
+		$this->testResultListMethodDoesNotExist('find');
+	}
+
+
+
+
+
 	public function testFoldedIndexes() {
 		$this->assertTrue(false, 'To do');
 	}
@@ -225,6 +280,17 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$fields = array('Title' => 1, 'Description' => 1);
 		$results = $es->search($query, $fields);
 		return $results;
+	}
+
+
+	private function testResultListMethodDoesNotExist($methodName) {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		try {
+			$resultList->$methodName;
+			$this->assertFalse(true, "Method $methodName should throw an exception, not implemented");
+		} catch (Exception $e) {
+			$this->assertTrue(true, "Method $methodName is not implemented as expected");
+		}
 	}
 
 }
