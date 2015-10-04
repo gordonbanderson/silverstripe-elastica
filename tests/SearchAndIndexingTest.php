@@ -104,6 +104,18 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	}
 
 
+	/*
+	The search term 'New Zealand' was used against Flickr to create the fixtures file, so this means
+	that all of the fixtures should have 'New Zealand' in them.  Test page length from 1 to 100
+	 */
+	public function testPageLength() {
+		for ($i=1; $i <= 100 ; $i++) {
+			$resultList = $this->getResultsFor('New Zealand',$i);
+			$this->assertEquals($i, $resultList->count());
+		}
+	}
+
+
 	public function testFoldedIndexes() {
 		$this->assertTrue(false, 'To do');
 	}
@@ -172,6 +184,18 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$this->assertEquals($resultsExpected, $results->count());
 
 		return $results->count();
+	}
+
+
+	private function getResultsFor($query, $pageLength = 10) {
+		$es = new \ElasticSearcher();
+		$es->setStart(0);
+		$es->setPageLength($pageLength);
+		//$es->addFilter('IsInSiteTree', false);
+		$es->setClasses('FlickrPhoto');
+		$fields = array('Title' => 1, 'Description' => 1);
+		$results = $es->search($query, $fields);
+		return $results;
 	}
 
 }
