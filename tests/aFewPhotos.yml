@@ -7,6 +7,7 @@ FlickrPhoto:
         ShutterSpeed: 1/100
         FocalLength35mm: 90
         ISO: 800
+        IndexingOff: true
     photo0002:
         FlickrID: 2147483647
         Title: 'Image from page 421 of "A Yankee on the Yangtze : being a narrative of a journey from Shanghai through the central kingdom to Burma" (1904)'
@@ -15,6 +16,7 @@ FlickrPhoto:
         ShutterSpeed: 1/100
         FocalLength35mm: 80
         ISO: 200
+        IndexingOff: true
     photo0003:
         FlickrID: 2147483647
         Title: 'Image from page 1022 of "Highland Echo 1915-1925" (1915)'
@@ -23,6 +25,7 @@ FlickrPhoto:
         ShutterSpeed: 1/100
         FocalLength35mm: 120
         ISO: 3200
+        IndexingOff: true
     photo0004:
         FlickrID: 2147483647
         Title: 'Image from page 625 of "Reports of the missionary and benevolent boards and committees to the General Assembly of the Presbyterian Church in the United States of America" (1891)'
@@ -31,3 +34,4 @@ FlickrPhoto:
         ShutterSpeed: 1/2
         FocalLength35mm: 120
         ISO: 800
+        IndexingOff: true
