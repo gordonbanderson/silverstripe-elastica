@@ -8,7 +8,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	//public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
-
 	/*
 	Notes:
 	Searching string on number fields fails
@@ -101,6 +100,54 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			$this->search($stopword, 0, $allFields);
 		}
 
+	}
+
+
+
+	public function testGetResults() {
+		// several checks needed  here including aggregations
+	}
+
+
+	public function testResultListGetMap() {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		//default is ID -> Title, useful for dropdowns
+		$mapping = $resultList->map();
+		$ctr = 0;
+		foreach ($resultList->getIterator() as $item) {
+			$mappedTitle = $mapping[$item->ID];
+			$this->assertEquals($item->Title, $mappedTitle);
+			$ctr++;
+		}
+	}
+
+
+	public function testResultListColumn() {
+		$resultList = $this->getResultsFor('New Zealand',10);
+		$ids = $resultList->column();
+
+		$expected = array();
+		foreach ($resultList as $item) {
+			array_push($expected, $item->ID);
+		}
+
+		$this->assertEquals($expected,$ids);
+
+		$expected = array();
+		foreach ($resultList as $item) {
+			array_push($expected, $item->Title);
+		}
+		$titles = $resultList->column('Title');
+		$this->assertEquals($expected,$titles);
+	}
+
+
+	public function testEach() {
+		$callback = function($fp) {
+		    $this->assertTrue(true, 'Callback reached');
+		};
+		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList->each($callback);
 	}
 
 
