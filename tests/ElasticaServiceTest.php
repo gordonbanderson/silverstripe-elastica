@@ -6,7 +6,7 @@ use SilverStripe\Elastica\DeleteIndexTask;
 use SilverStripe\Elastica\Searchable;
 
 /**
- * Teste the functionality ElasticaService class
+ * Test the functionality ElasticaService class
  * @package elastica
  */
 class ElasticaServiceTest extends ElasticsearchBaseTest {
