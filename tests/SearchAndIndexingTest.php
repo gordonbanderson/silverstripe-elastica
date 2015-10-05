@@ -179,7 +179,24 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$this->assertEquals(1,sizeof($result));
 		$fp = $result[0];
 		$this->assertEquals('FlickrPhoto', $fp->ClassName);
+		$this->assertEquals(2147483647, $fp->FlickrID);
 		$this->assertTrue(preg_match('/New Zealand/',$fp->Title) == 1);
+	}
+
+
+	/*
+	Check some basic properties of the array returned for a result
+	 */
+	public function testToNestedArrayFunction() {
+		$resultList = $this->getResultsFor('New Zealand',4);
+		$expected = array();
+		$result = $resultList->toNestedArray();
+
+		$this->assertEquals(4,sizeof($result));
+		$fp = $result[0];
+		$this->assertEquals('FlickrPhoto', $fp['ClassName']);
+		$this->assertEquals(2147483647, $fp['FlickrID']);
+		$this->assertTrue(preg_match('/New Zealand/',$fp['Title']) == 1);
 	}
 
 
@@ -187,13 +204,13 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	 */
 	public function testResultListUnimplementedMethods() {
-		$this->testResultListMethodDoesNotExist('offsetExists');
-		$this->testResultListMethodDoesNotExist('offsetGet');
-		$this->testResultListMethodDoesNotExist('offsetSet');
-		$this->testResultListMethodDoesNotExist('offsetUnset');
-		$this->testResultListMethodDoesNotExist('add');
-		$this->testResultListMethodDoesNotExist('remove');
-		$this->testResultListMethodDoesNotExist('find');
+		$this->checkResultListMethodDoesNotExist('offsetExists');
+		$this->checkResultListMethodDoesNotExist('offsetGet');
+		$this->checkResultListMethodDoesNotExist('offsetSet');
+		$this->checkResultListMethodDoesNotExist('offsetUnset');
+		$this->checkResultListMethodDoesNotExist('add');
+		$this->checkResultListMethodDoesNotExist('remove');
+		$this->checkResultListMethodDoesNotExist('find');
 	}
 
 
@@ -278,12 +295,13 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhoto');
 		$fields = array('Title' => 1, 'Description' => 1);
-		$results = $es->search($query, $fields);
-		return $results;
+		$resultList = $es->search($query, $fields)->getList();
+		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));
+		return $resultList;
 	}
 
 
-	private function testResultListMethodDoesNotExist($methodName) {
+	private function checkResultListMethodDoesNotExist($methodName) {
 		$resultList = $this->getResultsFor('New Zealand',10);
 		try {
 			$resultList->$methodName;
