@@ -346,10 +346,12 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
 	public function first() {
 		// TODO
+		throw new \Exception('Not implemented');
 	}
 
 	public function last() {
-		// TODO: Implement last() method.
+		// TODO: Implement last() method
+		throw new \Exception('Not implemented');
 	}
 
 	public function map($key = 'ID', $title = 'Title') {
@@ -382,49 +384,49 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 * @ignore
 	 */
 	public function offsetExists($offset) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function offsetGet($offset) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function offsetSet($offset, $value) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function offsetUnset($offset) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function add($item) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function remove($item) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 	/**
 	 * @ignore
 	 */
 	public function find($key, $value) {
-		throw new \Exception();
+		throw new \Exception('Not implemented');
 	}
 
 }
