@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Teste the functionality of the Searchable extension
+ * Test the functionality of the Searchable extension
  * @package elastica
  */
 class SearchAndIndexingTest extends ElasticsearchBaseTest {
@@ -247,21 +247,84 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	}
 
 
-	/*
-
-	 */
-	public function testResultListUnimplementedMethods() {
-		$this->checkResultListMethodDoesNotExist('offsetExists');
-		$this->checkResultListMethodDoesNotExist('offsetGet');
-		$this->checkResultListMethodDoesNotExist('offsetSet');
-		$this->checkResultListMethodDoesNotExist('offsetUnset');
-		$this->checkResultListMethodDoesNotExist('add');
-		$this->checkResultListMethodDoesNotExist('remove');
-		$this->checkResultListMethodDoesNotExist('find');
+	public function testResultListOffsetExistsNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList->offsetExists(10);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
 	}
 
 
+	public function testResultListOffsetGetNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList->offsetGet(10);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
 
+
+	public function testResultListOffsetSetNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList->offsetSet(10,null);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListOffsetUnsetNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList->offsetUnset(10);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListAddNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$fp = new FlickrPhoto();
+			$resultList->add($fp);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListRemoveNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$fp = new FlickrPhoto();
+			$resultList->remove($fp);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListFindNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$fp = new FlickrPhoto();
+			$resultList->find(4,$fp);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
 
 
 	public function testFoldedIndexes() {
@@ -347,15 +410,5 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		return $resultList;
 	}
 
-
-	private function checkResultListMethodDoesNotExist($methodName) {
-		$resultList = $this->getResultsFor('New Zealand',10);
-		try {
-			$resultList->$methodName;
-			$this->assertFalse(true, "Method $methodName should throw an exception, not implemented");
-		} catch (Exception $e) {
-			$this->assertTrue(true, "Method $methodName is not implemented as expected");
-		}
-	}
 
 }
