@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Teste the functionality SearchableClass
+ * Test the functionality SearchableClass
  * @package elastica
  */
 class SearchableClassTest extends ElasticsearchBaseTest {
