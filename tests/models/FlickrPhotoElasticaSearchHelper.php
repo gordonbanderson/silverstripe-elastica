@@ -20,6 +20,108 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		'FocalLength35mm' => 'Focal Length'
 	);
 
+
+
+
+	/**
+	 * Add a number of facets to the FlickrPhoto query
+	 * @param  \Elastica\Query &$query the existing query object to be augmented.
+	 */
+	public function augmentQuery(&$query) {
+		//FIXME probably move this back as default behaviour
+		// set the order to be taken at in reverse if query is blank other than aggs
+		$params = $query->getParams();
+
+		$wildcard = array(
+			'query_string' => array('query' => '*')
+		);
+
+
+		//This is the case of the query being a multi_match against several fields
+		if (is_subclass_of($params['query'], 'Elastica\Query\AbstractQuery')) {
+			echo "**** QUERY PARAM INSTANCE OF Query ****\n";
+			$params2 = $params['query']->getParams();
+
+			echo "PARAMS2:\n";
+			print_r($params2);
+
+			$this->searcher->showResultsForEmptySearch();
+
+			if (
+					$this->originalQueryString == '' &&
+					$this->searcher->getShowResultsForEmptySearch()
+				) {
+				$query->setParam('query', $wildcard);
+				$query->setSort(array('TakenAt'=> 'desc'));
+			} else {
+				if (!isset($params2['query']['filtered']['query']['query_string'])) {
+					$query->setSort(array('TakenAt'=> 'desc'));
+				}
+			}
+
+			//This is the case of the query being a simple text string against all fields
+		} else {
+			echo "PARAMS:\n";
+			print_r($params);
+
+			if (!isset($params['query']['filtered']['query']['query_string'])) {
+				$params['query']->setSort(array('TakenAt'=> 'desc'));
+			}
+		}
+
+		// add Aperture aggregate
+		$agg1 = new Terms("Aperture");
+		$agg1->setField("Aperture");
+		$agg1->setSize(0);
+		$agg1->setOrder('_term', 'asc');
+		$query->addAggregation($agg1);
+
+		// add shutter speed aggregate
+		$agg2 = new Terms("ShutterSpeed");
+		$agg2->setField("ShutterSpeed");
+		$agg2->setSize(0);
+		$agg2->setOrder('_term', 'asc');
+		$query->addAggregation($agg2);
+
+		// this currently needs to be same as the field name
+		// needs fixed
+		// Add focal length aggregate, may range this
+		$agg3 = new Terms("FocalLength35mm");
+		$agg3->setField("FocalLength35mm");
+		$agg3->setSize(0);
+		$agg3->setOrder('_term', 'asc');
+		$query->addAggregation($agg3);
+
+		// add film speed
+		$agg4 = new Terms("ISO");
+		$agg4->setField("ISO");
+		$agg4->setSize(0);
+		$agg4->setOrder('_term', 'asc');
+		$query->addAggregation($agg4);
+
+		$aspectRangedAgg = \RangedAggregation::getByTitle('Aspect');
+        $query->addAggregation($aspectRangedAgg->getRangeAgg());
+
+		// leave this out for the moment as way too many terms being returned slowing things down
+		/*
+		$agg5 = new Terms("Tags");
+		$agg5->setField("FlickrTags.RawValue");
+		$agg5->setSize(10);
+		$agg5->setOrder('_term', 'asc');
+
+		$agg6 = new TopHits('Top Hits');
+		$agg6->setSize(20);
+		$agg5->addAggregation($agg6);
+
+		$query->addAggregation($agg5);
+		*/
+
+		// remove NearestTo from the request so it does not get used as a term filter
+		unset(Controller::curr()->request['NearestTo']);
+	}
+
+
+
 	/**
 	 * Manipulate the results, e.g. fixing up values if issues with ordering in Elastica
 	 * @param  array &$aggs Aggregates from an Elastica search to be tweaked
@@ -112,79 +214,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 	}
 
 
-	/**
-	 * Add a number of facets to the FlickrPhoto query
-	 * @param  \Elastica\Query &$query the existing query object to be augmented.
-	 */
-	public function augmentQuery(&$query) {
 
-		//FIXME probably move this back as default behaviour
-		// set the order to be taken at in reverse if query is blank other than aggs
-		$params = $query->getParams();
-
-		//need to check for nested query here, filter and text
-		if (is_subclass_of($params['query'], 'Elastica\Query\AbstractQuery')) {
-			echo "**** QUERY PARAM INSTANCE OF Query ****\n";
-			$params2 = $params['query']->getParams();
-			if (!isset($params2['query']['filtered']['query']['query_string'])) {
-				$query->setSort(array('TakenAt'=> 'desc'));
-			}
-		} else {
-			if (!isset($params['query']['filtered']['query']['query_string'])) {
-				$params['query']->setSort(array('TakenAt'=> 'desc'));
-			}
-		}
-
-		// add Aperture aggregate
-		$agg1 = new Terms("Aperture");
-		$agg1->setField("Aperture");
-		$agg1->setSize(0);
-		$agg1->setOrder('_term', 'asc');
-		$query->addAggregation($agg1);
-
-		// add shutter speed aggregate
-		$agg2 = new Terms("ShutterSpeed");
-		$agg2->setField("ShutterSpeed");
-		$agg2->setSize(0);
-		$agg2->setOrder('_term', 'asc');
-		$query->addAggregation($agg2);
-
-		// this currently needs to be same as the field name
-		// needs fixed
-		// Add focal length aggregate, may range this
-		$agg3 = new Terms("FocalLength35mm");
-		$agg3->setField("FocalLength35mm");
-		$agg3->setSize(0);
-		$agg3->setOrder('_term', 'asc');
-		$query->addAggregation($agg3);
-
-		// add film speed
-		$agg4 = new Terms("ISO");
-		$agg4->setField("ISO");
-		$agg4->setSize(0);
-		$agg4->setOrder('_term', 'asc');
-		$query->addAggregation($agg4);
-
-		$aspectRangedAgg = \RangedAggregation::getByTitle('Aspect');
-        $query->addAggregation($aspectRangedAgg->getRangeAgg());
-
-		// leave this out for the moment as way too many terms being returned slowing things down
-		/*
-		$agg5 = new Terms("Tags");
-		$agg5->setField("FlickrTags.RawValue");
-		$agg5->setSize(10);
-		$agg5->setOrder('_term', 'asc');
-
-		$agg6 = new TopHits('Top Hits');
-		$agg6->setSize(20);
-		$agg5->addAggregation($agg6);
-
-		$query->addAggregation($agg5);
-		*/
-
-		// remove NearestTo from the request so it does not get used as a term filter
-		unset(Controller::curr()->request['NearestTo']);
-	}
 
 
 	public function getIndexFieldTitleMapping() {
