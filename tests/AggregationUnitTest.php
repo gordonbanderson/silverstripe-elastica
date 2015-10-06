@@ -35,7 +35,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		}
 
 
-				$aggCtr = 0;
+		$aggCtr = 0;
 		foreach ($aggregations as $agg) {
 			echo "\n";
 			echo "//Asserting name of aggregate as {$agg->Name}\n";
@@ -63,6 +63,373 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 	public function testGetResults() {
 		// several checks needed  here including aggregations
+	}
+
+
+	public function testAllFieldsQuery() {
+		//Use a text search against all fields
+		$resultList = $this->search('New Zealand', null);
+		$this->assertEquals(10, $resultList->count());
+		$aggregations = $resultList->getAggregations();
+
+		//Asserting name of aggregate as ISO
+		$agg = $aggregations[0];
+		$this->assertEquals("ISO", 'ISO');
+		$buckets = $agg->Buckets->toArray();
+
+		//Asserting aggregate of ISO, 64 has count 5
+		$this->assertEquals("64", $buckets[0]->Key);
+		$this->assertEquals(5, $buckets[0]->DocumentCount);
+
+		//Asserting aggregate of ISO, 100 has count 11
+		$this->assertEquals("100", $buckets[1]->Key);
+		$this->assertEquals(11, $buckets[1]->DocumentCount);
+
+		//Asserting aggregate of ISO, 200 has count 12
+		$this->assertEquals("200", $buckets[2]->Key);
+		$this->assertEquals(12, $buckets[2]->DocumentCount);
+
+		//Asserting aggregate of ISO, 400 has count 13
+		$this->assertEquals("400", $buckets[3]->Key);
+		$this->assertEquals(13, $buckets[3]->DocumentCount);
+
+		//Asserting aggregate of ISO, 800 has count 15
+		$this->assertEquals("800", $buckets[4]->Key);
+		$this->assertEquals(15, $buckets[4]->DocumentCount);
+
+		//Asserting aggregate of ISO, 1600 has count 13
+		$this->assertEquals("1600", $buckets[5]->Key);
+		$this->assertEquals(13, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of ISO, 2000 has count 11
+		$this->assertEquals("2000", $buckets[6]->Key);
+		$this->assertEquals(11, $buckets[6]->DocumentCount);
+
+		//Asserting aggregate of ISO, 3200 has count 19
+		$this->assertEquals("3200", $buckets[7]->Key);
+		$this->assertEquals(19, $buckets[7]->DocumentCount);
+
+		//Asserting name of aggregate as Focal Length
+		$agg = $aggregations[1];
+		$this->assertEquals("Focal Length", 'Focal Length');
+		$buckets = $agg->Buckets->toArray();
+
+		//Asserting aggregate of Focal Length, 24 has count 12
+		$this->assertEquals("24", $buckets[0]->Key);
+		$this->assertEquals(12, $buckets[0]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 50 has count 11
+		$this->assertEquals("50", $buckets[1]->Key);
+		$this->assertEquals(11, $buckets[1]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 80 has count 11
+		$this->assertEquals("80", $buckets[2]->Key);
+		$this->assertEquals(11, $buckets[2]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 90 has count 20
+		$this->assertEquals("90", $buckets[3]->Key);
+		$this->assertEquals(20, $buckets[3]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 120 has count 11
+		$this->assertEquals("120", $buckets[4]->Key);
+		$this->assertEquals(11, $buckets[4]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 150 has count 17
+		$this->assertEquals("150", $buckets[5]->Key);
+		$this->assertEquals(17, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Focal Length, 200 has count 17
+		$this->assertEquals("200", $buckets[6]->Key);
+		$this->assertEquals(17, $buckets[6]->DocumentCount);
+
+		//Asserting name of aggregate as Shutter Speed
+		$agg = $aggregations[2];
+		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$buckets = $agg->Buckets->toArray();
+
+		//Asserting aggregate of Shutter Speed, 2/250 has count 17
+		$this->assertEquals("2/250", $buckets[0]->Key);
+		$this->assertEquals(17, $buckets[0]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 1/100 has count 15
+		$this->assertEquals("1/100", $buckets[1]->Key);
+		$this->assertEquals(15, $buckets[1]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 1/30 has count 17
+		$this->assertEquals("1/30", $buckets[2]->Key);
+		$this->assertEquals(17, $buckets[2]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 1/15 has count 9
+		$this->assertEquals("1/15", $buckets[3]->Key);
+		$this->assertEquals(9, $buckets[3]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 1/2 has count 18
+		$this->assertEquals("1/2", $buckets[4]->Key);
+		$this->assertEquals(18, $buckets[4]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 2 has count 11
+		$this->assertEquals("2", $buckets[5]->Key);
+		$this->assertEquals(11, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 6 has count 12
+		$this->assertEquals("6", $buckets[6]->Key);
+		$this->assertEquals(12, $buckets[6]->DocumentCount);
+
+		//Asserting name of aggregate as Aperture
+		$agg = $aggregations[3];
+		$this->assertEquals("Aperture", 'Aperture');
+		$buckets = $agg->Buckets->toArray();
+
+		//Asserting aggregate of Aperture, 2.8 has count 20
+		$this->assertEquals("2.8", $buckets[0]->Key);
+		$this->assertEquals(20, $buckets[0]->DocumentCount);
+
+		//Asserting aggregate of Aperture, 5.6 has count 23
+		$this->assertEquals("5.6", $buckets[1]->Key);
+		$this->assertEquals(23, $buckets[1]->DocumentCount);
+
+		//Asserting aggregate of Aperture, 11 has count 17
+		$this->assertEquals("11", $buckets[2]->Key);
+		$this->assertEquals(17, $buckets[2]->DocumentCount);
+
+		//Asserting aggregate of Aperture, 16 has count 16
+		$this->assertEquals("16", $buckets[3]->Key);
+		$this->assertEquals(16, $buckets[3]->DocumentCount);
+
+		//Asserting aggregate of Aperture, 22 has count 23
+		$this->assertEquals("22", $buckets[4]->Key);
+		$this->assertEquals(23, $buckets[4]->DocumentCount);
+
+		//Asserting name of aggregate as Aspect
+		$agg = $aggregations[4];
+		$this->assertEquals("Aspect", 'Aspect');
+		$buckets = $agg->Buckets->toArray();
+
+		//Asserting aggregate of Aspect, Panoramic has count 9
+		$this->assertEquals("Panoramic", $buckets[0]->Key);
+		$this->assertEquals(9, $buckets[0]->DocumentCount);
+
+		//Asserting aggregate of Aspect, Horizontal has count 31
+		$this->assertEquals("Horizontal", $buckets[1]->Key);
+		$this->assertEquals(31, $buckets[1]->DocumentCount);
+
+		//Asserting aggregate of Aspect, Square has count 16
+		$this->assertEquals("Square", $buckets[2]->Key);
+		$this->assertEquals(16, $buckets[2]->DocumentCount);
+
+		//Asserting aggregate of Aspect, Vertical has count 38
+		$this->assertEquals("Vertical", $buckets[3]->Key);
+		$this->assertEquals(38, $buckets[3]->DocumentCount);
+
+		//Asserting aggregate of Aspect, Tallest has count 5
+		$this->assertEquals("Tallest", $buckets[4]->Key);
+		$this->assertEquals(5, $buckets[4]->DocumentCount);
+
+	}
+
+
+	public function testAllFieldsEmptyQuery() {
+		//Use a text search against all fields
+		$resultList = $this->search('', null);
+		$this->assertEquals(10, $resultList->count());
+
+		$aggregations = $resultList->getAggregations();
+		$aggCtr = 0;
+		//Asserting name of aggregate as ISO
+		$agg = $aggregations[0];
+		$this->assertEquals("ISO", 'ISO');
+		$buckets = $agg->Buckets->toArray();
+		$bucketSum = 0;
+
+		//Asserting aggregate of ISO, 64 has count 5
+		$this->assertEquals("64", $buckets[0]->Key);
+		$this->assertEquals(5, $buckets[0]->DocumentCount);
+		$bucketSum += $buckets[0]->DocumentCount;
+
+		//Asserting aggregate of ISO, 100 has count 11
+		$this->assertEquals("100", $buckets[1]->Key);
+		$this->assertEquals(11, $buckets[1]->DocumentCount);
+		$bucketSum += $buckets[1]->DocumentCount;
+
+		//Asserting aggregate of ISO, 200 has count 12
+		$this->assertEquals("200", $buckets[2]->Key);
+		$this->assertEquals(12, $buckets[2]->DocumentCount);
+		$bucketSum += $buckets[2]->DocumentCount;
+
+		//Asserting aggregate of ISO, 400 has count 13
+		$this->assertEquals("400", $buckets[3]->Key);
+		$this->assertEquals(13, $buckets[3]->DocumentCount);
+		$bucketSum += $buckets[3]->DocumentCount;
+
+		//Asserting aggregate of ISO, 800 has count 16
+		$this->assertEquals("800", $buckets[4]->Key);
+		$this->assertEquals(16, $buckets[4]->DocumentCount);
+		$bucketSum += $buckets[4]->DocumentCount;
+
+		//Asserting aggregate of ISO, 1600 has count 13
+		$this->assertEquals("1600", $buckets[5]->Key);
+		$this->assertEquals(13, $buckets[5]->DocumentCount);
+		$bucketSum += $buckets[5]->DocumentCount;
+
+		//Asserting aggregate of ISO, 2000 has count 11
+		$this->assertEquals("2000", $buckets[6]->Key);
+		$this->assertEquals(11, $buckets[6]->DocumentCount);
+		$bucketSum += $buckets[6]->DocumentCount;
+
+		//Asserting aggregate of ISO, 3200 has count 19
+		$this->assertEquals("3200", $buckets[7]->Key);
+		$this->assertEquals(19, $buckets[7]->DocumentCount);
+		$bucketSum += $buckets[7]->DocumentCount;
+		$this->assertEquals(100, $bucketSum);
+
+		//Asserting name of aggregate as Focal Length
+		$agg = $aggregations[1];
+		$this->assertEquals("Focal Length", 'Focal Length');
+		$buckets = $agg->Buckets->toArray();
+		$bucketSum = 0;
+
+		//Asserting aggregate of Focal Length, 24 has count 12
+		$this->assertEquals("24", $buckets[0]->Key);
+		$this->assertEquals(12, $buckets[0]->DocumentCount);
+		$bucketSum += $buckets[0]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 50 has count 11
+		$this->assertEquals("50", $buckets[1]->Key);
+		$this->assertEquals(11, $buckets[1]->DocumentCount);
+		$bucketSum += $buckets[1]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 80 has count 11
+		$this->assertEquals("80", $buckets[2]->Key);
+		$this->assertEquals(11, $buckets[2]->DocumentCount);
+		$bucketSum += $buckets[2]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 90 has count 20
+		$this->assertEquals("90", $buckets[3]->Key);
+		$this->assertEquals(20, $buckets[3]->DocumentCount);
+		$bucketSum += $buckets[3]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 120 has count 12
+		$this->assertEquals("120", $buckets[4]->Key);
+		$this->assertEquals(12, $buckets[4]->DocumentCount);
+		$bucketSum += $buckets[4]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 150 has count 17
+		$this->assertEquals("150", $buckets[5]->Key);
+		$this->assertEquals(17, $buckets[5]->DocumentCount);
+		$bucketSum += $buckets[5]->DocumentCount;
+
+		//Asserting aggregate of Focal Length, 200 has count 17
+		$this->assertEquals("200", $buckets[6]->Key);
+		$this->assertEquals(17, $buckets[6]->DocumentCount);
+		$bucketSum += $buckets[6]->DocumentCount;
+		$this->assertEquals(100, $bucketSum);
+
+		//Asserting name of aggregate as Shutter Speed
+		$agg = $aggregations[2];
+		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$buckets = $agg->Buckets->toArray();
+		$bucketSum = 0;
+
+		//Asserting aggregate of Shutter Speed, 2/250 has count 17
+		$this->assertEquals("2/250", $buckets[0]->Key);
+		$this->assertEquals(17, $buckets[0]->DocumentCount);
+		$bucketSum += $buckets[0]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 1/100 has count 15
+		$this->assertEquals("1/100", $buckets[1]->Key);
+		$this->assertEquals(15, $buckets[1]->DocumentCount);
+		$bucketSum += $buckets[1]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 1/30 has count 17
+		$this->assertEquals("1/30", $buckets[2]->Key);
+		$this->assertEquals(17, $buckets[2]->DocumentCount);
+		$bucketSum += $buckets[2]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 1/15 has count 10
+		$this->assertEquals("1/15", $buckets[3]->Key);
+		$this->assertEquals(10, $buckets[3]->DocumentCount);
+		$bucketSum += $buckets[3]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 1/2 has count 18
+		$this->assertEquals("1/2", $buckets[4]->Key);
+		$this->assertEquals(18, $buckets[4]->DocumentCount);
+		$bucketSum += $buckets[4]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 2 has count 11
+		$this->assertEquals("2", $buckets[5]->Key);
+		$this->assertEquals(11, $buckets[5]->DocumentCount);
+		$bucketSum += $buckets[5]->DocumentCount;
+
+		//Asserting aggregate of Shutter Speed, 6 has count 12
+		$this->assertEquals("6", $buckets[6]->Key);
+		$this->assertEquals(12, $buckets[6]->DocumentCount);
+		$bucketSum += $buckets[6]->DocumentCount;
+		$this->assertEquals(100, $bucketSum);
+
+		//Asserting name of aggregate as Aperture
+		$agg = $aggregations[3];
+		$this->assertEquals("Aperture", 'Aperture');
+		$buckets = $agg->Buckets->toArray();
+		$bucketSum = 0;
+
+		//Asserting aggregate of Aperture, 2.8 has count 21
+		$this->assertEquals("2.8", $buckets[0]->Key);
+		$this->assertEquals(21, $buckets[0]->DocumentCount);
+		$bucketSum += $buckets[0]->DocumentCount;
+
+		//Asserting aggregate of Aperture, 5.6 has count 23
+		$this->assertEquals("5.6", $buckets[1]->Key);
+		$this->assertEquals(23, $buckets[1]->DocumentCount);
+		$bucketSum += $buckets[1]->DocumentCount;
+
+		//Asserting aggregate of Aperture, 11 has count 17
+		$this->assertEquals("11", $buckets[2]->Key);
+		$this->assertEquals(17, $buckets[2]->DocumentCount);
+		$bucketSum += $buckets[2]->DocumentCount;
+
+		//Asserting aggregate of Aperture, 16 has count 16
+		$this->assertEquals("16", $buckets[3]->Key);
+		$this->assertEquals(16, $buckets[3]->DocumentCount);
+		$bucketSum += $buckets[3]->DocumentCount;
+
+		//Asserting aggregate of Aperture, 22 has count 23
+		$this->assertEquals("22", $buckets[4]->Key);
+		$this->assertEquals(23, $buckets[4]->DocumentCount);
+		$bucketSum += $buckets[4]->DocumentCount;
+		$this->assertEquals(100, $bucketSum);
+
+		//Asserting name of aggregate as Aspect
+		$agg = $aggregations[4];
+		$this->assertEquals("Aspect", 'Aspect');
+		$buckets = $agg->Buckets->toArray();
+		$bucketSum = 0;
+
+		//Asserting aggregate of Aspect, Panoramic has count 9
+		$this->assertEquals("Panoramic", $buckets[0]->Key);
+		$this->assertEquals(9, $buckets[0]->DocumentCount);
+		$bucketSum += $buckets[0]->DocumentCount;
+
+		//Asserting aggregate of Aspect, Horizontal has count 31
+		$this->assertEquals("Horizontal", $buckets[1]->Key);
+		$this->assertEquals(31, $buckets[1]->DocumentCount);
+		$bucketSum += $buckets[1]->DocumentCount;
+
+		//Asserting aggregate of Aspect, Square has count 16
+		$this->assertEquals("Square", $buckets[2]->Key);
+		$this->assertEquals(16, $buckets[2]->DocumentCount);
+		$bucketSum += $buckets[2]->DocumentCount;
+
+		//Asserting aggregate of Aspect, Vertical has count 39
+		$this->assertEquals("Vertical", $buckets[3]->Key);
+		$this->assertEquals(39, $buckets[3]->DocumentCount);
+		$bucketSum += $buckets[3]->DocumentCount;
+
+		//Asserting aggregate of Aspect, Tallest has count 5
+		$this->assertEquals("Tallest", $buckets[4]->Key);
+		$this->assertEquals(5, $buckets[4]->DocumentCount);
+		$bucketSum += $buckets[4]->DocumentCount;
+		$this->assertEquals(100, $bucketSum);
+
 	}
 
 
