@@ -53,6 +53,38 @@ class ElasticSearcher {
 	 */
 	private $aggregations = null;
 
+
+	/*
+	Allow an empty search to return either no results (default) or all results, useful for
+	showing some results during aggregation
+	 */
+	private $showResultsForEmptySearch = false;
+
+
+	/*
+	Show results for an empty search string
+	 */
+	public function showResultsForEmptySearch() {
+		$this->showResultsForEmptySearch = true;
+	}
+
+
+	/*
+	Hide results for an empty search
+	 */
+	public function hideResultsForEmptySearch() {
+		$this->showResultsForEmptySearch = false;
+	}
+
+
+	/**
+	 * Accessor the variable to determine whether or not to show results for an empty search
+	 * @return [type] [description]
+	 */
+	public function getShowResultsForEmptySearch() {
+		return $this->showResultsForEmptySearch;
+	}
+
 	/**
 	 * Update the list of Classes to search, use SilverStripe ClassName comma separated
 	 * @param string $newClasses comma separated list of SilverStripe ClassNames
@@ -110,6 +142,7 @@ class ElasticSearcher {
 		return $this->aggregations;
 	}
 
+
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
@@ -128,9 +161,9 @@ class ElasticSearcher {
 			}
 		}
 
+
 		/*
-		FIXME - this needs to go in the augmenter
-		if ($q == '') {
+		 if ($q == '' && $this->showResultsForEmptySearch) {
 			$q = '*';
 		}
 		*/
@@ -138,10 +171,15 @@ class ElasticSearcher {
 		$manipulatorInstance = null;
 		if ($this->manipulator) {
 			$manipulatorInstance = Injector::inst()->create($this->manipulator);
+			$manipulatorInstance->searcher = $this;
+			$manipulatorInstance->originalQueryString = $q;
 		}
+
+		echo "MANIPULATOR:{$this->manipulator}\n";
 
 		// update the filters, do any necessary remapping here
 		if ($this->manipulator) {
+			echo "SEARCH: UPDATING FILTERS";
 			$manipulatorInstance->updateFilters($this->filters);
 		}
 
@@ -149,6 +187,7 @@ class ElasticSearcher {
 		$rangeFilterKeys = RangedAggregation::getTitles();
 
 		foreach ($this->filters as $key => $value) {
+			echo "Checking filter $key => $value\n";
 			if (!in_array($key, $rangeFilterKeys)) {
 				$filter = new Term();
 				$filter->setTerm($key,$value);
@@ -218,8 +257,12 @@ class ElasticSearcher {
 
 		// aggregation (optional)
 		if ($this->manipulator) {
+			echo "AUGMENTING QUERY FOR AGGS\n";
 			$manipulatorInstance->augmentQuery($query);
 		}
+
+		echo "QUERY:\n";
+		print_r($query);
 
 		$elasticService = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
@@ -261,6 +304,8 @@ class ElasticSearcher {
 		$result = array();
 		$nameToType = self::getSearchFieldsMappingForClasses($this->classes,$fields);
 
+		print_r($nameToType);
+
 		if (sizeof($fields) == 0) {
 			// FIXME - this seems to work but double check
 		} else {
@@ -280,7 +325,7 @@ class ElasticSearcher {
 						array_push($result, $fieldCfg);
 					}
 				} else {
-					throw new Exception("Field .$fieldName does not exist");
+					throw new Exception("Field $fieldName does not exist");
 				}
 
 
