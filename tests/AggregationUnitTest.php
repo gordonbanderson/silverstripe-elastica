@@ -21,7 +21,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 			echo "\n";
 			echo "//Asserting name of aggregate as {$agg->Name}\n";
 			echo '$agg = $aggregations['.$aggCtr."];\n";
-			echo '$this->assertEquals("'.$agg->Name."\", '{$agg->Name}');\n";
+			echo '$this->assertEquals("'.$agg->Name."\", '{$agg->Name}');\n"; //FIXME
 			echo '$buckets = $agg->Buckets->toArray();'."\n";
 			$aggCtr++;
 			$bucketCtr = 0;
@@ -74,7 +74,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
-		$this->assertEquals("ISO", 'ISO');
+		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of ISO, 64 has count 5
@@ -111,7 +111,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Focal Length
 		$agg = $aggregations[1];
-		$this->assertEquals("Focal Length", 'Focal Length');
+		$this->assertEquals("Focal Length", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Focal Length, 24 has count 12
@@ -144,7 +144,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Shutter Speed
 		$agg = $aggregations[2];
-		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Shutter Speed, 2/250 has count 17
@@ -177,7 +177,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
-		$this->assertEquals("Aperture", 'Aperture');
+		$this->assertEquals("Aperture", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Aperture, 2.8 has count 20
@@ -202,7 +202,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aspect
 		$agg = $aggregations[4];
-		$this->assertEquals("Aspect", 'Aspect');
+		$this->assertEquals("Aspect", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Aspect, Panoramic has count 9
@@ -237,7 +237,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$aggCtr = 0;
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
-		$this->assertEquals("ISO", 'ISO');
+		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -284,7 +284,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Focal Length
 		$agg = $aggregations[1];
-		$this->assertEquals("Focal Length", 'Focal Length');
+		$this->assertEquals("Focal Length", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -326,7 +326,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Shutter Speed
 		$agg = $aggregations[2];
-		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -368,7 +368,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
-		$this->assertEquals("Aperture", 'Aperture');
+		$this->assertEquals("Aperture", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -400,7 +400,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aspect
 		$agg = $aggregations[4];
-		$this->assertEquals("Aspect", 'Aspect');
+		$this->assertEquals("Aspect", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -452,7 +452,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
-		$this->assertEquals("ISO", 'ISO');
+		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -507,7 +507,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Focal Length
 		$agg = $aggregations[1];
-		$this->assertEquals("Focal Length", 'Focal Length');
+		$this->assertEquals("Focal Length", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -556,7 +556,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Shutter Speed
 		$agg = $aggregations[2];
-		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -598,7 +598,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
-		$this->assertEquals("Aperture", 'Aperture');
+		$this->assertEquals("Aperture", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -630,7 +630,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aspect
 		$agg = $aggregations[4];
-		$this->assertEquals("Aspect", 'Aspect');
+		$this->assertEquals("Aspect", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 		$bucketSum = 0;
 
@@ -667,13 +667,12 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	 */
 	public function testAggregationWithQuery() {
 		$resultList = $this->search('New Zealand');
-
 		$aggregations = $resultList->getAggregations()->toArray();
 
 
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
-		$this->assertEquals("ISO", 'ISO');
+		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of ISO, 64 has count 5
@@ -710,7 +709,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Focal Length
 		$agg = $aggregations[1];
-		$this->assertEquals("Focal Length", 'Focal Length');
+		$this->assertEquals("Focal Length", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Focal Length, 24 has count 12
@@ -743,7 +742,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Shutter Speed
 		$agg = $aggregations[2];
-		$this->assertEquals("Shutter Speed", 'Shutter Speed');
+		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Shutter Speed, 2/250 has count 17
@@ -776,7 +775,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
-		$this->assertEquals("Aperture", 'Aperture');
+		$this->assertEquals("Aperture", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Aperture, 2.8 has count 21
@@ -801,7 +800,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as Aspect
 		$agg = $aggregations[4];
-		$this->assertEquals("Aspect", 'Aspect');
+		$this->assertEquals("Aspect", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
 		//Asserting aggregate of Aspect, Panoramic has count 9
@@ -826,6 +825,64 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testOneAggregateSelected() {
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $this->search('New Zealand', $fields);
+		$originalAggregations = $resultList->getAggregations()->toArray();
+
+		$filters = array('ISO' => 3200);
+		$resultListFiltered = $this->search('New Zealand', $fields,$filters);
+		$filteredAggregations = $resultListFiltered->getAggregations()->toArray();
+		$aggCtr = 0;
+
+		$names = array();
+		foreach ($filteredAggregations as $filteredAgg) {
+			echo "NAME:{$filteredAgg->Name}\n";
+
+			$origAgg = $originalAggregations[$aggCtr];
+			$bucketCtr = 0;
+			$origBuckets = $origAgg->Buckets->toArray();
+			$filteredBuckets = $filteredAgg->Buckets->toArray();
+
+			$origCounts = array();
+			$filteredCounts = array();
+
+			foreach ($origBuckets as $bucket) {
+				$origCounts[$bucket->Key] = $bucket->DocumentCount;
+			}
+
+			foreach ($filteredBuckets as $bucket) {
+				$filteredCounts[$bucket->Key] = $bucket->DocumentCount;
+			}
+
+			echo "pairs\n";
+			print_r($origCounts);
+			print_r($filteredCounts);
+			$akf = array_keys($filteredCounts);
+			echo "AKF SIZE:".sizeof($akf);
+			if (sizeof($akf)== 1) {
+				// If we have selected an aggregate it should be the same size when drilling down
+				$this->assertEquals($filteredCounts[$akf[0]], $origCounts[$akf[0]]);
+			} else {
+				foreach ($akf as $aggregateKey) {
+					$this->assertGreaterThanOrEqual(
+						$filteredCounts[$aggregateKey], $origCounts[$aggregateKey]
+					);
+				}
+			}
+
+			$aggCtr++;
+
+
+
+		}
+
+
+
+		//print_r($filteredAggregations);
+	}
+
+
 	private function testAggregationNonExistentField() {
 		$this->fail('Not yet implemented');
 	}
@@ -835,13 +892,19 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	 * Test searching
 	 * http://stackoverflow.com/questions/28305250/elasticsearch-customize-score-for-synonyms-stemming
 	 */
-	private function search($query,$fields = array('Title' => 1, 'Description' => 1)) {
+	private function search($query,$fields = array('Title' => 1, 'Description' => 1),
+								$filters = array()) {
 		$es = new \ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhoto');
 		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+
+		//Add filters
+		foreach ($filters as $key => $value) {
+			$es->addFilter($key,$value);
+		}
 		$resultList = $es->search($query, $fields);
 
 		$ctr = 0;
