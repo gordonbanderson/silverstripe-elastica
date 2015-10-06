@@ -34,6 +34,9 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testInvalidSearchFields() {
+		// FIXME test to check unweighted fields
+	}
 
 	public function testSetStopwordsConfigurationCSV() {
 		$stopwords = "a,the,then,this";
