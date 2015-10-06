@@ -7,7 +7,7 @@
  */
 class FlickrPhoto extends DataObject implements TestOnly {
 	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt', 'FirstViewed',
-		'Aperture','ShutterSpeed','FocalLength35mm','ISO');
+		'Aperture','ShutterSpeed','FocalLength35mm','ISO','AspectRatio');
 
 	private static $searchable_relationships = array('Photographer', 'FlickrTags', 'FlickrSets');
 
@@ -25,9 +25,9 @@ class FlickrPhoto extends DataObject implements TestOnly {
 		'ShutterSpeed' => 'Varchar',
 		'FocalLength35mm' => 'Int',
 		'ISO' => 'Int',
-		'MediumURL' => 'Varchar(255)',
-		'MediumHeight' => 'Int',
-		'MediumWidth' => 'Int'
+		'OriginalHeight' => 'Int',
+		'OriginalWidth' => 'Int',
+		'AspectRatio' => 'Double'
 	);
 
 	static $belongs_many_many = array(
