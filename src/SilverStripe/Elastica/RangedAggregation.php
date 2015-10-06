@@ -22,30 +22,9 @@ class RangedAggregation {
 		return $this->Range;
 	}
 
-/*
-[range] => Array
-        (
-            [field] => AspectRatio
-            [ranges] => Array
-                (
-                    [0] => Array
-                        (
-                            [from] => 0
-                            [to] => 0.3
-                            [key] => Panoramic
-                        )
-
-                    [1] => Array
-                        (
-                            [from] => 0.3
-                            [to] => 0.9
-                            [key] => Horizontal
- */
 
 	public function getFilter($chosenName) {
-
 		$rangeArray = $this->Range->toArray()['range']['ranges'];
-
 		foreach ($rangeArray as $range) {
 			if ($range['key'] === $chosenName) {
 				$from = null;
@@ -61,7 +40,6 @@ class RangedAggregation {
 		        return $filter;
 			}
 		}
-
 	}
 
 
