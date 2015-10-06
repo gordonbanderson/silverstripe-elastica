@@ -8,6 +8,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1446
+        OriginalHeight: 1427
+        AspectRatio: 1.013
     photo0002:
         FlickrID: 2147483647
         Title: 'Image taken from page 471 of ''A History of the United State ... Illustrated, etc'''
@@ -17,6 +20,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 543
+        OriginalHeight: 822
+        AspectRatio: 0.66
     photo0003:
         FlickrID: 2147483647
         Title: 'Image taken from page 124 of ''Some Strange Corners of our Country. The Wonderland of the Southwest. [Illustrated.]'''
@@ -26,6 +32,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1301
+        OriginalHeight: 854
+        AspectRatio: 1.524
     photo0004:
         FlickrID: 2147483647
         Title: 'Image taken from page 265 of ''Our Country. A household history, ... from the discovery of America to the one hundredth anniversary of the Declaration of Independence ... With ... illustrations, etc'''
@@ -35,6 +44,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1932
+        OriginalHeight: 1395
+        AspectRatio: 1.385
     photo0005:
         FlickrID: 2147483647
         Title: 'Image taken from page 433 of ''The Native Races of the Pacific States of North America. [With maps.]'''
@@ -44,6 +56,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1366
+        OriginalHeight: 1462
+        AspectRatio: 0.934
     photo0006:
         FlickrID: 2147483647
         Title: 'Image taken from page 271 of ''Gems and Precious Stones of North America. A popular description of their occurrence, value, history, archæology, and of the collections in which they exist, also a chapter on pearls and on remarkable foreign gems owned in th'
@@ -53,6 +68,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 569
+        OriginalHeight: 529
+        AspectRatio: 1.076
     photo0007:
         FlickrID: 2147483647
         Title: 'Image taken from page 255 of ''Old pictures in a new frame ... With illustrations'''
@@ -62,6 +80,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 2634
+        OriginalHeight: 1607
+        AspectRatio: 1.639
     photo0008:
         FlickrID: 2147483647
         Title: 'Image taken from page 149 of ''[The History of England by Hume and Smollett. (The History of England, from the invasion of Julius Caesar to the Revolution in 1688. By D. Hume. Regent''s edition.-The History of England, from the Revolution in 1688, to the de'
@@ -71,6 +92,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 908
+        OriginalHeight: 1212
+        AspectRatio: 0.749
     photo0009:
         FlickrID: 2147483647
         Title: 'Flash Light view in new Subterranean'
@@ -80,6 +104,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 998
+        OriginalHeight: 1225
+        AspectRatio: 0.815
     photo0010:
         FlickrID: 2147483647
         Title: 'Expedition 22'
@@ -89,6 +116,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1365
+        OriginalHeight: 1127
+        AspectRatio: 1.211
     photo0011:
         FlickrID: 2147483647
         Title: 'Expedition 21'
@@ -98,6 +128,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1891
+        OriginalHeight: 1848
+        AspectRatio: 1.023
     photo0012:
         FlickrID: 2147483647
         Title: 'Image taken from page 8 of ''The Writings in Prose and Verse of Rudyard Kipling. (“Outward Bound” edition.) [With plates, including portraits.]'''
@@ -107,6 +140,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 64
         IndexingOff: true
+        OriginalWidth: 1712
+        OriginalHeight: 948
+        AspectRatio: 1.806
     photo0013:
         FlickrID: 2147483647
         Title: 'Image taken from page 34 of ''[History of the County Palatine and Duchy of Lancaster ... The biographical department by W. R. Whatton, Esq. (History of the cotton manufacture [by Edward Baines Jun.]) [With plates.]]'''
@@ -116,6 +152,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1149
+        OriginalHeight: 1908
+        AspectRatio: 0.602
     photo0014:
         FlickrID: 2147483647
         Title: 'Image taken from page 229 of ''Round the world with General Grant. A narrative of the visit of General U. S. Grant ... to various countries ... in 1877, 1878, 1879. To which are added certain conversations with General Grant on questions connected with Ame'
@@ -125,6 +164,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1139
+        OriginalHeight: 1902
+        AspectRatio: 0.599
     photo0015:
         FlickrID: 2147483647
         Title: 'Image taken from page 67 of ''The News'' History of Passaic. From the earliest settlement to the present day. Embracing a descriptive history of its ... institutions with biographical sketches. Profusely illustrated. Compiled and edited by W. J. Pape with t'
@@ -134,6 +176,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 682
+        OriginalHeight: 461
+        AspectRatio: 1.48
     photo0016:
         FlickrID: 2147483647
         Title: 'Image taken from page 146 of ''Mining ... New edition'''
@@ -143,6 +188,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 2135
+        OriginalHeight: 1667
+        AspectRatio: 1.281
     photo0017:
         FlickrID: 2147483647
         Title: 'Image taken from page 78 of ''[Manual of Geology: treating of the principles of the science with special reference to American geological history ... Revised edition.]'''
@@ -152,6 +200,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 629
+        OriginalHeight: 1652
+        AspectRatio: 0.381
     photo0018:
         FlickrID: 2147483647
         Title: 'Image taken from page 277 of ''The Natural History of Man; being an account of the manners and customs of the uncivilized races of men ... With new designs by Angas, Danby, Wolf, Zwecker, etc., etc. Engraved by the Brothers Dalziel'''
@@ -161,6 +212,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 2868
+        OriginalHeight: 1604
+        AspectRatio: 1.788
     photo0019:
         FlickrID: 2147483647
         Title: 'Image taken from page 737 of ''The Pictorial History of England, being a history of the people, as well as a history of the kingdom. [By G. L. Craik and C. MacFarlane.] ... A new edition, revised and extended. (History of the Peace ... 1816-46. By Harriet'
@@ -170,6 +224,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 565
+        OriginalHeight: 1495
+        AspectRatio: 0.378
     photo0020:
         FlickrID: 2147483647
         Title: 'Image taken from page 255 of ''[Illustrated British Ballads, old and new. Selected and edited by G. B. Smith.]'''
@@ -179,6 +236,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1761
+        OriginalHeight: 1294
+        AspectRatio: 1.361
     photo0021:
         FlickrID: 2147483647
         Title: 'Image taken from page 161 of ''The Pacific Tourist. Williams''s Illustrated Trans-Continental Guide of travel from the Atlantic to the Pacific Ocean ... With special contributions by ... F. V. Hayden [and others] ... Illustrations by T. Moran, etc'''
@@ -188,6 +248,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 468
+        OriginalHeight: 1910
+        AspectRatio: 0.245
     photo0022:
         FlickrID: 2147483647
         Title: 'Image taken from page 533 of ''The World as it is. A new and comprehensive system of Modern Geography, physical, political and commercial. [Vol. 1 and 2 by W. C. Taylor and C. Mackay; vol. 3 by W. C. Stafford.]'''
@@ -197,6 +260,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1201
+        OriginalHeight: 675
+        AspectRatio: 1.779
     photo0023:
         FlickrID: 2147483647
         Title: 'Image taken from page 386 of ''The Bab Ballads, with which are included Songs of a Savoyard ... With 350 illustrations by the author'''
@@ -206,6 +272,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 1948
+        OriginalHeight: 1417
+        AspectRatio: 1.375
     photo0024:
         FlickrID: 2147483647
         Title: 'Image taken from page 69 of ''[A Text-Book of Mineralogy. With an extended treatise on crystallography and physical mineralogy ... on the plan and with the co-operation of ... James D. Dana ... With ... woodcuts ... Newly revised and enlarged. 17th edition'
@@ -215,6 +284,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 419
+        OriginalHeight: 926
+        AspectRatio: 0.453
     photo0025:
         FlickrID: 2147483647
         Title: 'Image taken from page 389 of ''Antiquities of the Orient unveiled, containing a concise description of King Solomon''s cities, together with those of forty of the most ancient and renowned cities of the East ... With two ... lithographs, and ninety ... engr'
@@ -224,6 +296,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 1319
+        OriginalHeight: 1034
+        AspectRatio: 1.276
     photo0026:
         FlickrID: 2147483647
         Title: 'Image taken from page 152 of ''Old and New London; illustrated. A narrative of its history, its people, and its places. [vol. 1, 2,] by Walter Thornbury (vol. 3-6, by E. Walford)'''
@@ -233,6 +308,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1196
+        OriginalHeight: 1227
+        AspectRatio: 0.975
     photo0027:
         FlickrID: 2147483647
         Title: 'Image taken from page 555 of ''New Zealand, its physical geography, geology and natural history, with special reference to the results of Government Expeditions in the provinces of Auckland and Nelson ... Translated from the German original ... by E. Saute'
@@ -242,6 +320,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1452
+        OriginalHeight: 1802
+        AspectRatio: 0.806
     photo0028:
         FlickrID: 2147483647
         Title: 'Image taken from page 11 of ''The Anthropological Series. Edited by Professor F. Starr'''
@@ -251,6 +332,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 64
         IndexingOff: true
+        OriginalWidth: 372
+        OriginalHeight: 500
+        AspectRatio: 0.743
     photo0029:
         FlickrID: 2147483647
         Title: 'Image taken from page 59 of ''Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition'''
@@ -260,6 +344,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1436
+        OriginalHeight: 1027
+        AspectRatio: 1.398
     photo0030:
         FlickrID: 2147483647
         Title: 'Image taken from page 59 of ''[The History of Scotland, translated ... with notes, and a continuation to the present time. A new edition ... By James Aikman.]'''
@@ -269,6 +356,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 2937
+        OriginalHeight: 1897
+        AspectRatio: 1.548
     photo0031:
         FlickrID: 2147483647
         Title: 'Image taken from page 126 of ''[Outlines of Geology ... Together with an examination of the question, Whether the days of creation were indefinite periods. Designed for the use of schools and general readers.]'''
@@ -278,6 +368,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 138
+        OriginalHeight: 434
+        AspectRatio: 0.317
     photo0032:
         FlickrID: 2147483647
         Title: 'Belfast Castle, Belfast, Co. Antrim'
@@ -287,6 +380,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 1030
+        OriginalHeight: 1622
+        AspectRatio: 0.635
     photo0033:
         FlickrID: 2147483647
         Title: 'Villa Deserters Conducted to 11th Inf. Headquarters.'
@@ -296,6 +392,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1509
+        OriginalHeight: 1151
+        AspectRatio: 1.311
     photo0034:
         FlickrID: 2147483647
         Title: 'Gen. Pancho Villa Raid on Columbus, New Mexico, March 9th, at 4 A.M., 1916.'
@@ -305,6 +404,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 978
+        OriginalHeight: 788
+        AspectRatio: 1.241
     photo0035:
         FlickrID: 2147483647
         Title: 'Gen. Pancho Villa Raid on Columbus, New Mexico, March 9th, at 4 A.M., 1916.'
@@ -314,6 +416,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 305
+        OriginalHeight: 1579
+        AspectRatio: 0.193
     photo0036:
         FlickrID: 2147483647
         Title: 'Douglas DC-10-30 cn 47847 ZK-NZM Air New Zealand Feb74 [RJF]'
@@ -323,6 +428,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 482
+        OriginalHeight: 1404
+        AspectRatio: 0.343
     photo0037:
         FlickrID: 2147483647
         Title: 'Image taken from page 143 of ''Cassell''s Old and New Edinburgh, etc'''
@@ -332,6 +440,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1220
+        OriginalHeight: 1664
+        AspectRatio: 0.733
     photo0038:
         FlickrID: 2147483647
         Title: 'Image taken from page 469 of ''Farthest North. Being the record of a voyage of exploration of the ship “Fram,” 1893-96, and of a fifteen months'' sleigh journey by Dr. Nansen and Lieut. Johansen ... With an appendix by Otto Sverdrup, etc. [With plates, incl'
@@ -341,6 +452,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1473
+        OriginalHeight: 913
+        AspectRatio: 1.613
     photo0039:
         FlickrID: 2147483647
         Title: 'Image taken from page 339 of ''A New and Popular Pictorial Description of England, Scotland, Ireland, Wales, and the British Islands. Embellished with several hundred handsome engravings ... Sixth thousand'''
@@ -350,6 +464,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1617
+        OriginalHeight: 1693
+        AspectRatio: 0.955
     photo0040:
         FlickrID: 2147483647
         Title: 'Image taken from page 292 of ''Battles and Leaders of the Civil War, being for the most part contributions by Union and Confederate officers, based upon “the Century War Series.” Edited by R. U. J. and C. C. B., etc. [Illustrated.]'''
@@ -359,6 +476,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 707
+        OriginalHeight: 520
+        AspectRatio: 1.359
     photo0041:
         FlickrID: 2147483647
         Title: 'Image taken from page 280 of ''Farthest North. Being the record of a voyage of exploration of the ship “Fram,” 1893-96, and of a fifteen months'' sleigh journey by Dr. Nansen and Lieut. Johansen ... With an appendix by Otto Sverdrup, etc. [With plates, incl'
@@ -368,6 +488,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1006
+        OriginalHeight: 1389
+        AspectRatio: 0.724
     photo0042:
         FlickrID: 2147483647
         Title: 'Image taken from page 49 of ''Our English Cousins ... Illustrated'''
@@ -377,6 +500,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1392
+        OriginalHeight: 1124
+        AspectRatio: 1.238
     photo0043:
         FlickrID: 2147483647
         Title: 'Image taken from page 142 of ''[A Text-Book of Mineralogy. With an extended treatise on crystallography and physical mineralogy ... on the plan and with the co-operation of ... James D. Dana ... With ... woodcuts ... Newly revised and enlarged. 17th editio'
@@ -386,6 +512,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1356
+        OriginalHeight: 1082
+        AspectRatio: 1.253
     photo0044:
         FlickrID: 2147483647
         Title: 'Image taken from page 108 of ''Gray Days and Gold ... New edition, revised, with illustrations'''
@@ -395,6 +524,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 214
+        OriginalHeight: 1406
+        AspectRatio: 0.152
     photo0045:
         FlickrID: 2147483647
         Title: 'Image taken from page 560 of ''The Town and City of Waterbury, Connecticut, from the aboriginal period to the year eighteen hundred and ninety-five'''
@@ -404,6 +536,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 2068
+        OriginalHeight: 1587
+        AspectRatio: 1.303
     photo0046:
         FlickrID: 2147483647
         Title: 'Image taken from page 339 of ''The Illustrated Book of Sacred Poems. Edited by ... R. H. Baynes ... Illustrated, etc'''
@@ -413,6 +548,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 154
+        OriginalHeight: 656
+        AspectRatio: 0.235
     photo0047:
         FlickrID: 2147483647
         Title: 'Image taken from page 56 of ''[Memorials of the Tower of London ... With illustrations.]'''
@@ -422,6 +560,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1184
+        OriginalHeight: 1948
+        AspectRatio: 0.608
     photo0048:
         FlickrID: 2147483647
         Title: 'Image taken from page 396 of ''Historical Collections of the State of New Jersey ... relating to its history and antiquities, with geographical descriptions of every township in the State. [With illustrations.]'''
@@ -431,6 +572,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1641
+        OriginalHeight: 933
+        AspectRatio: 1.759
     photo0049:
         FlickrID: 2147483647
         Title: 'Bon Echo Inn Brochure Cover circa 1927-28'
@@ -440,6 +584,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1304
+        OriginalHeight: 1850
+        AspectRatio: 0.705
     photo0050:
         FlickrID: 2147483647
         Title: 'Interior Pages of 1927 Denison Bon Echo Brochure'
@@ -449,6 +596,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 2098
+        OriginalHeight: 1700
+        AspectRatio: 1.234
     photo0051:
         FlickrID: 2147483647
         Title: 'Image taken from page 536 of ''The Town and City of Waterbury, Connecticut, from the aboriginal period to the year eighteen hundred and ninety-five'''
@@ -458,6 +608,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 957
+        OriginalHeight: 963
+        AspectRatio: 0.994
     photo0052:
         FlickrID: 2147483647
         Title: 'Image taken from page 320 of ''[Balmerino and its Abbey. A parochial history ... With an appendix of illustrative documents.]'''
@@ -467,6 +620,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 730
+        OriginalHeight: 793
+        AspectRatio: 0.921
     photo0053:
         FlickrID: 2147483647
         Title: 'Image taken from page 134 of ''[The Land of the Pharaohs. Egypt and Sinai: illustrated by pen and pencil.]'''
@@ -476,6 +632,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1604
+        OriginalHeight: 1742
+        AspectRatio: 0.921
     photo0054:
         FlickrID: 2147483647
         Title: 'Image taken from page 222 of ''The Rhine, from its source to the sea. Translated from the German [of Carl Stieler, H. Wachenhausen, and F. W. Hackländer] by G. C. T. Bartley ... With ... illustrations. New and revised edition'''
@@ -485,6 +644,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 670
+        OriginalHeight: 677
+        AspectRatio: 0.99
     photo0055:
         FlickrID: 2147483647
         Title: 'Image taken from page 458 of ''Pen and Pencil Sketches of the Great Riots. An illustrated history of the Railroad and other great American Riots, etc'''
@@ -494,6 +656,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 736
+        OriginalHeight: 893
+        AspectRatio: 0.824
     photo0056:
         FlickrID: 2147483647
         Title: 'Image taken from page 638 of ''Round the world with General Grant. A narrative of the visit of General U. S. Grant ... to various countries ... in 1877, 1878, 1879. To which are added certain conversations with General Grant on questions connected with Ame'
@@ -503,6 +668,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 173
+        OriginalHeight: 777
+        AspectRatio: 0.223
     photo0057:
         FlickrID: 2147483647
         Title: 'Image taken from page 616 of ''History of Orange County, New York, with illustrations and biographical sketches, etc'''
@@ -512,6 +680,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 2308
+        OriginalHeight: 1832
+        AspectRatio: 1.26
     photo0058:
         FlickrID: 2147483647
         Title: 'Image taken from page 857 of ''Battles and Leaders of the Civil War, being for the most part contributions by Union and Confederate officers, based upon “the Century War Series.” Edited by R. U. J. and C. C. B., etc. [Illustrated.]'''
@@ -521,6 +692,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1731
+        OriginalHeight: 1478
+        AspectRatio: 1.171
     photo0059:
         FlickrID: 2147483647
         Title: 'Image taken from page 250 of ''Elementary Physical Geography'''
@@ -530,6 +704,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 112
+        OriginalHeight: 421
+        AspectRatio: 0.266
     photo0060:
         FlickrID: 2147483647
         Title: 'Image taken from page 273 of ''Old and New London, etc'''
@@ -539,6 +716,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1110
+        OriginalHeight: 1031
+        AspectRatio: 1.077
     photo0061:
         FlickrID: 2147483647
         Title: 'Image taken from page 45 of ''[Fifty “Bab” Ballads ... [Selected from “Bab Ballads” and “More Bab Ballads.”] With illustrations by the author.]'''
@@ -548,6 +728,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 307
+        OriginalHeight: 445
+        AspectRatio: 0.689
     photo0062:
         FlickrID: 2147483647
         Title: 'Image taken from page 136 of ''The Pacific Tourist. Williams''s Illustrated Trans-Continental Guide of travel from the Atlantic to the Pacific Ocean ... With special contributions by ... F. V. Hayden [and others] ... Illustrations by T. Moran, etc'''
@@ -557,6 +740,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 2558
+        OriginalHeight: 1540
+        AspectRatio: 1.661
     photo0063:
         FlickrID: 2147483647
         Title: 'Image taken from page 138 of ''The Philippine Islands ... Illustrated'''
@@ -566,6 +752,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1014
+        OriginalHeight: 1831
+        AspectRatio: 0.554
     photo0064:
         FlickrID: 2147483647
         Title: 'Image taken from page 1109 of ''Old & New London. By W. Thornbury and Edward Walford. Illustrated'''
@@ -575,6 +764,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 2079
+        OriginalHeight: 1594
+        AspectRatio: 1.304
     photo0065:
         FlickrID: 2147483647
         Title: 'Image taken from page 226 of ''Berlin under the New Empire, its institutions, inhabitants, industry ... With ... engravings, etc'''
@@ -584,6 +776,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1553
+        OriginalHeight: 865
+        AspectRatio: 1.795
     photo0066:
         FlickrID: 2147483647
         Title: 'Image taken from page 591 of ''A Popular History of the United States from the first discovery of the western hemisphere ... to the end of the first century of the union of the States. Preceded by a sketch of the pre-historic period and the age of the moun'
@@ -593,6 +788,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 340
+        OriginalHeight: 905
+        AspectRatio: 0.376
     photo0067:
         FlickrID: 2147483647
         Title: 'Image taken from page 609 of ''The Pictorial History of England, being a history of the people, as well as a history of the kingdom. [By G. L. Craik and C. MacFarlane.] ... A new edition, revised and extended. (History of the Peace ... 1816-46. By Harriet'
@@ -602,6 +800,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 228
+        OriginalHeight: 1037
+        AspectRatio: 0.22
     photo0068:
         FlickrID: 2147483647
         Title: 'Image taken from page 30 of ''In Scripture Lands. New views of sacred places ... with ... illustrations, etc'''
@@ -611,6 +812,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1466
+        OriginalHeight: 962
+        AspectRatio: 1.524
     photo0069:
         FlickrID: 2147483647
         Title: 'Image taken from page 193 of ''The American Metropolis from Knickerbocker days to the present time: New York City life in all its various phases ... Illustrated'''
@@ -620,6 +824,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 64
         IndexingOff: true
+        OriginalWidth: 688
+        OriginalHeight: 1313
+        AspectRatio: 0.524
     photo0070:
         FlickrID: 2147483647
         Title: 'Image taken from page 650 of ''[The History of Egypt from the earliest times till the conquest by the Arabs A.D. 640. A new edition.]'''
@@ -629,6 +836,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 608
+        OriginalHeight: 1065
+        AspectRatio: 0.571
     photo0071:
         FlickrID: 2147483647
         Title: 'Image taken from page 242 of ''[Boscobel; or, the Royal Oak. A tale of the year 1651 ... Illustrated by J. H. Rimbault.]'''
@@ -638,6 +848,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1806
+        OriginalHeight: 1112
+        AspectRatio: 1.624
     photo0072:
         FlickrID: 2147483647
         Title: 'Image taken from page 273 of ''A Text-Book of Mineralogy. With an extended treatise on crystallography and physical mineralogy. By E. S. Dana ... on the plan and with the co-operation of Professor James D. Dana, etc'''
@@ -647,6 +860,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1585
+        OriginalHeight: 1699
+        AspectRatio: 0.933
     photo0073:
         FlickrID: 2147483647
         Title: 'Image taken from page 92 of ''The Tourist''s Handy Guide to Scotland. With new charts and illustrations'''
@@ -656,6 +872,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 832
+        OriginalHeight: 450
+        AspectRatio: 1.849
     photo0074:
         FlickrID: 2147483647
         Title: 'Image taken from page 659 of ''[The History of Scotland, translated ... with notes, and a continuation to the present time. A new edition ... By James Aikman.]'''
@@ -665,6 +884,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 64
         IndexingOff: true
+        OriginalWidth: 425
+        OriginalHeight: 687
+        AspectRatio: 0.618
     photo0075:
         FlickrID: 2147483647
         Title: 'Image taken from page 154 of ''[The History of Egypt from the earliest times till the conquest by the Arabs A.D. 640. A new edition.]'''
@@ -674,6 +896,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1005
+        OriginalHeight: 1892
+        AspectRatio: 0.531
     photo0076:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Railroad Station, Sinton, Texas]'
@@ -683,6 +908,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1524
+        OriginalHeight: 1052
+        AspectRatio: 1.449
     photo0077:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]'
@@ -692,6 +920,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 200
         IndexingOff: true
+        OriginalWidth: 1982
+        OriginalHeight: 1310
+        AspectRatio: 1.513
     photo0078:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Railroad Station, Stockdale, Texas]'
@@ -701,6 +932,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 792
+        OriginalHeight: 1030
+        AspectRatio: 0.769
     photo0079:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Passenger Station, Waxahachie, Texas]'
@@ -710,6 +944,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1281
+        OriginalHeight: 774
+        AspectRatio: 1.655
     photo0080:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Freight Station, Waxahachie, Texas]'
@@ -719,6 +956,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1235
+        OriginalHeight: 1538
+        AspectRatio: 0.803
     photo0081:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific, Tower No. 63, Mexia, Texas]'
@@ -728,6 +968,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 1718
+        OriginalHeight: 1143
+        AspectRatio: 1.503
     photo0082:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific, Switchman''s Tower, San Antonio, Texas]'
@@ -737,6 +980,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 2139
+        OriginalHeight: 1213
+        AspectRatio: 1.763
     photo0083:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Railroad Station, Taft, Texas]'
@@ -746,6 +992,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 2109
+        OriginalHeight: 1561
+        AspectRatio: 1.351
     photo0084:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, Texas]'
@@ -755,6 +1004,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 2515
+        OriginalHeight: 1609
+        AspectRatio: 1.563
     photo0085:
         FlickrID: 2147483647
         Title: '[Texas and New Orleans, Southern Pacific, Eakin Street Yard Office, Dallas, Texas]'
@@ -764,6 +1016,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 780
+        OriginalHeight: 526
+        AspectRatio: 1.483
     photo0086:
         FlickrID: 2147483647
         Title: 'Image taken from page 316 of ''Elements of Geology: A text-book, etc'''
@@ -773,6 +1028,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 1034
+        OriginalHeight: 915
+        AspectRatio: 1.13
     photo0087:
         FlickrID: 2147483647
         Title: 'Image taken from page 406 of ''The Franco-Prussian War in a Nutshell. A daily diary of diplomacy, battles, and war literature. With ... portraits, and ... maps, etc'''
@@ -782,6 +1040,9 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 100
         IndexingOff: true
+        OriginalWidth: 1040
+        OriginalHeight: 1547
+        AspectRatio: 0.672
     photo0088:
         FlickrID: 2147483647
         Title: 'Image taken from page 333 of ''Marching to Victory. The second period of the War of the Rebellion, including the year 1863 ... Illustrated'''
@@ -791,6 +1052,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 1120
+        OriginalHeight: 871
+        AspectRatio: 1.286
     photo0089:
         FlickrID: 2147483647
         Title: 'Image taken from page 396 of ''The Bab Ballads, with which are included Songs of a Savoyard ... With 350 illustrations by the author'''
@@ -800,6 +1064,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1157
+        OriginalHeight: 1086
+        AspectRatio: 1.065
     photo0090:
         FlickrID: 2147483647
         Title: 'Image taken from page 75 of ''Old and New London, etc'''
@@ -809,6 +1076,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 3015
+        OriginalHeight: 1853
+        AspectRatio: 1.627
     photo0091:
         FlickrID: 2147483647
         Title: 'Image taken from page 288 of ''Unbeaten Tracks in Japan ... New edition, abridged'''
@@ -818,6 +1088,9 @@ FlickrPhoto:
         FocalLength35mm: 80
         ISO: 64
         IndexingOff: true
+        OriginalWidth: 1537
+        OriginalHeight: 1060
+        AspectRatio: 1.45
     photo0092:
         FlickrID: 2147483647
         Title: 'Image taken from page 42 of ''Physiography ... New edition'''
@@ -827,6 +1100,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 400
         IndexingOff: true
+        OriginalWidth: 2765
+        OriginalHeight: 1857
+        AspectRatio: 1.489
     photo0093:
         FlickrID: 2147483647
         Title: 'Image taken from page 191 of ''Famous American Indians. Red Eagle and the wars with the Creek Indians of Alabama'''
@@ -836,6 +1112,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 1647
+        OriginalHeight: 1725
+        AspectRatio: 0.955
     photo0094:
         FlickrID: 2147483647
         Title: 'Image taken from page 59 of ''[A System of Geography, for the use of Schools. Illustrated with more than fifty cerographic maps, and numerous wood-cut engravings.]'''
@@ -845,6 +1124,9 @@ FlickrPhoto:
         FocalLength35mm: 90
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 198
+        OriginalHeight: 491
+        AspectRatio: 0.403
     photo0095:
         FlickrID: 2147483647
         Title: 'Image taken from page 140 of ''A new History and Survey of ... London, ... Westminster, and Southwark. With ... illustrations of their Antiquities, etc'''
@@ -854,6 +1136,9 @@ FlickrPhoto:
         FocalLength35mm: 50
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 106
+        OriginalHeight: 431
+        AspectRatio: 0.246
     photo0096:
         FlickrID: 2147483647
         Title: 'Image taken from page 53 of ''[The pleasures of memory, and other poems. By Samuel Rogers, Esq. And The pains of memory, by Robert Merry.]'''
@@ -863,6 +1148,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 3200
         IndexingOff: true
+        OriginalWidth: 529
+        OriginalHeight: 1275
+        AspectRatio: 0.415
     photo0097:
         FlickrID: 2147483647
         Title: 'Image taken from page 129 of ''[Childe Harolde''s Pilgrimage ... New edition.]'''
@@ -872,6 +1160,9 @@ FlickrPhoto:
         FocalLength35mm: 120
         ISO: 2000
         IndexingOff: true
+        OriginalWidth: 240
+        OriginalHeight: 978
+        AspectRatio: 0.245
     photo0098:
         FlickrID: 2147483647
         Title: 'Image taken from page 411 of ''The complete poetical works of George Eliot. Family edition. Fully illustrated with new wood-engravings. With border by J. D. Woodward'''
@@ -881,6 +1172,9 @@ FlickrPhoto:
         FocalLength35mm: 200
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 817
+        OriginalHeight: 1989
+        AspectRatio: 0.411
     photo0099:
         FlickrID: 2147483647
         Title: 'Image taken from page 400 of ''History of Trenton, New Jersey, etc. [With illustrations.]'''
@@ -890,6 +1184,9 @@ FlickrPhoto:
         FocalLength35mm: 24
         ISO: 800
         IndexingOff: true
+        OriginalWidth: 1023
+        OriginalHeight: 558
+        AspectRatio: 1.834
     photo0100:
         FlickrID: 2147483647
         Title: 'Image taken from page 248 of ''Old and New London, etc'''
@@ -899,3 +1196,6 @@ FlickrPhoto:
         FocalLength35mm: 150
         ISO: 1600
         IndexingOff: true
+        OriginalWidth: 3533
+        OriginalHeight: 1371
+        AspectRatio: 2.577
