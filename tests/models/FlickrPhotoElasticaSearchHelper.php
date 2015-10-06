@@ -32,6 +32,8 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		// set the order to be taken at in reverse if query is blank other than aggs
 		$params = $query->getParams();
 
+		print_r($params);
+
 		$wildcard = array(
 			'query_string' => array('query' => '*')
 		);
@@ -54,7 +56,16 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 				$query->setParam('query', $wildcard);
 				$query->setSort(array('TakenAt'=> 'desc'));
 			} else {
-				if (!isset($params2['query']['filtered']['query']['query_string'])) {
+				//If a combination of text query and aggregation filters are used then we have
+				//Elastica\Query\Filtered wrapping a Elastica\Query\MultiMatch
+
+				if (is_subclass_of($params2['query'], 'Elastica\Query\AbstractQuery')) {
+					$mmQuery = $params2['query'];
+					$params3 = $mmQuery->getParams();
+					if ($params3['query'] == '') {
+						$mmQuery->setSort(array('TakenAt'=> 'desc'));
+					}
+				} elseif (!isset($params2['query']['filtered']['query']['query_string'])) {
 					$query->setSort(array('TakenAt'=> 'desc'));
 				}
 			}
@@ -121,48 +132,6 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 	}
 
 
-
-	/**
-	 * Manipulate the results, e.g. fixing up values if issues with ordering in Elastica
-	 * @param  array &$aggs Aggregates from an Elastica search to be tweaked
-	 */
-	public function updateAggregation(&$aggs) {
-		// the shutter speeds are of the form decimal number | fraction, keep the latter half
-		$shutterSpeeds = $aggs['ShutterSpeed']['buckets'];
-		$ctr = 0;
-		foreach ($shutterSpeeds as $bucket) {
-			$key = $bucket['key'];
-			$splits = explode('|', $key);
-			$shutterSpeeds[$ctr]['key'] = end($splits);
-			$ctr++;
-		}
-		$aggs['ShutterSpeed']['buckets'] = $shutterSpeeds;
-
-		// Note that instead of storing as arrays, nesting might be a better option
-		// Or at least have than an option
-		// See http://coderify.com/aggregates-array-field-and-autocomplete-funcionality-in-elasticsearch/
-
-		/*
-
-		$querystring = Controller::curr()->request->getVar('Tags');
-
-		if ($querystring != '') {
-			$buckets = $aggs['Tags']['buckets'];
-			$ctr = 0;
-			foreach ($buckets as $bucket) {
-				$key = $bucket['key'];
-				if ($key !== $querystring) {
-					unset($buckets[$ctr]);
-				}
-
-				$ctr++;
-			}
-			$aggs['Tags']['buckets'] = $buckets;
-		}
-		*/
-	}
-
-
 	/**
 	 * Update filters, perhaps remaps them, prior to performing a search.
 	 * This allows for aggregation values to be updated prior to rendering.
@@ -212,6 +181,51 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		*/
 
 	}
+
+
+
+	/**
+	 * Manipulate the results, e.g. fixing up values if issues with ordering in Elastica
+	 * @param  array &$aggs Aggregates from an Elastica search to be tweaked
+	 */
+	public function updateAggregation(&$aggs) {
+		// the shutter speeds are of the form decimal number | fraction, keep the latter half
+		$shutterSpeeds = $aggs['ShutterSpeed']['buckets'];
+		$ctr = 0;
+		foreach ($shutterSpeeds as $bucket) {
+			$key = $bucket['key'];
+			$splits = explode('|', $key);
+			$shutterSpeeds[$ctr]['key'] = end($splits);
+			$ctr++;
+		}
+		$aggs['ShutterSpeed']['buckets'] = $shutterSpeeds;
+
+		// Note that instead of storing as arrays, nesting might be a better option
+		// Or at least have than an option
+		// See http://coderify.com/aggregates-array-field-and-autocomplete-funcionality-in-elasticsearch/
+
+		/*
+
+		$querystring = Controller::curr()->request->getVar('Tags');
+
+		if ($querystring != '') {
+			$buckets = $aggs['Tags']['buckets'];
+			$ctr = 0;
+			foreach ($buckets as $bucket) {
+				$key = $bucket['key'];
+				if ($key !== $querystring) {
+					unset($buckets[$ctr]);
+				}
+
+				$ctr++;
+			}
+			$aggs['Tags']['buckets'] = $buckets;
+		}
+		*/
+	}
+
+
+
 
 
 
