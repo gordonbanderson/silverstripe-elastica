@@ -1,6 +1,9 @@
 <?php
 class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
+	use \SilverStripe\Elastica\ElasticSearcher;
+
+
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
 
