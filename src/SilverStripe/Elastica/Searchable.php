@@ -366,7 +366,7 @@ Array
 				if (in_array($field, $this->html_fields)) {
 					$fields[$field] = $this->owner->$field;
 					$html = ShortcodeParser::get_active()->parse($this->owner->$field());
-					$txt = strip_tags($html);
+					$txt = \Convert::html2raw($html);
 					$fields[$field] = $txt;
 				} else {
 					$fields[$field] = $this->owner->$field();
@@ -378,7 +378,7 @@ Array
 					$fields[$field] = $this->owner->$field;;
 					if (gettype($this->owner->$field) !== 'NULL') {
 						$html = ShortcodeParser::get_active()->parse($this->owner->$field);
-						$txt = strip_tags($html);
+						$txt = \Convert::html2raw($html);
 						$fields[$field] = $txt;
 					}
 				} else {
