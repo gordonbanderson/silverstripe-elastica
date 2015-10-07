@@ -70,6 +70,38 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		//Use a text search against all fields
 		$resultList = $this->search('New Zealand', null);
 		$this->assertEquals(10, $resultList->count());
+
+		// check the query formation
+		$query = $resultList->getQuery()->toArray();
+		$this->assertEquals(0, $query['from']);
+		$this->assertEquals(10, $query['size']);
+
+		$sort = array('TakenAt' => 'desc');
+		$this->assertEquals($sort, $query['sort']);
+
+		$q = new stdClass();
+		$q->Test = 'wibble';
+
+		print_r($resultList->getQuery());
+
+		$this->assertEquals($q, $query['query']['match_all']);
+
+		$aggs = array();
+		$aggs['Aperture'] = array();
+		$aggs['ShutterSpeed'] = array();
+		$aggs['FocalLength35mm'] = array();
+		$aggs['ISO'] = array();
+		$aggs['Aspect'] = array();
+
+		/*
+
+
+		 */
+		$this->assertEquals($aggs, $query['aggs']);
+
+		$this->assertEquals($expected, $resultList->getQuery()->toArray());
+
+		// check the aggregate results
 		$aggregations = $resultList->getAggregations();
 
 		//Asserting name of aggregate as ISO
@@ -233,6 +265,29 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$resultList = $this->search('', null);
 		$this->assertEquals(10, $resultList->count());
 
+		//check query
+		$query = $resultList->getQuery()->toArray();
+		$this->assertEquals(0, $query['from']);
+		$this->assertEquals(10, $query['size']);
+
+		$sort = array('TakenAt' => 'desc');
+		$this->assertEquals($sort, $query['sort']);
+
+		$q = new stdClass();
+		$q->Test = 'wibble';
+
+		print_r($resultList->getQuery());
+
+		$this->assertEquals($q, $query['query']['match_all']);
+
+		$aggs = array();
+		$aggs['Aperture'] = array();
+		$aggs['ShutterSpeed'] = array();
+		$aggs['FocalLength35mm'] = array();
+		$aggs['ISO'] = array();
+		$aggs['Aspect'] = array();
+
+		//check aggregations
 		$aggregations = $resultList->getAggregations();
 		$aggCtr = 0;
 		//Asserting name of aggregate as ISO
@@ -833,6 +888,39 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 3200);
 		$resultListFiltered = $this->search('New Zealand', $fields,$filters);
 		$filteredAggregations = $resultListFiltered->getAggregations()->toArray();
+
+		$this->checkDrillingDownHasHappened($filteredAggregations, $originalAggregations);
+	}
+
+
+	public function testTwoAggregatesSelected() {
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $this->search('New Zealand', $fields, array('ISO' => 400));
+		$originalAggregations = $resultList->getAggregations()->toArray();
+
+		$filters = array('ISO' => 400, 'Aspect' => 'Vertical' );
+		$resultListFiltered = $this->search('New Zealand', $fields,$filters);
+		$filteredAggregations = $resultListFiltered->getAggregations()->toArray();
+
+		$this->checkDrillingDownHasHappened($filteredAggregations, $originalAggregations);
+	}
+
+
+	public function testThreeAggregatesSelected() {
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $this->search('New Zealand', $fields, array('ISO' => 400,
+										'Aspect' => 'Vertical'));
+		$originalAggregations = $resultList->getAggregations()->toArray();
+
+		$filters = array('ISO' => 400, 'Aspect' => 'Vertical', 'Aperture' => 5 );
+		$resultListFiltered = $this->search('New Zealand', $fields,$filters);
+		$filteredAggregations = $resultListFiltered->getAggregations()->toArray();
+
+		$this->checkDrillingDownHasHappened($filteredAggregations, $originalAggregations);
+	}
+
+
+	private function checkDrillingDownHasHappened($filteredAggregations, $originalAggregations) {
 		$aggCtr = 0;
 
 		$names = array();
@@ -860,15 +948,11 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 			print_r($filteredCounts);
 			$akf = array_keys($filteredCounts);
 			echo "AKF SIZE:".sizeof($akf);
-			if (sizeof($akf)== 1) {
-				// If we have selected an aggregate it should be the same size when drilling down
-				$this->assertEquals($filteredCounts[$akf[0]], $origCounts[$akf[0]]);
-			} else {
-				foreach ($akf as $aggregateKey) {
-					$this->assertGreaterThanOrEqual(
-						$filteredCounts[$aggregateKey], $origCounts[$aggregateKey]
-					);
-				}
+
+			foreach ($akf as $aggregateKey) {
+				$this->assertGreaterThanOrEqual(
+					$filteredCounts[$aggregateKey], $origCounts[$aggregateKey]
+				);
 			}
 
 			$aggCtr++;
@@ -876,10 +960,21 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 
 		}
+	}
 
 
-
-		//print_r($filteredAggregations);
+	/*
+	ResultList and ElasticSearcher both have accessors to the aggregates.  Check they are the same
+	 */
+	public function testGetAggregations() {
+		$es = new \ElasticSearcher();
+		$es->setStart(0);
+		$es->setPageLength(10);
+		//$es->addFilter('IsInSiteTree', false);
+		$es->setClasses('FlickrPhoto');
+		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$resultList = $es->search('New Zealand');
+		$this->assertEquals($resultList->getAggregations(), $es->getAggregations());
 	}
 
 
