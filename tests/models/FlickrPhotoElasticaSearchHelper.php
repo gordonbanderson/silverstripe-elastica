@@ -3,6 +3,8 @@ use Elastica\Aggregation\Terms;
 use Elastica\Query;
 use Elastica\Aggregation\TopHits;
 use Elastica\Aggregation\Range;
+use SilverStripe\Elastica\RangedAggregation;
+
 
 class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,TestOnly {
 
@@ -47,11 +49,11 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 			echo "PARAMS2:\n";
 			print_r($params2);
 
-			$this->searcher->showResultsForEmptySearch();
+			$this->queryGenerator->setShowResultsForEmptyQuery(true);
 
 			if (
 					$this->originalQueryString == '' &&
-					$this->searcher->getShowResultsForEmptySearch()
+					$this->queryGenerator->getShowResultsForEmptyQuery()
 				) {
 				$query->setParam('query', $wildcard);
 				$query->setSort(array('TakenAt'=> 'desc'));
@@ -76,7 +78,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 			print_r($params);
 
 			if (!isset($params['query']['filtered']['query']['query_string'])) {
-				$params['query']->setSort(array('TakenAt'=> 'desc'));
+				//FIXME $params['query']->setSort(array('TakenAt'=> 'desc'));
 			}
 		}
 
@@ -110,7 +112,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		$agg4->setOrder('_term', 'asc');
 		$query->addAggregation($agg4);
 
-		$aspectRangedAgg = \RangedAggregation::getByTitle('Aspect');
+		$aspectRangedAgg = RangedAggregation::getByTitle('Aspect');
         $query->addAggregation($aspectRangedAgg->getRangeAgg());
 
 		// leave this out for the moment as way too many terms being returned slowing things down
