@@ -10,6 +10,7 @@ use Elastica\Filter\Term;
 use Elastica\Filter\BoolAnd;
 use Elastica\Query\Filtered;
 use Elastica\Query\MultiMatch;
+use SilverStripe\Elastica\RangedAggregation;
 
 class QueryGenerator {
 
@@ -25,6 +26,15 @@ class QueryGenerator {
 
 	/* For an empty query, show results or not */
 	private $showResultsForEmptyQuery = false;
+
+	/* Manipulator to be used for aggregations */
+	private $manipulator = null;
+
+	/* The length of a page of results */
+	private $pageLength = 10;
+
+	/* Where to start, normally a multiple of pageLength */
+	private $start = 0;
 
 
 	public function setQueryText($newQueryText) {
@@ -44,6 +54,30 @@ class QueryGenerator {
 
 	public function setShowResultsForEmptyQuery($newShowResultsForEmptyQuery) {
 		$this->showResultsForEmptyQuery = $newShowResultsForEmptyQuery;
+	}
+
+
+	public function getShowResultsForEmptyQuery() {
+		return $this->showResultsForEmptyQuery;
+	}
+
+
+	public function setPageLength($newPageLength) {
+		$this->pageLength = $newPageLength;
+	}
+
+
+	public function setStart($newStart) {
+		$this->start = $newStart;
+	}
+
+
+	/**
+	 * Set the manipulator, mainly used for aggregation
+	 * @param ElasticaSearchHelper $newManipulator manipulator used for aggregation
+	 */
+	public function setQueryResultManipulator($newManipulator) {
+		$this->manipulator = $newManipulator;
 	}
 
 
@@ -68,13 +102,118 @@ class QueryGenerator {
 		echo "Has selected filters?: $hasSelectedFilters\n";
 
 
-		if (!$queryTextExists && !$isMultiMatch && !$hasSelectedFilters) {
-			return $this->queryNoMultiMatchNoFiltersSelected($queryText);
+		$this->manipulatorInstance = null;
+		if ($this->manipulator) {
+			$this->manipulatorInstance = \Injector::inst()->create($this->manipulator);
+			$this->manipulatorInstance->queryGenerator = $this;
+			$this->manipulatorInstance->originalQueryString = $this->queryText;
+		}
+
+		//This is a query_string object
+		$textQuery = null;
+
+		//if (!$queryTextExists && !$isMultiMatch && !$hasSelectedFilters) {
+		if (!$queryTextExists && !$isMultiMatch) {
+			$textQuery = $this->queryNoMultiMatchNoFiltersSelected($this->queryText);
 		}
 
 		//Query text only provided
-		elseif ($queryTextExists && !$isMultiMatch && !$hasSelectedFilters) {
-			return $this->queryNoMultiMatchNoFiltersSelected();
+		//elseif ($queryTextExists && !$isMultiMatch && !$hasSelectedFilters) {
+		elseif ($queryTextExists && !$isMultiMatch) {
+			$textQuery = $this->queryNoMultiMatchNoFiltersSelected();
+		}
+
+
+		echo "PRE AGGS QUERY:\n";
+		echo get_class($textQuery);
+		print_r($textQuery);
+
+		$query = $this->addFilters($textQuery);
+
+		//This needs to be query object of some form
+		$this->addAggregation($query);
+
+
+		// pagination
+		$query->setLimit($this->pageLength);
+		$query->setFrom($this->start);
+
+		//TODO - sort
+
+		return $query;
+
+	}
+
+
+	/**
+	 * Using a query string object, return a suitable filtered or unfiltered query object
+	 * @param Elastica\Query\QueryString $textQuery A query_string representing the current query
+	 */
+	private function addFilters($textQuery) {
+		if ($this->manipulator) {
+			echo "SEARCH: UPDATING FILTERS";
+			$this->manipulatorInstance->updateFilters($this->filters);
+		}
+
+
+		$elFilters = array();
+		$rangeFilterKeys = RangedAggregation::getTitles();
+
+		foreach ($this->selectedFilters as $key => $value) {
+			echo "Checking filter $key => $value\n";
+			if (!in_array($key, $rangeFilterKeys)) {
+				$filter = new Term();
+				$filter->setTerm($key,$value);
+				$elFilters[] = $filter;
+			} else {
+				// get the selected range filter
+				$range = \RangedAggregation::getByTitle($key);
+				$filter = $range->getFilter($value);
+				$elFilters[] = $filter;
+			}
+		}
+
+
+		// if not facets selected, pass through null
+		$queryFilter = null;
+		switch (count($this->filters)) {
+			case 0:
+				// filter already null
+				break;
+			case 1:
+				$queryFilter = $elFilters[0];
+				break;
+			default:
+				$queryFilter = new BoolAnd();
+				foreach ($elFilters as $filter) {
+					$queryFilter->addFilter($filter);
+				}
+				break;
+		}
+
+
+
+		// the Elastica query object
+		if ($queryFilter == null) {
+			$query = new Query($textQuery);
+		} else {
+			$filtered = new Filtered(
+			  $textQuery,
+			  $queryFilter
+			);
+			$query = new Query($filtered);
+		}
+
+		return $query;
+	}
+
+
+	private function addAggregation(&$query) {
+		// aggregation (optional)
+		if ($this->manipulatorInstance) {
+			echo "AUGMENTING QUERY FOR AGGS\n";
+			print_r($query);
+			$this->manipulatorInstance->augmentQuery($query);
 		}
 	}
 
@@ -91,6 +230,14 @@ class QueryGenerator {
 	    }
 	}
 	'
+
+	In the case of an empty string change the query to a wildcard of '*'.
+
+	FIXME: Ideally remove the query entirely, cannot immediately see how to do it in Elastica
+	This works at curl level:
+
+	curl -XGET 'http://localhost:9200/elastica_ss_module_test_en_us/_search?pretty'
+
 	 */
 	private function queryNoMultiMatchNoFiltersSelected() {
 		// this will search all fields
@@ -98,6 +245,14 @@ class QueryGenerator {
 
 		//Setting the lenient flag means that numeric fields can be searched for text values
 		$textQuery->setParam('lenient', true);
+
+		if ($this->showResultsForEmptyQuery && $this->queryText == '') {
+			$params = $textQuery->getParams();
+
+			print_r($params);
+			$params['query'] = '*';
+			$textQuery->setParams($params);
+		}
 
 		return $textQuery;
 	}
