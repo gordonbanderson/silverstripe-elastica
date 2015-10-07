@@ -1,4 +1,6 @@
 <?php
+namespace SilverStripe\Elastica;
+use Elastica\Aggregation\Range;
 
 class RangedAggregation {
 
@@ -7,7 +9,7 @@ class RangedAggregation {
 
 	public function __construct($title, $field) {
 		$this->Title = $title;
-		$this->Range = new Elastica\Aggregation\Range($title);
+		$this->Range = new Range($title);
 		$this->Range->setField($field);
 		self::$ranged_aggregations[$title] = $this;;
 	}
