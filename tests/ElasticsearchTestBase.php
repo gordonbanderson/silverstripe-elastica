@@ -15,7 +15,8 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
 
 		// no need to index here as it's done when fixtures are loaded during setup method
-
+		$cache = SS_Cache::factory('elasticsearch');
+		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
 		parent::setUpOnce();
 	}
 
