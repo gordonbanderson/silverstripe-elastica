@@ -159,7 +159,7 @@ class ElasticSearcher {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
 			} else {
-				$this->locale = Translatable::get_current_locale();
+				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
@@ -172,7 +172,7 @@ class ElasticSearcher {
 
 		$manipulatorInstance = null;
 		if ($this->manipulator) {
-			$manipulatorInstance = Injector::inst()->create($this->manipulator);
+			$manipulatorInstance = \Injector::inst()->create($this->manipulator);
 			$manipulatorInstance->searcher = $this;
 			$manipulatorInstance->originalQueryString = $q;
 		}
