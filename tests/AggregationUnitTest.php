@@ -1,6 +1,7 @@
 <?php
 
 use \FlickrPhotoElasticaSearchHelper;
+use \SilverStripe\Elastica\ElasticSearcher;
 
 /**
  * Test the functionality of the Searchable extension
@@ -989,7 +990,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	 */
 	private function search($query,$fields = array('Title' => 1, 'Description' => 1),
 								$filters = array()) {
-		$es = new \ElasticSearcher();
+		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
