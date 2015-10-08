@@ -139,13 +139,18 @@ class QueryGenerator {
 
 
 
-		echo "PRE AGGS QUERY:\n";
+		echo "PRE ADD FILTERS QUERY:\n";
 		echo get_class($textQuery);
+		echo "\n";
 		print_r($textQuery);
 
 		$query = $this->addFilters($textQuery);
 
+		echo "\n\nPOST ADD FILTERS QUERY:\n";
+		echo get_class($query)."\n\n";
 
+
+		print_r($query);
 
 /*
 		//If the query string is empty we need to tweak the above
@@ -266,8 +271,14 @@ class QueryGenerator {
 
 		// the Elastica query object
 		if ($queryFilter == null) {
+			echo "AF T1\n";
 			$query = new Query($textQuery);
+
+			print_r($query);
+			//FIXME - check
+
 		} else {
+			echo "AF T2\n";
 			$filtered = new Filtered(
 			  $textQuery,
 			  $queryFilter
@@ -318,12 +329,7 @@ class QueryGenerator {
 		$textQuery->setParam('lenient', true);
 
 		if ($this->showResultsForEmptyQuery && $this->queryText == '') {
-			$params = $textQuery->getParams();
-
-			print_r($params);
-			$params['query'] = '*';
-			$textQuery->setParams($params);
-			$textQuery = null;
+			$textQuery = new MatchAll();
 		}
 
 		return $textQuery;
