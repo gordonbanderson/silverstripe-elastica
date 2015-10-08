@@ -1,4 +1,5 @@
 <?php
+use \SilverStripe\Elastica\ElasticSearcher;
 use \SilverStripe\Elastica\QueryGenerator;
 
 /**
@@ -61,7 +62,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		//FIXME ideally want entirely empty query here but this works as a stopgap
 		$qs = array('query_string' => array('query' => '*', 'lenient' => true));
 		$expected = array(
-			'query' => array('test' => 'FIXME - REMOVE, NOT REQUIRED'),
+			'query' => array(
+			'match_all' => new \stdClass()),
 			'size' => 10,
 			'from' => 0
 		);
@@ -137,7 +139,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected['query'] = array('match_all' => new \stdClass());
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
-		print_r(json_encode($qg->generateElasticaQuery()->toArray()));
+
 	}
 
 
@@ -145,28 +147,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 
 	public function testEmptyTextShowNoResultsWithAggregations() {
-		$qg = new QueryGenerator();
-		$qg->setQueryText('');
-		$qg->setFields(null);
-		$qg->setSelectedFilters(null);
-		$qg->setShowResultsForEmptyQuery(false);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
-		$aggs = $this->baseAggs();
-
-		//FIXME - query needs removed in this case, leave as a reminder for now until
-		//tests are complete
-		$expected = array(
-			'aggs' => $aggs,
-			'size' => 10,
-			'from' => 0,
-			'query' => array('test' => 'FIXME - SHOULD BE EMPTY QUOTES'),
-			'sort' => array('TakenAt' => 'desc')
-		);
-
-		echo "RESULT:";
-		print_r(json_encode($qg->generateElasticaQuery()->toArray()));
-
-		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+		$this->assertFalse(false, 'This is not possible - an empty query returns 0 docs and 0 aggregations');
 	}
 
 
@@ -176,7 +157,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setQueryText('');
 		$qg->setFields(null);
 		$qg->setSelectedFilters(null);
-		$qg->setShowResultsForEmptyQuery(false);
+		$qg->setShowResultsForEmptyQuery(true);
 		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
@@ -186,14 +167,10 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'aggs' => $aggs,
 			'size' => 10,
 			'from' => 0,
-			'sort' => array('TakenAt' => 'desc'),
-			'query' => array('test' => 'FIXME - REMOVE, NOT REQUIRED'),
-
+			'query' => array('match_all' => new \stdClass())
 		);
 
-		echo "RESULT:";
-		print_r(json_encode($qg->generateElasticaQuery()->toArray()));
-
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -225,6 +202,49 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$fields = array('Aperture' => 2, 'FocalLength35mm' => 1);
 		$expected = array('Aperture^2', 'FocalLength35mm');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+	}
+
+
+	public function testConvertWeightedFieldsForElasticaNonExistent() {
+		$qg = new QueryGenerator();
+		$qg->setClasses('FlickrPhoto');
+		$fields = array('Aperture' => 2, 'FocalLength35mm' => 1, 'Wibble' => 2);
+		try {
+			$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+			$this->fail('An exception should have been thrown as the field Wibble does not exist');
+		} catch (Exception $e) {
+			$this->assertTrue(true, 'The field Wibble correctly threw an exception');
+		}
+
+	}
+
+
+
+	public function testPagination() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('New Zealand');
+		$qg->setFields(null);
+		$qg->setSelectedFilters(null);
+		$qg->setPageLength(12);
+		$qg->setStart(24);
+
+		//As the query is not empty it should not matter whether or not the show results for empty
+		//query flag is set or not - test with true and false
+
+		$qg->setShowResultsForEmptyQuery(false);
+		$this->assertEquals(false, $qg->getShowResultsForEmptyQuery());
+		$qs = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
+		$expected = array(
+			'query' => $qs,
+			'size' => 12,
+			'from' => 24
+		);
+
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setShowResultsForEmptyQuery(true);
+		$this->assertEquals(true, $qg->getShowResultsForEmptyQuery());
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
 
@@ -285,29 +305,29 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	public function testToQuotedCSVFromString() {
 		$expected = "'Bangkok','Nonthaburi','Saraburi','Chiang Mai'";
 		$items = 'Bangkok,Nonthaburi,Saraburi,Chiang Mai';
-		$quoted = ElasticSearcher::convertToQuotedCSV($items);
+		$quoted = QueryGenerator::convertToQuotedCSV($items);
 		$this->assertEquals($expected, $quoted);
 	}
 
 	public function testToQuotedCSVFromArray() {
 		$expected = "'Bangkok','Nonthaburi','Saraburi','Chiang Mai'";
 		$items = array('Bangkok','Nonthaburi','Saraburi','Chiang Mai');
-		$quoted = ElasticSearcher::convertToQuotedCSV($items);
+		$quoted = QueryGenerator::convertToQuotedCSV($items);
 		$this->assertEquals($expected, $quoted);
 	}
 
 	public function testToQuotedCSVEmptyString() {
-		$quoted = ElasticSearcher::convertToQuotedCSV('');
+		$quoted = QueryGenerator::convertToQuotedCSV('');
 		$this->assertEquals('', $quoted);
 	}
 
 	public function testToQuotedCSVEmptyArray() {
-		$quoted = ElasticSearcher::convertToQuotedCSV(array());
+		$quoted = QueryGenerator::convertToQuotedCSV(array());
 		$this->assertEquals('', $quoted);
 	}
 
 	public function testToQuotedCSVNull() {
-		$quoted = ElasticSearcher::convertToQuotedCSV(null);
+		$quoted = QueryGenerator::convertToQuotedCSV(null);
 		$this->assertEquals('', $quoted);
 	}
 }
