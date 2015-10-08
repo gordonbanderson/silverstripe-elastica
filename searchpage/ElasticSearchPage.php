@@ -12,6 +12,9 @@ use Elastica\Filter\BoolAnd;
 use Elastica\Aggregation\Terms;
 use Elastica\Query\Filtered;
 use Elastica\Query\Range;
+use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\QueryGenerator;
+
 
 class ElasticSearchPage extends Page {
 	static $defaults = array(
@@ -134,7 +137,7 @@ class ElasticSearchPage extends Page {
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
 
-		$nameToMapping = ElasticSearcher::getSearchFieldsMappingForClasses($this->ClassesToSearch);
+		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
