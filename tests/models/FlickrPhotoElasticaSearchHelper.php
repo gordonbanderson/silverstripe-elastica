@@ -23,8 +23,6 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 	);
 
 
-
-
 	/**
 	 * Add a number of facets to the FlickrPhoto query
 	 * @param  \Elastica\Query &$query the existing query object to be augmented.
@@ -40,7 +38,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 			'query_string' => array('query' => '*')
 		);
 
-
+/*
 		//This is the case of the query being a multi_match against several fields
 		if (is_subclass_of($params['query'], 'Elastica\Query\AbstractQuery')) {
 			echo "**** QUERY PARAM INSTANCE OF Query ****\n";
@@ -81,6 +79,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 				//FIXME $params['query']->setSort(array('TakenAt'=> 'desc'));
 			}
 		}
+*/
 
 		// add Aperture aggregate
 		$agg1 = new Terms("Aperture");
