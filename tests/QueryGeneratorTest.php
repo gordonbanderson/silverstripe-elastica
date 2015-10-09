@@ -270,7 +270,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 	'
 	 */
-	public function testEmptyTextOneFilterAggregate() {
+	public function testTextOneFilterAggregate() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
 		$qg->setFields(null);
@@ -303,7 +303,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testEmptyTextTwoFilterAggregate() {
+	public function testTextTwoFilterAggregate() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
 		$qg->setFields(null);
@@ -336,6 +336,10 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -372,6 +376,10 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			)
 		);
 
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
