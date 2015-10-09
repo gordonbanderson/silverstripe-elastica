@@ -344,7 +344,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testEmptyTextThreeFilterAggregate() {
+	public function testTextThreeFilterAggregate() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
 		$qg->setFields(null);
@@ -383,11 +383,136 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
-	/*
-	TODO 3rd filter,
-	same again with text, maybe just add to above tests
-	same again with multimatch
-	 */
+
+	public function testMultiMatchOneFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(array('Title' => 2, 'Content' => 1));
+		$filters = array('ISO' => 400);
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array(
+					'filter' => array('term' => array('ISO' => 400))
+				)
+			)
+		);
+
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		//$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
+		$expected['query']['filtered']['query']['multi_match'] = array(
+			'query' => 'New Zealand',
+			'lenient' => true,
+			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
+			'type' => 'most_fields'
+		);
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+
+
+	public function testMultiMatchTwoFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(array('Title' => 2, 'Content' => 1));
+		$filters = array('ISO' => 400, 'Aspect' => 'Square');
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array(
+					'filter' =>
+					array('and' => array(
+						0 => array( 'term' =>  array('ISO' => 400)),
+						1 => array( 'range' => array(
+							'AspectRatio' => array(
+								'gte' => '0.9',
+								'lt' => '1.2'
+							)
+						))
+					)
+				))
+			)
+		);
+
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		$expected['query']['filtered']['query']['multi_match'] = array(
+			'query' => 'New Zealand',
+			'lenient' => true,
+			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
+			'type' => 'most_fields'
+		);
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+
+
+	public function testMultiMatchThreeFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(array('Title' => 2, 'Content' => 1));		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array('filter' =>
+					array('and' => array(
+						0 => array( 'term' =>  array('ISO' => 400)),
+						1 => array( 'range' => array(
+							'AspectRatio' => array(
+								'gte' => '0.9',
+								'lt' => '1.2'
+							)
+						)),
+						2 => array( 'term' =>  array('Aperture' => 5.6)),
+					)
+				))
+			)
+		);
+
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		$expected['query']['filtered']['query']['multi_match'] = array(
+			'query' => 'New Zealand',
+			'lenient' => true,
+			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
+			'type' => 'most_fields'
+		);
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
 
 
 
