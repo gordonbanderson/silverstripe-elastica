@@ -1,6 +1,5 @@
 <?php
 namespace SilverStripe\Elastica;
-use Elastica\Aggregation\Range;
 
 class RangedAggregation {
 
@@ -9,7 +8,7 @@ class RangedAggregation {
 
 	public function __construct($title, $field) {
 		$this->Title = $title;
-		$this->Range = new Range($title);
+		$this->Range = new \Elastica\Aggregation\Range($title);
 		$this->Range->setField($field);
 		self::$ranged_aggregations[$title] = $this;;
 	}
@@ -38,7 +37,7 @@ class RangedAggregation {
 					$to = $range['to'];
 				}
 				$rangeFilter = array('gte' => (string)$from, 'lt' => (string)$to);
-		        $filter = new Elastica\Filter\Range('AspectRatio', $rangeFilter);
+		        $filter = new \Elastica\Filter\Range('AspectRatio', $rangeFilter);
 		        return $filter;
 			}
 		}
@@ -53,18 +52,4 @@ class RangedAggregation {
 	public static function getTitles() {
 		return array_keys(self::$ranged_aggregations);
 	}
-
-
-
-
-
-	/*
-		$agg5 = new Range('Aspect');
-        $agg5->setField('AspectRatio');
-        $agg5->addRange(0, 0.3, 'Panoramic');
-        $agg5->addRange(0.3, 0.9, 'Horizontal');
-        $agg5->addRange(0.9, 1.2, 'Square');
-        $agg5->addRange(1.2, 1.7, 'Vertical');
-        $agg5->addRange(1.7, null, 'Very Tall');
-	 */
 }
