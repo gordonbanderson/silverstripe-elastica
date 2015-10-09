@@ -80,6 +80,9 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 			}
 		}
 */
+		if ($query->OriginalQueryText == '') {
+			$query->setSort(array('TakenAt'=> 'desc'));
+		}
 
 		// add Aperture aggregate
 		$agg1 = new Terms("Aperture");
@@ -110,6 +113,8 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		$agg4->setSize(0);
 		$agg4->setOrder('_term', 'asc');
 		$query->addAggregation($agg4);
+
+
 
 		$aspectRangedAgg = RangedAggregation::getByTitle('Aspect');
         $query->addAggregation($aspectRangedAgg->getRangeAgg());
