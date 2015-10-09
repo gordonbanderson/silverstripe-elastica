@@ -310,8 +310,44 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 							)
 						))
 					)
+				))
+			)
+		);
 
-					))
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+
+	public function testEmptyTextThreeFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(null);
+		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array('filter' =>
+					array('and' => array(
+						0 => array( 'term' =>  array('ISO' => 400)),
+						1 => array( 'range' => array(
+							'AspectRatio' => array(
+								'gte' => '0.9',
+								'lt' => '1.2'
+							)
+						)),
+						2 => array( 'term' =>  array('Aperture' => 5.6)),
+					)
+				))
 			)
 		);
 
