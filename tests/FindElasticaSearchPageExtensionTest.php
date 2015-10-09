@@ -3,12 +3,9 @@
 /**
  * @package comments
  */
-class FindElasticaPageExtensionTest extends SapphireTest {
+class FindElasticaPageExtensionTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
-	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
-	);
 
 	/**
 	 * Test a valid identifier
