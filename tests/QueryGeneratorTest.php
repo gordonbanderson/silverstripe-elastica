@@ -151,8 +151,10 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
-
-	public function testEmptyTextShowResultsWithAggregations() {
+	/*
+	Test aggregations with and without text query
+	 */
+	public function testTextShowResultsWithAggregations() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
 		$qg->setFields(null);
@@ -171,6 +173,17 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setShowResultsForEmptyQuery(false);
+		$qg->setQueryText('New Zealand');
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -274,10 +287,17 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'size' => 10,
 			'from' => 0,
 			'query' => array(
-				'filtered' => array('filter' => array('term' => array('ISO' => 400)))
+				'filtered' => array(
+					'filter' => array('term' => array('ISO' => 400))
+				)
 			)
 		);
 
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+
+		$qg->setQueryText('New Zealand');
+		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
@@ -300,7 +320,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'size' => 10,
 			'from' => 0,
 			'query' => array(
-				'filtered' => array('filter' =>
+				'filtered' => array(
+					'filter' =>
 					array('and' => array(
 						0 => array( 'term' =>  array('ISO' => 400)),
 						1 => array( 'range' => array(
@@ -351,7 +372,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			)
 		);
 
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
