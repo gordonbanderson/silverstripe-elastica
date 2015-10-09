@@ -7,10 +7,6 @@
 class SearchableTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
-	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag'
-	);
-
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
