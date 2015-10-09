@@ -175,6 +175,157 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
+	/*
+	Should generate this working query:
+	curl -XGET 'http://localhost:9200/elastica_ss_module_test_en_us/_search?pretty' -d '
+	{
+	  "query": {
+	    "filtered": {
+	      "filter": {
+	        "term": {
+	          "ISO": 400
+	        }
+	      }
+	    }
+	  },
+	  "aggs": {
+	    "Aperture": {
+	      "terms": {
+	        "field": "Aperture",
+	        "size": 0,
+	        "order": {
+	          "_term": "asc"
+	        }
+	      }
+	    },
+	    "ShutterSpeed": {
+	      "terms": {
+	        "field": "ShutterSpeed",
+	        "size": 0,
+	        "order": {
+	          "_term": "asc"
+	        }
+	      }
+	    },
+	    "FocalLength35mm": {
+	      "terms": {
+	        "field": "FocalLength35mm",
+	        "size": 0,
+	        "order": {
+	          "_term": "asc"
+	        }
+	      }
+	    },
+	    "ISO": {
+	      "terms": {
+	        "field": "ISO",
+	        "size": 0,
+	        "order": {
+	          "_term": "asc"
+	        }
+	      }
+	    },
+	    "Aspect": {
+	      "range": {
+	        "field": "AspectRatio",
+	        "ranges": [{
+	          "from": 1.0e-7,
+	          "to": 0.3,
+	          "key": "Panoramic"
+	        }, {
+	          "from": 0.3,
+	          "to": 0.9,
+	          "key": "Horizontal"
+	        }, {
+	          "from": 0.9,
+	          "to": 1.2,
+	          "key": "Square"
+	        }, {
+	          "from": 1.2,
+	          "to": 1.79,
+	          "key": "Vertical"
+	        }, {
+	          "from": 1.79,
+	          "to": 10000000,
+	          "key": "Tallest"
+	        }]
+	      }
+	    }
+	  },
+	  "size": 10,
+	  "from": 0
+	}
+	'
+	 */
+	public function testEmptyTextOneFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(null);
+		$filters = array('ISO' => 400);
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array('filter' => array('term' => array('ISO' => 400)))
+			)
+		);
+
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+
+	public function testEmptyTextTwoFilterAggregate() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('');
+		$qg->setFields(null);
+		$filters = array('ISO' => 400, 'Aspect' => 'Square');
+		$qg->setSelectedFilters($filters);
+		$qg->setShowResultsForEmptyQuery(true);
+		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$aggs = $this->baseAggs();
+
+		//FIXME - query needs removed in this case, leave as a reminder for now until
+		//tests are complete
+		$expected = array(
+			'aggs' => $aggs,
+			'size' => 10,
+			'from' => 0,
+			'query' => array(
+				'filtered' => array('filter' =>
+					array('and' => array(
+						0 => array( 'term' =>  array('ISO' => 400)),
+						1 => array( 'range' => array(
+							'AspectRatio' => array(
+								'gte' => '0.9',
+								'lt' => '1.2'
+							)
+						))
+					)
+
+					))
+			)
+		);
+
+		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+	/*
+	TODO 3rd filter,
+	same again with text, maybe just add to above tests
+	same again with multimatch
+	 */
+
+
 
 
 	// ---- tests for field array to elasticsearch syntax
@@ -210,14 +361,53 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setClasses('FlickrPhoto');
 		$fields = array('Aperture' => 2, 'FocalLength35mm' => 1, 'Wibble' => 2);
 		try {
-			$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+			$this->assertEquals('This test should fail', $qg->convertWeightedFieldsForElastica($fields));
 			$this->fail('An exception should have been thrown as the field Wibble does not exist');
 		} catch (Exception $e) {
-			$this->assertTrue(true, 'The field Wibble correctly threw an exception');
+			$this->assertEquals('Field Wibble does not exist', $e->getMessage());
 		}
 
 	}
 
+
+	public function testSearchFieldsMappingForClasses() {
+		$qg = new QueryGenerator();
+		$qg->setClasses('FlickrPhoto,Page');
+		$fields = array('Title' => 2, 'Description' => 1);
+		$expected = array('Title^2', 'Title.*^2','Description', 'Description.*');
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+		$qg->setClasses(array('FlickrPhoto','Page'));
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+	}
+
+
+	public function testSearchFieldsMappingForClassesCaching() {
+		$qg = new QueryGenerator();
+		$qg->setClasses('FlickrPhoto,Page');
+		$fields = array('Title' => 2, 'Description' => 1);
+		$expected = array('Title^2', 'Title.*^2','Description', 'Description.*');
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+		//Execute a 2nd time
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+	}
+
+
+	public function testSearchFieldsMappingForSiteTree() {
+		$qg = new QueryGenerator();
+		$qg->setClasses(null); // select all of site tree classes
+		$fields = array('Title' => 2, 'Content' => 1);
+		$expected = array('Title^2', 'Title.*^2','Content', 'Content.*');
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+		echo "--------------------\n";
+		$qg->setClasses(array('FlickrPhoto','Page'));
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+
+	}
 
 
 	public function testPagination() {
