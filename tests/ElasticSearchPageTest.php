@@ -44,9 +44,13 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'FlickrAuthor' => array('PathAlias','DisplayName','FlickrPhotos'),
 			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
 				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets',
-				'FirstViewed'),
+				'FirstViewed','AspectRatio'),
 			'FlickrSet' => array('Title','FlickrID','Description')
 		);
+
+
+
+
 
 		// check the expected classes
 		$expectedClasses = array_keys($expected);
@@ -60,9 +64,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$scs = SearchableClass::get();
 
 		$sfs = ElasticSearchPageSearchField::get();
-		foreach ($sfs as $sf) {
-			echo "ESP SEARCH FIELD:".$sf->Name."\n";
-		}
 
 		// check the names expected to appear
 
@@ -88,6 +89,11 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			}
 		}
 		$nSearchableFields = SearchableField::get()->count();
+
+		foreach (SearchableField::get()->sort('Name') as $sf) {
+			echo $sf->Name."\n";
+		}
+
 		$this->assertEquals($fieldCtr, $nSearchableFields);
 	}
 }
