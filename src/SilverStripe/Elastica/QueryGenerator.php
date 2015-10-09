@@ -91,7 +91,7 @@ class QueryGenerator {
 
 	/**
 	 * Set the manipulator, mainly used for aggregation
-	 * @param ElasticaSearchHelper $newManipulator manipulator used for aggregation
+	 * @param string $newManipulator manipulator used for aggregation, must implement ElasticaSearchHelper
 	 */
 	public function setQueryResultManipulator($newManipulator) {
 		$this->manipulator = $newManipulator;
@@ -145,6 +145,10 @@ class QueryGenerator {
 		print_r($textQuery);
 
 		$query = $this->addFilters($textQuery);
+
+
+		$query->OriginalQueryText = $this->queryText;
+
 
 		echo "\n\nPOST ADD FILTERS QUERY:\n";
 		echo get_class($query)."\n\n";
