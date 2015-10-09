@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\Elastica\ElasticSearcher;
+
 /**
  * Test the functionality of the Searchable extension
  * @package elastica
@@ -367,7 +369,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			echo $key->Name."\n";
 		}*/
 
-		$this->assertEquals(27, $searchableFields->count());
+		$this->assertEquals(28, $searchableFields->count());
 	}
 
 
@@ -376,7 +378,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	 * http://stackoverflow.com/questions/28305250/elasticsearch-customize-score-for-synonyms-stemming
 	 */
 	private function search($query, $resultsExpected = 10, $fields = null) {
-		$es = new \ElasticSearcher();
+		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(100);
 		//$es->addFilter('IsInSiteTree', false);
@@ -402,7 +404,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 
 	private function getResultsFor($query, $pageLength = 10) {
-		$es = new \ElasticSearcher();
+		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength($pageLength);
 		//$es->addFilter('IsInSiteTree', false);
