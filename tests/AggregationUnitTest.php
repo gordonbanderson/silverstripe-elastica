@@ -964,7 +964,28 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testAggregationNonExistentField() {
-		$this->fail('Not yet implemented');
+		$filters = array();
+		$es = new ElasticSearcher();
+		$es->setStart(0);
+		$es->setPageLength(10);
+		//$es->addFilter('IsInSiteTree', false);
+		$es->setClasses('FlickrPhoto');
+		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+
+		//Add filters
+		foreach ($filters as $key => $value) {
+			$es->addFilter($key,$value);
+		}
+
+		$es->showResultsForEmptySearch();
+
+		try {
+			$resultList = $es->search('whatever', array('Wibble' => 2));
+			$this->fail('The field Wibble should cause this to error out with an exception');
+		} catch (Exception $e) {
+			$this->assertEquals('Field Wibble does not exist', $e->getMessage());
+		}
+
 	}
 
 
@@ -973,7 +994,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	 * http://stackoverflow.com/questions/28305250/elasticsearch-customize-score-for-synonyms-stemming
 	 */
 	private function search($queryText,$fields = array('Title' => 1, 'Description' => 1),
-								$filters = array()) {
+		$filters = array()) {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(10);
