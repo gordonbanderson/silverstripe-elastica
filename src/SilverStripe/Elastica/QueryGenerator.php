@@ -220,7 +220,7 @@ class QueryGenerator {
 				$elFilters[] = $filter;
 			} else {
 				// get the selected range filter
-				$range = \RangedAggregation::getByTitle($key);
+				$range = RangedAggregation::getByTitle($key);
 				$filter = $range->getFilter($value);
 				$elFilters[] = $filter;
 			}
@@ -238,7 +238,11 @@ class QueryGenerator {
 				break;
 			default:
 				$queryFilter = new BoolAnd();
+
 				foreach ($elFilters as $filter) {
+				echo "FILTER:\n";
+				print_r($filter);
+
 					$queryFilter->addFilter($filter);
 				}
 				break;
@@ -279,11 +283,17 @@ class QueryGenerator {
 
 		} else {
 			echo "AF T2\n";
+			//MatchAll appears not be allowed inside a filtered query which is a bit of a pain.
+			if ($textQuery instanceof MatchAll) {
+				$textQuery = null;
+			}
+
 			$filtered = new Filtered(
 			  $textQuery,
 			  $queryFilter
 			);
 			$query = new Query($filtered);
+
 		}
 
 		return $query;
@@ -381,6 +391,9 @@ class QueryGenerator {
 	 */
 	public function convertWeightedFieldsForElastica($fields) {
 		$result = array();
+
+		echo "name to type:\n";
+		print_r($this->classes);
 		$nameToType = self::getSearchFieldsMappingForClasses($this->classes,$fields);
 
 		print_r($nameToType);
@@ -426,10 +439,15 @@ class QueryGenerator {
 		$cache = QueryGenerator::getCache();
 		$csvClasses = $classes;
 		if (is_array($classes)) {
-			$csvClasses = implode(',', array_keys($classes));
+			$csvClasses = implode(',',$classes);
 		}
+
+		echo "CSV CLASSES:$csvClasses \n";
 		// FIXME include fields allowed
 		$key = 'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
+		echo "KEY:".$key."\n";
+		echo "FIELDS ALLOWED:\n";
+		print_r($fieldsAllowed);
 		$result = $cache->load($key);
 		if (!$result) {
 			$relevantClasses = array();
@@ -443,8 +461,13 @@ class QueryGenerator {
 				$relevantClasses = explode(',', $csvClasses);
 			}
 
+			echo "REL CLASSES\n";
+			print_r($relevantClasses);
+
 
 			$relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
+
+			echo "QUOTED RELEV CLASSES:$relevantClassesCSV\n";
 
 			//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
 			$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
