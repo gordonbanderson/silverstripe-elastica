@@ -1,7 +1,7 @@
 <?php
 
-use \FlickrPhotoElasticaSearchHelper;
-use \SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\QueryGenerator;
 
 /**
  * Test the functionality of the Searchable extension
@@ -78,29 +78,15 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals(10, $query['size']);
 
 		$sort = array('TakenAt' => 'desc');
-		$this->assertEquals($sort, $query['sort']);
 
-		$q = new stdClass();
-		$q->Test = 'wibble';
+		$this->assertFalse(isset($query['sort']), 'Sort should not be set as text is being used');
+
+		$q = new \stdClass();
 
 		print_r($resultList->getQuery());
 
 		$this->assertEquals($q, $query['query']['match_all']);
 
-		$aggs = array();
-		$aggs['Aperture'] = array();
-		$aggs['ShutterSpeed'] = array();
-		$aggs['FocalLength35mm'] = array();
-		$aggs['ISO'] = array();
-		$aggs['Aspect'] = array();
-
-		/*
-
-
-		 */
-		$this->assertEquals($aggs, $query['aggs']);
-
-		$this->assertEquals($expected, $resultList->getQuery()->toArray());
 
 		// check the aggregate results
 		$aggregations = $resultList->getAggregations();
@@ -274,9 +260,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$sort = array('TakenAt' => 'desc');
 		$this->assertEquals($sort, $query['sort']);
 
-		$q = new stdClass();
-		$q->Test = 'wibble';
-
+		$q = new \stdClass();
 		print_r($resultList->getQuery());
 
 		$this->assertEquals($q, $query['query']['match_all']);
@@ -968,7 +952,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	ResultList and ElasticSearcher both have accessors to the aggregates.  Check they are the same
 	 */
 	public function testGetAggregations() {
-		$es = new \ElasticSearcher();
+		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
@@ -979,7 +963,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	}
 
 
-	private function testAggregationNonExistentField() {
+	public function testAggregationNonExistentField() {
 		$this->fail('Not yet implemented');
 	}
 
@@ -988,7 +972,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	 * Test searching
 	 * http://stackoverflow.com/questions/28305250/elasticsearch-customize-score-for-synonyms-stemming
 	 */
-	private function search($query,$fields = array('Title' => 1, 'Description' => 1),
+	private function search($queryText,$fields = array('Title' => 1, 'Description' => 1),
 								$filters = array()) {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
@@ -1001,11 +985,14 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		foreach ($filters as $key => $value) {
 			$es->addFilter($key,$value);
 		}
-		$resultList = $es->search($query, $fields);
+
+		$es->showResultsForEmptySearch();
+
+		$resultList = $es->search($queryText, $fields);
 
 		$ctr = 0;
 
-		echo "{$resultList->count()} items found searching for '$query'\n\n";
+		echo "{$resultList->count()} items found searching for '$queryText'\n\n";
 		foreach ($resultList as $result) {
 			$ctr++;
 			echo("($ctr) ".$result->Title."\n");
