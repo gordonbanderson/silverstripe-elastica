@@ -1,5 +1,5 @@
 <?php
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\QueryGenerator;
 
 class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
@@ -13,10 +13,11 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	}
 
 	public function testSearchFieldMapping() {
-		$es = new ElasticSearcher();
-		$es->setClasses('SiteTree');
+		$qg = new QueryGenerator();
+		$qg->setClasses('SiteTree');
 		$expected = array('Title' => 'string', 'Content' => 'string');
-		$this->assertEquals($expected, $es->getSearchFieldsMappingForClasses('SiteTree'));
+		//FIXME move to a utility class
+		$this->assertEquals($expected, $qg->getSearchFieldsMappingForClasses('SiteTree'));
 	}
 
 }
