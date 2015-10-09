@@ -1,7 +1,7 @@
 <?php
 namespace SilverStripe\Elastica;
 
-use \SilverStripe\Elastica\ResultList;
+//use \SilverStripe\Elastica\ResultList;
 use Elastica\Query;
 
 use Elastica\Query\QueryString;
@@ -164,11 +164,7 @@ class ElasticSearcher {
 		}
 
 
-		/*
-		 if ($q == '' && $this->showResultsForEmptySearch) {
-			$q = '*';
-		}
-		*/
+	/*
 
 		$manipulatorInstance = null;
 		if ($this->manipulator) {
@@ -252,32 +248,40 @@ class ElasticSearcher {
 			$query = new Query($filtered);
 		}
 
+*/
 
 		// pagination
-		$query->setLimit($this->pageLength);
-		$query->setFrom($this->start);
 
-		// aggregation (optional)
-		if ($this->manipulator) {
-			echo "AUGMENTING QUERY FOR AGGS\n";
-			$manipulatorInstance->augmentQuery($query);
-		}
 
+		$qg = new QueryGenerator();
+		$qg->setQueryText($q);
+		$fields = array('Title' => 1, 'Description' => 1);
+		$qg->setFields($fieldsToSearch);
+		$qg->setSelectedFilters($this->filters);
+		$qg->setClasses($this->classes);
+
+		$qg->setPageLength($this->pageLength);
+		$qg->setStart($this->start);
+
+		$qg->setQueryResultManipulator($this->manipulator);
+
+		$qg->setShowResultsForEmptyQuery($this->showResultsForEmptySearch);
+
+		$query = $qg->generateElasticaQuery();
 		echo "QUERY:\n";
 		print_r($query);
 
-		$elasticService = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
 		echo "----------- ELASTICA SEARCHEER - QUERY T0 = ---------------\n";
 		print_r($query);
 		echo json_encode($query->toArray());
-		die;
 		echo "--------------------------------------------------------\n";
 		$resultList = new ResultList($elasticService, $query);
 
 
-					echo "------ T3 RESULT LIST ------\n";
+			echo "------ T3 RESULT LIST ------\n";
 			print_r($resultList->query);
 			echo "----------------------------\n";
 
@@ -302,8 +306,5 @@ class ElasticSearcher {
 		$this->aggregations = $resultList->getAggregations();
 		return $paginated;
 	}
-
-
-
 
 }
