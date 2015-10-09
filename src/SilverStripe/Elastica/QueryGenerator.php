@@ -497,6 +497,7 @@ class QueryGenerator {
 			$cache->save(json_encode($result),$key);
 		}  else {
 			// true is necessary here to decode the array hash back to an array and not a struct
+			//TESTFIXME test coverage is missing this one line
 			$result = json_decode($result,true);
 		}
 
