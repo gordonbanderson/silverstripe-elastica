@@ -905,6 +905,23 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	}
 
 
+	/*
+	Shutter speed is a special case as values are manipulated in order to maintain correct sort order
+	 */
+	public function testAggregateShutterSpeed() {
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $this->search('', $fields, array('ShutterSpeed' => '1/100'));
+		$aggregations = $resultList->getAggregations()->toArray();
+
+		// 15 instances in the YML file
+		$this->assertEquals(15, $resultList->getTotalItems());
+
+
+		print_r($aggregations);
+
+	}
+
+
 	private function checkDrillingDownHasHappened($filteredAggregations, $originalAggregations) {
 		$aggCtr = 0;
 
@@ -1004,6 +1021,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Add filters
 		foreach ($filters as $key => $value) {
+			echo "ADDING FILTER:$key => $value\n";
 			$es->addFilter($key,$value);
 		}
 
