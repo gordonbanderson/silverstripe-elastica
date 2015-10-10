@@ -144,16 +144,18 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 	 * @param  array &$filters array of key/value pairs for query filtering
 	 */
 	public function updateFilters(&$filters) {
+
 		// shutter speed is stored as decimal to 6 decimal places, then a
 		// vertical bar followed by the displayed speed as a fraction or a
 		// whole number.  This puts the decimal back for matching purposes
 		if (isset($filters['ShutterSpeed'])) {
+
 			$sortable = $filters['ShutterSpeed'];
 			$sortable = explode('/', $sortable);
 			if (sizeof($sortable) == 1) {
 				$sortable = trim($sortable[0]);
 
-				if ($this->owner->ShutterSpeed == null) {
+				if ($sortable === null) {
 					$sortable = null;
 				}
 
@@ -166,26 +168,9 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 				$sortable = round($sortable,6);
 			}
 			$sortable = $sortable . '|' . $filters['ShutterSpeed'];
+
 			$filters['ShutterSpeed'] = $sortable;
 		}
-
-		/*
-		Remap the name of the URL parameter to the Elastica field name
-		 */
-		if (isset($filters['Tags'])) {
-			$v = $filters['Tags'];
-			unset($filters['Tags']);
-			$filters['FlickrTags.RawValue'] = $v;
-		}
-
-		/*
-		if (isset($filters['Aspect'])) {
-			$range = \RangedAggregation::getByTitle('Aspect');
-			$filter = $range->getFilter('Panoramic');
-			$filters['Aspect'] = $filter;
-		}
-		*/
-
 	}
 
 
