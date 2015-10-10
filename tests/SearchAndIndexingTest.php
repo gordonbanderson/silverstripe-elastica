@@ -7,7 +7,6 @@ use SilverStripe\Elastica\ElasticSearcher;
  * @package elastica
  */
 class SearchAndIndexingTest extends ElasticsearchBaseTest {
-	//public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 	/*
@@ -34,6 +33,8 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$this->search(400, 13, $numericFields);
 
 	}
+
+
 
 
 	public function testInvalidSearchFields() {
