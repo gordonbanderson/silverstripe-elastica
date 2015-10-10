@@ -3,6 +3,9 @@
 use SilverStripe\Elastica\ReindexTask;
 
 class ElasticsearchBaseTest extends SapphireTest {
+
+	public static $ignoreFixtureFileFor = array();
+
 	protected $extraDataObjects = array(
 		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag',
 		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
@@ -48,7 +51,21 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$_GET['progress'] = 20;
 		// load fixtures
 
+		$orig_fixture_file = static::$fixture_file;
+
+		echo "TESTS TO IGNORE:\n";
+		print_r(static::$ignoreFixtureFileFor);
+
+		foreach (static::$ignoreFixtureFileFor as $testPattern) {
+			$pattern = '/'.$testPattern.'/';
+			echo "GREP: $pattern against ".$this->getName()."\n";
+			if (preg_match($pattern, $this->getName())) {
+				static::$fixture_file = null;
+			}
+		}
+
 		parent::setUp();
+		static::$fixture_file = $orig_fixture_file;
 
 		$this->publishSiteTree();
 
