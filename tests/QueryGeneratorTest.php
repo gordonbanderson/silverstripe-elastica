@@ -10,6 +10,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	//public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
+
+	public static $ignoreFixtureFileFor = array('testToQuoted*');
+
 	public function testTextOnly() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('New Zealand');
