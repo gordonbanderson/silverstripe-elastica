@@ -27,7 +27,10 @@ class FlickrPhoto extends DataObject implements TestOnly {
 		'ISO' => 'Int',
 		'OriginalHeight' => 'Int',
 		'OriginalWidth' => 'Int',
-		'AspectRatio' => 'Double'
+		'AspectRatio' => 'Double',
+		'Lat' => 'Decimal(18,15)',
+		'Lon' => 'Decimal(18,15)',
+		'ZoomLevel' => 'Int'
 	);
 
 	static $belongs_many_many = array(
@@ -164,6 +167,7 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 	public function updateElasticsearchDocument(\Elastica\Document $document)
 	{
 	//	self::$ctr++;
+
 		if ($this->owner->Lat != null && $this->owner->Lon != null) {
 			$coors = array('lat' => $this->owner->Lat, 'lon' => $this->owner->Lon);
 			$document->set('location',$coors);
@@ -178,7 +182,7 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 				$sortable = null;
 			}
 
-			if ($sortable === '1') {
+			if ($sortable === 1) {
 				$sortable = '1.000000';
 			}
 
