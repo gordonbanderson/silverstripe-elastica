@@ -477,7 +477,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	public function testMultiMatchThreeFilterAggregate() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
-		$qg->setFields(array('Title' => 2, 'Content' => 1));		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
+		$qg->setFields(array('Title' => 2, 'Content' => 1));
+		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
 		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
@@ -576,6 +577,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 
 	public function testSearchFieldsMappingForClassesCaching() {
+		$cache = SS_Cache::factory('elasticsearch');
+		// Previous tests may have altered this so start from a known position
+		$cache->remove('SEARCHABLE_FIELDS_FlickrPhoto_Page');
 		$qg = new QueryGenerator();
 		$qg->setClasses('FlickrPhoto,Page');
 		$fields = array('Title' => 2, 'Description' => 1);
@@ -584,7 +588,13 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 		//Execute a 2nd time
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+		//Check for cache hit
+		$this->assertEquals(1, QueryGenerator::getCacheHitCounter());
 
+		//Execute a 3rd time
+		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
+		//Check for cache hit
+		$this->assertEquals(2, QueryGenerator::getCacheHitCounter());
 	}
 
 
