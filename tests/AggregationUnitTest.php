@@ -916,9 +916,9 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		// 15 instances in the YML file
 		$this->assertEquals(15, $resultList->getTotalItems());
 
-
-		print_r($aggregations);
-
+		// Shutter speed of 1 second is a special case, only 1 case
+		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => '1'));
+		$this->assertEquals(1, $resultList->getTotalItems());
 	}
 
 
@@ -927,7 +927,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		$names = array();
 		foreach ($filteredAggregations as $filteredAgg) {
-			echo "NAME:{$filteredAgg->Name}\n";
 
 			$origAgg = $originalAggregations[$aggCtr];
 			$bucketCtr = 0;
@@ -945,11 +944,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 				$filteredCounts[$bucket->Key] = $bucket->DocumentCount;
 			}
 
-			echo "pairs\n";
-			print_r($origCounts);
-			print_r($filteredCounts);
 			$akf = array_keys($filteredCounts);
-			echo "AKF SIZE:".sizeof($akf);
 
 			foreach ($akf as $aggregateKey) {
 				$this->assertGreaterThanOrEqual(
