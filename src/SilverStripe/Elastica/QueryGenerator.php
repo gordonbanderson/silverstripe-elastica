@@ -129,7 +129,6 @@ class QueryGenerator {
 		//This is a query_string object
 		$textQuery = null;
 
-		//if (!$queryTextExists && !$isMultiMatch && !$hasSelectedFilters) {
 		if (!$isMultiMatch) {
 			$textQuery = $this->simpleTextQuery();
 		} else {
@@ -209,15 +208,13 @@ class QueryGenerator {
 	 */
 	private function addFilters($textQuery) {
 		if ($this->manipulator) {
-			echo "SEARCH: UPDATING FILTERS";
-			$this->manipulatorInstance->updateFilters($this->filters);
+			$this->manipulatorInstance->updateFilters($this->selectedFilters);
 		}
 
 		$elFilters = array();
 		$rangeFilterKeys = RangedAggregation::getTitles();
 
 		foreach ($this->selectedFilters as $key => $value) {
-			echo "Checking filter $key => $value\n";
 			if (!in_array($key, $rangeFilterKeys)) {
 				$filter = new Term();
 				$filter->setTerm($key,$value);
