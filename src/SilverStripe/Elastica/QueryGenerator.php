@@ -135,25 +135,8 @@ class QueryGenerator {
 			$textQuery = $this->multiMatchQuery();
 		}
 
-
-
-
-		echo "PRE ADD FILTERS QUERY:\n";
-		echo get_class($textQuery);
-		echo "\n";
-		print_r($textQuery);
-
 		$query = $this->addFilters($textQuery);
-
-
 		$query->OriginalQueryText = $this->queryText;
-
-
-		echo "\n\nPOST ADD FILTERS QUERY:\n";
-		echo get_class($query)."\n\n";
-
-
-		print_r($query);
 
 /*
 		//If the query string is empty we need to tweak the above
@@ -241,9 +224,6 @@ class QueryGenerator {
 				$queryFilter = new BoolAnd();
 
 				foreach ($elFilters as $filter) {
-				echo "FILTER:\n";
-				print_r($filter);
-
 					$queryFilter->addFilter($filter);
 				}
 				break;
@@ -278,10 +258,6 @@ class QueryGenerator {
 		if ($queryFilter == null) {
 			echo "AF T1\n";
 			$query = new Query($textQuery);
-
-			print_r($query);
-			//FIXME - check
-
 		} else {
 			echo "AF T2\n";
 			//MatchAll appears not be allowed inside a filtered query which is a bit of a pain.
@@ -304,8 +280,6 @@ class QueryGenerator {
 	private function addAggregation(&$query) {
 		// aggregation (optional)
 		if ($this->manipulatorInstance) {
-			echo "AUGMENTING QUERY FOR AGGS\n";
-			print_r($query);
 			$this->manipulatorInstance->augmentQuery($query);
 		}
 	}
@@ -392,12 +366,7 @@ class QueryGenerator {
 	 */
 	public function convertWeightedFieldsForElastica($fields) {
 		$result = array();
-
-		echo "name to type:\n";
-		print_r($this->classes);
 		$nameToType = self::getSearchFieldsMappingForClasses($this->classes,$fields);
-
-		print_r($nameToType);
 
 		if (sizeof($fields) != 0) {
 			foreach ($fields as $fieldName => $weight) {
@@ -443,12 +412,8 @@ class QueryGenerator {
 			$csvClasses = implode(',',$classes);
 		}
 
-		echo "CSV CLASSES:$csvClasses \n";
-		// FIXME include fields allowed
 		$key = 'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
-		echo "KEY:".$key."\n";
-		echo "FIELDS ALLOWED:\n";
-		print_r($fieldsAllowed);
+
 		$result = $cache->load($key);
 		if (!$result) {
 			$relevantClasses = array();
@@ -462,13 +427,7 @@ class QueryGenerator {
 				$relevantClasses = explode(',', $csvClasses);
 			}
 
-			echo "REL CLASSES\n";
-			print_r($relevantClasses);
-
-
 			$relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
-
-			echo "QUOTED RELEV CLASSES:$relevantClassesCSV\n";
 
 			//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
 			$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
