@@ -268,22 +268,11 @@ class ElasticSearcher {
 		$qg->setShowResultsForEmptyQuery($this->showResultsForEmptySearch);
 
 		$query = $qg->generateElasticaQuery();
-		echo "QUERY:\n";
-		print_r($query);
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		echo "----------- ELASTICA SEARCHEER - QUERY T0 = ---------------\n";
-		print_r($query);
-		echo json_encode($query->toArray());
-		echo "--------------------------------------------------------\n";
 		$resultList = new ResultList($elasticService, $query);
-
-
-			echo "------ T3 RESULT LIST ------\n";
-			print_r($resultList->query);
-			echo "----------------------------\n";
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
