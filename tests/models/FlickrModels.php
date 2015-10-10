@@ -182,7 +182,7 @@ class FlickrPhotoTestIndexingExtension extends Extension implements ElasticaInde
 				$sortable = null;
 			}
 
-			if ($sortable === 1) {
+			if ($sortable == 1) {
 				$sortable = '1.000000';
 			}
 
