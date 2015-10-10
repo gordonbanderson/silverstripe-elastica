@@ -20,6 +20,8 @@ class ElasticsearchBaseTest extends SapphireTest {
 		// no need to index here as it's done when fixtures are loaded during setup method
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
+		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
+
 		parent::setUpOnce();
 	}
 
