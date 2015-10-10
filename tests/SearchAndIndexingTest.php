@@ -9,6 +9,7 @@ use SilverStripe\Elastica\ElasticSearcher;
 class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
+
 	/*
 	Notes:
 	Searching string on number fields fails
@@ -326,6 +327,30 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			$resultList = $this->getResultsFor('New Zealand',10);
 			$fp = new FlickrPhoto();
 			$resultList->find(4,$fp);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListFirstNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$fp = new FlickrPhoto();
+			$resultList->first(4,$fp);
+			$this->assertFalse(true, "This line should not have been reached");
+		} catch (Exception $e) {
+			$this->assertEquals('Not implemented', $e->getMessage());
+		}
+	}
+
+
+	public function testResultListLastNotImplemented() {
+		try {
+			$resultList = $this->getResultsFor('New Zealand',10);
+			$fp = new FlickrPhoto();
+			$resultList->last(4,$fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
 			$this->assertEquals('Not implemented', $e->getMessage());
