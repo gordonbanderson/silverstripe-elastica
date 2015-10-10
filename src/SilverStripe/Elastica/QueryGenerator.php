@@ -37,6 +37,9 @@ class QueryGenerator {
 	/* Where to start, normally a multiple of pageLength */
 	private $start = 0;
 
+	/* Cache hit counter for test purposes */
+	private static $cacheHitCtr = 0;
+
 	/**
 	 * Comma separated list of SilverStripe ClassNames to search. Leave blank for all
 	 * @var string
@@ -95,6 +98,14 @@ class QueryGenerator {
 	 */
 	public function setQueryResultManipulator($newManipulator) {
 		$this->manipulator = $newManipulator;
+	}
+
+
+	/*
+	Accessor to cache hit counter, for testing purposes
+	 */
+	public static function getCacheHitCounter() {
+		return self::$cacheHitCtr;
 	}
 
 
@@ -413,7 +424,6 @@ class QueryGenerator {
 		}
 
 		$key = 'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
-
 		$result = $cache->load($key);
 		if (!$result) {
 			$relevantClasses = array();
@@ -454,10 +464,11 @@ class QueryGenerator {
 				 */
 				$result[$name] = $type;
 			}
+
 			$cache->save(json_encode($result),$key);
 		}  else {
 			// true is necessary here to decode the array hash back to an array and not a struct
-			//TESTFIXME test coverage is missing this one line
+			self::$cacheHitCtr++;
 			$result = json_decode($result,true);
 		}
 
