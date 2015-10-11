@@ -15,6 +15,8 @@ use Elastica\Query\Range;
 use \SilverStripe\Elastica\ElasticSearcher;
 use \SilverStripe\Elastica\QueryGenerator;
 
+//FIXME namespace
+
 
 class ElasticSearchPage extends Page {
 	static $defaults = array(
@@ -282,7 +284,15 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	 */
 	public function submit($data, $form) {
 		$query = $data['q'];
+
+		echo "LINK:".$this->Link();
+
+
+		/*
+		This is not working in tests, the commented out version is.  But it seems less efficient.1
+		 */
 		$url = str_replace('/SearchForm', '?q=', $data['url']);
+//		$url = str_replace('/SearchForm', '?q=', $this->Link());
 		$link = $url.$query;
 		$this->redirect($link);
 	}
