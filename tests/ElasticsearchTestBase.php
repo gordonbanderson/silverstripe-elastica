@@ -86,7 +86,9 @@ class ElasticsearchBaseTest extends SapphireTest {
 		foreach (SiteTree::get()->getIterator() as $page) {
 			// temporarily disable Elasticsearch indexing, it will be done in a batch
 			$page->IndexingOff = true;
-			$page->doPublish();
+
+			echo "Publishing ".$page->Title."\n";
+			$page->publish('Stage','Live');
 		}
 	}
 
