@@ -1,3 +1,15 @@
+ElasticSearchPage:
+  search:
+    Title: Search
+    Content: Example Search Page
+    ClassesToSearch: ''
+    ResultsPerPage: 4
+    SiteTreeOnly: true
+    Identifier: testsearchpage
+    IndexingOff: true
+    URLSegment: search
+
+
 Member:
   elasticsearchadmin:
     FirstName: admin
@@ -8,11 +20,6 @@ Group:
   elasticsearchadmins:
     Title: Admin
     Members: =>Member.elasticsearchadmin
-
-Permission:
-  admin:
-    Code: CMS_ACCESS_elasticsearchAdmin
-    Group: =>Group.elasticsearchadmins
 
 SearchableTestPage:
   first:
@@ -43,20 +50,9 @@ SearchableTestGrandFatherPage:
     Father: This is the father field in a grandfather page
     GrandFather: This is the grandfather page
 
-Page:
-  page0001:
-    Title: Test page for indexing
-    COntent: Test content for indexing
 
-ElasticSearchPage:
-  search:
-    Title: Search
-    Content: Example Search Page
-    ClassesToSearch: ''
-    ResultsPerPage: 4
-    SiteTreeOnly: true
-    Identifier: testsearchpage
-    IndexingOff: true
+
+
 
 FlickrPhoto:
   photo0001:
