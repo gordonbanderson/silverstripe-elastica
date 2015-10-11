@@ -1,10 +1,15 @@
 <?php
 
+use SilverStripe\Elastica\ReindexTask;
+
 class ElasticsearchFunctionalTestBase extends FunctionalTest {
+	public static $ignoreFixtureFileFor = array();
+
 	protected $extraDataObjects = array(
 		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag',
 		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
 	);
+
 
 	public function setUpOnce() {
 		$config = Config::inst();
@@ -13,6 +18,9 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
 
 		// no need to index here as it's done when fixtures are loaded during setup method
+		$cache = SS_Cache::factory('elasticsearch');
+		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
+		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
 
 		parent::setUpOnce();
 	}
@@ -32,10 +40,45 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
+		// clear the index
+		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+
+		// A previous test may have deleted the index and then failed, so check for this
+		if (!$this->service->getIndex()->exists()) {
+			$this->service->getIndex()->create();
+		}
+		$this->service->reset();
+
+		// FIXME - use request getVar instead?
+		$_GET['progress'] = 20;
 		// load fixtures
+
+		$orig_fixture_file = static::$fixture_file;
+
+		echo "TESTS TO IGNORE:\n";
+		print_r(static::$ignoreFixtureFileFor);
+
+		foreach (static::$ignoreFixtureFileFor as $testPattern) {
+			$pattern = '/'.$testPattern.'/';
+			echo "GREP: $pattern against ".$this->getName()."\n";
+			if (preg_match($pattern, $this->getName())) {
+				static::$fixture_file = null;
+			}
+		}
+
 		parent::setUp();
+		static::$fixture_file = $orig_fixture_file;
 
 		$this->publishSiteTree();
+
+		$this->service->reset();
+
+		// index loaded fixtures
+		$task = new ReindexTask($this->service);
+		// null request is fine as no parameters used
+
+		$task->run(null);
+
 	}
 
 
@@ -47,6 +90,41 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 			echo "Publishing ".$page->Title."\n";
 			$page->publish('Stage','Live');
 		}
+	}
+
+
+	//---- The HTML for search results is too long to check for, so instead check just the starting text ----
+
+	/**
+	 * Assert that the most recently queried page contains a number of content tags specified by a CSS selector.
+	 * The given CSS selector will be applied to the HTML of the most recent page.  The content of every matching tag
+	 * will be examined. The assertion fails if one of the expectedMatches fails to appear.
+	 *
+	 * Note: &nbsp; characters are stripped from the content; make sure that your assertions take this into account.
+	 *
+	 * @param string $selector A basic CSS selector, e.g. 'li.jobs h3'
+	 * @param array|string $expectedMatches The content of at least one of the matched tags
+	 * @throws PHPUnit_Framework_AssertionFailedError
+	 * @return boolean
+	 */
+	public function assertSelectorStartsWithOrEquals($selector, $index, $expectedPrefix) {
+		$items = $this->cssParser()->getBySelector($selector);
+
+		$ctr = 0;
+		foreach ($items as $item) {
+			$text = strip_tags($item);
+			echo "\$this->assertSelectorStartsWithOrEquals('strong.highlight', $ctr, '$text');\n";
+			$ctr++;
+		}
+
+		$ctr = 0;
+		print_r($items);
+		$item = strip_tags($items[$index]);
+
+		$errorMessage = "Failed to assert that '$item' started with '$expectedPrefix'";
+		$this->assertStringStartsWith($expectedPrefix, $item, $errorMessage);
+
+		return true;
 	}
 
 }
