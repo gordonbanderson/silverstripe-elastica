@@ -198,8 +198,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	and render results accordingly.
 	 */
 	public function index() {
-		//$searchResults = new ArrayList();
-
 		$data = array(
 			'Content' => $this->Content,
 			'Title' => $this->Title,
@@ -285,15 +283,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	public function submit($data, $form) {
 		$query = $data['q'];
 
-		echo "LINK:".$this->Link();
-
-
-		/*
-		This is not working in tests, the commented out version is.  But it seems less efficient.1
-		 */
-		$url = str_replace('/SearchForm', '?q=', $data['url']);
-//		$url = str_replace('/SearchForm', '?q=', $this->Link());
-		$link = $url.$query;
+		$url = $this->Link();
+		$url = rtrim($url, '/');
+		$link = rtrim($url, '/').'?q='.$query;
 		$this->redirect($link);
 	}
 
