@@ -34,6 +34,19 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		// load fixtures
 		parent::setUp();
+
+		$this->publishSiteTree();
+	}
+
+
+	private function publishSiteTree() {
+		foreach (SiteTree::get()->getIterator() as $page) {
+			// temporarily disable Elasticsearch indexing, it will be done in a batch
+			$page->IndexingOff = true;
+
+			echo "Publishing ".$page->Title."\n";
+			$page->publish('Stage','Live');
+		}
 	}
 
 }
