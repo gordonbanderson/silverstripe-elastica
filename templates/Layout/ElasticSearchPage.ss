@@ -1,8 +1,17 @@
-<h1>$Title</h1>
-$Content
+<% include AggregationSideBar %>
+<div class="content-container unit size3of4 lastUnit">
+	<article>
+		<h1>$Title ESP</h1>
+		<div class="content">$Content</div>
+		$SearchForm
 
-$SearchForm
+		<% if $SearchPerformed %>
+		<% include ElasticResults %>
+		<% end_if %>
 
-<% if $SearchPerformed %>
-<% include ElasticResults %>
-<% end_if %>
+	</article>
+		$CommentsForm
+</div>
+
+
+
