@@ -218,6 +218,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setStart($start);
 		$es->setPageLength($ep->ResultsPerPage);
 
+		echo "PAGE LENGTH:".$ep->ResultsPerPage."\n";
+
 		// query string
 		$q = '';
 		if (isset($_GET['q'])) {

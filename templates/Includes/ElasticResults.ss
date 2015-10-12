@@ -8,7 +8,7 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResul
 </div>
 <% loop $SearchResults %>
 
-<div class="searchResult">
+<div class="searchResult" id="$ClassName $ID">
 <a href="$Link"><h4><% if $SearchHighlightsByField.Title %><% loop $SearchHighlightsByField.Title %>$Snippet<% end_loop %><% else %>$Title<% end_if %></h4></a>
 <% loop $SearchHighlights %>$Snippet &hellip;<% end_loop %>
 <div class="searchFooter">
