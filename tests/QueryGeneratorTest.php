@@ -297,13 +297,15 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 				'filtered' => array(
 					'filter' => array('term' => array('ISO' => 400))
 				)
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
+		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -339,13 +341,15 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 						))
 					)
 				))
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
+		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
@@ -380,12 +384,14 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 						2 => array( 'term' =>  array('Aperture' => 5.6)),
 					)
 				))
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
+		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
@@ -411,14 +417,16 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 				'filtered' => array(
 					'filter' => array('term' => array('ISO' => 400))
 				)
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
-		//$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
+		unset($expected['sort']); // use relevance of search sorting
+
 		$expected['query']['filtered']['query']['multi_match'] = array(
 			'query' => 'New Zealand',
 			'lenient' => true,
@@ -460,13 +468,15 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 						))
 					)
 				))
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
+		unset($expected['sort']); // use relevance of search sorting
 		$expected['query']['filtered']['query']['multi_match'] = array(
 			'query' => 'New Zealand',
 			'lenient' => true,
@@ -507,12 +517,14 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 						2 => array( 'term' =>  array('Aperture' => 5.6)),
 					)
 				))
-			)
+			),
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
+		unset($expected['sort']);
 		$expected['query']['filtered']['query']['multi_match'] = array(
 			'query' => 'New Zealand',
 			'lenient' => true,
