@@ -109,6 +109,11 @@ class QueryGenerator {
 	}
 
 
+	public static function resetCacheHitCounter() {
+		self::$cacheHitCtr = 0;
+	}
+
+
 	/**
 	 * From the input variables create a suitable query using Elastica.  This is somewhat complex
 	 * due to different formats with and without query text, with and without filters, with and
@@ -326,7 +331,6 @@ class QueryGenerator {
 					$fieldCfg .= '^'.$weight;
 				}
 				array_push($result, $fieldCfg);
-
 				if (isset($nameToType[$fieldName])) {
 					if ($nameToType[$fieldName] == 'string') {
 						$fieldCfg = "{$fieldName}.*";
@@ -338,11 +342,8 @@ class QueryGenerator {
 				} else {
 					throw new \Exception("Field $fieldName does not exist");
 				}
-
-
 			}
 		}
-
 		return $result;
 	}
 
@@ -356,6 +357,7 @@ class QueryGenerator {
 	 * @return array Array hash of fieldname to Elasticsearch mapping
 	 */
 	public static function getSearchFieldsMappingForClasses($classes = null, $fieldsAllowed = null) {
+
 		// Get a array of relevant classes to search
 		$cache = QueryGenerator::getCache();
 		$csvClasses = $classes;
@@ -364,6 +366,12 @@ class QueryGenerator {
 		}
 
 		$key = 'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
+
+		if ($fieldsAllowed) {
+			$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
+			$key .= '_' . str_replace(',', '_', str_replace("'", '_',$fieldsAllowedCSV));
+		}
+
 		$result = $cache->load($key);
 		if (!$result) {
 			$relevantClasses = array();
@@ -404,7 +412,6 @@ class QueryGenerator {
 				 */
 				$result[$name] = $type;
 			}
-
 			$cache->save(json_encode($result),$key);
 		}  else {
 			// true is necessary here to decode the array hash back to an array and not a struct
