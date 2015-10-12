@@ -125,11 +125,6 @@ class QueryGenerator {
 		}
 		$hasSelectedFilters = sizeof($this->selectedFilters) > 0;
 
-		echo "Query text exists: $queryTextExists\n";
-		echo "is multi match?: $isMultiMatch\n";
-		echo "Has selected filters?: $hasSelectedFilters\n";
-
-
 		$this->manipulatorInstance = null;
 		if ($this->manipulator) {
 			$this->manipulatorInstance = \Injector::inst()->create($this->manipulator);
@@ -240,37 +235,10 @@ class QueryGenerator {
 				break;
 		}
 
-
-/*
-//FIXME use method similar to non multimatch query first?
-
-		if (is_array($fieldsToSearch) && sizeof($fieldsToSearch) > 0) {
-			$textQuery = new MultiMatch();
-	        $textQuery->setQuery($this->queryText);
-	        $elasticaFields = $this->convertWeightedFieldsForElastica($fieldsToSearch);
-	        //$textQuery->setFields(array('Title^4','Content','Content.*'));
-	        //$fieldsCSV = implode(',', $fieldsToSearch);
-	        $textQuery->setFields($elasticaFields);
-	        $textQuery->setType('most_fields');
-
-	        //Setting the lenient flag means that numeric fields can be searched for text values
-	        $textQuery->setParam('lenient', true);
-		} else {
-			// this will search all fields
-			$textQuery = new QueryString($q);
-
-			//Setting the lenient flag means that numeric fields can be searched for text values
-			$textQuery->setParam('lenient', true);
-		}
-*/
-
-
 		// the Elastica query object
 		if ($queryFilter == null) {
-			echo "AF T1\n";
 			$query = new Query($textQuery);
 		} else {
-			echo "AF T2\n";
 			//MatchAll appears not be allowed inside a filtered query which is a bit of a pain.
 			if ($textQuery instanceof MatchAll) {
 				$textQuery = null;
@@ -332,7 +300,7 @@ class QueryGenerator {
 	}
 
 
-// USE MATCH_ALL, see https://www.elastic.co/guide/en/elasticsearch/reference/1.4/query-dsl-match-all-query.html
+	// USE MATCH_ALL, see https://www.elastic.co/guide/en/elasticsearch/reference/1.4/query-dsl-match-all-query.html
 	private function multiMatchQuery() {
 		$textQuery = new MultiMatch();
 
