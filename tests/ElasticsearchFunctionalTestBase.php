@@ -96,9 +96,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	//---- The HTML for search results is too long to check for, so instead check just the starting text ----
 
 	/**
-	 * Assert that the most recently queried page contains a number of content tags specified by a CSS selector.
-	 * The given CSS selector will be applied to the HTML of the most recent page.  The content of every matching tag
-	 * will be examined. The assertion fails if one of the expectedMatches fails to appear.
+	 *Assert that the indexth matching css node has a prefix as expected
 	 *
 	 * Note: &nbsp; characters are stripped from the content; make sure that your assertions take this into account.
 	 *
@@ -118,13 +116,36 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		}
 
 		$ctr = 0;
-		print_r($items);
 		$item = strip_tags($items[$index]);
 
 		$errorMessage = "Failed to assert that '$item' started with '$expectedPrefix'";
 		$this->assertStringStartsWith($expectedPrefix, $item, $errorMessage);
 
 		return true;
+	}
+
+
+	public function assertNumberOfNodes($selector, $expectedAmount) {
+		$items = $this->cssParser()->getBySelector($selector);
+		foreach ($items as $item) {
+			$text = strip_tags($item);
+		}
+
+		$ct = sizeof($items);
+		$this->assertEquals($expectedAmount, $ct);
+	}
+
+
+	/* Collect an array of all the <ClassName>_<ID> search results, used for checking pagination */
+	public function collateSearchResults() {
+		$items = $this->cssParser()->getBySelector('div.searchResults .searchResult');
+		$result = array();
+		foreach ($items as $item) {
+			$attr = $item->attributes()->id;
+			array_push($result, $attr."");
+		}
+
+		return $result;
 	}
 
 }
