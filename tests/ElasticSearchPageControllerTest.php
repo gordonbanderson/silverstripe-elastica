@@ -126,6 +126,50 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	/*
 	Test a search for a common term, in order to induce pagination
 	 */
+	public function testSiteTreeSearch() {
+		$this->autoFollowRedirection = false;
+
+		//One of the default pages
+		$searchTerm = 'Contact Us';
+
+		//Note pages need to be published, by default fixtures only reside in Stage
+		$searchPageObj = $this->ElasticSearchPage;
+		$searchPageObj->SiteTreeOnly = true;
+		$searchPageObj->write();
+		$searchPageObj->publish('Stage','Live');
+
+
+		$pageLength = 10; // the default
+		$searchPageObj->ResultsPerPage = $pageLength;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url = $url.'?q='.$searchTerm;
+		$firstPageURL = $url;
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+		print_r($response);
+
+		//There are 2 results for 'Contact Us', as 'About Us' has an Us in the title.
+		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
+			"Page 1 of 1 (2 results found in");
+
+		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
+		//the apparently erroneous addition of 1 to the required 2
+		$this->assertNumberOfNodes('div.searchResult', 3);
+
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 0, 'Contact');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 1, 'Us');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 2, 'Contact');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 3, 'Us');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 4, 'Us');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 5, 'Us');
+
+	}
+
+
+
+	/*
+	Test a search for a common term, in order to induce pagination
+	 */
 	public function testSearchSeveralPagesPage() {
 		$this->autoFollowRedirection = false;
 		$searchTerm = 'railroad';
@@ -157,8 +201,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertSelectorStartsWithOrEquals('div.pagination a.next', 0, '→');
 
 		$resultsP1 = $this->collateSearchResults();
-
-
 
 		$page2url = $url . '&start='.$pageLength;
 
