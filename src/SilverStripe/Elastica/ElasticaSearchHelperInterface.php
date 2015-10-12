@@ -33,7 +33,7 @@ interface ElasticaSearchHelperInterface {
 
 	/**
 	 * In the event of using aggregates and no query provided, sort by this
-	 * @return array Mapping of field name to sort order (asc,desc)
+	 * @return array Mapping of field name to sort order (Asc,Desc)
 	 */
 	public function getDefaultSort();
 }
