@@ -120,4 +120,82 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertSelectorStartsWithOrEquals('div.searchResult h4 a', 2,
 			'Image taken from page 142 of');
 	}
+
+
+
+	/*
+	Test a search for a common term, in order to induce pagination
+	 */
+	public function testSearchSeveralPagesPage() {
+		$this->autoFollowRedirection = false;
+		$searchTerm = 'railroad';
+
+		//Note pages need to be published, by default fixtures only reside in Stage
+		$searchPageObj = $this->ElasticSearchPage;
+		$pageLength = 10; // the default
+		$searchPageObj->ResultsPerPage = $pageLength;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url = $url.'?q='.$searchTerm;
+		$firstPageURL = $url;
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+
+
+		//There are 3 results for mineralogy
+		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
+			"Page 1 of 2 (10 results found in");
+
+		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
+		//the apparently erroneous addition of 1 to the required 10
+		$this->assertNumberOfNodes('div.searchResult', 11);
+
+		//Check for a couple of highlighed 'Railroad' terms
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 0, 'Railroad');
+		$this->assertSelectorStartsWithOrEquals('strong.highlight', 1, 'Railroad');
+
+		$this->assertSelectorStartsWithOrEquals('div.pagination a', 0, '2');
+		$this->assertSelectorStartsWithOrEquals('div.pagination a.next', 0, '→');
+
+		$resultsP1 = $this->collateSearchResults();
+
+
+
+		$page2url = $url . '&start='.$pageLength;
+
+		//Check pagination on page 2
+		$response2 = $this->get($page2url);
+		$this->assertEquals(200, $response2->getStatusCode());
+
+		//FIXME pluralisation probably needs fixed here, change test later acoordingly
+		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
+			"Page 2 of 2 (1 results found in");
+
+		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
+		//the apparently erroneous addition of 1 to the required 1
+		$this->assertNumberOfNodes('div.searchResult', 2);
+
+		$this->assertSelectorStartsWithOrEquals('div.pagination a', 1, '1');
+		$this->assertSelectorStartsWithOrEquals('div.pagination a.prev', 0, '←');
+
+		$resultsP2 = $this->collateSearchResults();
+
+		$resultsFrom2Pages = array_merge($resultsP1, $resultsP2);
+
+		//there are 11 results in total
+		$this->assertEquals(11, sizeof($resultsFrom2Pages));
+
+		//increase the number of results and assert that they are the same as per pages 1,2 joined
+		$searchPageObj->ResultsPerPage = 20;
+		$searchPageObj->write();
+		$searchPageObj->publish('Stage','Live');
+		$response3 = $this->get($firstPageURL);
+
+		$results3 = $this->collateSearchResults();
+		echo "T1";
+		print_r($resultsFrom2Pages);
+		echo "\nT2\n";
+		print_r($results3);
+
+		$this->assertEquals($resultsFrom2Pages,$results3);
+	}
 }
