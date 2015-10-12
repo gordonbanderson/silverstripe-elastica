@@ -240,7 +240,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// set the optional aggregation manipulator
-		$es->setQueryResultManipulator($this->SearchHelper);
+		// In the event of a manipulator being present, show all the results for search
+		// Otherwise aggregations are all zero
+		if ($this->SearchHelper) {
+			$es->setQueryResultManipulator($this->SearchHelper);
+			$es->showResultsForEmptySearch();
+		} else {
+			$es->hideResultsForEmptySearch();
+		}
 
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
