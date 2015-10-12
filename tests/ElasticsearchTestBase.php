@@ -17,16 +17,18 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
 
-		// no need to index here as it's done when fixtures are loaded during setup method
-		$cache = SS_Cache::factory('elasticsearch');
-		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
-		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
+
 
 		parent::setUpOnce();
 	}
 
 
 	public function setUp() {
+		// no need to index here as it's done when fixtures are loaded during setup method
+		$cache = SS_Cache::factory('elasticsearch');
+		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
+		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
+
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
 		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
@@ -55,16 +57,14 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		$orig_fixture_file = static::$fixture_file;
 
-		echo "TESTS TO IGNORE:\n";
-		print_r(static::$ignoreFixtureFileFor);
-
 		foreach (static::$ignoreFixtureFileFor as $testPattern) {
 			$pattern = '/'.$testPattern.'/';
-			echo "GREP: $pattern against ".$this->getName()."\n";
 			if (preg_match($pattern, $this->getName())) {
 				static::$fixture_file = null;
 			}
 		}
+
+		echo "\n\n\n\nEXECUTING TEST {$this->getName()}, FIXTURES=".static::$fixture_file."\n";
 
 		parent::setUp();
 		static::$fixture_file = $orig_fixture_file;
