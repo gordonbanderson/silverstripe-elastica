@@ -220,6 +220,12 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 
 
 
+	/*
+	In the event of aggregates being used and no query provided, sort by this (<field> => <order>)
+	 */
+	public function getDefaultSort() {
+		return array('TakenAt' => 'Desc');
+	}
 
 
 	public function getIndexFieldTitleMapping() {
