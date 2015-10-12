@@ -1,5 +1,4 @@
 /*jslint white: true */
-console.log('el edit');
 (function($) {
 	$(document).ready(function() {
 
