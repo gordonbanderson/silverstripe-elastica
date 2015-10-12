@@ -172,14 +172,18 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'aggs' => $aggs,
 			'size' => 10,
 			'from' => 0,
-			'query' => array('match_all' => new \stdClass())
+			'query' => array('match_all' => new \stdClass()),
+			'sort' => array('TakenAt' => 'Desc')
 		);
+
+		print_r($qg->generateElasticaQuery());
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+		unset($expected['sort']);
 		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
