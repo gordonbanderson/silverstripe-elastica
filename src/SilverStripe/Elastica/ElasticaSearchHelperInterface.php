@@ -29,4 +29,11 @@ interface ElasticaSearchHelperInterface {
 	 * @return array array of index field name to human readable title
 	 */
 	public function getIndexFieldTitleMapping();
+
+
+	/**
+	 * In the event of using aggregates and no query provided, sort by this
+	 * @return array Mapping of field name to sort order (asc,desc)
+	 */
+	public function getDefaultSort();
 }
