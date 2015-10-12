@@ -190,7 +190,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 	public function init() {
 		parent::init();
+
+		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+		Requirements::javascript("elastica/javascript/elastica.js");
+        Requirements::css("elastica/css/elastica.css");
 	}
+
+
+
 
 
 	/*
