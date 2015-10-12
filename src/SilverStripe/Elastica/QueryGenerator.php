@@ -153,7 +153,10 @@ class QueryGenerator {
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
 
-		//TODO - sort
+		if ($manipulator && !$queryTextExists) {
+			$sort = $manipulator->getDefaultSort();
+			$query->setSort($sort);
+		}
 
 		return $query;
 
