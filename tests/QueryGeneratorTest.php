@@ -593,6 +593,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 
 	public function testSearchFieldsMappingForClassesCaching() {
+		QueryGenerator::resetCacheHitCounter();
 		$cache = SS_Cache::factory('elasticsearch');
 		// Previous tests may have altered this so start from a known position
 		$cache->remove('SEARCHABLE_FIELDS_FlickrPhoto_Page');
