@@ -120,6 +120,7 @@ class QueryGenerator {
 	public function generateElasticaQuery() {
 		$queryTextExists = ($this->queryText != '');
 		$isMultiMatch = ($this->fields != null);
+
 		if ($this->selectedFilters == null) {
 			$this->selectedFilters = array();
 		}
@@ -143,38 +144,6 @@ class QueryGenerator {
 
 		$query = $this->addFilters($textQuery);
 		$query->OriginalQueryText = $this->queryText;
-
-/*
-		//If the query string is empty we need to tweak the above
-		if ($this->queryText == '') {
-			if ($isMultiMatch) {
-				$params = $query->toParams();
-				// In this case we remove the query parameter entirely, '*' does not work
-				if ($this->showResultsForEmptyQuery) {
-					echo "Show results for empty MM query\n";
-					print_r($params);
-				} else {
-					echo "Hide results for empty MM query\n";
-					print_r($params);
-				}
-			}
-
-			DIE;
-
-
-			if ($this->showResultsForEmptyQuery()) {
-				if ($isMultiMatch) {
-
-				}
-			} else {
-				if ($isMultiMatch) {
-
-				}
-			}
-		}
-*/
-
-
 
 		//This needs to be query object of some form
 		$this->addAggregation($query);
