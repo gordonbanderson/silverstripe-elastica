@@ -173,7 +173,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'size' => 10,
 			'from' => 0,
 			'query' => array('match_all' => new \stdClass()),
-			'sort' => array('TakenAt' => 'Desc')
+			'sort' => array('TakenAt' => 'desc')
 		);
 
 		print_r($qg->generateElasticaQuery());
