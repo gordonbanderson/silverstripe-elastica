@@ -40,7 +40,10 @@ class ReindexTask extends \BuildTask {
 			Searchable::$index_ctr = 0;
 			$message('Indexing locale '.$locale);
 
-			\Translatable::set_current_locale($locale);
+			if (class_exists('Translatable')) {
+				\Translatable::set_current_locale($locale);
+			}
+
 			$this->service->setLocale($locale);
 
 			$this->service->startBulkIndex();
