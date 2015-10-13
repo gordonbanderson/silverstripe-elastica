@@ -25,3 +25,37 @@
 	padding-left: 20px;
 	padding-top: 2px;
 }
+
+
+
+.main .secondary ul.aggregations li {
+    padding: 10px 0;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px;
+    color: #111;
+    line-height: 17px;
+    border-bottom: none;
+    font-family: 'Lucida Sans', 'Lucida Grande', Arial, Helvetica, sans-serif;
+}
+
+.main .secondary ul.aggregations li span.facetToggle,
+.main .secondary ul.aggregations li .remove
+ {
+	color: #b80000;
+	font-family: 'WebSymbolsRegular';
+	font-size: 120%;
+	cursor: pointer;
+}
+
+.main .secondary ul.aggregations li.selected a {
+	float: right;
+	padding-top: 0px;
+}
+
+
+span.count {
+	color: #AAA;
+	font-weight: bold;
+}
