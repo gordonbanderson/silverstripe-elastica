@@ -1,17 +1,17 @@
 /*jslint white: true */
-alert('elastica js');
 (function($) {
 	$(document).ready(function() {
 		$('.facetToggle').click(function(e) {
-			alert('clicked');
 			var jel = $(e.target);
 
 			if (jel.hasClass('rotate')) {
 				jel.removeClass('rotate');
 				jel.addClass('rotateBack');
+				jel.html('&#91;');
 			} else {
 				jel.removeClass('rotateBack');
 				jel.addClass('rotate');
+				jel.html('&#93;');
 			}
 
 			ul = jel.parent().next();
@@ -25,10 +25,6 @@ alert('elastica js');
 				ul.addClass('facetVisible');
 				ul.slideDown(200);
 			}
-
 		});
 	});
-
-
-
 })(jQuery);
