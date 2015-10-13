@@ -4,7 +4,7 @@
  * Test the functionality of the Searchable extension
  * @package elastica
  */
-class IndexSettingsTest extends ElasticsearchTestBase {
+class IndexSettingsTest extends ElasticsearchBaseTest {
 	//public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
