@@ -232,7 +232,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 		$this->assertEquals(1,sizeof($result));
 		$fp = $result[0];
-		$this->assertEquals('FlickrPhoto', $fp->ClassName);
+		$this->assertEquals('FlickrPhotoTO', $fp->ClassName);
 		$this->assertEquals(2147483647, $fp->FlickrID);
 		$this->assertTrue(preg_match('/New Zealand/',$fp->Title) == 1);
 	}
@@ -248,7 +248,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 		$this->assertEquals(4,sizeof($result));
 		$fp = $result[0];
-		$this->assertEquals('FlickrPhoto', $fp['ClassName']);
+		$this->assertEquals('FlickrPhotoTO', $fp['ClassName']);
 		$this->assertEquals(2147483647, $fp['FlickrID']);
 		$this->assertTrue(preg_match('/New Zealand/',$fp['Title']) == 1);
 	}
@@ -301,7 +301,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListAddNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhoto();
+			$fp = new FlickrPhotoTO();
 			$resultList->add($fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -313,7 +313,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListRemoveNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhoto();
+			$fp = new FlickrPhotoTO();
 			$resultList->remove($fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -325,7 +325,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListFindNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhoto();
+			$fp = new FlickrPhotoTO();
 			$resultList->find(4,$fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -337,7 +337,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListFirstNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhoto();
+			$fp = new FlickrPhotoTO();
 			$resultList->first(4,$fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -349,7 +349,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListLastNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhoto();
+			$fp = new FlickrPhotoTO();
 			$resultList->last(4,$fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -408,7 +408,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$es->setStart(0);
 		$es->setPageLength(100);
 		//$es->addFilter('IsInSiteTree', false);
-		$es->setClasses('FlickrPhoto');
+		$es->setClasses('FlickrPhotoTO');
 		$results = $es->search($query, $fields);
 		$ctr = 0;
 		/*echo "{$results->count()} items found searching for '$query'\n\n";
@@ -434,7 +434,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$es->setStart(0);
 		$es->setPageLength($pageLength);
 		//$es->addFilter('IsInSiteTree', false);
-		$es->setClasses('FlickrPhoto');
+		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $es->search($query, $fields)->getList();
 		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));

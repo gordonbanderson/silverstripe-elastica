@@ -6,7 +6,7 @@ use Elastica\Aggregation\Range;
 use SilverStripe\Elastica\RangedAggregation;
 
 
-class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,TestOnly {
+class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface,TestOnly {
 
 	public function __construct() {
 		$aspectAgg = new RangedAggregation('Aspect', 'AspectRatio');
@@ -24,7 +24,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 
 
 	/**
-	 * Add a number of facets to the FlickrPhoto query
+	 * Add a number of facets to the FlickrPhotoTO query
 	 * @param  \Elastica\Query &$query the existing query object to be augmented.
 	 */
 	public function augmentQuery(&$query) {
@@ -122,7 +122,7 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface,T
 		// leave this out for the moment as way too many terms being returned slowing things down
 		/*
 		$agg5 = new Terms("Tags");
-		$agg5->setField("FlickrTags.RawValue");
+		$agg5->setField("FlickrTagTOs.RawValue");
 		$agg5->setSize(10);
 		$agg5->setOrder('_term', 'asc');
 

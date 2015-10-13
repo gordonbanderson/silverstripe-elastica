@@ -302,6 +302,9 @@ class ElasticaService {
 
 		echo "REFRESH T1\n";
 
+		echo "INDEXED CLASSES\n";
+		print_r($this->getIndexedClasses());
+
 		foreach ($this->getIndexedClasses() as $classname) {
 			$inSiteTree = false;
 			if (isset(self::$site_tree_classes[$classname])) {
@@ -372,7 +375,7 @@ class ElasticaService {
 		$classes = array();
 
 		//FIXME - make this configurable
-		$whitelist = array('SearchableTestPage','FlickrPhoto','FlickrTag','FlickrPhoto','FlickrAuthor','FlickrSet');
+		$whitelist = array('SearchableTestPage','FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
 			$instance = singleton($candidate);

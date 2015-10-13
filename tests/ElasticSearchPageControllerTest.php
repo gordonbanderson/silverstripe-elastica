@@ -17,7 +17,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$esp->IndexingOff = true;
 		$esp->URLSegment = 'search';
 		$esp->SiteTreeOnly = false;
-		$esp->ClassesToSearch = 'FlickrPhoto';
+		$esp->ClassesToSearch = 'FlickrPhotoTO';
 		$esp->write();
 
 		//Simulate selecting Title and Description as searchable fields in the CMS interface
@@ -231,13 +231,3 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj->write();
 		$searchPageObj->publish('Stage','Live');
 		$response3 = $this->get($firstPageURL);
-
-		$results3 = $this->collateSearchResults();
-		echo "T1";
-		print_r($resultsFrom2Pages);
-		echo "\nT2\n";
-		print_r($results3);
-
-		$this->assertEquals($resultsFrom2Pages,$results3);
-	}
-}

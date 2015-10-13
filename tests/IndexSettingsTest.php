@@ -9,15 +9,15 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
-			'FlickrTag', 'FlickrAuthor', 'FlickrSet');
+		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+			'FlickrTagTO', 'FlickrAuthorTO', 'FlickrSetTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
 		// add Searchable extension where appropriate
-		FlickrSet::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhoto::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTag::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
 		// load fixtures

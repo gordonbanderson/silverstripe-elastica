@@ -7,7 +7,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 	public static $ignoreFixtureFileFor = array();
 
 	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhoto','FlickrAuthor','FlickrSet','FlickrTag',
+		'SearchableTestPage','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO','FlickrTagTO',
 		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
 	);
 
@@ -31,15 +31,15 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
-			'FlickrTag', 'FlickrAuthor');
+		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
 		// add Searchable extension where appropriate
-		FlickrSet::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhoto::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTag::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
 		// clear the index

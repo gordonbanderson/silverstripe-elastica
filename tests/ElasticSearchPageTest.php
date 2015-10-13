@@ -40,12 +40,12 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'Page' => array('Title','Content'),
 			'SiteTree' => array('Title','Content'),
 			'SearchableTestPage' => array('Title','Content','Country','PageDate'),
-			'FlickrTag' => array('RawValue'),
-			'FlickrAuthor' => array('PathAlias','DisplayName','FlickrPhotos'),
-			'FlickrPhoto' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
-				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTags','FlickrSets',
+			'FlickrTagTO' => array('RawValue'),
+			'FlickrAuthorTO' => array('PathAlias','DisplayName','FlickrPhotoTOs'),
+			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
+				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTagTOs','FlickrSetTOs',
 				'FirstViewed','AspectRatio'),
-			'FlickrSet' => array('Title','FlickrID','Description')
+			'FlickrSetTO' => array('Title','FlickrID','Description')
 		);
 
 

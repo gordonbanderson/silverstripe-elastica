@@ -81,7 +81,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$fields = array('Title' => 1, 'Description' => 1);
 		$qg->setFields($fields);
 		$qg->setSelectedFilters(null);
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 
 		//As the query is not empty it should not matter whether or not the show results for empty
 		//query flag is set or not - test with true and false
@@ -114,7 +114,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$fields = array('Title' => 1, 'Description' => 1);
 		$qg->setFields($fields);
 		$qg->setSelectedFilters(null);
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 
 		//As the query is not empty it should not matter whether or not the show results for empty
 		//query flag is set or not - test with true and false
@@ -163,7 +163,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setFields(null);
 		$qg->setSelectedFilters(null);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -284,7 +284,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400);
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -319,7 +319,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400, 'Aspect' => 'Square');
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -362,7 +362,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -404,7 +404,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400);
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -446,7 +446,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400, 'Aspect' => 'Square');
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -495,7 +495,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$filters = array('ISO' => 400, 'Aspect' => 'Square', 'Aperture' => 5.6);
 		$qg->setSelectedFilters($filters);
 		$qg->setShowResultsForEmptyQuery(true);
-		$qg->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
 		//FIXME - query needs removed in this case, leave as a reminder for now until
@@ -540,7 +540,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	// ---- tests for field array to elasticsearch syntax
 	public function testConvertWeightedFieldsForElasticaUnaryStrings() {
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 1, 'Description' => 1);
 		$expected = array('Title', 'Title.*','Description', 'Description.*');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
@@ -549,7 +549,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 	public function testConvertWeightedFieldsForElasticaMultipleStrings() {
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 2, 'Description' => 1);
 		$expected = array('Title^2', 'Title.*^2','Description', 'Description.*');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
@@ -558,7 +558,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 	public function testConvertWeightedFieldsForElasticaTestNonString() {
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 		$fields = array('Aperture' => 2, 'FocalLength35mm' => 1);
 		$expected = array('Aperture^2', 'FocalLength35mm');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
@@ -567,7 +567,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 	public function testConvertWeightedFieldsForElasticaNonExistent() {
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto');
+		$qg->setClasses('FlickrPhotoTO');
 		$fields = array('Aperture' => 2, 'FocalLength35mm' => 1, 'Wibble' => 2);
 		try {
 			$this->assertEquals('This test should fail', $qg->convertWeightedFieldsForElastica($fields));
@@ -581,12 +581,12 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 	public function testSearchFieldsMappingForClasses() {
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto,Page');
+		$qg->setClasses('FlickrPhotoTO,Page');
 		$fields = array('Title' => 2, 'Description' => 1);
 		$expected = array('Title^2', 'Title.*^2','Description', 'Description.*');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 
-		$qg->setClasses(array('FlickrPhoto','Page'));
+		$qg->setClasses(array('FlickrPhotoTO','Page'));
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 
 	}
@@ -596,9 +596,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		QueryGenerator::resetCacheHitCounter();
 		$cache = SS_Cache::factory('elasticsearch');
 		// Previous tests may have altered this so start from a known position
-		$cache->remove('SEARCHABLE_FIELDS_FlickrPhoto_Page');
+		$cache->remove('SEARCHABLE_FIELDS_FlickrPhotoTO_Page');
 		$qg = new QueryGenerator();
-		$qg->setClasses('FlickrPhoto,Page');
+		$qg->setClasses('FlickrPhotoTO,Page');
 		$fields = array('Title' => 2, 'Description' => 1);
 		$expected = array('Title^2', 'Title.*^2','Description', 'Description.*');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
@@ -623,7 +623,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 
 		echo "--------------------\n";
-		$qg->setClasses(array('FlickrPhoto','Page'));
+		$qg->setClasses(array('FlickrPhotoTO','Page'));
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 
 	}

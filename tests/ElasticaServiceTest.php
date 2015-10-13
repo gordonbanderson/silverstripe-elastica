@@ -37,8 +37,8 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$mapping = $index->getMapping();
 		//print_r($mapping);
 
-		$type = $index->getType('FlickrPhoto');
-		$record = FlickrPhoto::get()->first();
+		$type = $index->getType('FlickrPhotoTO');
+		$record = FlickrPhotoTO::get()->first();
 		$mapping = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
  		//assertTrue(false, 'Figure out what this method should do');
 		//print_r($mapping);
@@ -110,7 +110,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
-		$fp = FlickrPhoto::get()->first();
+		$fp = FlickrPhotoTO::get()->first();
 		$fp->delete();
 
 		$this->service->getIndex()->refresh();
@@ -132,10 +132,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 		//Check that the number of indexing requests has increased by 2
 		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
-		//One call is made for each of Page and FlickrPhoto
+		//One call is made for each of Page and FlickrPhotoTO
 		$this->assertEquals(2,$deltaReqs);
 
-		// default installed pages plus 100 FlickrPhotos
+		// default installed pages plus 100 FlickrPhotoTOs
 		$this->checkNumberOfIndexedDocuments(103);
 	}
 
@@ -148,17 +148,17 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
 		//Check index size after each document indexed
-		$fp = new FlickrPhoto();
+		$fp = new FlickrPhotoTO();
 		$fp->Title = 'The cat sits on the mat';
 		$fp->write();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart+1);
 
-		$fp2 = new FlickrPhoto();
+		$fp2 = new FlickrPhotoTO();
 		$fp2->Title = 'The cat sat on the hat';
 		$fp2->write();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart+2);
 
-		$fp3 = new FlickrPhoto();
+		$fp3 = new FlickrPhotoTO();
 		$fp3->Title = 'The bat flew around the cat';
 		$fp3->write();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart+3);
@@ -178,10 +178,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$indexedClasses = $this->service->getIndexedClasses();
 		$this->assertContains('Page', $indexedClasses);
 		$this->assertContains('SiteTree', $indexedClasses);
-		$this->assertContains('FlickrAuthor', $indexedClasses);
-		$this->assertContains('FlickrPhoto', $indexedClasses);
-		$this->assertContains('FlickrSet', $indexedClasses);
-		$this->assertContains('FlickrTag', $indexedClasses);
+		$this->assertContains('FlickrAuthorTO', $indexedClasses);
+		$this->assertContains('FlickrPhotoTO', $indexedClasses);
+		$this->assertContains('FlickrSetTO', $indexedClasses);
+		$this->assertContains('FlickrTagTO', $indexedClasses);
 		$this->assertContains('SearchableTestPage', $indexedClasses);
 	}
 

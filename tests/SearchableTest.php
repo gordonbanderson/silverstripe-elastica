@@ -10,15 +10,15 @@ class SearchableTest extends ElasticsearchBaseTest {
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhoto','FlickrSet',
-			'FlickrTag', 'FlickrAuthor', 'FlickrSet');
+		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+			'FlickrTagTO', 'FlickrAuthorTO', 'FlickrSetTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
 		// add Searchable extension where appropriate
-		FlickrSet::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhoto::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTag::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthor::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
 		// load fixtures
@@ -30,13 +30,13 @@ class SearchableTest extends ElasticsearchBaseTest {
 	 * Test a valid identifier
 	 */
 	public function testMapping() {
-		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$mapping = $flickrPhoto->getElasticaMapping();
 
 		//array of mapping properties
 		$properties = $mapping->getProperties();
 
-		//test FlickrPhoto relationships mapping
+		//test FlickrPhotoTO relationships mapping
 		$expectedRelStringArray = array(
 			'type' => 'string',
 			'fields' => array(
@@ -55,19 +55,19 @@ class SearchableTest extends ElasticsearchBaseTest {
 		 */
 
 		$this->assertEquals($expectedRelStringArray,
-			$properties['FlickrAuthor']['properties']['DisplayName']
+			$properties['FlickrAuthorTO']['properties']['DisplayName']
 		);
 		$this->assertEquals($expectedRelStringArray,
-			$properties['FlickrAuthor']['properties']['PathAlias']
+			$properties['FlickrAuthorTO']['properties']['PathAlias']
 		);
 		$this->assertEquals($expectedRelStringArray,
-			$properties['FlickrTag']['properties']['RawValue']
+			$properties['FlickrTagTO']['properties']['RawValue']
 		);
 		$this->assertEquals($expectedRelStringArray,
-			$properties['FlickrSet']['properties']['Title']
+			$properties['FlickrSetTO']['properties']['Title']
 		);
 		$this->assertEquals($expectedRelStringArray,
-			$properties['FlickrSet']['properties']['Description']
+			$properties['FlickrSetTO']['properties']['Description']
 		);
 
 		// check constructed field, location
@@ -78,7 +78,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$this->assertEquals('1cm', $locationProperties['fielddata']['precision']);
 
 
-		//test the FlickrPhoto core model
+		//test the FlickrPhotoTO core model
 
 
 
@@ -180,9 +180,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 		//A type in Elasticsearch is used to represent each SilverStripe content type,
 		//the name used being the Silverstripe $fieldName
 
-		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$type = $flickrPhoto->getElasticaType();
-		$this->assertEquals('FlickrPhoto', $type);
+		$this->assertEquals('FlickrPhotoTO', $type);
 	}
 
 
@@ -190,7 +190,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 	Get a record as an Elastic document and check values
 	 */
 	public function testElasticaDocument() {
-		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$doc = $flickrPhoto->getElasticaDocument()->getData();
 
 		$expected = array();
@@ -206,15 +206,15 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['FocalLength35mm'] = 140;
 		$expected['ISO'] = 400;
 		$expected['Photographer'] = array();
-		$expected['FlickrTags'] = array();
-		$expected['FlickrSets'] = array();
+		$expected['FlickrTagTOs'] = array();
+		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
 		$this->assertEquals($expected, $doc);
 	}
 
 
 	public function testElasticaResult() {
-		$flickrPhoto = $this->objFromFixture('FlickrPhoto', 'photo0001');
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		//$doc = $flickrPhoto->getElasticaResult()->getData();
 		//TODO
 	}
