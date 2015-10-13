@@ -385,32 +385,34 @@ class QueryGenerator {
 				$relevantClasses = explode(',', $csvClasses);
 			}
 
-			$relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
-
-			//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
-			$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
-				 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
-			if ($fieldsAllowed) {
-				$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
-				if (strlen($fieldsAllowedCSV) > 0) {
-					$sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
-				}
-			}
-
-			$records = \DB::query($sql);
 			$result = array();
-			foreach ($records as $record) {
-				$name = $record['Name'];
-				$type = $record['Type'];
+			if (sizeof($relevantClasses) > 0) {
+				$relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
 
-				/**
-				 * FIXME:
-				 * This will overwrite duplicate keys such as Content or Title from other Classes.
-				 * Ideally need to check if the mapping being overwritten changes, e.g. if
-				 * a field such as BirthDate is date in one class and string in another
-				 * and throw an exception accordingly
-				 */
-				$result[$name] = $type;
+				//Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
+				$sql = "SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON "
+					 . "sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
+				if ($fieldsAllowed) {
+					$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
+					if (strlen($fieldsAllowedCSV) > 0) {
+						$sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
+					}
+				}
+
+				$records = \DB::query($sql);
+				foreach ($records as $record) {
+					$name = $record['Name'];
+					$type = $record['Type'];
+
+					/**
+					 * FIXME:
+					 * This will overwrite duplicate keys such as Content or Title from other Classes.
+					 * Ideally need to check if the mapping being overwritten changes, e.g. if
+					 * a field such as BirthDate is date in one class and string in another
+					 * and throw an exception accordingly
+					 */
+					$result[$name] = $type;
+				}
 			}
 			$cache->save(json_encode($result),$key);
 		}  else {
