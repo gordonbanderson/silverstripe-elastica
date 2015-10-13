@@ -205,10 +205,14 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['ShutterSpeed'] = '0.01|1/100';
 		$expected['FocalLength35mm'] = 140;
 		$expected['ISO'] = 400;
+		$expected['AspectRatio'] = 1.013;
 		$expected['Photographer'] = array();
 		$expected['FlickrTagTOs'] = array();
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
+
+		print_r($doc);
+
 		$this->assertEquals($expected, $doc);
 	}
 
