@@ -4,7 +4,11 @@ After: 'framework/*','cms/*'
 ---
 SiteTree:
   extensions:
+    # Find ElasticSearchPage by unique id, used to post to correct search form
     - FindElasticaSearchPageExtension
+
+    # Make the SiteTree searchable
+    - 'SilverStripe\Elastica\Searchable'
 DevBuildController:
   extensions:
     - SilverStripe\Elastica\ClearElasticFieldCacheExtension
