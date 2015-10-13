@@ -186,13 +186,17 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals("1/2", $buckets[4]->Key);
 		$this->assertEquals(18, $buckets[4]->DocumentCount);
 
-		//Asserting aggregate of Shutter Speed, 2 has count 11
-		$this->assertEquals("2", $buckets[5]->Key);
-		$this->assertEquals(11, $buckets[5]->DocumentCount);
+		//Asserting aggregate of Shutter Speed, 1 has count 1
+		$this->assertEquals("1", $buckets[5]->Key);
+		$this->assertEquals(1, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 2 has count 10
+		$this->assertEquals("2", $buckets[6]->Key);
+		$this->assertEquals(10, $buckets[6]->DocumentCount);
 
 		//Asserting aggregate of Shutter Speed, 6 has count 12
-		$this->assertEquals("6", $buckets[6]->Key);
-		$this->assertEquals(12, $buckets[6]->DocumentCount);
+		$this->assertEquals("6", $buckets[7]->Key);
+		$this->assertEquals(12, $buckets[7]->DocumentCount);
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
@@ -395,16 +399,17 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals(18, $buckets[4]->DocumentCount);
 		$bucketSum += $buckets[4]->DocumentCount;
 
-		//Asserting aggregate of Shutter Speed, 2 has count 11
-		$this->assertEquals("2", $buckets[5]->Key);
-		$this->assertEquals(11, $buckets[5]->DocumentCount);
-		$bucketSum += $buckets[5]->DocumentCount;
+		//Asserting aggregate of Shutter Speed, 1 has count 1
+		$this->assertEquals("1", $buckets[5]->Key);
+		$this->assertEquals(1, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 2 has count 10
+		$this->assertEquals("2", $buckets[6]->Key);
+		$this->assertEquals(10, $buckets[6]->DocumentCount);
 
 		//Asserting aggregate of Shutter Speed, 6 has count 12
-		$this->assertEquals("6", $buckets[6]->Key);
-		$this->assertEquals(12, $buckets[6]->DocumentCount);
-		$bucketSum += $buckets[6]->DocumentCount;
-		$this->assertEquals(100, $bucketSum);
+		$this->assertEquals("6", $buckets[7]->Key);
+		$this->assertEquals(12, $buckets[7]->DocumentCount);
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
@@ -499,49 +504,49 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		//Asserting aggregate of ISO, 64 has count 5
 		$this->assertEquals("64", $buckets[0]->Key);
 		$this->assertEquals(5, $buckets[0]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',64)->count(),5);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',64)->count(),5);
 		$bucketSum += $buckets[0]->DocumentCount;
 
 		//Asserting aggregate of ISO, 100 has count 11
 		$this->assertEquals("100", $buckets[1]->Key);
 		$this->assertEquals(11, $buckets[1]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',100)->count(),11);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',100)->count(),11);
 		$bucketSum += $buckets[1]->DocumentCount;
 
 		//Asserting aggregate of ISO, 200 has count 12
 		$this->assertEquals("200", $buckets[2]->Key);
 		$this->assertEquals(12, $buckets[2]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',200)->count(),12);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',200)->count(),12);
 		$bucketSum += $buckets[2]->DocumentCount;
 
 		//Asserting aggregate of ISO, 400 has count 13
 		$this->assertEquals("400", $buckets[3]->Key);
 		$this->assertEquals(13, $buckets[3]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',400)->count(),13);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',400)->count(),13);
 		$bucketSum += $buckets[3]->DocumentCount;
 
 		//Asserting aggregate of ISO, 800 has count 16
 		$this->assertEquals("800", $buckets[4]->Key);
 		$this->assertEquals(16, $buckets[4]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',800)->count(),16);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',800)->count(),16);
 		$bucketSum += $buckets[4]->DocumentCount;
 
 		//Asserting aggregate of ISO, 1600 has count 13
 		$this->assertEquals("1600", $buckets[5]->Key);
 		$this->assertEquals(13, $buckets[5]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',1600)->count(),13);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',1600)->count(),13);
 		$bucketSum += $buckets[5]->DocumentCount;
 
 		//Asserting aggregate of ISO, 2000 has count 11
 		$this->assertEquals("2000", $buckets[6]->Key);
 		$this->assertEquals(11, $buckets[6]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',2000)->count(),11);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',2000)->count(),11);
 		$bucketSum += $buckets[6]->DocumentCount;
 
 		//Asserting aggregate of ISO, 3200 has count 19
 		$this->assertEquals("3200", $buckets[7]->Key);
 		$this->assertEquals(19, $buckets[7]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('ISO',3200)->count(),19);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('ISO',3200)->count(),19);
 		$bucketSum += $buckets[7]->DocumentCount;
 		$this->assertEquals(100, $bucketSum);
 
@@ -554,43 +559,43 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		//Asserting aggregate of Focal Length, 24 has count 12
 		$this->assertEquals("24", $buckets[0]->Key);
 		$this->assertEquals(12, $buckets[0]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',24)->count(),12);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',24)->count(),12);
 		$bucketSum += $buckets[0]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 50 has count 11
 		$this->assertEquals("50", $buckets[1]->Key);
 		$this->assertEquals(11, $buckets[1]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',50)->count(),11);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',50)->count(),11);
 		$bucketSum += $buckets[1]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 80 has count 11
 		$this->assertEquals("80", $buckets[2]->Key);
 		$this->assertEquals(11, $buckets[2]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',80)->count(),11);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',80)->count(),11);
 		$bucketSum += $buckets[2]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 90 has count 20
 		$this->assertEquals("90", $buckets[3]->Key);
 		$this->assertEquals(20, $buckets[3]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',90)->count(),20);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',90)->count(),20);
 		$bucketSum += $buckets[3]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 120 has count 12
 		$this->assertEquals("120", $buckets[4]->Key);
 		$this->assertEquals(12, $buckets[4]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',120)->count(),12);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',120)->count(),12);
 		$bucketSum += $buckets[4]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 150 has count 17
 		$this->assertEquals("150", $buckets[5]->Key);
 		$this->assertEquals(17, $buckets[5]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',150)->count(),17);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',150)->count(),17);
 		$bucketSum += $buckets[5]->DocumentCount;
 
 		//Asserting aggregate of Focal Length, 200 has count 17
 		$this->assertEquals("200", $buckets[6]->Key);
 		$this->assertEquals(17, $buckets[6]->DocumentCount);
-		$this->assertEquals(FlickrPhoto::get()->filter('FocalLength35mm',200)->count(),17);
+		$this->assertEquals(FlickrPhotoTO::get()->filter('FocalLength35mm',200)->count(),17);
 		$bucketSum += $buckets[6]->DocumentCount;
 		$this->assertEquals(100, $bucketSum);
 
@@ -625,16 +630,17 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals(18, $buckets[4]->DocumentCount);
 		$bucketSum += $buckets[4]->DocumentCount;
 
-		//Asserting aggregate of Shutter Speed, 2 has count 11
-		$this->assertEquals("2", $buckets[5]->Key);
-		$this->assertEquals(11, $buckets[5]->DocumentCount);
-		$bucketSum += $buckets[5]->DocumentCount;
+		//Asserting aggregate of Shutter Speed, 1 has count 1
+		$this->assertEquals("1", $buckets[5]->Key);
+		$this->assertEquals(1, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 2 has count 10
+		$this->assertEquals("2", $buckets[6]->Key);
+		$this->assertEquals(10, $buckets[6]->DocumentCount);
 
 		//Asserting aggregate of Shutter Speed, 6 has count 12
-		$this->assertEquals("6", $buckets[6]->Key);
-		$this->assertEquals(12, $buckets[6]->DocumentCount);
-		$bucketSum += $buckets[6]->DocumentCount;
-		$this->assertEquals(100, $bucketSum);
+		$this->assertEquals("6", $buckets[7]->Key);
+		$this->assertEquals(12, $buckets[7]->DocumentCount);
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
@@ -712,6 +718,9 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
+
+		print_r($agg);
+
 		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
@@ -785,6 +794,11 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
 
+
+		foreach ($buckets as $bucket) {
+			echo "{$bucket->Key} => {$bucket->DocumentCount}\n";
+		}
+
 		//Asserting aggregate of Shutter Speed, 2/250 has count 17
 		$this->assertEquals("2/250", $buckets[0]->Key);
 		$this->assertEquals(17, $buckets[0]->DocumentCount);
@@ -805,13 +819,17 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals("1/2", $buckets[4]->Key);
 		$this->assertEquals(18, $buckets[4]->DocumentCount);
 
-		//Asserting aggregate of Shutter Speed, 2 has count 11
-		$this->assertEquals("2", $buckets[5]->Key);
-		$this->assertEquals(11, $buckets[5]->DocumentCount);
+		//Asserting aggregate of Shutter Speed, 1 has count 1
+		$this->assertEquals("1", $buckets[5]->Key);
+		$this->assertEquals(1, $buckets[5]->DocumentCount);
+
+		//Asserting aggregate of Shutter Speed, 2 has count 10
+		$this->assertEquals("2", $buckets[6]->Key);
+		$this->assertEquals(10, $buckets[6]->DocumentCount);
 
 		//Asserting aggregate of Shutter Speed, 6 has count 12
-		$this->assertEquals("6", $buckets[6]->Key);
-		$this->assertEquals(12, $buckets[6]->DocumentCount);
+		$this->assertEquals("6", $buckets[7]->Key);
+		$this->assertEquals(12, $buckets[7]->DocumentCount);
 
 		//Asserting name of aggregate as Aperture
 		$agg = $aggregations[3];
@@ -892,6 +910,9 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testThreeAggregatesSelected() {
+		$ct = FlickrPhotoTO::get()->count();
+		echo "There are $ct flickr photos\n";
+
 		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $this->search('New Zealand', $fields, array('ISO' => 400,
 										'Aspect' => 'Vertical'));
@@ -968,8 +989,8 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
-		$es->setClasses('FlickrPhoto');
-		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$es->setClasses('FlickrPhotoTO');
+		$es->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$resultList = $es->search('New Zealand');
 		$this->assertEquals($resultList->getAggregations(), $es->getAggregations());
 	}
@@ -981,8 +1002,8 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
-		$es->setClasses('FlickrPhoto');
-		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$es->setClasses('FlickrPhotoTO');
+		$es->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 
 		//Add filters
 		foreach ($filters as $key => $value) {
@@ -1011,8 +1032,8 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$es->setStart(0);
 		$es->setPageLength(10);
 		//$es->addFilter('IsInSiteTree', false);
-		$es->setClasses('FlickrPhoto');
-		$es->setQueryResultManipulator('FlickrPhotoElasticaSearchHelper');
+		$es->setClasses('FlickrPhotoTO');
+		$es->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 
 		//Add filters
 		foreach ($filters as $key => $value) {
