@@ -28,7 +28,7 @@ Change it, enhance it and most importantly enjoy it!
 	<% require themedCSS('layout') %>
 	<link rel="shortcut icon" href="$ThemeDir/images/favicon.ico" />
 </head>
-<body class="$ClassName<% if not $Menu(2) %> nooooooooooo-sidebar<% end_if %>" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
+<body class="$ClassName<% if not $HasAggregations %> no-sidebar<% end_if %>" <% if $i18nScriptDirection %>dir="$i18nScriptDirection"<% end_if %>>
 <% include Header %>
 <div class="main" role="main">
 	<div class="inner typography line">
@@ -38,10 +38,8 @@ Change it, enhance it and most importantly enjoy it!
 <% include Footer %>
 
 <% require javascript('framework/thirdparty/jquery/jquery.js') %>
-<%-- Please move: Theme javascript (below) should be moved to mysite/code/page.php
+<%-- Please move: Theme javascript (below) should be moved to mysite/code/page.ph --%>
 <script type="text/javascript" src="{$ThemeDir}/javascript/script.js"></script>
--->
 
 </body>
 </html>
-
