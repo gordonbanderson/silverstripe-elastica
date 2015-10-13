@@ -69,6 +69,9 @@ FlickrPhotoTO:
     MediumHeight: 400,
     MediumWidth: 300
     IndexingOff: true
+    OriginalWidth: 1446
+    OriginalHeight: 1427
+    AspectRatio: 1.013
 
 
 
