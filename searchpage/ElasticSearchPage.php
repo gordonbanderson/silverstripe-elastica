@@ -181,6 +181,15 @@ class ElasticSearchPage extends Page {
 		}
 		return $result;
 	}
+
+
+	/*
+	If a manipulator object is set, assume aggregations are present.  Used to add the column
+	for aggregates
+	 */
+	public function HasAggregations() {
+		return isset($this->SearchHelper);
+	}
 }
 
 
