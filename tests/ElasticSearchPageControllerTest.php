@@ -231,3 +231,5 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj->write();
 		$searchPageObj->publish('Stage','Live');
 		$response3 = $this->get($firstPageURL);
+	}
+}
