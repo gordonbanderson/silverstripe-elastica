@@ -1,5 +1,8 @@
 <?php
 
+use SilverStripe\Elastica\ElasticSearcher;
+
+
 /**
  * Test the functionality of the Searchable extension
  * @package elastica
@@ -211,16 +214,41 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
 
-		print_r($doc);
-
 		$this->assertEquals($expected, $doc);
 	}
 
 
 	public function testElasticaResult() {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
-		//$doc = $flickrPhoto->getElasticaResult()->getData();
-		//TODO
+
+		$resultList = $this->getResultsFor('Bangkok');
+
+		// there is only one result.  Note lack of a 'first' method
+		foreach ($resultList->getIterator() as $fp) {
+			//This is an Elastica\Result object
+			$elasticaResult = $fp->getElasticaResult();
+
+			$fields = $elasticaResult->getSource();
+
+			$this->assertEquals($fp->Title, $fields['Title']);
+			$this->assertEquals($fp->FlickrID, $fields['FlickrID']);
+			$this->assertEquals($fp->Description, $fields['Description']);
+			$this->assertEquals($fp->TakenAt, $fields['TakenAt']);
+			$this->assertEquals($fp->FirstViewed, $fields['FirstViewed']);
+			$this->assertEquals($fp->Aperture, $fields['Aperture']);
+
+			//ShutterSpeed is a special case, mangled field
+			$this->assertEquals('0.01|1/100', $fields['ShutterSpeed']);
+			$this->assertEquals($fp->FocalLength35mm, $fields['FocalLength35mm']);
+			$this->assertEquals($fp->ISO, $fields['ISO']);
+			$this->assertEquals($fp->AspectRatio, $fields['AspectRatio']);
+
+			//Empty arrays for null values
+			$this->assertEquals(array(), $fields['Photographer']);
+			$this->assertEquals(array(), $fields['FlickrTagTOs']);
+			$this->assertEquals(array(), $fields['FlickrSetTOs']);
+			$this->assertEquals(false, $fields['IsInSiteTree']);
+		}
 	}
 
 
@@ -246,6 +274,20 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
+
+
+	private function getResultsFor($query, $pageLength = 10) {
+		$es = new ElasticSearcher();
+		$es->setStart(0);
+		$es->setPageLength($pageLength);
+		//$es->addFilter('IsInSiteTree', false);
+		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $es->search($query, $fields)->getList();
+		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));
+		return $resultList;
 	}
 
 }
