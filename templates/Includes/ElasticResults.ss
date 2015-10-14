@@ -8,19 +8,7 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResul
 </div>
 <% loop $SearchResults %>
 
-<div class="searchResult" id="$ClassName $ID">
-<a href="$Link"><h4><% if $SearchHighlightsByField.Title %><% loop $SearchHighlightsByField.Title %>$Snippet<% end_loop %><% else %>$Title<% end_if %></h4></a>
-<% loop $SearchHighlights %>$Snippet &hellip;<% end_loop %>
-<div class="searchFooter">
-<% if $SearchHighlightsByField.Link %>
-<% loop $SearchHighlightsByField.Link %>$Snippet<% end_loop %>
-<% else %>
-  $AbsoluteLink
-<% end_if %>
-
-- $LastEdited.Format(d/m/y)
-</div>
-</div>
+$RenderResult
 
 <% end_loop %>
 
@@ -38,11 +26,17 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResul
         <a class="prev" href="$SearchResults.PrevLink" title="View the previous page">&larr;</a>
         <% end_if %>
         <span>
-            <% loop $SearchResults.Pages %>
+            <% loop $SearchResults.PaginationSummary(4) %>
                 <% if $CurrentBool %>
-                $PageNum
+                <span class="current">$PageNum</span>
                 <% else %>
-                <a href="$Link" title="View page number $PageNum" class="go-to-page">$PageNum</a>
+                <% if $Link %>
+	  					<a href="$Link" title="View page number $PageNum" class="go-to-page">$PageNum</a>
+	  				<% else %>
+	  					<span class="dotdotdot">&hellip;</span>
+	  			<% end_if %>
+
+
                 <% end_if %>
             <% end_loop %>
         </span>
