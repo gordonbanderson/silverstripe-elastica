@@ -27,7 +27,28 @@
 }
 
 
+/* -- search results -- */
+div.searchResult {
+	clear: both;
+}
 
+
+div.searchResult .infoAndImage {
+	display: table;
+	width: 100%;
+}
+
+.infoAndImage .searchResultInfo, .infoAndImage img {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.infoAndImage img {
+	float: right;
+}
+
+
+/* -- aggregations -- */
 .main .secondary ul.aggregations li {
     padding: 10px 0;
     display: block;
@@ -59,3 +80,21 @@ span.count {
 	color: #AAA;
 	font-weight: bold;
 }
+
+
+#PageNumbers {
+	clear: both;
+	text-align: center;
+	margin-top: 2em;
+}
+
+#PageNumbers a {
+	padding: 4px 8px;
+	background: #E7E7E7;
+}
+
+#PageNumbers span.current, #PageNumber span.dotdotdot {
+	padding: 4px 8px;
+}
+
+
