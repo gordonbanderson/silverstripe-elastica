@@ -446,7 +446,7 @@ class Searchable extends \DataExtension {
 				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 					byID($this->owner->ID);
 				if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
-					echo "Deleting due to show in search set to false\n";
+					//echo "Deleting due to show in search set to false\n";
 					$this->doDeleteDocument();
 				}
 			}
