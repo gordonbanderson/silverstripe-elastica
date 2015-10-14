@@ -33,12 +33,15 @@ class Searchable extends \DataExtension {
 		'HTMLText'    => 'string',
 		'HTMLVarchar' => 'string',
 		'Int'         => 'integer',
-		'SS_Datetime' => 'date',
 		'Text'        => 'string',
+		'VarChar'        => 'string',
 		'Varchar'     => 'string',
 		'Year'        => 'integer',
+
+		// The 2 different date types will be stored with different formats
 		'Date'        => 'date',
-		'DBLocale'    => 'string',
+		'Datetime' => 'date',
+		'DBLocale'    => 'string'
 	);
 
 	/**
@@ -132,21 +135,30 @@ class Searchable extends \DataExtension {
 		$result = array();
 
 		foreach ($fields as $name => $params) {
+			//echo "GEF T1: Checking field $name \n";
+
 			$type = null;
 			$spec = array();
 
 			$name = str_replace('()', '', $name);
-			//echo "Checking $name \n";
 
 			if (array_key_exists($name, $db)) {
 				$class = $db[$name];
 
+				//echo "GEF T2: in db \n";
+
 				if (($pos = strpos($class, '('))) {
+					//FIXME?  Bracket removed 8 lines ago
+					// Valid in the case of Varchar(255)
 					$class = substr($class, 0, $pos);
 				}
-				if (array_key_exists($class, self::$mappings)) {
-					$spec['type'] = self::$mappings[$class];
 
+				//echo "GEF T3: Checking for mapping for $class\n";
+
+				if (array_key_exists($class, self::$mappings)) {
+					//echo "GEF T4: $class exists in mappings\n";
+					$spec['type'] = self::$mappings[$class];
+					//echo "GEF T5: Date tweaking\n";
 					if ($spec['type'] === 'date') {
 						if ($class == 'Date') {
 							$spec['format'] = 'y-M-d';
@@ -155,13 +167,18 @@ class Searchable extends \DataExtension {
 						}
 					}
 					if ($class === 'HTMLText' || $class === 'HTMLVarchar') {
+						//echo "GEF T6: Recording that field is HTML\n";
 						array_push($this->html_fields, $name);
 					}
 				}
 			} else {
 				// field name is not in the db, it could be a method
+				//echo "GEF T7: Getting relationships for lists and has one\n";
 				$has_lists = $this->getListRelationshipMethods();
 				$has_ones = $this->owner->has_one();
+
+				//echo "GEF T8: Checking for $name in \n";
+				//print_r($has_lists);
 
 				// check has_many and many_many relations
 				if (isset($has_lists[$name])) {
@@ -214,41 +231,6 @@ class Searchable extends \DataExtension {
 				}
 			}
 
-			// if the type is string store stemmed and unstemmed
-			/*
-			curl -XPUT 'http://localhost:9200/my_index' -d '
-{
-	"settings": { "number_of_shards": 1 },
-	"mappings": {
-		"my_type": {
-			"properties": {
-				"title": {
-					"type":     "string",
-					"analyzer": "english",
-					"fields": {
-						"std":   {
-							"type":     "string",
-							"analyzer": "standard"
-						}
-					}
-				}
-			}
-		}
-	}
-}
-'
-
-Title
-Array
-(
-	[type] => string
-)
-
-
-			 */
-		   // echo "BEFORE: ($name):\n========\n";
-		   // print_r($spec);
-
 			// in the case of a relationship type will not be set
 			if (isset($spec['type'])) {
 				if ($spec['type'] == 'string') {
@@ -261,13 +243,25 @@ Array
 					// FIXME - make index/locale specific, get from settings
 					$spec['analyzer'] = 'stemmed';
 				}
+			} else {
+				$message = "Field $name has no type associated with it";
+				//echo "SPEC PRE ERROR FOR $name\n";
+				//print_r($spec);
+				//asdf;
+				//die;
+				//throw new \Exception($message);
 			}
 
 			//echo "AFTER: ($name):\n========\n";
 			//print_r($spec);
+			//echo "/AFTER: ($name):\n========\n\n\n\n";
 
 			$result[$name] = $spec;
 		}
+
+
+		//echo "ALL FIELDS\n";
+		//print_r($result);
 
 		return $result;
 	}
@@ -683,6 +677,9 @@ Array
 		}
 
 		foreach ($searchableFields as $name => $searchableField) {
+			//echo "Checkingg searchable field $name =>\n";
+			//print_r($searchableField);
+
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
 			} else if (isset($searchableField['__method'])) {
@@ -700,12 +697,16 @@ Array
 				$doSF->ClazzName = $this->owner->ClassName;
 				$doSF->Name = $name;
 
+				//echo "DOSF CN,NAME = {$doSF->ClazzName}, $name\n";
+
 				if (isset($searchableField['type'])) {
 					$doSF->Type = $searchableField['type'];
 				} else if (isset($searchableField['__method'])) {
 					$doSF->Name = $searchableField['__method'];
 					$doSF->Type = 'relationship';
 				} else {
+					//echo "\tBug zone\n";
+					//print_r($searchableField);
 					$doSF->Name = $searchableField['properties']['__method'];
 					$doSF->Type = 'relationship';
 				}
@@ -750,6 +751,16 @@ Array
 		}
 
 		return $inSiteTree;
+	}
+
+
+	/*
+	Allow the option of overriding the default template with one of <ClassName>ElasticSearchResult
+	 */
+	public function RenderResult() {
+		$vars = new \ArrayData(array('SearchResult' => $this->owner));
+		$possibleTemplates = array($this->owner->ClassName.'ElasticSearchResult', 'ElasticSearchResult');
+		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}
 
 }
