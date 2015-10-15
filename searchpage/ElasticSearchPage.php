@@ -188,7 +188,7 @@ class ElasticSearchPage extends Page {
 	for aggregates
 	 */
 	public function HasAggregations() {
-		return isset($this->SearchHelper);
+		return $this->SearchHelper != null;
 	}
 }
 
