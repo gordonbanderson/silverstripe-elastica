@@ -51,6 +51,11 @@ div.searchResult .infoAndImage {
 	float: right;
 }
 
+div.searchFooter {
+	margin-top: 6px;
+	color: #777;
+}
+
 /* -- aggregations -- */
 .main .secondary ul.aggregations li {
     padding: 10px 0;
