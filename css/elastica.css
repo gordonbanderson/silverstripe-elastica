@@ -47,6 +47,9 @@ div.searchResult .infoAndImage {
 	float: right;
 }
 
+.source {
+	float: right;
+}
 
 /* -- aggregations -- */
 .main .secondary ul.aggregations li {
