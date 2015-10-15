@@ -7,13 +7,9 @@
 Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResults.Count <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
 </div>
 <% loop $SearchResults %>
-
 $RenderResult
-
 <% end_loop %>
-
 <% else %>
-
 <div class="noResultsFound">
   <% _t('SearchPage.NO_RESULTS_FOUND', 'Sorry, your search query did not return any results') %>
   <% end_if %>
