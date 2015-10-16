@@ -34,7 +34,8 @@ class ElasticSearchPage extends Page {
 		'Identifier' => 'Varchar',
 		'ResultsPerPage' => 'Int',
 		'SearchHelper' => 'Varchar',
-		'SiteTreeOnly' => 'Boolean'
+		'SiteTreeOnly' => 'Boolean',
+		'ContentForEmptySearch' => 'HTMLText'
 	);
 
 	private static $has_many = array('SearchableFields' => 'ElasticSearchPageSearchField');
@@ -66,6 +67,9 @@ class ElasticSearchPage extends Page {
 		$html .= "</p></div>";
 		$infoField = new LiteralField('InfoField',$html);
 		$fields->addFieldToTab('Root.SearchDetails', $infoField);
+
+		$fields->addFieldToTab('Root.Main', new HTMLEditorField('ContentForEmptySearch'));
+
 
 
 		$identifierField = new TextField('Identifier',
@@ -108,7 +112,6 @@ class ElasticSearchPage extends Page {
         $messageField = new LiteralField('SearchFieldsMessage',$html);
         $messageField->addExtraClass('message warning');
         $fields->addFieldToTab('Root.SearchDetails', $messageField);
-
 
 		return $fields;
 	}
@@ -295,6 +298,22 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} else {
 			return $data;
 		}
+	}
+
+
+
+	/*
+	Return true if the query is not empty
+	 */
+	public function QueryIsEmpty() {
+		$result = !isset($_GET['q']);
+		if (isset($_GET['q']))	{
+			$q = $_GET['q'];
+			if ($q == '') {
+				$result = true;
+			}
+		}
+		return $result;
 	}
 
 
