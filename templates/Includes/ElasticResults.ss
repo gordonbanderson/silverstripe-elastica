@@ -2,7 +2,8 @@
 <div class="searchResults">
 <% if $SearchResults.Count > 0 %>
 <div class="resultsFound">
-Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResults.Count <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
+Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;
+($NumberOfResults <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
 </div>
 <% loop $SearchResults %>
 $RenderResult
