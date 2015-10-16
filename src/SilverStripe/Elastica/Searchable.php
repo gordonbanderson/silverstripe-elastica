@@ -292,6 +292,11 @@ class Searchable extends \DataExtension {
 
 		$mapping->setProperties($fields);
 
+		//This concatenates all the fields together into a single field.
+		//Initially added for suggestions compatibility, in that searching
+		//_all field picks up all possible suggestions
+		$mapping->enableAllField();
+
 		//echo "\n\n--------\n".$this->owner->ClassName.'\n';
 		//print_r($fields);
 
