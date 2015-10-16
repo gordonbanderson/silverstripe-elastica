@@ -291,6 +291,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchResults'] = $paginated;
 		$data['Elapsed'] = $elapsed;
 		$data['SearchPerformed'] = true;
+		$data['NumberOfResults'] = $paginated->getTotalItems();
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
