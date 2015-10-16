@@ -1,7 +1,5 @@
 <% require css("elastica/css/elastica.css") %>
-
 <div class="searchResults">
-
 <% if $SearchResults.Count > 0 %>
 <div class="resultsFound">
 Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResults.Count <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
@@ -9,11 +7,14 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResul
 <% loop $SearchResults %>
 $RenderResult
 <% end_loop %>
+</div>
 <% else %>
+<% if not $QueryIsEmpty %>
 <div class="noResultsFound">
   <% _t('SearchPage.NO_RESULTS_FOUND', 'Sorry, your search query did not return any results') %>
-  <% end_if %>
 </div>
+<% end_if %>
+<% end_if %>
 
 <% if $SearchResults.MoreThanOnePage %>
 <div id="PageNumbers">
@@ -45,5 +46,11 @@ $RenderResult
 
 
 </div>
+<% if $QueryIsEmpty %>
+$ContentForEmptySearch
+<% end_if %>
 </div>
+
 </div>
+
+
