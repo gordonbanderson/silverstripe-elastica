@@ -10,10 +10,14 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;($SearchResul
 $RenderResult
 <% end_loop %>
 <% else %>
-<div class="noResultsFound">
-  <% _t('SearchPage.NO_RESULTS_FOUND', 'Sorry, your search query did not return any results') %>
-  <% end_if %>
-</div>
+	<% if not $QueryIsEmpty %>
+		<div class="noResultsFound">
+	  	<% _t('SearchPage.NO_RESULTS_FOUND', 'Sorry, your search query did not return any results') %>
+		</div>
+	<% else %>
+		$ContentForEmptySearch
+	<% end_if %>
+<% end_if %>
 
 <% if $SearchResults.MoreThanOnePage %>
 <div id="PageNumbers">
