@@ -50,7 +50,6 @@ class ElasticaUtil {
 )
 	 */
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
-		print_r($alternativeQuerySuggestions);
 		$suggestedPhrase = null;
 		$originalQuery = $alternativeQuerySuggestions[0]['text'];
 
@@ -95,12 +94,10 @@ class ElasticaUtil {
 					//Need to check capitalisation of terms suggested that are different
 
 					$chr = mb_substr ($possiblyUppercase, 0, 1, "UTF-8");
-					echo "CHAR:$chr";
     				if (mb_strtolower($chr, "UTF-8") != $chr) {
     					$upperLowercaseWord = $lowercaseWord;
     					$upperLowercaseWord[0] = $chr;
 
-    					echo "A=$possiblyUppercaseHighlighted B=$lowercaseWord C=$possiblyUppercaseHighlighted";
     					//$possiblyUppercaseHighlighted = str_replace($lowercaseWord, $possiblyUppercase, $possiblyUppercaseHighlighted);
     					$withHighlights = str_replace($lowercaseWord, $upperLowercaseWord, $possiblyUppercaseHighlighted);
 
@@ -123,10 +120,6 @@ class ElasticaUtil {
 			$resultArray['suggestedQuery'] = implode(' ', $plain);
 			$resultArray['suggestedQueryHighlighted'] = implode(' ', $highlighted);
 		}
-
-					print_r($resultArray);
-
-
 		return $resultArray;
 	}
 }
