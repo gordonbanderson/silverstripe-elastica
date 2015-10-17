@@ -272,7 +272,13 @@ class ElasticSearcher {
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		$resultList = new ResultList($elasticService, $query);
+/*
+		echo "QUERY IN ES\n";
+		print_r($query);
+		die;
+*/
+
+		$resultList = new ResultList($elasticService, $query, $q);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
@@ -293,7 +299,19 @@ class ElasticSearcher {
 		$paginated->setTotalItems($resultList->getTotalItems());
 
 		$this->aggregations = $resultList->getAggregations();
+
+		$this->SuggestedQuery = $resultList->SuggestedQuery;
+
 		return $paginated;
+	}
+
+
+	public function hasSuggestedQuery() {
+		return $this->SuggestedQuery != null;
+	}
+
+	public function getSuggestedQuery() {
+		return $this->SuggestedQuery;
 	}
 
 }
