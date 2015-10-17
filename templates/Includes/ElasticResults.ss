@@ -5,6 +5,9 @@
 Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;
 ($NumberOfResults <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
 </div>
+
+SUggested = $SuggestedQuery
+
 <% loop $SearchResults %>
 $RenderResult
 <% end_loop %>
