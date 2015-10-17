@@ -163,8 +163,37 @@ class QueryGenerator {
 			$query->setSort($sort);
 		}
 
-		return $query;
+		// Add suggestions in case required for poor spellings
 
+		$suggest = new \Elastica\Suggest();
+		$term = new \Elastica\Suggest\Term('suggestion-for-query', '_all');
+		$term->setText($this->queryText);
+		$term->setText('New Zeelind');
+
+
+		$suggest = new \Elastica\Suggest();
+		$term1 = new \Elastica\Suggest\Term('query-term-suggestions', '_all');
+		$term1->setText($this->queryText)->setSize(4);
+		$suggest->addSuggestion($term1);
+
+
+
+		$query->setSuggest($suggest);
+
+		return $query;
+	}
+
+
+	private function getQuerySuggester() {
+		$suggester = array();
+		$suggester['text'] = $this->queryText;
+
+		//With _all field enable in the mapping, Searchable.php class, we can use _all field to
+		//suggest against all fields.  It is not possible to pass an array here
+		$suggester['term'] = array('field' => '_all');
+		$querySuggester = array('query-suggestions' => $suggester);
+
+		return $querySuggester;
 	}
 
 
