@@ -36,9 +36,10 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	private $aggregations;
 
 
-	public function __construct(ElasticaService $service, Query $query) {
+	public function __construct(ElasticaService $service, Query $query, $q) {
 		$this->service = $service;
 		$this->query = $query;
+		$this->originalQueryText = $q;
 	}
 
 	public function __clone() {
@@ -85,9 +86,43 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
 			$ers = $this->service->search($this->query,$this->types);
+
+			//query-term-suggestions is arbitrary name used
+			$suggest = $ers->getSuggests()['query-term-suggestions'];
+
+			$splits = explode(' ', $this->originalQueryText);
+			$ctr = 0;
+			$suggestionMade = false;
+			$suggestedQuery = array();
+
+			//FIXME Caps, or use phrase option
+			foreach ($splits as $queryTerm) {
+				$options = $suggest[$ctr]['options'];
+				//If we have suggestions, take the first one for now
+				if (sizeof($options) > 0) {
+					$suggestionMade = true;
+					//Take the first one
+					$suggestedTerm = $options[0]['text'];
+					array_push($suggestedQuery, $suggestedTerm);
+				} else {
+					//No suggestions, stick with original search term
+					array_push($suggestedQuery, $queryTerm);
+				}
+
+				$ctr++;
+			}
+
+
+			if ($suggestionMade) {
+				$this->SuggestedQuery = implode(' ', $suggestedQuery);
+			}
+
+
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
+
+
 
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
