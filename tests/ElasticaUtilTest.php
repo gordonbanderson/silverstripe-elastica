@@ -46,6 +46,40 @@ class ElasticaUtiTest extends SapphireTest {
 	}
 
 
+/*
+Array
+(
+    [0] => Array
+        (
+            [text] => New Zealand
+            [offset] => 0
+            [length] => 11
+            [options] => Array
+                (
+                )
+
+        )
+
+)
+ */
+
+	public function testNoSuggestionsRequired() {
+		$suggestion = array(
+			'text' => 'New Zealand',
+			'offset' => 0,
+			'length' => 11,
+			'options' => array()
+		);
+		$sa = array();
+		array_push($sa, $suggestion);
+
+		$expected = array();
+
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$this->assertEquals(null, $pair);
+	}
+
+
 
 
 /*
