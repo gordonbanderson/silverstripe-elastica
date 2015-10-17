@@ -88,33 +88,22 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$ers = $this->service->search($this->query,$this->types);
 
 			//query-term-suggestions is arbitrary name used
-			$suggest = $ers->getSuggests()['query-term-suggestions'];
+			$suggest = $ers->getSuggests()['query-phrase-suggestions'];
 
 			$splits = explode(' ', $this->originalQueryText);
-			$ctr = 0;
-			$suggestionMade = false;
-			$suggestedQuery = array();
 
-			//FIXME Caps, or use phrase option
-			foreach ($splits as $queryTerm) {
-				$options = $suggest[$ctr]['options'];
-				//If we have suggestions, take the first one for now
-				if (sizeof($options) > 0) {
-					$suggestionMade = true;
-					//Take the first one
-					$suggestedTerm = $options[0]['text'];
-					array_push($suggestedQuery, $suggestedTerm);
-				} else {
-					//No suggestions, stick with original search term
-					array_push($suggestedQuery, $queryTerm);
-				}
-
-				$ctr++;
+			$suggestedPhrase = null;
+			//Use the first suggested phrase
+			$options = $suggest[0]['options'];
+			if (sizeof($options) > 0) {
+				$suggestedPhrase = $options[0]['text'];
 			}
 
 
-			if ($suggestionMade) {
-				$this->SuggestedQuery = implode(' ', $suggestedQuery);
+
+
+			if ($suggestedPhrase) {
+				$this->SuggestedQuery = $suggestedPhrase;
 			}
 
 
