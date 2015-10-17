@@ -90,16 +90,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			//query-term-suggestions is arbitrary name used
 			$suggest = $ers->getSuggests()['query-phrase-suggestions'];
 
-			$splits = explode(' ', $this->originalQueryText);
-
-			$suggestedPhrase = null;
-			//Use the first suggested phrase
-			$options = $suggest[0]['options'];
-			if (sizeof($options) > 0) {
-				$suggestedPhrase = $options[0]['text'];
-			}
-
-
+			$suggestedPhrase = \ElasticaUtil::getPhraseSuggestion($suggest);
 
 
 			if ($suggestedPhrase) {
