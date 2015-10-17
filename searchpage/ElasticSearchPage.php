@@ -293,6 +293,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchPerformed'] = true;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
 
+		if ($es->hasSuggestedQuery()) {
+			$data['SuggestedQuery'] = $es->getSuggestedQuery();
+		}
+
+
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
 			return $this->useTemplateOverride($data);
