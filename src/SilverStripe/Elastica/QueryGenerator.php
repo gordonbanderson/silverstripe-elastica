@@ -165,16 +165,15 @@ class QueryGenerator {
 
 		// Add suggestions in case required for poor spellings
 
-		$suggest = new \Elastica\Suggest();
-		$term = new \Elastica\Suggest\Term('suggestion-for-query', '_all');
-		$term->setText($this->queryText);
-		$term->setText('New Zeelind');
 
 
 		$suggest = new \Elastica\Suggest();
-		$term1 = new \Elastica\Suggest\Term('query-term-suggestions', '_all');
-		$term1->setText($this->queryText)->setSize(4);
-		$suggest->addSuggestion($term1);
+		$phrase = new \Elastica\Suggest\Phrase('query-phrase-suggestions', '_all');
+		$phrase->setText($this->queryText)->setSize(4);
+		$phrase->setHighlight('*', '*');
+
+		$suggest->addSuggestion($phrase);
+
 
 
 
