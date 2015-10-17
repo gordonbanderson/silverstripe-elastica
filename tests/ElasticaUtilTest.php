@@ -7,10 +7,16 @@
 class ElasticaUtiTest extends SapphireTest {
 
 
-	public function test1() {
-		$sa = $this->getSuggestionArray();
-		$pair = ElasticUtil::getPhraseSuggestion($sa);
-		$this->assertEquals(array(), $pair));
+	public function testPairOfConsecutiveIncorrectWords() {
+		$sa = $this->getSuggestionArray('New Zealind raalway',
+			'new zealand railway',
+			'New *Zealand railway*');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'New Zealand railway',
+			'suggestedQueryHighlighted' => 'New *Zealand railway*'
+		);
+		$this->assertEquals($expected, $pair);
 	}
 
 
@@ -18,7 +24,7 @@ class ElasticaUtiTest extends SapphireTest {
 	 * Simulate a call to Elastica to get suggestions for a given phrase
 	 * @return [type] [description]
 	 */
-	private function getSuggestionArray() {
+	private function getSuggestionArray($phrase, $suggestion, $highlightedSuggestion) {
 		$phrase = 'New Zealind raalway';
 		$result = array();
 		$suggest1 = array();
@@ -28,7 +34,7 @@ class ElasticaUtiTest extends SapphireTest {
 		$options = array();
 		$option0 = array();
 		$option0['text'] = 'new zealand railway';
-		$option0['highlighted'] = '*zealand railway*';
+		$option0['highlighted'] = 'New *Zealand railway*';
 
 		//For completeness, currently not used
 		$option0['score'] = 9.0792E-5;
