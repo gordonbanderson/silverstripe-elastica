@@ -5,7 +5,10 @@
 Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;
 ($NumberOfResults <% _t('SearchPage.RESULTS_FOUND', ' results found') %> in $ElapsedTime seconds)
 </div>
-
+<% if $SuggestedQuery %>
+<p>Showing results for <a href="./?q=$SuggestedQuery">$SuggestedQuery</a></p>
+<p>Search instead for typed in query</p>
+<% end_if %>
 SUggested = $SuggestedQuery
 
 <% loop $SearchResults %>
