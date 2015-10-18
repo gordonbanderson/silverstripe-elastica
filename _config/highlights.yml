@@ -1,7 +1,7 @@
 Elastica:
   Highlights:
-    PreTags: <strong class="hl">
-    PostTags: </strong>
+    PreTags: '<strong class="hl">'
+    PostTags: '</strong>'
     Phrase:
       FragmentSize: 200
       NumberOfFragments: 4
