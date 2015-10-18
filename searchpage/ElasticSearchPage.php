@@ -244,7 +244,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// filters for aggregations
-		$ignore = array('url', 'start','q');
+		$ignore = array('url', 'start','q','is');
 		foreach ($this->request->getVars() as $key => $value) {
 			if (!in_array($key, $ignore)) {
 				$es->addFilter($key,$value);
@@ -292,9 +292,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['Elapsed'] = $elapsed;
 		$data['SearchPerformed'] = true;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
+		$data['OriginalQuery'] = $q;
 
 		if ($es->hasSuggestedQuery()) {
 			$data['SuggestedQuery'] = $es->getSuggestedQuery();
+			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
+			//Link for if the user really wants to try their original query
+			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
+			$data['SearchInsteadForLink'] = $sifLink;
 		}
 
 
