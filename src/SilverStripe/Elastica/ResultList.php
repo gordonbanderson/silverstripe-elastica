@@ -90,19 +90,17 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			//query-term-suggestions is arbitrary name used
 			$suggest = $ers->getSuggests()['query-phrase-suggestions'];
 
-			$suggestedPhrase = \ElasticaUtil::getPhraseSuggestion($suggest);
+			$suggestedPhraseAndHL = \ElasticaUtil::getPhraseSuggestion($suggest);
 
 
-			if ($suggestedPhrase) {
-				$this->SuggestedQuery = $suggestedPhrase;
+			if ($suggestedPhraseAndHL) {
+				$this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
+				$this->SuggestedQueryHighlighted = $suggestedPhraseAndHL['suggestedQueryHighlighted'];
 			}
-
 
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
-
-
 
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
@@ -126,10 +124,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						$selectedAggregations[$key] = $_GET[$key];
 					}
 				}
-
 				$indexedFieldTitleMapping = $manipulator->getIndexFieldTitleMapping();
 			}
-
 			$aggsTemplate = new \ArrayList();
 
 			// Convert the buckets into a form suitable for SilverStripe templates
@@ -177,7 +173,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 					//echo "Buckets found for $key \n";
 					$bucketsAL = new \ArrayList();
 					foreach ($aggs[$key]['buckets'] as $value) {
-						//print_r($value);
 						$ct = new \DataObject();
 						$ct->Key = $value['key'];
 						$ct->DocumentCount = $value['doc_count'];
