@@ -300,11 +300,6 @@ class ElasticaService {
 		$index = $this->getIndex();
 		$this->startBulkIndex();
 
-		echo "REFRESH T1\n";
-
-		echo "INDEXED CLASSES\n";
-		print_r($this->getIndexedClasses());
-
 		foreach ($this->getIndexedClasses() as $classname) {
 			$inSiteTree = false;
 			if (isset(self::$site_tree_classes[$classname])) {
