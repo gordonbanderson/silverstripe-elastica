@@ -20,6 +20,12 @@ class ReindexTask extends \BuildTask {
 		$this->service = $service;
 	}
 
+	/*
+	NOTE: #FIXME
+	Use index aliasing to avoid downtime whilst re-indexing
+	https://www.elastic.co/guide/en/elasticsearch/guide/current/index-aliases.html
+	*/
+
 	public function run($request) {
 		$message = function ($content) {
 			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
