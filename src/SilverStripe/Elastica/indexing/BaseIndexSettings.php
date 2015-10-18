@@ -67,6 +67,11 @@ class BaseIndexSettings {
 	}
 
 
+	public function getAsciiFolding() {
+		return $this->foldedAscii;
+	}
+
+
 	/**
 	 * NOTE: Test with _german_ or _english_
 	 * Set the stopwords for this index
@@ -102,6 +107,9 @@ class BaseIndexSettings {
 	}
 
 
+	/*
+	Generate an Elasticsearch config representing the configurations previously set.
+	 */
 	public function generateConfig() {
 		$settings = array();
 		$settings['analysis'] = array();
@@ -113,8 +121,11 @@ class BaseIndexSettings {
 		$analyzers = array();
 		$analyzerStemmed = array();
 		$analyzerNotStemmed = array();
+		$analyzerFolded = array();
+
 		$analyzerStemmed['type'] = $this->analyzerType;
 		$analyzerNotStemmed['type'] = 'custom';
+
 
 
 		if (sizeof($this->stopWords) > 0) {
@@ -135,10 +146,19 @@ class BaseIndexSettings {
 		array_push($filterNames, 'lowercase');
 		$analyzerNotStemmed['filter'] = $filterNames;
 
+		//Folded analyzer
+		$analyzerFolded['tokenizer'] = 'standard';
+		$analyzerFolded['filters'] = array('lowercase', 'asciifolding');
+
+
 
 		//HTML needs removed for all indexes
 		$analyzers['stemmed'] = $analyzerStemmed;
 		$analyzers['unstemmed'] = $analyzerNotStemmed;
+		if ($this->foldedAscii) {
+			$analyzers['folded'] = $analyzerFolded;
+		}
+
 		$settings['analysis']['analyzer'] = $analyzers;
 		$settings['analysis']['filter'] = $filters;
 
