@@ -4,6 +4,7 @@ Elastica:
     - 'q'
     - 'url'
     - 'start'
+    - 'is'
 
     #URL variable tools, see https://docs.silverstripe.org/en/3.1/developer_guides/debugging/url_variable_tools/
     - 'flush'
@@ -17,10 +18,4 @@ Elastica:
     - 'showqueries'
     - 'previewwrite'
     - 'BackURL'
-    - 'start'
-    - 'start'
-    - 'start'
-    - 'start'
-
-
 
