@@ -90,18 +90,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			//query-term-suggestions is arbitrary name used
 			$suggest = $ers->getSuggests()['query-phrase-suggestions'];
 
-			$suggestedPhrase = \ElasticaUtil::getPhraseSuggestion($suggest);
+			$suggestedPhraseAndHL = \ElasticaUtil::getPhraseSuggestion($suggest);
 
-			if ($suggestedPhrase) {
-				$this->SuggestedQuery = $suggestedPhrase['suggestedQuery'];
-				$this->SuggestedQueryHighlighted = $suggestedPhrase['suggestedQueryHighlighted'];
+			if ($suggestedPhraseAndHL) {
+				$this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
+				$this->SuggestedQueryHighlighted = $suggestedPhraseAndHL['suggestedQueryHighlighted'];
 			}
 
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
-
-
 
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
@@ -125,10 +123,8 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						$selectedAggregations[$key] = $_GET[$key];
 					}
 				}
-
 				$indexedFieldTitleMapping = $manipulator->getIndexFieldTitleMapping();
 			}
-
 			$aggsTemplate = new \ArrayList();
 
 			// Convert the buckets into a form suitable for SilverStripe templates
@@ -176,7 +172,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 					//echo "Buckets found for $key \n";
 					$bucketsAL = new \ArrayList();
 					foreach ($aggs[$key]['buckets'] as $value) {
-						//print_r($value);
 						$ct = new \DataObject();
 						$ct->Key = $value['key'];
 						$ct->DocumentCount = $value['doc_count'];
@@ -304,7 +299,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 		// Title and Link are special cases
 		$ignore = array('Title', 'Link');
 
-
 		foreach ($found as $item) {
 			// Safeguards against indexed items which might no longer be in the DB
 			if(array_key_exists($item->getId(), $retrieved[$item->getType()])) {
@@ -312,8 +306,12 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
                 $data_object = $retrieved[$item->getType()][$item->getId()];
                 $data_object->setElasticaResult($item);
                 $highlights = $item->getHighlights();
+
+                //$snippets will contain the highlights shown in the body of the search result
+                //$namedSnippets will be used to add highlights to the Link and Title
                 $snippets = new \ArrayList();
                 $namedSnippets = new \ArrayList();
+
                 foreach (array_keys($highlights) as $fieldName) {
                 	$fieldSnippets = new \ArrayList();
 
@@ -330,11 +328,27 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
                 	}
 
                 	if ($fieldSnippets->count() > 0) {
-                		$namedSnippets->$fieldName = $fieldSnippets;
+                		//Fields may have a dot in their name, e.g. Title.standard - take this into account
+                		//As dots are an issue with template syntax, store as Title_standard
+                		$splits = explode('.', $fieldName);
+                		if (sizeof($splits) == 1) {
+                			$namedSnippets->$fieldName = $fieldSnippets;
+                		} else {
+                			// The Title.standard case, for example
+                			$splits = explode('.', $fieldName);
+                			$compositeFielddName = $splits[0].'_'.$splits[1];
+                			$namedSnippets->$compositeFielddName = $fieldSnippets;
+                		}
+
                 	}
+
+
                 }
+
+
                 $data_object->SearchHighlights = $snippets;
                 $data_object->SearchHighlightsByField = $namedSnippets;
+
 				$result[] = $data_object;
 
 			}

@@ -32,54 +32,10 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 		// set the order to be taken at in reverse if query is blank other than aggs
 		$params = $query->getParams();
 
-		print_r($params);
-
 		$wildcard = array(
 			'query_string' => array('query' => '*')
 		);
 
-/*
-		//This is the case of the query being a multi_match against several fields
-		if (is_subclass_of($params['query'], 'Elastica\Query\AbstractQuery')) {
-			echo "**** QUERY PARAM INSTANCE OF Query ****\n";
-			$params2 = $params['query']->getParams();
-
-			echo "PARAMS2:\n";
-			print_r($params2);
-
-			$this->queryGenerator->setShowResultsForEmptyQuery(true);
-
-			if (
-					$this->originalQueryString == '' &&
-					$this->queryGenerator->getShowResultsForEmptyQuery()
-				) {
-				$query->setParam('query', $wildcard);
-				$query->setSort(array('TakenAt'=> 'desc'));
-			} else {
-				//If a combination of text query and aggregation filters are used then we have
-				//Elastica\Query\Filtered wrapping a Elastica\Query\MultiMatch
-
-				if (is_subclass_of($params2['query'], 'Elastica\Query\AbstractQuery')) {
-					$mmQuery = $params2['query'];
-					$params3 = $mmQuery->getParams();
-					if ($params3['query'] == '') {
-						$mmQuery->setSort(array('TakenAt'=> 'desc'));
-					}
-				} elseif (!isset($params2['query']['filtered']['query']['query_string'])) {
-					$query->setSort(array('TakenAt'=> 'desc'));
-				}
-			}
-
-			//This is the case of the query being a simple text string against all fields
-		} else {
-			echo "PARAMS:\n";
-			print_r($params);
-
-			if (!isset($params['query']['filtered']['query']['query_string'])) {
-				//FIXME $params['query']->setSort(array('TakenAt'=> 'desc'));
-			}
-		}
-*/
 		if ($query->OriginalQueryText == '') {
 			$query->setSort(array('TakenAt'=> 'desc'));
 		}

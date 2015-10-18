@@ -7,19 +7,99 @@
 class ElasticaUtiTest extends SapphireTest {
 
 
-	public function test1() {
-		$sa = $this->getSuggestionArray();
-		$pair = ElasticUtil::getPhraseSuggestion($sa);
-		$this->assertEquals(array(), $pair));
+	public function testPairOfConsecutiveIncorrectWords() {
+		$sa = $this->getSuggestionArray('New Zealind raalway',
+			'new zealand railway',
+			'New *Zealand railway*');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'New Zealand railway',
+			'suggestedQueryHighlighted' => 'New *Zealand railway*'
+		);
+		$this->assertEquals($expected, $pair);
 	}
+
+
+	public function testOneIncorrectWord() {
+		$sa = $this->getSuggestionArray('New Zealind',
+			'new zealand',
+			'New *Zealand*');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'New Zealand',
+			'suggestedQueryHighlighted' => 'New *Zealand*'
+		);
+		$this->assertEquals($expected, $pair);
+	}
+
+
+	public function testOneIncorrectWordLowerCase() {
+		$sa = $this->getSuggestionArray('new zealind',
+			'new zealand',
+			'new *zealand*');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'new zealand',
+			'suggestedQueryHighlighted' => 'new *zealand*'
+		);
+		$this->assertEquals($expected, $pair);
+	}
+
+
+/*
+Array
+(
+    [0] => Array
+        (
+            [text] => New Zealand
+            [offset] => 0
+            [length] => 11
+            [options] => Array
+                (
+                )
+
+        )
+
+)
+ */
+
+	public function testNoSuggestionsRequired() {
+		$suggestion = array(
+			'text' => 'New Zealand',
+			'offset' => 0,
+			'length' => 11,
+			'options' => array()
+		);
+		$sa = array();
+		array_push($sa, $suggestion);
+
+		$expected = array();
+
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$this->assertEquals(null, $pair);
+	}
+
+
+
+
+/*
+	public function testQueryNoSuggestions() {
+		$sa = $this->getSuggestionArray('New Zealand','','');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'New Zealand railway',
+			'suggestedQueryHighlighted' => 'New *Zealand railway*'
+		);
+		$this->assertEquals($expected, $pair);
+	}
+*/
 
 
 	/**
 	 * Simulate a call to Elastica to get suggestions for a given phrase
 	 * @return [type] [description]
 	 */
-	private function getSuggestionArray() {
-		$phrase = 'New Zealind raalway';
+	private function getSuggestionArray($phrase, $suggestion, $highlightedSuggestion) {
 		$result = array();
 		$suggest1 = array();
 		$suggest1['text'] = $phrase;
@@ -27,8 +107,8 @@ class ElasticaUtiTest extends SapphireTest {
 		$suggest1['length'] = strlen($phrase);
 		$options = array();
 		$option0 = array();
-		$option0['text'] = 'new zealand railway';
-		$option0['highlighted'] = '*zealand railway*';
+		$option0['text'] = $suggestion;
+		$option0['highlighted'] = $highlightedSuggestion;
 
 		//For completeness, currently not used
 		$option0['score'] = 9.0792E-5;
@@ -37,23 +117,5 @@ class ElasticaUtiTest extends SapphireTest {
 		$suggest1['options'] = $options;
 		array_push($result, $suggest1);
 		return $result;
-		/*
-			/*
-	Array
-(
-    [0] => Array
-        (
-            [text] => New Zealind raalway
-            [offset] => 0
-            [length] => 19
-            [options] => Array
-                (
-                    [0] => Array
-                        (
-                            [text] => new zealand railway
-                            [highlighted] => new *zealand railway*
-                            [score] => 9.079269E-5
-                        )
-		 */
 	}
 }

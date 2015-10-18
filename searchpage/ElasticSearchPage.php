@@ -245,6 +245,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// filters for aggregations
 		$ignore = array('url', 'start','q','is');
+		$ignore = \Config::inst()->get('Elastica', 'BlackList');
 		foreach ($this->request->getVars() as $key => $value) {
 			if (!in_array($key, $ignore)) {
 				$es->addFilter($key,$value);
@@ -301,7 +302,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
 			$data['SearchInsteadForLink'] = $sifLink;
 		}
-
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
