@@ -92,11 +92,10 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
 			$suggestedPhrase = \ElasticaUtil::getPhraseSuggestion($suggest);
 
-
 			if ($suggestedPhrase) {
-				$this->SuggestedQuery = $suggestedPhrase;
+				$this->SuggestedQuery = $suggestedPhrase['suggestedQuery'];
+				$this->SuggestedQueryHighlighted = $suggestedPhrase['suggestedQueryHighlighted'];
 			}
-
 
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
