@@ -301,6 +301,7 @@ class ElasticSearcher {
 		$this->aggregations = $resultList->getAggregations();
 
 		$this->SuggestedQuery = $resultList->SuggestedQuery;
+		$this->SuggestedQueryHighlighted = $resultList->SuggestedQueryHighlighted;
 
 		return $paginated;
 	}
@@ -312,6 +313,10 @@ class ElasticSearcher {
 
 	public function getSuggestedQuery() {
 		return $this->SuggestedQuery;
+	}
+
+	public function getSuggestedQueryHighlighted() {
+		return $this->SuggestedQueryHighlighted;
 	}
 
 }
