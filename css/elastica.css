@@ -36,6 +36,11 @@ div.searchResult {
 	clear: both;
 }
 
+strong.hl {
+	font-weight: bold;
+
+}
+
 
 div.searchResult .infoAndImage {
 	display: table;
