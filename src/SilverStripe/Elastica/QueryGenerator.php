@@ -170,7 +170,14 @@ class QueryGenerator {
 		$suggest = new \Elastica\Suggest();
 		$phrase = new \Elastica\Suggest\Phrase('query-phrase-suggestions', '_all');
 		$phrase->setText($this->queryText)->setSize(4);
-		$phrase->setHighlight('*', '*');
+
+		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
+		$preTags = $highlightsCfg['PreTags'];
+		$postTags = $highlightsCfg['PostTags'];
+
+
+
+		$phrase->setHighlight($preTags, $postTags);
 
 		$suggest->addSuggestion($phrase);
 
@@ -178,6 +185,7 @@ class QueryGenerator {
 
 
 		$query->setSuggest($suggest);
+
 
 		return $query;
 	}
