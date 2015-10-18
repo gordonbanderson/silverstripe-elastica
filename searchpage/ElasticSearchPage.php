@@ -244,7 +244,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// filters for aggregations
-		$ignore = array('url', 'start','q');
+		$ignore = \Config::inst()->get('Elastica', 'BlackList');
 		foreach ($this->request->getVars() as $key => $value) {
 			if (!in_array($key, $ignore)) {
 				$es->addFilter($key,$value);
@@ -295,8 +295,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		if ($es->hasSuggestedQuery()) {
 			$data['SuggestedQuery'] = $es->getSuggestedQuery();
+			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
 		}
-
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
