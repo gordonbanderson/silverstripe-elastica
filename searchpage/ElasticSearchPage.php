@@ -223,6 +223,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SearchPerformed' => false
 		);
 
+		// Do not show suggestions if this flag is set
+		$ignoreSuggestions = isset($_GET['is']);
+
 		// record the time
 		$startTime = microtime(true);
 
@@ -294,6 +297,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchPerformed'] = true;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
 		$data['OriginalQuery'] = $q;
+		$data['IgnoreSuggestions'] = $ignoreSuggestions;
 
 		if ($es->hasSuggestedQuery()) {
 			$data['SuggestedQuery'] = $es->getSuggestedQuery();
