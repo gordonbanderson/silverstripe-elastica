@@ -285,6 +285,16 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// now actually perform the search using the original query
 		$paginated = $es->search($q, $fieldsToSearch);
 
+		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
+			$data['SuggestedQuery'] = $es->getSuggestedQuery();
+			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
+			//Link for if the user really wants to try their original query
+			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
+			$data['SearchInsteadForLink'] = $sifLink;
+
+			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
+		}
+
 		// calculate time
 		$endTime = microtime(true);
 		$elapsed = round(100*($endTime-$startTime))/100;
@@ -298,14 +308,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['NumberOfResults'] = $paginated->getTotalItems();
 		$data['OriginalQuery'] = $q;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
-
-		if ($es->hasSuggestedQuery()) {
-			$data['SuggestedQuery'] = $es->getSuggestedQuery();
-			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
-			//Link for if the user really wants to try their original query
-			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
-			$data['SearchInsteadForLink'] = $sifLink;
-		}
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
