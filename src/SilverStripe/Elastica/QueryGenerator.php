@@ -163,10 +163,7 @@ class QueryGenerator {
 			$query->setSort($sort);
 		}
 
-		// Add suggestions in case required for poor spellings
-
-
-
+		// Add suggestions in case required for poor spellings or typos
 		$suggest = new \Elastica\Suggest();
 		$phrase = new \Elastica\Suggest\Phrase('query-phrase-suggestions', '_all');
 		$phrase->setText($this->queryText)->setSize(4);
@@ -175,17 +172,9 @@ class QueryGenerator {
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
 
-
-
 		$phrase->setHighlight($preTags, $postTags);
-
 		$suggest->addSuggestion($phrase);
-
-
-
-
 		$query->setSuggest($suggest);
-
 
 		return $query;
 	}

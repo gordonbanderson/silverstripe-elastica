@@ -214,6 +214,28 @@ class ElasticSearcher {
 	}
 
 
+	public function moreLikeThis($indexedItem) {
+		$mltQuery = new MoreLikeThis();
+        $mltQuery->setids(array($indexedItem->ID));
+        $mltQuery->setFields(array('_all'));
+
+        $mapping = $indexedItem->getElasticaMapping();
+        $type = $mapping->getType();
+
+
+        $query = new Query();
+        $query->setFields(array('email', 'content'));
+        $query->setQuery($mltQuery);
+
+        $resultSet = $type->search($query);
+        print_r($resultSet);
+
+        //$mltQuery->setMaxQueryTerms(1);
+        //$mltQuery->setMinDocFrequency(1);
+        //$mltQuery->setMinTermFrequency(1);
+	}
+
+
 	public function hasSuggestedQuery() {
 		return $this->SuggestedQuery != null;
 	}
