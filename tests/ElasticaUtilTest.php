@@ -22,14 +22,27 @@ class ElasticaUtiTest extends SapphireTest {
 	}
 
 
+	public function testBooleanQuery() {
+		$sa = $this->getSuggestionArray('New Zealind AND sheep',
+			'new zealand and sheep',
+			'new <strong class="hl">zealand</strong> and sheep');
+		$pair = ElasticaUtil::getPhraseSuggestion($sa);
+		$expected = array(
+			'suggestedQuery' => 'New Zealand AND sheep',
+			'suggestedQueryHighlighted' => 'New <strong class="hl">Zealand</strong> AND sheep'
+		);
+		$this->assertEquals($expected, $pair);
+	}
+
+
 	public function testOneIncorrectWord() {
 		$sa = $this->getSuggestionArray('New Zealind',
 			'new zealand',
-			'New *Zealand*');
+			'new <strong class="hl">zealand</strong>');
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$expected = array(
 			'suggestedQuery' => 'New Zealand',
-			'suggestedQueryHighlighted' => 'New *Zealand*'
+			'suggestedQueryHighlighted' => 'New <strong class="hl">Zealand</strong>'
 		);
 		$this->assertEquals($expected, $pair);
 	}
@@ -38,32 +51,16 @@ class ElasticaUtiTest extends SapphireTest {
 	public function testOneIncorrectWordLowerCase() {
 		$sa = $this->getSuggestionArray('new zealind',
 			'new zealand',
-			'new *zealand*');
+			'new <strong class="hl">zealand</strong>');
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$expected = array(
 			'suggestedQuery' => 'new zealand',
-			'suggestedQueryHighlighted' => 'new *zealand*'
+			'suggestedQueryHighlighted' => 'new <strong class="hl">zealand</strong>'
 		);
 		$this->assertEquals($expected, $pair);
 	}
 
 
-/*
-Array
-(
-    [0] => Array
-        (
-            [text] => New Zealand
-            [offset] => 0
-            [length] => 11
-            [options] => Array
-                (
-                )
-
-        )
-
-)
- */
 
 	public function testNoSuggestionsRequired() {
 		$suggestion = array(
@@ -80,21 +77,6 @@ Array
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$this->assertEquals(null, $pair);
 	}
-
-
-
-
-/*
-	public function testQueryNoSuggestions() {
-		$sa = $this->getSuggestionArray('New Zealand','','');
-		$pair = ElasticaUtil::getPhraseSuggestion($sa);
-		$expected = array(
-			'suggestedQuery' => 'New Zealand railway',
-			'suggestedQueryHighlighted' => 'New *Zealand railway*'
-		);
-		$this->assertEquals($expected, $pair);
-	}
-*/
 
 
 	/**
