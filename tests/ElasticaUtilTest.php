@@ -10,11 +10,13 @@ class ElasticaUtiTest extends SapphireTest {
 	public function testPairOfConsecutiveIncorrectWords() {
 		$sa = $this->getSuggestionArray('New Zealind raalway',
 			'new zealand railway',
-			'New *Zealand railway*');
+			'new <strong class="hl">zealand railway</strong>');
+		print_r($sa);
+
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$expected = array(
 			'suggestedQuery' => 'New Zealand railway',
-			'suggestedQueryHighlighted' => 'New *Zealand railway*'
+			'suggestedQueryHighlighted' => 'New <strong class="hl">Zealand railway</strong>'
 		);
 		$this->assertEquals($expected, $pair);
 	}
