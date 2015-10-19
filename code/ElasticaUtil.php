@@ -8,12 +8,12 @@ class ElasticaUtil {
 	/**
 	 * Marker string for pre highlight - can be any string unlikely to appear in a search
 	 */
-	private static $pre_marker = "PREZXCVBNM12345678";
+	private static $pre_marker = " |PREZXCVBNM12345678";
 
 	/**
 	 * Marker string for psot highlight - can be any string unlikely to appear in a search
 	 */
-	private static $post_marker = "POSTZXCVBNM12345678";
+	private static $post_marker = "POSTZXCVBNM12345678| ";
 
 
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
@@ -47,11 +47,26 @@ class ElasticaUtil {
 			$markedHighlightedParts = str_replace(' '.$preTags, ' '.self::$pre_marker, $markedHighlightedParts);
 			//echo "T2 *$markedHighlightedParts*, postTags = *$postTags*\n";
 
+			//echo "T2a Replacing *$postTags* with ".self::$post_marker." in *$markedHighlightedParts*\n";
 			$markedHighlightedParts = str_replace($postTags.' ', self::$post_marker, $markedHighlightedParts);
 			//echo "T3 *$markedHighlightedParts*\n";
 
 			$markedHighlightedParts = trim($markedHighlightedParts);
-			$highlightedParts = explode(' ', $markedHighlightedParts);
+			$markedHighlightedParts = trim($markedHighlightedParts);
+
+			$highlightedParts = preg_split('/\s+/', $markedHighlightedParts);
+
+
+			//echo "ORIGINAL PARTS:\n";
+			print_r($originalParts);
+
+			//echo "SUGGESTED PARTS (from Elastica):\n";
+			print_r($suggestedParts);
+
+			//echo "SUGGESTED MARKED UP HIGHLIGHTED PARTS (from Elastica):\n";
+			print_r($highlightedParts);
+
+
 
 			//Create a mapping of lowercase to uppercase terms
 			$lowerToUpper = array();
@@ -100,11 +115,15 @@ class ElasticaUtil {
 				}
 			}
 
-			$highlighted = str_replace(self::$pre_marker, $preTags, $highlighted);
-			$highlighted = str_replace(self::$post_marker, $postTags, $highlighted);
+			$highlighted = ' '.implode(' ', $highlighted).' ';
+			//echo "T1 $highlighted\n";
+			$highlighted = str_replace(self::$pre_marker, ' '.$preTags, $highlighted);
+			//echo "T2 $highlighted\n";
+			$highlighted = str_replace(self::$post_marker, $postTags.' ', $highlighted);
+			//echo "T3 $highlighted\n";
 
 			$resultArray['suggestedQuery'] = implode(' ', $plain);
-			$resultArray['suggestedQueryHighlighted'] = implode(' ', $highlighted);
+			$resultArray['suggestedQueryHighlighted'] = trim($highlighted);
 		}
 		return $resultArray;
 	}
