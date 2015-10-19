@@ -5,53 +5,26 @@
  */
 class ElasticaUtil {
 
-	/*
-	Array
-(
-    [0] => Array
-        (
-            [text] => New Zealind raalway
-            [offset] => 0
-            [length] => 19
-            [options] => Array
-                (
-                    [0] => Array
-                        (
-                            [text] => new zealand railway
-                            [highlighted] => new *zealand railway*
-                            [score] => 9.079269E-5
-                        )
-
-                    [1] => Array
-                        (
-                            [text] => new zealand railways
-                            [highlighted] => new *zealand railways*
-                            [score] => 3.1240943E-5
-                        )
-
-                    [2] => Array
-                        (
-                            [text] => new zealand roadway
-                            [highlighted] => new *zealand roadway*
-                            [score] => 2.6352465E-5
-                        )
-
-                    [3] => Array
-                        (
-                            [text] => new zealand railwaj
-                            [highlighted] => new *zealand railwaj*
-                            [score] => 1.9387107E-5
-                        )
-
-                )
-
-        )
-
-)
+	/**
+	 * Marker string for pre highlight - can be any string unlikely to appear in a search
 	 */
+	private static $pre_marker = "PREZXCVBNM12345678";
+
+	/**
+	 * Marker string for psot highlight - can be any string unlikely to appear in a search
+	 */
+	private static $post_marker = "POSTZXCVBNM12345678";
+
+
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
 		$suggestedPhrase = null;
 		$originalQuery = $alternativeQuerySuggestions[0]['text'];
+
+		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
+		$preTags = $highlightsCfg['PreTags'];
+		$postTags = $highlightsCfg['PostTags'];
+		$lenPreTags = strlen($preTags);
+		$lenPostTags = strlen($postTags);
 
 		$suggestedPhraseCapitalised = array();
 
@@ -68,7 +41,17 @@ class ElasticaUtil {
 			// now need to fix capitalisation
 			$originalParts = explode(' ', $originalQuery);
 			$suggestedParts = explode(' ', $suggestedPhrase);
-			$highlightedParts = explode(' ', $suggestedPhraseHighlighted);
+
+			$markedHighlightedParts = ' '.$suggestedPhraseHighlighted.' ';
+			//echo "T1 *$markedHighlightedParts*, pretags = *$preTags*\n";
+			$markedHighlightedParts = str_replace(' '.$preTags, ' '.self::$pre_marker, $markedHighlightedParts);
+			//echo "T2 *$markedHighlightedParts*, postTags = *$postTags*\n";
+
+			$markedHighlightedParts = str_replace($postTags.' ', self::$post_marker, $markedHighlightedParts);
+			//echo "T3 *$markedHighlightedParts*\n";
+
+			$markedHighlightedParts = trim($markedHighlightedParts);
+			$highlightedParts = explode(' ', $markedHighlightedParts);
 
 			//Create a mapping of lowercase to uppercase terms
 			$lowerToUpper = array();
@@ -116,6 +99,9 @@ class ElasticaUtil {
     				}
 				}
 			}
+
+			$highlighted = str_replace(self::$pre_marker, $preTags, $highlighted);
+			$highlighted = str_replace(self::$post_marker, $postTags, $highlighted);
 
 			$resultArray['suggestedQuery'] = implode(' ', $plain);
 			$resultArray['suggestedQueryHighlighted'] = implode(' ', $highlighted);
