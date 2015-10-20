@@ -10,6 +10,8 @@ use Elastica\Filter\Term;
 use Elastica\Filter\BoolAnd;
 use Elastica\Query\Filtered;
 use Elastica\Query\MultiMatch;
+use Elastica\Query\MoreLikeThis;
+
 
 
 class ElasticSearcher {
@@ -168,7 +170,7 @@ class ElasticSearcher {
 
 		$qg = new QueryGenerator();
 		$qg->setQueryText($q);
-		$fields = array('Title' => 1, 'Description' => 1);
+
 		$qg->setFields($fieldsToSearch);
 		$qg->setSelectedFilters($this->filters);
 		$qg->setClasses($this->classes);
@@ -214,21 +216,80 @@ class ElasticSearcher {
 	}
 
 
+	/**
+	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
+	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
+	 * @return ResultList             List of results
+	 */
 	public function moreLikeThis($indexedItem) {
-		$mltQuery = new MoreLikeThis();
-        $mltQuery->setids(array($indexedItem->ID));
-        $mltQuery->setFields(array('_all'));
+		//$mltQuery = new MoreLikeThis();
+       // $mltQuery->setIds(array($indexedItem->ID));
+        //$mltQuery->setFields(array('Title'));
 
         $mapping = $indexedItem->getElasticaMapping();
-        $type = $mapping->getType();
+
+        $properties = $mapping->getProperties();
+        $stringFields = array();
+        foreach (array_keys($properties) as $propertyName) {
+        	$property = $properties[$propertyName];
+        	if (isset($property['type']) && $property['type'] == 'string') {
+        		array_push($stringFields, $propertyName);
+        	}
+        }
+
+        unset($stringFields['Link']);
+        print_r($stringFields);
+
+
+        $qb = new \Elastica\QueryBuilder();
+
+		$mlt = array(
+			'fields' => array('Title','Description'),
+			'docs' => array(
+				array(
+				'_type' => $indexedItem->ClassName,
+				'_id' => $indexedItem->ID
+				)
+			),
+			'min_term_freq' => 1,
+			'max_query_terms' => 12
+		);
+
+		$m = array();
 
 
         $query = new Query();
-        $query->setFields(array('email', 'content'));
-        $query->setQuery($mltQuery);
+        $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
-        $resultSet = $type->search($query);
-        print_r($resultSet);
+        //FIXME
+        //$query->setFields(array('Title'));
+
+        $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$elasticService->setLocale($this->locale);
+
+		echo "LOCALE:".$this->locale;
+
+		print_r($query);
+
+
+
+
+
+
+		$resultList = new ResultList($elasticService, $query, null);
+
+        // at this point ResultList object, not yet executed search query
+		$paginated = new \PaginatedList(
+			$resultList
+		);
+
+		$paginated->setPageStart($this->start);
+		$paginated->setPageLength($this->pageLength);
+		$paginated->setTotalItems($resultList->getTotalItems());
+
+		$this->aggregations = $resultList->getAggregations();
+
+		return $paginated;
 
         //$mltQuery->setMaxQueryTerms(1);
         //$mltQuery->setMinDocFrequency(1);
