@@ -1,8 +1,8 @@
 <?php
 use SilverStripe\Elastica\ElasticSearcher;
-
+use Elastica\Type;
 class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
-	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
+	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 	public static $ignoreFixtureFileFor = array('testResultsForEmptySearch');
 
@@ -22,6 +22,21 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 		$es->showResultsForEmptySearch();
 		$this->assertTrue($es->getShowResultsForEmptySearch());
+	}
+
+
+	public function testMoreLikeThis() {
+		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
+		$es = new ElasticSearcher();
+		$locale = \i18n::default_locale();
+		$es->setLocale($locale);
+		$es->setClasses('FlickrPhoto');
+		$results = $es->moreLikeThis($fp);
+
+		echo "RESULTS:\n";
+		foreach ($results as $result) {
+			echo "-\t{$result->Title}\n";
+		}
 	}
 
 }
