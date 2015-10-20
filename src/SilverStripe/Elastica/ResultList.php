@@ -88,12 +88,15 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$ers = $this->service->search($this->query,$this->types);
 
 			//query-term-suggestions is arbitrary name used
-			$suggest = $ers->getSuggests()['query-phrase-suggestions'];
-			$suggestedPhraseAndHL = \ElasticaUtil::getPhraseSuggestion($suggest);
-			if ($suggestedPhraseAndHL) {
-				$this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
-				$this->SuggestedQueryHighlighted = $suggestedPhraseAndHL['suggestedQueryHighlighted'];
+			if (isset($ers->getSuggests()['query-phrase-suggestions'])) {
+				$suggest = $ers->getSuggests()['query-phrase-suggestions'];
+				$suggestedPhraseAndHL = \ElasticaUtil::getPhraseSuggestion($suggest);
+				if ($suggestedPhraseAndHL) {
+					$this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
+					$this->SuggestedQueryHighlighted = $suggestedPhraseAndHL['suggestedQueryHighlighted'];
+				}
 			}
+
 
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
