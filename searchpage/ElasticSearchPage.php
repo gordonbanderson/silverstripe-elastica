@@ -198,7 +198,7 @@ class ElasticSearchPage extends Page {
 
 class ElasticSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array('SearchForm', 'submit');
+	private static $allowed_actions = array('SearchForm', 'submit','index','similar');
 
 	public function init() {
 		parent::init();
@@ -210,7 +210,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 
-
+	public function similar() {
+		//TODO
+	}
 
 	/*
 	Display the search form. If the query parameter exists, search against Elastica
