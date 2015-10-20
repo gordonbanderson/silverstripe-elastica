@@ -222,10 +222,6 @@ class ElasticSearcher {
 	 * @return ResultList             List of results
 	 */
 	public function moreLikeThis($indexedItem) {
-		//$mltQuery = new MoreLikeThis();
-       // $mltQuery->setIds(array($indexedItem->ID));
-        //$mltQuery->setFields(array('Title'));
-
         $mapping = $indexedItem->getElasticaMapping();
 
         $properties = $mapping->getProperties();
