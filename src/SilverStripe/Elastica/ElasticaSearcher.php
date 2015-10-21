@@ -250,7 +250,7 @@ class ElasticSearcher {
 
 		$mlt = array(
 			//FIXME
-			'fields' => array('Title.standard^4','Description.standard'),
+			'fields' => $stringFields,
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
