@@ -199,7 +199,7 @@ class ElasticSearcher {
 		$resultList->SearchHelper = $this->manipulator;
 
 		// at this point ResultList object, not yet executed search query
-		$paginated = new \PaginatedList(
+		$paginated = new \ElasticaPaginatedList(
 			$resultList
 		);
 
@@ -209,8 +209,11 @@ class ElasticSearcher {
 
 		$this->aggregations = $resultList->getAggregations();
 
-		$this->SuggestedQuery = $resultList->SuggestedQuery;
-		$this->SuggestedQueryHighlighted = $resultList->SuggestedQueryHighlighted;
+		if ($resultList->SuggestedQuery) {
+			$this->SuggestedQuery = $resultList->SuggestedQuery;
+			$this->SuggestedQueryHighlighted = $resultList->SuggestedQueryHighlighted;
+		}
+
 
 		return $paginated;
 	}
@@ -222,6 +225,15 @@ class ElasticSearcher {
 	 * @return ResultList             List of results
 	 */
 	public function moreLikeThis($indexedItem) {
+		if ($this->locale == null) {
+			if (!class_exists('Translatable')) {
+				// if no translatable we only have the default locale
+				$this->locale = \i18n::default_locale();
+			} else {
+				$this->locale = \Translatable::get_current_locale();
+			}
+		}
+
         $mapping = $indexedItem->getElasticaMapping();
 
         $properties = $mapping->getProperties();
@@ -234,13 +246,11 @@ class ElasticSearcher {
         }
 
         unset($stringFields['Link']);
-        print_r($stringFields);
 
-
-        $qb = new \Elastica\QueryBuilder();
 
 		$mlt = array(
-			'fields' => array('Title','Description'),
+			//FIXME
+			'fields' => array('Title.standard^4','Description.standard'),
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
@@ -250,8 +260,6 @@ class ElasticSearcher {
 			'min_term_freq' => 1,
 			'max_query_terms' => 12
 		);
-
-		$m = array();
 
 
         $query = new Query();
@@ -263,19 +271,10 @@ class ElasticSearcher {
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		echo "LOCALE:".$this->locale;
-
-		print_r($query);
-
-
-
-
-
-
 		$resultList = new ResultList($elasticService, $query, null);
 
         // at this point ResultList object, not yet executed search query
-		$paginated = new \PaginatedList(
+		$paginated = new \ElasticaPaginatedList(
 			$resultList
 		);
 
@@ -294,7 +293,10 @@ class ElasticSearcher {
 
 
 	public function hasSuggestedQuery() {
-		return $this->SuggestedQuery != null;
+		$result = isset($this->SuggestedQuery) && $this->SuggestedQuery != null;
+
+		echo "HAS SUGGeSTED QUERY? ".$result;
+		return $result;
 	}
 
 	public function getSuggestedQuery() {

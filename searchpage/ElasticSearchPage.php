@@ -144,6 +144,9 @@ class ElasticSearchPage extends Page {
 
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
+		error_log('NAME TO MAPPING');
+		print_r($nameToMapping);
+
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
@@ -161,12 +164,14 @@ class ElasticSearchPage extends Page {
 
 		$relevantNames = implode(',', $names);
 
+		error_log('ESP: Relevant names = '.$relevantNames);
+
 		if (sizeof($names) > 0) {
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'false' WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
 			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'true' WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 		}
