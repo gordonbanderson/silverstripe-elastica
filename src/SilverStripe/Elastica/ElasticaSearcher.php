@@ -222,9 +222,10 @@ class ElasticSearcher {
 	/**
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
+	 * @param  array $fieldsToSearch  array of fieldnames to search
 	 * @return ResultList             List of results
 	 */
-	public function moreLikeThis($indexedItem) {
+	public function moreLikeThis($indexedItem, $fieldsToSearch = null) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -234,24 +235,9 @@ class ElasticSearcher {
 			}
 		}
 
-        $mapping = $indexedItem->getElasticaMapping();
-
-        $properties = $mapping->getProperties();
-        $stringFields = array();
-        foreach (array_keys($properties) as $propertyName) {
-        	$property = $properties[$propertyName];
-        	if (isset($property['type']) && $property['type'] == 'string') {
-        		array_push($stringFields, $propertyName);
-        	}
-        }
-
-        unset($stringFields['Link']);
-
-
 		$mlt = array(
 			//FIXME
-			'fields' => $stringFields,
-			'fields' => ['Title.standard', 'Description.standard'],
+			'fields' => $fieldsToSearch,
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
