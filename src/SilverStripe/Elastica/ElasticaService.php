@@ -173,8 +173,6 @@ class ElasticaService {
 
 			        	array_push($terms[$fieldname], $term);
 			        }
-
-			        print_r($terms);
 				}
 
 
