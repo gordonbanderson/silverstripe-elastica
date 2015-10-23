@@ -88,7 +88,8 @@ class ElasticSearchPage extends Page {
 
 		$config = GridFieldConfig_RecordEditor::create();
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable'
+            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable',
+            'HumanReadableSimilarSearchable' => 'Use in Similar Search'
         ));
 
         $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
