@@ -299,8 +299,6 @@ class ElasticSearcher {
 
 	public function hasSuggestedQuery() {
 		$result = isset($this->SuggestedQuery) && $this->SuggestedQuery != null;
-
-		echo "HAS SUGGeSTED QUERY? ".$result;
 		return $result;
 	}
 
