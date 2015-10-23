@@ -225,7 +225,7 @@ class ElasticSearcher {
 	 * @param  array $fieldsToSearch  array of fieldnames to search
 	 * @return ResultList             List of results
 	 */
-	public function moreLikeThis($indexedItem, $fieldsToSearch = null) {
+	public function moreLikeThis($indexedItem, $fieldsToSearch) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
