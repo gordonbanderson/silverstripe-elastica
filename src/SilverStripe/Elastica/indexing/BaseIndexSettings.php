@@ -136,18 +136,18 @@ class BaseIndexSettings {
 		}
 
 		//$analyzerStemmed['char_filter'] = array('html_strip');
-		$analyzerStemmed['tokenizer'] = array('standard');
+		$analyzerStemmed['tokenizer'] = array('uax_url_email');
 		$filterNames = array_keys($filters);
 
 		$analyzerStemmed['filter'] =  $filterNames;
 
 		//$analyzerNotStemmed['char_filter'] = array('html_strip');
-		$analyzerNotStemmed['tokenizer'] = 'standard';
+		$analyzerNotStemmed['tokenizer'] = 'uax_url_email';
 		array_push($filterNames, 'lowercase');
 		$analyzerNotStemmed['filter'] = $filterNames;
 
 		//Folded analyzer
-		$analyzerFolded['tokenizer'] = 'standard';
+		$analyzerFolded['tokenizer'] = 'uax_url_email';
 		$analyzerFolded['filters'] = array('lowercase', 'asciifolding');
 
 
@@ -198,7 +198,8 @@ class BaseIndexSettings {
 		}';
 		*/
 		//$this->extend('alterIndexingProperties', $properties);
-		//
+
+			print_r($properties);
 		return $properties;
 	}
 }

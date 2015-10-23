@@ -88,7 +88,8 @@ class ElasticSearchPage extends Page {
 
 		$config = GridFieldConfig_RecordEditor::create();
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable'
+            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable',
+            'HumanReadableSimilarSearchable' => 'Use in Similar Search'
         ));
 
         $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
@@ -144,6 +145,9 @@ class ElasticSearchPage extends Page {
 
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
+		error_log('NAME TO MAPPING');
+		print_r($nameToMapping);
+
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
@@ -161,12 +165,14 @@ class ElasticSearchPage extends Page {
 
 		$relevantNames = implode(',', $names);
 
+		error_log('ESP: Relevant names = '.$relevantNames);
+
 		if (sizeof($names) > 0) {
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'false' WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
 			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 'true' WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 		}
@@ -211,22 +217,25 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 	public function similar() {
-		//TODO
-	}
+		//FIXME double check security, ie if escaping needed
+		$class = $this->request->param('ID');
+		$instanceID = $this->request->param('OtherID');
 
-	/*
-	Display the search form. If the query parameter exists, search against Elastica
-	and render results accordingly.
-	 */
-	public function index() {
+		$searchable = Injector::inst()->create($class);
+
+		if (!$searchable->hasMethod('getElasticaFields')) {
+			throw new Exception($class.' is not searchable');
+		}
+
+
+
+		$instance = DataObject::get_by_id($class,$instanceID);
+
 		$data = array(
 			'Content' => $this->Content,
 			'Title' => $this->Title,
 			'SearchPerformed' => false
 		);
-
-		// Do not show suggestions if this flag is set
-		$ignoreSuggestions = isset($_GET['is']);
 
 		// record the time
 		$startTime = microtime(true);
@@ -241,6 +250,117 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 		$es->setStart($start);
 		$es->setPageLength($ep->ResultsPerPage);
+
+
+
+
+		//May not work
+		// filters for aggregations
+		$ignore = array('url', 'start','q','is');
+		$ignore = \Config::inst()->get('Elastica', 'BlackList');
+		foreach ($this->request->getVars() as $key => $value) {
+			if (!in_array($key, $ignore)) {
+				$es->addFilter($key,$value);
+			}
+		}
+
+
+		// filter by class or site tree
+		/*
+
+		if ($ep->SiteTreeOnly) {
+			$es->addFilter('IsInSiteTree', true);
+		} else {
+			$es->setClasses($ep->ClassesToSearch);
+		}
+		*/
+		//FIXME - inheritance
+		$es->setClasses($class);
+
+		//FIXME may not work
+		// set the optional aggregation manipulator
+		// In the event of a manipulator being present, show all the results for search
+		// Otherwise aggregations are all zero
+		if ($this->SearchHelper) {
+			$es->setQueryResultManipulator($this->SearchHelper);
+			$es->showResultsForEmptySearch();
+		} else {
+			$es->hideResultsForEmptySearch();
+		}
+
+
+		// get the edited fields to search from the database for this search page
+		// Convert this into a name => weighting array
+		$fieldsToSearch = array();
+		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
+			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
+
+		foreach ($editedSearchFields->getIterator() as $searchField) {
+			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
+		}
+
+		// now actually perform the search using the original query
+		$paginated = $es->moreLikeThis($instance);
+		$paginated->addSimiilarSearchLink($ep->Link());
+
+		$list = $paginated->getList();
+		foreach ($list as $item) {
+			$item->SimilarLink = '**** wibble';
+		}
+
+		// calculate time
+		$endTime = microtime(true);
+		$elapsed = round(100*($endTime-$startTime))/100;
+
+		// store variables for the template to use
+		$data['ElapsedTime'] = $elapsed;
+		$this->Aggregations = $es->getAggregations();
+		$data['SearchResults'] = $paginated;
+		$data['Elapsed'] = $elapsed;
+		$data['SearchPerformed'] = true;
+		$data['SearchPageLink'] = $ep->Link();
+		$data['NumberOfResults'] = $paginated->getTotalItems();
+
+		//Add a 'similar' link to each of the results
+		$link = $this->Link();
+
+		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
+		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
+			return $this->useTemplateOverride($data);
+		} else {
+			return $data;
+		}
+	}
+
+	/*
+	Display the search form. If the query parameter exists, search against Elastica
+	and render results accordingly.
+	 */
+	public function index() {
+		$data = array(
+			'Content' => $this->Content,
+			'Title' => $this->Title,
+			'SearchPerformed' => false
+		);
+
+		// record the time
+		$startTime = microtime(true);
+
+		//instance of ElasticPage associated with this controller
+		$ep = Controller::curr()->dataRecord;
+
+		// use an Elastic Searcher, which needs primed from URL params
+		$es = new ElasticSearcher();
+
+		// start, and page length, i.e. pagination
+		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$es->setStart($start);
+		$es->setPageLength($ep->ResultsPerPage);
+
+
+		// Do not show suggestions if this flag is set
+		$ignoreSuggestions = isset($_GET['is']);
+
 
 		// query string
 		$q = '';
@@ -285,6 +405,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// now actually perform the search using the original query
+		echo "ESP SEARCH T1\n";
 		$paginated = $es->search($q, $fieldsToSearch);
 
 		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
@@ -293,9 +414,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			//Link for if the user really wants to try their original query
 			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
 			$data['SearchInsteadForLink'] = $sifLink;
-
+			echo "ESP SEARCH T2\n";
 			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
+
 		}
+
+		$paginated->addSimiilarSearchLink($ep->Link());
+
 
 		// calculate time
 		$endTime = microtime(true);

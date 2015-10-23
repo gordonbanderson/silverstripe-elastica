@@ -41,6 +41,7 @@ class Searchable extends \DataExtension {
 		// The 2 different date types will be stored with different formats
 		'Date'        => 'date',
 		'SS_Datetime' => 'date',
+		'Datetime' => 'date',
 		'DBLocale'    => 'string'
 	);
 
@@ -130,7 +131,7 @@ class Searchable extends \DataExtension {
 	 * @return array
 	 */
 	public function getElasticaFields($storeMethodName = false, $recurse = true) {
-		echo "\n\n---- GETTING ELASTICSEARCH FIELDS FOR {$this->owner->ClassName} ----\n";
+		//echo "\n\n---- GETTING ELASTICSEARCH FIELDS FOR {$this->owner->ClassName} ----\n";
 		$db = $this->owner->db();
 		$fields = $this->getAllSearchableFields();
 		$result = array();
@@ -160,12 +161,14 @@ class Searchable extends \DataExtension {
 					//echo "GEF T4: $class exists in mappings\n";
 					$spec['type'] = self::$mappings[$class];
 					//echo "GEF T5: Date tweaking\n";
-					//
-					echo "Name:$name, CL=$class\n";
+					//echo "Name:$name, CL=$class\n";
+					//print_r($spec);
 					if ($spec['type'] === 'date') {
 						if ($class == 'Date') {
 							$spec['format'] = 'y-M-d';
 						} elseif ($class == 'SS_Datetime') {
+							$spec['format'] = 'y-M-d H:m:s';
+						} elseif ($class == 'Datetime') {
 							$spec['format'] = 'y-M-d H:m:s';
 						}
 					}
@@ -174,9 +177,9 @@ class Searchable extends \DataExtension {
 						array_push($this->html_fields, $name);
 					}
 				} else {
-					echo "\t** NO MAPPING ** Name:$name, CL=$class, SPEC=\n";
-					print_r($spec);
-					throw new Exception('An error has occurred, no mapping is available for the source field\n');
+					//echo "\t** NO MAPPING ** Name:$name, CL=$class, SPEC=\n";
+					//print_r($spec);
+					throw new \Exception("An error has occurred, no mapping is available for the source field $name\n");
 				}
 			} else {
 				// field name is not in the db, it could be a method

@@ -48,6 +48,9 @@ class QueryGenerator {
 
 
 	public function setQueryText($newQueryText) {
+		echo "Setting query text\n";
+		print_r($newQueryText);
+		echo "\n^^^^^\n";
 		$this->queryText = $newQueryText;
 	}
 
@@ -289,6 +292,8 @@ class QueryGenerator {
 	 */
 	private function simpleTextQuery() {
 		// this will search all fields
+		print_r($this->queryText); #correct, Australia
+
 		$textQuery = new QueryString($this->queryText);
 
 		//Setting the lenient flag means that numeric fields can be searched for text values
@@ -390,7 +395,9 @@ class QueryGenerator {
 			$csvClasses = implode(',',$classes);
 		}
 
-		$key = 'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
+		error_log("CSV CLASSES: $csvClasses");
+
+		$key = rand(1,10000000).'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
 
 		if ($fieldsAllowed) {
 			$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
@@ -398,10 +405,14 @@ class QueryGenerator {
 		}
 
 		$result = $cache->load($key);
+		error_log("RESULT:$result for key $key \n");
 		if (!$result) {
 			$relevantClasses = array();
 			if (!$csvClasses) {
+
 				$sql = "SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name";
+								error_log('T1 - sql = '.$sql);
+
 				$records = \DB::query($sql);
 				foreach ($records as $record) {
 					array_push($relevantClasses, $record['Name']);
@@ -423,6 +434,9 @@ class QueryGenerator {
 						$sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
 					}
 				}
+
+				error_log('T2 - sql = '.$sql);
+
 
 				$records = \DB::query($sql);
 				foreach ($records as $record) {
