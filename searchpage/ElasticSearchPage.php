@@ -38,7 +38,9 @@ class ElasticSearchPage extends Page {
 		'ContentForEmptySearch' => 'HTMLText'
 	);
 
-	private static $has_many = array('SearchableFields' => 'ElasticSearchPageSearchField');
+	private static $has_many = array(
+		'SearchableFields' => 'ElasticSearchPageSearchField'
+	);
 
 	/*
 	Add a tab with details of what to search
@@ -88,7 +90,8 @@ class ElasticSearchPage extends Page {
 
 		$config = GridFieldConfig_RecordEditor::create();
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable',
+            'Name' => 'Name','Weight' => 'Weighting',
+            'HumanReadableSearchable' => 'Searchable',
             'HumanReadableSimilarSearchable' => 'Use in Similar Search'
         ));
 
@@ -293,14 +296,21 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
+		// get the edited fields to search from the database for this search page
+		// Convert this into a name => weighting array
+		$fieldsToSearch = array();
+		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
+			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'SimilarSearchable' => true));
+
+		foreach ($editedSearchFields->getIterator() as $searchField) {
+			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
+		}
+
 		// now actually perform the search using the original query
-		$paginated = $es->moreLikeThis($instance);
+		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
 		$paginated->addSimiilarSearchLink($ep->Link());
 
-		$list = $paginated->getList();
-		foreach ($list as $item) {
-			$item->SimilarLink = '**** wibble';
-		}
+
 
 		// calculate time
 		$endTime = microtime(true);
