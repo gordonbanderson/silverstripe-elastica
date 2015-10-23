@@ -199,7 +199,7 @@ class ElasticSearcher {
 		$resultList->SearchHelper = $this->manipulator;
 
 		// at this point ResultList object, not yet executed search query
-		$paginated = new \ElasticaPaginatedList(
+		$paginated = new \PaginatedList(
 			$resultList
 		);
 
@@ -256,16 +256,17 @@ class ElasticSearcher {
         $query = new Query();
         $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
-        //FIXME
-        //$query->setFields(array('Title'));
-
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		$resultList = new ResultList($elasticService, $query, null);
 
+// pagination
+		$query->setLimit($this->pageLength);
+		$query->setFrom($this->start);
+
+		$resultList = new ResultList($elasticService, $query, null);
         // at this point ResultList object, not yet executed search query
-		$paginated = new \ElasticaPaginatedList(
+		$paginated = new \PaginatedList(
 			$resultList
 		);
 
