@@ -775,8 +775,8 @@ class Searchable extends \DataExtension {
 	/*
 	Allow the option of overriding the default template with one of <ClassName>ElasticSearchResult
 	 */
-	public function RenderResult() {
-		$vars = new \ArrayData(array('SearchResult' => $this->owner));
+	public function RenderResult($linkToContainer = '') {
+		$vars = new \ArrayData(array('SearchResult' => $this->owner, 'ContainerLink' => $linkToContainer));
 		$possibleTemplates = array($this->owner->ClassName.'ElasticSearchResult', 'ElasticSearchResult');
 		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}
