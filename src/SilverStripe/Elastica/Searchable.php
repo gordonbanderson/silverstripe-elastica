@@ -702,7 +702,7 @@ class Searchable extends \DataExtension {
 			} else if (isset($searchableField['__method'])) {
 				$name = $searchableField['__method'];
 			} else {
-				echo "NAME->SF = ".$name."->".print_r($searchableField,1);
+				//echo "NAME->SF = ".$name."->".print_r($searchableField,1);
 				$name = $searchableField['properties']['__method'];
 			}
 
