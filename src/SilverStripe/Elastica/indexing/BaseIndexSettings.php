@@ -198,8 +198,6 @@ class BaseIndexSettings {
 		}';
 		*/
 		//$this->extend('alterIndexingProperties', $properties);
-
-			print_r($properties);
 		return $properties;
 	}
 }
