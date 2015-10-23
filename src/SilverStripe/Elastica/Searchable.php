@@ -245,10 +245,12 @@ class Searchable extends \DataExtension {
 					$unstemmed = array();
 					$unstemmed['type'] = "string";
 					$unstemmed['analyzer'] = "unstemmed";
+					$unstemmed['term_vector'] = "yes";
 					$extraFields = array('standard' => $unstemmed);
 					$spec['fields'] = $extraFields;
 					// FIXME - make index/locale specific, get from settings
 					$spec['analyzer'] = 'stemmed';
+					$spec['term_vector'] = "yes";
 				}
 			} else {
 				$message = "Field $name has no type associated with it";
