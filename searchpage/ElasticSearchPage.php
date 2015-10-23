@@ -142,12 +142,7 @@ class ElasticSearchPage extends Page {
 
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
-
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-
-		error_log('NAME TO MAPPING');
-		print_r($nameToMapping);
-
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
@@ -165,7 +160,6 @@ class ElasticSearchPage extends Page {
 
 		$relevantNames = implode(',', $names);
 
-		error_log('ESP: Relevant names = '.$relevantNames);
 
 		if (sizeof($names) > 0) {
 			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
@@ -405,7 +399,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// now actually perform the search using the original query
-		echo "ESP SEARCH T1\n";
 		$paginated = $es->search($q, $fieldsToSearch);
 
 		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
@@ -414,7 +407,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			//Link for if the user really wants to try their original query
 			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
 			$data['SearchInsteadForLink'] = $sifLink;
-			echo "ESP SEARCH T2\n";
 			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
 		}
