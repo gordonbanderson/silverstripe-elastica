@@ -347,7 +347,12 @@ class ElasticaService {
 		} else {
 			$records = $class::get();
 		}
-		return $records->toArray();
+		return $records;
+	}
+
+
+	protected function recordsByClassConsiderVersionedToArray($class) {
+		return $this->recordsByClassConsiderVersioned($class)->toArray();;
 	}
 
 
@@ -358,7 +363,31 @@ class ElasticaService {
 	 */
 	protected function refreshClass($class) {
 		$records = $this->recordsByClassConsiderVersioned($class);
-		$this->refreshRecords($records);
+		$nRecords = $records->count();
+		$iterator = $records->getIterator();
+		$batchSize = 100;
+		$pages = $nRecords/$batchSize + 1;
+		$processing = true;
+
+		$batch = array();
+		$ctr = 0;
+		foreach ($iterator as $record) {
+			array_push($batch, $record);
+			$ctr++;
+			if ($ctr == $batchSize) {
+				$this->refreshRecords($batch);
+				$batch = array();
+				$ctr = 0;
+			}
+		}
+
+		if (sizeof($batch) > 0) {
+			$this->refreshRecords($batch);
+		}
+
+
+
+
 	}
 
 
