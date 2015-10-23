@@ -56,18 +56,6 @@ class ElasticaUtil {
 
 			$highlightedParts = preg_split('/\s+/', $markedHighlightedParts);
 
-
-			//echo "ORIGINAL PARTS:\n";
-			print_r($originalParts);
-
-			//echo "SUGGESTED PARTS (from Elastica):\n";
-			print_r($suggestedParts);
-
-			//echo "SUGGESTED MARKED UP HIGHLIGHTED PARTS (from Elastica):\n";
-			print_r($highlightedParts);
-
-
-
 			//Create a mapping of lowercase to uppercase terms
 			$lowerToUpper = array();
 			$lowerToHighlighted = array();
