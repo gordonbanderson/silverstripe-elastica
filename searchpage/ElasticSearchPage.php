@@ -308,7 +308,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// now actually perform the search using the original query
 		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-		$paginated->addSimiilarSearchLink($ep->Link());
+		foreach ($paginated->getList() as $fp) {
+			$fp->Wibble = 'This is a test';
+		}
 
 
 
@@ -420,9 +422,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
 		}
-
-		$paginated->addSimiilarSearchLink($ep->Link());
-
 
 		// calculate time
 		$endTime = microtime(true);
