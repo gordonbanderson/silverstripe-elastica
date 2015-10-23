@@ -251,6 +251,7 @@ class ElasticSearcher {
 		$mlt = array(
 			//FIXME
 			'fields' => $stringFields,
+			'fields' => ['Title.standard', 'Description.standard'],
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
@@ -258,7 +259,11 @@ class ElasticSearcher {
 				)
 			),
 			'min_term_freq' => 1,
-			'max_query_terms' => 12
+			'max_query_terms' => 12,
+			'min_word_length' => 3,
+			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
+				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
+				'page', 'which', 'etc', 'news', 'service', 'publisher')
 		);
 
 
