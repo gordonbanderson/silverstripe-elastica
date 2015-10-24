@@ -306,11 +306,16 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
-		// now actually perform the search using the original query
-		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-		foreach ($paginated->getList() as $fp) {
-			$fp->Wibble = 'This is a test';
+		// Use the standard field for more like this, ie not stemmed
+		$standardFields = array();
+		foreach ($fieldsToSearch as $field => $value) {
+			$fieldsToSearch[$field.'.standard'] = $value;
+			unset($fieldsToSearch[$field]);
 		}
+
+		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
+		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
+
 
 
 
@@ -326,6 +331,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchPerformed'] = true;
 		$data['SearchPageLink'] = $ep->Link();
 		$data['NumberOfResults'] = $paginated->getTotalItems();
+
+
+
+		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
+
+
+		$terms = array();
+		foreach ($moreLikeThisTerms as $key => $term) {
+			$fieldTerms = $moreLikeThisTerms[$key];
+			foreach ($fieldTerms as $value) {
+				array_push($terms, $value);
+			}
+		}
+
+		$terms = array_unique($terms);
+
+		print_r($terms);
+
+		$terms = array_keys($terms);
+
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
