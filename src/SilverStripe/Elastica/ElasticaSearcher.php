@@ -249,7 +249,7 @@ class ElasticSearcher {
 			'min_word_length' => 3,
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
-				'page', 'which', 'etc', 'news', 'service', 'publisher')
+				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were')
 		);
 
 
