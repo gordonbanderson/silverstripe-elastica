@@ -470,6 +470,9 @@ class ElasticaService {
 			}
 
 		}
+
+		echo "Completed indexing documents for locale $this->locale\n";
+
 	}
 
 
