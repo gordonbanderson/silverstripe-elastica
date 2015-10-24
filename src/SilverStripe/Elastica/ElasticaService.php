@@ -284,9 +284,21 @@ class ElasticaService {
 			foreach (array_keys($this->buffer) as $key) {
 				$amount += sizeof($this->buffer[$key]);
 			}
-			ElasticaUtil::message("\tAdding $amount documents to the index\n");
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
+
+			ElasticaUtil::message("\tAdding $amount documents to the index\n");
+			if (isset($this->StartTime)) {
+				$elapsed = microtime(true) - $this->StartTime;
+				$timePerDoc = ($elapsed)/($this->nDocumentsIndexed);
+				$documentsRemaining = $this->nDocumentsToIndexForLocale - $this->nDocumentsIndexed;
+				$eta = ($documentsRemaining)*$timePerDoc;
+				$hours = (int)($eta/3600);
+				$minutes = (int)(($eta-$hours*3600)/60);
+				$seconds = (int)(0.5+$eta-$minutes*60-$hours*3600);
+				$etaHR = "{$hours}h {$minutes}m {$seconds}s";
+				ElasticaUtil::message("ETA to completion of indexing $this->locale ($documentsRemaining documents): $etaHR");
+			}
 			self::$indexing_request_ctr++;
 		}
 
@@ -410,6 +422,8 @@ class ElasticaService {
 	 * Re-indexes each record in the index.
 	 */
 	public function refresh() {
+		$this->StartTime = microtime(true);
+
 		$classes = $this->getIndexedClasses();
 
 		//Count the number of documents for this locale
