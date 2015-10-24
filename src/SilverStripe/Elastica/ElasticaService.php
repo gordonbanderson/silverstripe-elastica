@@ -98,8 +98,84 @@ class ElasticaService {
 	 * @param array $types List of comma separated SilverStripe classes to search, or blank for all
 	 * @return ResultList
 	 */
-	public function search($searchterms, $types = '', $debugTerms = false) {
-		$query = Query::create($searchterms);
+	public function search($query, $types = '', $debugTerms = false) {
+		$query = Query::create($query); // may be a string
+
+        $data = $query->toArray();
+		if (isset($data['query']['more_like_this'])) {
+			$query->MoreLikeThis = true;
+		} else {
+			$query->MoreLikeThis = false;
+		}
+
+
+		$search = new Search(new Client());
+		$search->addIndex($this->getLocaleIndexName());
+
+		// If the query is a 'more like this' we can get the terms used for searching
+		if ($query->MoreLikeThis) {
+			$termsQuery = clone $query;
+			$path = $search->getPath();
+	        $params = $search->getOptions();
+
+	        $termData = array();
+	        $termData['query'] = $data['query'];
+
+
+
+	        $path = str_replace('_search', '_validate/query', $path);
+	        $params = array('explain' => true, 'rewrite' => true);
+
+
+
+	        $response = $this->getClient()->request(
+	            $path,
+	            \Elastica\Request::GET,
+	            $termData,
+	            $params
+	        );
+
+			$r = $response->getData();
+
+			if (isset($r['explanations'])) {
+				$explanation = $r['explanations'][0]['explanation'];
+
+				if (substr($explanation,0, 2) == '((') {
+					$explanation = explode('-ConstantScore', $explanation)[0];
+
+			        $bracketPos = strpos($explanation, ')~');
+			       	$explanation = substr($explanation, 2, $bracketPos-2);
+
+			        //Field name(s) => terms
+			        $terms = array();
+			        $splits = explode(' ', $explanation);
+			        foreach ($splits as $fieldAndTerm) {
+			        	$splits = explode(':', $fieldAndTerm);
+			        	$fieldname = $splits[0];
+			        	$term = $splits[1];
+
+			        	if (!isset($terms[$fieldname])) {
+			        		$terms[$fieldname] = array();
+			        	}
+
+			        	array_push($terms[$fieldname], $term);
+			        }
+				}
+			}
+
+			$this->MoreLikeThisTerms = $terms;
+		}
+
+
+		//If the query is a more like this, perform a validation request to get the terms used
+
+        if ($types) {
+        	$search->addType($types);
+        }
+
+        $path = $search->getPath();
+        $params = $search->getOptions();
+
 
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
@@ -126,73 +202,14 @@ class ElasticaService {
         }
 
         $path = $search->getPath();
-        $data = $query->toArray();
         $params = $search->getOptions();
-
-
-        $path = str_replace('_search', '_validate/query', $path);
-        $params = array('explain' => true, 'rewrite' => true);
 
 		$searchResults = $search->search($query);
 
-		$debugTerms = true;
-		if ($debugTerms) {
-			unset($data['highlight']);
-			unset($data['aggs']);
-			unset($data['size']);
-			unset($data['from']);
-			unset($data['sort']);
-			unset($data['suggest']);
-			$response = $this->getClient()->request(
-	            $path,
-	            \Elastica\Request::GET,
-	            $data,
-	            $params
-	        );
-
-			$r = $response->getData();
-
-
-			if (isset($r['explanations'])) {
-				$explanation = $r['explanations'][0]['explanation'];
-
-
-				if (substr($explanation,0, 2) == '((') {
-					$explanation = explode('-ConstantScore', $explanation)[0];
-
-			        $bracketPos = strpos($explanation, ')~');
-			       	$explanation = substr($explanation, 2, $bracketPos-2);
-
-			        //Field name(s) => terms
-			        $terms = array();
-			        $splits = explode(' ', $explanation);
-			        foreach ($splits as $fieldAndTerm) {
-			        	$splits = explode(':', $fieldAndTerm);
-			        	$fieldname = $splits[0];
-			        	$term = $splits[1];
-
-			        	if (!isset($terms[$fieldname])) {
-			        		$terms[$fieldname] = array();
-			        	}
-
-			        	array_push($terms[$fieldname], $term);
-			        }
-				}
-
-
-			}
+		if (isset($this->MoreLikeThisTerms)) {
+			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
 
-
-
-
-        /*
-
-((Description.standard:number Description.standard:commons Description.standard:peck Description.standard:share Description.standard:can
-  Description.standard:archives Description.standard:special Description.standard:more Description.standard:you Description.standard:restrictions
-  Description.standard:collections Description.standard:digital)~3) -ConstantScore(_uid:FlickrPhoto#3936)
-
-         */
         return $searchResults;
 	}
 
