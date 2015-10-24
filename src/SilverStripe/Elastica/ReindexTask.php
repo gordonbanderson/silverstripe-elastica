@@ -54,7 +54,7 @@ class ReindexTask extends \BuildTask {
 
 			$this->service->startBulkIndex();
 
-			$message('Defining the mappings');
+			$message("Bulk indexing locale $locale\n");
 			$this->service->define();
 
 			// only measure index time
