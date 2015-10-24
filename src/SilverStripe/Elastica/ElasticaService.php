@@ -49,6 +49,7 @@ class ElasticaService {
 	 */
 	public static $indexing_request_ctr = 0;
 
+
 	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
@@ -57,7 +58,11 @@ class ElasticaService {
 		$this->client = $client;
 		$this->indexName = $newIndexName;
 		$this->locale = \i18n::default_locale();
+
 	}
+
+
+
 
 	/**
 	 * @return \Elastica\Client
@@ -132,7 +137,6 @@ class ElasticaService {
 
 		$debugTerms = true;
 		if ($debugTerms) {
-			//echo "\n\n----- TRYING TO FORM VALIDATE AND EXPLAIN QUERY ----\n\n";
 			unset($data['highlight']);
 			unset($data['aggs']);
 			unset($data['size']);
@@ -259,15 +263,15 @@ class ElasticaService {
 		$this->buffered = true;
 	}
 
-/*
+
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
         exec($command,$op);
-        echo "\n++++ $trace ++++\n";
-        print_r($op);
-        echo "++++ /{$trace} ++++\n\n";
+        ElasticaUtil::message("\n++++ $trace ++++\n");
+        ElasticaUtil::message(print_r($op,1));
+        ElasticaUtil::message("++++ /{$trace} ++++\n\n");
 	}
-*/
+
 
 	/**
 	 * Ends the current bulk index operation and indexes the buffered documents.
@@ -275,6 +279,11 @@ class ElasticaService {
 	public function endBulkIndex() {
 		$index = $this->getIndex();
 		foreach ($this->buffer as $type => $documents) {
+			$amount = 0;
+			foreach (array_keys($this->buffer) as $key => $list) {
+				$amount += sizeof($list);
+			}
+			ElasticaUtil::message("\tAdding $amount documents to the index\n");
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
 			self::$indexing_request_ctr++;
@@ -339,13 +348,26 @@ class ElasticaService {
 	 * Get a List of all records by class. Get the "Live data" If the class has the "Versioned" extension
 	 *
 	 * @param string $class Class Name
+	 * @param  int $pageSize Optional page size, only a max of this number of records returned
+	 * @param  int $page Page number to return
 	 * @return \DataObject[] $records
 	 */
-	protected function recordsByClassConsiderVersioned($class) {
+	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
+		$offset = $page*$pageSize;
+
 		if ($class::has_extension("Versioned")) {
-			$records = \Versioned::get_by_stage($class, 'Live');
+			if ($pageSize >0) {
+				$records = \Versioned::get_by_stage($class, 'Live')->limit($pageSize, $offset);
+			} else {
+				$records = \Versioned::get_by_stage($class, 'Live');
+			}
 		} else {
-			$records = $class::get();
+			if ($pageSize >0) {
+				$records = $class::get()->limit($pageSize,$offset);
+			} else {
+				$records = $class::get();
+			}
+
 		}
 		return $records;
 	}
@@ -362,30 +384,20 @@ class ElasticaService {
 	 * @param string $class Class Name
 	 */
 	protected function refreshClass($class) {
-		$records = $this->recordsByClassConsiderVersioned($class);
-		$nRecords = $records->count();
-		$iterator = $records->getIterator();
-		$batchSize = 100;
+		$nRecords = $this->recordsByClassConsiderVersioned($class)->count();
+		$batchSize = 500;
 		$pages = $nRecords/$batchSize + 1;
 		$processing = true;
 
-		$batch = array();
-		$ctr = 0;
-		foreach ($iterator as $record) {
-			array_push($batch, $record);
-			$ctr++;
-			if ($ctr == $batchSize) {
-				$this->refreshRecords($batch);
-				$batch = array();
-				$ctr = 0;
-			}
-		}
+		//FIXME if too slow try toArray on batches of 100, maybe iterator too slow
 
-		if (sizeof($batch) > 0) {
+		for ($i=0; $i < $pages; $i++) {
+			$this->startBulkIndex();
+			$pagedRecords = $this->recordsByClassConsiderVersioned($class,$batchSize, $i);
+			$batch = $pagedRecords->toArray();
 			$this->refreshRecords($batch);
+			$this->endBulkIndex();
 		}
-
-
 
 
 	}
@@ -396,9 +408,10 @@ class ElasticaService {
 	 */
 	public function refresh() {
 		$index = $this->getIndex();
-		$this->startBulkIndex();
 
 		foreach ($this->getIndexedClasses() as $classname) {
+			ElasticaUtil::message("Indexing class $classname");
+
 			$inSiteTree = false;
 			if (isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
@@ -428,8 +441,6 @@ class ElasticaService {
 			}
 
 		}
-
-		$this->endBulkIndex();
 	}
 
 
