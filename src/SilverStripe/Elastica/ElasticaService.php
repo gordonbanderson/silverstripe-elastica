@@ -280,8 +280,9 @@ class ElasticaService {
 		$index = $this->getIndex();
 		foreach ($this->buffer as $type => $documents) {
 			$amount = 0;
-			foreach (array_keys($this->buffer) as $key => $list) {
-				$amount += sizeof($list);
+
+			foreach (array_keys($this->buffer) as $key) {
+				$amount += sizeof($this->buffer[$key]);
 			}
 			ElasticaUtil::message("\tAdding $amount documents to the index\n");
 			$index->getType($type)->addDocuments($documents);
@@ -389,13 +390,15 @@ class ElasticaService {
 		$pages = $nRecords/$batchSize + 1;
 		$processing = true;
 
-		//FIXME if too slow try toArray on batches of 100, maybe iterator too slow
+
 
 		for ($i=0; $i < $pages; $i++) {
 			$this->startBulkIndex();
 			$pagedRecords = $this->recordsByClassConsiderVersioned($class,$batchSize, $i);
+			$this->nDocumentsIndexed += $pagedRecords->count();
 			$batch = $pagedRecords->toArray();
 			$this->refreshRecords($batch);
+//			ElasticaUtil::message("Indxed $this->nDocumentsIndexed\n");
 			$this->endBulkIndex();
 		}
 
@@ -407,6 +410,18 @@ class ElasticaService {
 	 * Re-indexes each record in the index.
 	 */
 	public function refresh() {
+		$classes = $this->getIndexedClasses();
+
+		//Count the number of documents for this locale
+		$amount = 0;
+		foreach ($classes as $class) {
+			$amount += $this->recordsByClassConsiderVersioned($class)->count();
+		}
+
+		$this->nDocumentsToIndexForLocale = $amount;
+		$this->nDocumentsIndexed = 0;
+		echo "Indexing $amount documents for locale $this->locale\n";
+
 		$index = $this->getIndex();
 
 		foreach ($this->getIndexedClasses() as $classname) {
