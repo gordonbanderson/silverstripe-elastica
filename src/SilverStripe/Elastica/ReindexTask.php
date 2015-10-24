@@ -52,7 +52,6 @@ class ReindexTask extends \BuildTask {
 
 			$this->service->setLocale($locale);
 
-			$this->service->startBulkIndex();
 
 			$message("Bulk indexing locale $locale\n");
 			$this->service->define();
@@ -62,7 +61,6 @@ class ReindexTask extends \BuildTask {
 
 			$message('Refreshing the index');
 			$this->service->refresh();
-			$this->service->endBulkIndex();
 			// display indexing speed stats
 			$endTime = microtime(true);
 			$elapsed = $endTime-$startTime;
