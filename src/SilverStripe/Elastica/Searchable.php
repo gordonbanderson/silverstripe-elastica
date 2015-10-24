@@ -339,7 +339,7 @@ class Searchable extends \DataExtension {
 		}
 		if (self::$progressInterval > 0) {
 			if (self::$index_ctr % self::$progressInterval === 0) {
-				echo "Indexed ".self::$index_ctr."...\n";
+				ElasticaUtil::message("\t".$this->owner->ClassName." - Prepared ".self::$index_ctr." for indexing...");
 			}
 		}
 
