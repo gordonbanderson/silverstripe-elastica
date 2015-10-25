@@ -236,7 +236,6 @@ class ElasticSearcher {
 		}
 
 		$mlt = array(
-			//FIXME
 			'fields' => $fieldsToSearch,
 			'docs' => array(
 				array(
