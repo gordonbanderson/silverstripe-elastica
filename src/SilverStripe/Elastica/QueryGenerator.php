@@ -48,9 +48,6 @@ class QueryGenerator {
 
 
 	public function setQueryText($newQueryText) {
-		echo "Setting query text\n";
-		print_r($newQueryText);
-		echo "\n^^^^^\n";
 		$this->queryText = $newQueryText;
 	}
 
@@ -292,7 +289,6 @@ class QueryGenerator {
 	 */
 	private function simpleTextQuery() {
 		// this will search all fields
-		print_r($this->queryText); #correct, Australia
 
 		$textQuery = new QueryString($this->queryText);
 

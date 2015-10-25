@@ -38,7 +38,9 @@ class ElasticSearchPage extends Page {
 		'ContentForEmptySearch' => 'HTMLText'
 	);
 
-	private static $has_many = array('SearchableFields' => 'ElasticSearchPageSearchField');
+	private static $has_many = array(
+		'SearchableFields' => 'ElasticSearchPageSearchField'
+	);
 
 	/*
 	Add a tab with details of what to search
@@ -88,7 +90,8 @@ class ElasticSearchPage extends Page {
 
 		$config = GridFieldConfig_RecordEditor::create();
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name','Weight' => 'Weighting', 'HumanReadableSearchable' => 'Searchable',
+            'Name' => 'Name','Weight' => 'Weighting',
+            'HumanReadableSearchable' => 'Searchable',
             'HumanReadableSimilarSearchable' => 'Use in Similar Search'
         ));
 
@@ -142,12 +145,7 @@ class ElasticSearchPage extends Page {
 
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
-
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-
-		error_log('NAME TO MAPPING');
-		print_r($nameToMapping);
-
 		$names = array();
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
@@ -165,7 +163,6 @@ class ElasticSearchPage extends Page {
 
 		$relevantNames = implode(',', $names);
 
-		error_log('ESP: Relevant names = '.$relevantNames);
 
 		if (sizeof($names) > 0) {
 			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
@@ -299,14 +296,28 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
-		// now actually perform the search using the original query
-		$paginated = $es->moreLikeThis($instance);
-		$paginated->addSimiilarSearchLink($ep->Link());
+		// get the edited fields to search from the database for this search page
+		// Convert this into a name => weighting array
+		$fieldsToSearch = array();
+		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
+			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'SimilarSearchable' => true));
 
-		$list = $paginated->getList();
-		foreach ($list as $item) {
-			$item->SimilarLink = '**** wibble';
+		foreach ($editedSearchFields->getIterator() as $searchField) {
+			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
+
+		// Use the standard field for more like this, ie not stemmed
+		$standardFields = array();
+		foreach ($fieldsToSearch as $field => $value) {
+			$fieldsToSearch[$field.'.standard'] = $value;
+			unset($fieldsToSearch[$field]);
+		}
+
+		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
+		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
+
+
+
 
 		// calculate time
 		$endTime = microtime(true);
@@ -320,6 +331,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchPerformed'] = true;
 		$data['SearchPageLink'] = $ep->Link();
 		$data['NumberOfResults'] = $paginated->getTotalItems();
+
+
+
+		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
+
+
+		$terms = array();
+		foreach ($moreLikeThisTerms as $key => $term) {
+			$fieldTerms = $moreLikeThisTerms[$key];
+			foreach ($fieldTerms as $value) {
+				array_push($terms, $value);
+			}
+		}
+
+		$terms = array_unique($terms);
+
+		print_r($terms);
+
+		$terms = array_keys($terms);
+
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
@@ -405,7 +436,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// now actually perform the search using the original query
-		echo "ESP SEARCH T1\n";
 		$paginated = $es->search($q, $fieldsToSearch);
 
 		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
@@ -414,13 +444,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			//Link for if the user really wants to try their original query
 			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
 			$data['SearchInsteadForLink'] = $sifLink;
-			echo "ESP SEARCH T2\n";
 			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
 		}
-
-		$paginated->addSimiilarSearchLink($ep->Link());
-
 
 		// calculate time
 		$endTime = microtime(true);

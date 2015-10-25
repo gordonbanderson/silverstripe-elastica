@@ -49,6 +49,7 @@ class ElasticaService {
 	 */
 	public static $indexing_request_ctr = 0;
 
+
 	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
@@ -57,7 +58,11 @@ class ElasticaService {
 		$this->client = $client;
 		$this->indexName = $newIndexName;
 		$this->locale = \i18n::default_locale();
+
 	}
+
+
+
 
 	/**
 	 * @return \Elastica\Client
@@ -93,65 +98,47 @@ class ElasticaService {
 	 * @param array $types List of comma separated SilverStripe classes to search, or blank for all
 	 * @return ResultList
 	 */
-	public function search($searchterms, $types = '', $debugTerms = false) {
-		$query = Query::create($searchterms);
+	public function search($query, $types = '', $debugTerms = false) {
+		$query = Query::create($query); // may be a string
 
-		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
-		$preTags = $highlightsCfg['PreTags'];
-		$postTags = $highlightsCfg['PostTags'];
-		$fragmentSize = $highlightsCfg['Phrase']['FragmentSize'];
-		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
+        $data = $query->toArray();
+		if (isset($data['query']['more_like_this'])) {
+			$query->MoreLikeThis = true;
+		} else {
+			$query->MoreLikeThis = false;
+		}
 
-		$query->setHighlight(array(
-			'pre_tags' => array($preTags),
-			'post_tags' => array($postTags),
-			'fields' => array(
-				"*" => json_decode('{}'),
-				'phrase' => array(
-					'fragment_size' => $fragmentSize,
-					'number_of_fragments' => $nFragments,
-				),
-			),
-		));
 
 		$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
-        if ($types) {
-        	$search->addType($types);
-        }
 
-        $path = $search->getPath();
-        $data = $query->toArray();
-        $params = $search->getOptions();
+		// If the query is a 'more like this' we can get the terms used for searching
+		if ($query->MoreLikeThis) {
+			$termsQuery = clone $query;
+			$path = $search->getPath();
+	        $params = $search->getOptions();
+
+	        $termData = array();
+	        $termData['query'] = $data['query'];
 
 
-        $path = str_replace('_search', '_validate/query', $path);
-        $params = array('explain' => true, 'rewrite' => true);
 
-		$searchResults = $search->search($query);
+	        $path = str_replace('_search', '_validate/query', $path);
+	        $params = array('explain' => true, 'rewrite' => true);
 
-		$debugTerms = true;
-		if ($debugTerms) {
-			//echo "\n\n----- TRYING TO FORM VALIDATE AND EXPLAIN QUERY ----\n\n";
-			unset($data['highlight']);
-			unset($data['aggs']);
-			unset($data['size']);
-			unset($data['from']);
-			unset($data['sort']);
-			unset($data['suggest']);
-			$response = $this->getClient()->request(
+
+
+	        $response = $this->getClient()->request(
 	            $path,
 	            \Elastica\Request::GET,
-	            $data,
+	            $termData,
 	            $params
 	        );
 
 			$r = $response->getData();
 
-
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
-
 
 				if (substr($explanation,0, 2) == '((') {
 					$explanation = explode('-ConstantScore', $explanation)[0];
@@ -173,24 +160,78 @@ class ElasticaService {
 
 			        	array_push($terms[$fieldname], $term);
 			        }
-
-			        print_r($terms);
 				}
-
-
 			}
+
+			$this->MoreLikeThisTerms = $terms;
 		}
 
 
+		//If the query is a more like this, perform a validation request to get the terms used
+
+        if ($types) {
+        	$search->addType($types);
+        }
+
+        $path = $search->getPath();
+        $params = $search->getOptions();
 
 
-        /*
+		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
+		$preTags = $highlightsCfg['PreTags'];
+		$postTags = $highlightsCfg['PostTags'];
+		$fragmentSize = $highlightsCfg['Phrase']['FragmentSize'];
+		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
 
-((Description.standard:number Description.standard:commons Description.standard:peck Description.standard:share Description.standard:can
-  Description.standard:archives Description.standard:special Description.standard:more Description.standard:you Description.standard:restrictions
-  Description.standard:collections Description.standard:digital)~3) -ConstantScore(_uid:FlickrPhoto#3936)
+		$highlights = array(
+			'pre_tags' => array($preTags),
+			'post_tags' => array($postTags),
+			'fields' => array(
+				"*" => json_decode('{}'),
+				'phrase' => array(
+					'fragment_size' => $fragmentSize,
+					'number_of_fragments' => $nFragments,
+				),
+			),
+		);
 
-         */
+
+		if ($query->MoreLikeThis) {
+			$termsMatchingQuery = array();
+			foreach ($this->MoreLikeThisTerms as $field => $terms) {
+				$termQuery = array('multi_match' => array(
+					'query' => implode(' ', $terms),
+					'type' => 'most_fields',
+					'fields' => array($field)
+				));
+				$termsMatchingQuery[$field] = array('highlight_query' => $termQuery);
+			}
+
+			$highlights['fields'] = $termsMatchingQuery;
+		}
+
+		$query->setHighlight($highlights);
+
+
+
+		$search = new Search(new Client());
+		$search->addIndex($this->getLocaleIndexName());
+        if ($types) {
+        	$search->addType($types);
+        }
+
+        $path = $search->getPath();
+        $params = $search->getOptions();
+
+
+
+		$searchResults = $search->search($query);
+
+		if (isset($this->MoreLikeThisTerms)) {
+			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
+		}
+
+
         return $searchResults;
 	}
 
@@ -261,15 +302,15 @@ class ElasticaService {
 		$this->buffered = true;
 	}
 
-/*
+
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
         exec($command,$op);
-        echo "\n++++ $trace ++++\n";
-        print_r($op);
-        echo "++++ /{$trace} ++++\n\n";
+        ElasticaUtil::message("\n++++ $trace ++++\n");
+        ElasticaUtil::message(print_r($op,1));
+        ElasticaUtil::message("++++ /{$trace} ++++\n\n");
 	}
-*/
+
 
 	/**
 	 * Ends the current bulk index operation and indexes the buffered documents.
@@ -277,8 +318,26 @@ class ElasticaService {
 	public function endBulkIndex() {
 		$index = $this->getIndex();
 		foreach ($this->buffer as $type => $documents) {
+			$amount = 0;
+
+			foreach (array_keys($this->buffer) as $key) {
+				$amount += sizeof($this->buffer[$key]);
+			}
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
+
+			ElasticaUtil::message("\tAdding $amount documents to the index\n");
+			if (isset($this->StartTime)) {
+				$elapsed = microtime(true) - $this->StartTime;
+				$timePerDoc = ($elapsed)/($this->nDocumentsIndexed);
+				$documentsRemaining = $this->nDocumentsToIndexForLocale - $this->nDocumentsIndexed;
+				$eta = ($documentsRemaining)*$timePerDoc;
+				$hours = (int)($eta/3600);
+				$minutes = (int)(($eta-$hours*3600)/60);
+				$seconds = (int)(0.5+$eta-$minutes*60-$hours*3600);
+				$etaHR = "{$hours}h {$minutes}m {$seconds}s";
+				ElasticaUtil::message("ETA to completion of indexing $this->locale ($documentsRemaining documents): $etaHR");
+			}
 			self::$indexing_request_ctr++;
 		}
 
@@ -341,15 +400,33 @@ class ElasticaService {
 	 * Get a List of all records by class. Get the "Live data" If the class has the "Versioned" extension
 	 *
 	 * @param string $class Class Name
+	 * @param  int $pageSize Optional page size, only a max of this number of records returned
+	 * @param  int $page Page number to return
 	 * @return \DataObject[] $records
 	 */
-	protected function recordsByClassConsiderVersioned($class) {
+	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
+		$offset = $page*$pageSize;
+
 		if ($class::has_extension("Versioned")) {
-			$records = \Versioned::get_by_stage($class, 'Live');
+			if ($pageSize >0) {
+				$records = \Versioned::get_by_stage($class, 'Live')->limit($pageSize, $offset);
+			} else {
+				$records = \Versioned::get_by_stage($class, 'Live');
+			}
 		} else {
-			$records = $class::get();
+			if ($pageSize >0) {
+				$records = $class::get()->limit($pageSize,$offset);
+			} else {
+				$records = $class::get();
+			}
+
 		}
-		return $records->toArray();
+		return $records;
+	}
+
+
+	protected function recordsByClassConsiderVersionedToArray($class) {
+		return $this->recordsByClassConsiderVersioned($class)->toArray();;
 	}
 
 
@@ -359,8 +436,24 @@ class ElasticaService {
 	 * @param string $class Class Name
 	 */
 	protected function refreshClass($class) {
-		$records = $this->recordsByClassConsiderVersioned($class);
-		$this->refreshRecords($records);
+		$nRecords = $this->recordsByClassConsiderVersioned($class)->count();
+		$batchSize = 500;
+		$pages = $nRecords/$batchSize + 1;
+		$processing = true;
+
+
+
+		for ($i=0; $i < $pages; $i++) {
+			$this->startBulkIndex();
+			$pagedRecords = $this->recordsByClassConsiderVersioned($class,$batchSize, $i);
+			$this->nDocumentsIndexed += $pagedRecords->count();
+			$batch = $pagedRecords->toArray();
+			$this->refreshRecords($batch);
+//			ElasticaUtil::message("Indxed $this->nDocumentsIndexed\n");
+			$this->endBulkIndex();
+		}
+
+
 	}
 
 
@@ -368,10 +461,25 @@ class ElasticaService {
 	 * Re-indexes each record in the index.
 	 */
 	public function refresh() {
+		$this->StartTime = microtime(true);
+
+		$classes = $this->getIndexedClasses();
+
+		//Count the number of documents for this locale
+		$amount = 0;
+		foreach ($classes as $class) {
+			$amount += $this->recordsByClassConsiderVersioned($class)->count();
+		}
+
+		$this->nDocumentsToIndexForLocale = $amount;
+		$this->nDocumentsIndexed = 0;
+		echo "Indexing $amount documents for locale $this->locale\n";
+
 		$index = $this->getIndex();
-		$this->startBulkIndex();
 
 		foreach ($this->getIndexedClasses() as $classname) {
+			ElasticaUtil::message("Indexing class $classname");
+
 			$inSiteTree = false;
 			if (isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
@@ -402,7 +510,8 @@ class ElasticaService {
 
 		}
 
-		$this->endBulkIndex();
+		echo "Completed indexing documents for locale $this->locale\n";
+
 	}
 
 

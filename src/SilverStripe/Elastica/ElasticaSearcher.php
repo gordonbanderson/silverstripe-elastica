@@ -199,7 +199,7 @@ class ElasticSearcher {
 		$resultList->SearchHelper = $this->manipulator;
 
 		// at this point ResultList object, not yet executed search query
-		$paginated = new \ElasticaPaginatedList(
+		$paginated = new \PaginatedList(
 			$resultList
 		);
 
@@ -222,9 +222,10 @@ class ElasticSearcher {
 	/**
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
-	 * @return ResultList  List of results
+	 * @param  array $fieldsToSearch  array of fieldnames to search
+	 * @return resultList  List of results
 	 */
-	public function moreLikeThis($indexedItem) {
+	public function moreLikeThis($indexedItem, $fieldsToSearch) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -234,24 +235,8 @@ class ElasticSearcher {
 			}
 		}
 
-        $mapping = $indexedItem->getElasticaMapping();
-
-        $properties = $mapping->getProperties();
-        $stringFields = array();
-        foreach (array_keys($properties) as $propertyName) {
-        	$property = $properties[$propertyName];
-        	if (isset($property['type']) && $property['type'] == 'string') {
-        		array_push($stringFields, $propertyName);
-        	}
-        }
-
-        unset($stringFields['Link']);
-
-
 		$mlt = array(
-			//FIXME
-			'fields' => $stringFields,
-			'fields' => ['Title.standard', 'Description.standard'],
+			'fields' => $fieldsToSearch,
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
@@ -264,23 +249,24 @@ class ElasticSearcher {
 			#FIXME configuration
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
-				'page', 'which', 'etc', 'news', 'service', 'publisher')
+				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were')
 		);
 
 
         $query = new Query();
         $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
-        //FIXME
-        //$query->setFields(array('Title'));
-
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		$resultList = new ResultList($elasticService, $query, null);
 
+// pagination
+		$query->setLimit($this->pageLength);
+		$query->setFrom($this->start);
+
+		$resultList = new ResultList($elasticService, $query, null);
         // at this point ResultList object, not yet executed search query
-		$paginated = new \ElasticaPaginatedList(
+		$paginated = new \PaginatedList(
 			$resultList
 		);
 
@@ -300,8 +286,6 @@ class ElasticSearcher {
 
 	public function hasSuggestedQuery() {
 		$result = isset($this->SuggestedQuery) && $this->SuggestedQuery != null;
-
-		echo "HAS SUGGeSTED QUERY? ".$result;
 		return $result;
 	}
 

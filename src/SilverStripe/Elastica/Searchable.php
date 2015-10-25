@@ -339,7 +339,7 @@ class Searchable extends \DataExtension {
 		}
 		if (self::$progressInterval > 0) {
 			if (self::$index_ctr % self::$progressInterval === 0) {
-				echo "Indexed ".self::$index_ctr."...\n";
+				ElasticaUtil::message("\t".$this->owner->ClassName." - Prepared ".self::$index_ctr." for indexing...");
 			}
 		}
 
@@ -702,7 +702,7 @@ class Searchable extends \DataExtension {
 			} else if (isset($searchableField['__method'])) {
 				$name = $searchableField['__method'];
 			} else {
-				echo "NAME->SF = ".$name."->".print_r($searchableField,1);
+				//echo "NAME->SF = ".$name."->".print_r($searchableField,1);
 				$name = $searchableField['properties']['__method'];
 			}
 
@@ -775,8 +775,8 @@ class Searchable extends \DataExtension {
 	/*
 	Allow the option of overriding the default template with one of <ClassName>ElasticSearchResult
 	 */
-	public function RenderResult() {
-		$vars = new \ArrayData(array('SearchResult' => $this->owner));
+	public function RenderResult($linkToContainer = '') {
+		$vars = new \ArrayData(array('SearchResult' => $this->owner, 'ContainerLink' => $linkToContainer));
 		$possibleTemplates = array($this->owner->ClassName.'ElasticSearchResult', 'ElasticSearchResult');
 		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}

@@ -86,11 +86,14 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
 			$ers = $this->service->search($this->query,$this->types);
+			if (isset($ers->MoreLikeThisTerms)) {
+				$this->MoreLikeThisTerms = $ers->MoreLikeThisTerms;
+			}
 
 			//query-term-suggestions is arbitrary name used
 			if (isset($ers->getSuggests()['query-phrase-suggestions'])) {
 				$suggest = $ers->getSuggests()['query-phrase-suggestions'];
-				$suggestedPhraseAndHL = \ElasticaUtil::getPhraseSuggestion($suggest);
+				$suggestedPhraseAndHL = ElasticaUtil::getPhraseSuggestion($suggest);
 				if ($suggestedPhraseAndHL) {
 					$this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
 					$this->SuggestedQueryHighlighted = $suggestedPhraseAndHL['suggestedQueryHighlighted'];

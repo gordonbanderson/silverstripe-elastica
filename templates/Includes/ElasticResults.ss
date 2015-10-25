@@ -9,9 +9,8 @@ Page $SearchResults.CurrentPage of $SearchResults.TotalPages &nbsp;
 <p class="showingResultsForMsg">Showing results for <a href="./?q=$SuggestedQuery">$SuggestedQueryHighlighted</a></p>
 <p class="searchOriginalQueryMsg">Search instead for <a href="$SearchInsteadForLink">$OriginalQuery</a></p>
 <% end_if %>
-
 <% loop $SearchResults %>
-$RenderResult
+$RenderResult($Top.Link)
 <% end_loop %>
 </div>
 <% else %>

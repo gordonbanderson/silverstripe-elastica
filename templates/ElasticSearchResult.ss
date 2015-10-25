@@ -9,5 +9,7 @@
 <% end_if %>
 
 - $LastEdited.Format(d/m/y)
+- <a href="$ContainerLink/similar/$ClassName/$ID">Similar</a>
+
 </div>
 </div>

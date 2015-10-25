@@ -1,5 +1,7 @@
 <?php
 
+namespace SilverStripe\Elastica;
+
 /**
  * Utility methods to help with searching functions, and also testable without fixtures
  */
@@ -14,6 +16,17 @@ class ElasticaUtil {
 	 * Marker string for psot highlight - can be any string unlikely to appear in a search
 	 */
 	private static $post_marker = "POSTZXCVBNM12345678| ";
+
+
+	/**
+	 * Function to display messages only if using the command line
+	 * @var string $content Text to display when in command line mode
+	 */
+	public static function message($content) {
+		if (\Director::is_cli()) {
+			echo "$content\n";
+		}
+	}
 
 
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
@@ -55,18 +68,6 @@ class ElasticaUtil {
 			$markedHighlightedParts = trim($markedHighlightedParts);
 
 			$highlightedParts = preg_split('/\s+/', $markedHighlightedParts);
-
-
-			//echo "ORIGINAL PARTS:\n";
-			print_r($originalParts);
-
-			//echo "SUGGESTED PARTS (from Elastica):\n";
-			print_r($suggestedParts);
-
-			//echo "SUGGESTED MARKED UP HIGHLIGHTED PARTS (from Elastica):\n";
-			print_r($highlightedParts);
-
-
 
 			//Create a mapping of lowercase to uppercase terms
 			$lowerToUpper = array();
