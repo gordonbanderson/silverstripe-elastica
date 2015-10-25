@@ -222,7 +222,7 @@ class ElasticSearcher {
 	/**
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
-	 * @return ResultList             List of results
+	 * @return ResultList  List of results
 	 */
 	public function moreLikeThis($indexedItem) {
 		if ($this->locale == null) {
@@ -261,6 +261,7 @@ class ElasticSearcher {
 			'min_term_freq' => 1,
 			'max_query_terms' => 12,
 			'min_word_length' => 3,
+			#FIXME configuration
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
 				'page', 'which', 'etc', 'news', 'service', 'publisher')
