@@ -164,12 +164,14 @@ class ElasticSearchPage extends Page {
 		$relevantNames = implode(',', $names);
 
 
+		// Can't use true and false here, as SQLite3 doesn't have booleans.
+		// Instead use 0 and 1, otherwise tests don't work.
 		if (sizeof($names) > 0) {
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = false WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 0 WHERE ";
 			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = true WHERE ";
+			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 1 WHERE ";
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 		}
