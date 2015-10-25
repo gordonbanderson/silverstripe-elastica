@@ -578,4 +578,68 @@ class ElasticaService {
 		return self::$indexing_request_ctr;
 	}
 
+
+/*
+curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvector?pretty' -d '{
+  "fields" : ["Title", "Title.standard","Description","Description.standard"],
+  "offsets" : true,
+  "payloads" : true,
+  "positions" : true,
+  "term_statistics" : true,
+  "field_statistics" : true
+ */
+
+	public function getTermVectors($searchable) {
+		$params = array();
+
+		$fieldMappings = $searchable->getElasticaMapping()->getProperties();
+		print_r($fieldMappings);
+
+		$fields = array_keys($fieldMappings);
+		$allFields = array();
+		foreach ($fields as $field) {
+			echo "CHECKING $field\n";
+			array_push($allFields, $field);
+
+			$mapping = $fieldMappings[$field];
+			print_r($mapping);
+
+			if (isset($mapping['fields'])) {
+				print_r($mapping);
+				$subFields = array_keys($mapping['fields']);
+				foreach ($subFields as $subField) {
+					echo "\tSUB FIELD:$subField\n";
+					$name = $field.'.'.$subField;
+					array_push($allFields, $name);
+				}
+			}
+		}
+
+
+		sort($allFields);
+
+
+		$data = array(
+			'fields' => $allFields,
+			'offsets' => true,
+			'payloads' => true,
+			'positions' => true,
+			'term_statistics' => true,
+			'field_statistics' => true
+		);
+
+		//FlickrPhoto/3829/_termvector
+		$path = $this->getIndex()->getName().'/'.$searchable->ClassName.'/'.$searchable->ID.'/_termvector';
+		$response = $this->getClient()->request(
+	            $path,
+	            \Elastica\Request::GET,
+	            $data,
+	            $params
+	    );
+
+
+	    $data = $response->getData();
+	    return $data['term_vectors'];
+	}
+
 }
