@@ -286,6 +286,8 @@ class ElasticaService {
 			$index = $this->getIndex();
 			$type = $index->getType($typeName);
 			$this->ensureMapping($type, $record);
+
+			error_log(print_r($document,1));
 			$type->addDocument($document);
 			$index->refresh();
 			self::$indexing_request_ctr++;
