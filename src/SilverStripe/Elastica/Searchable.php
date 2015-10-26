@@ -137,8 +137,6 @@ class Searchable extends \DataExtension {
 		$result = array();
 
 		foreach ($fields as $name => $params) {
-			//echo "GEF T1: Checking field $name \n";
-
 			$type = null;
 			$spec = array();
 
@@ -150,12 +148,10 @@ class Searchable extends \DataExtension {
 				//echo "GEF T2: in db \n";
 
 				if (($pos = strpos($class, '('))) {
-					//FIXME?  Bracket removed 8 lines ago
 					// Valid in the case of Varchar(255)
 					$class = substr($class, 0, $pos);
 				}
 
-				//echo "GEF T3: Checking for mapping for $class\n";
 
 				if (array_key_exists($class, self::$mappings)) {
 					//echo "GEF T4: $class exists in mappings\n";
@@ -780,5 +776,76 @@ class Searchable extends \DataExtension {
 		$possibleTemplates = array($this->owner->ClassName.'ElasticSearchResult', 'ElasticSearchResult');
 		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}
+
+
+
+	public function getTermVectors() {
+		return $this->service->getTermVectors($this->owner);
+	}
+
+
+
+
+
+    public function updateCMSFields(FieldList $fields) {
+
+		$fields->push( new \TabSet( "Wibble", $mainTab = new \Tab( "asdfsadfda" ) ) );
+		$mainTab->setTitle( _t( 'SiteTree.TABMAINE', "asdfsadfda" ) );
+
+
+		$config = \GridFieldConfig_RecordViewer::create(100);
+
+		// remove add button
+		$config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
+		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
+
+		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+            'Term' => 'Term',
+            'TTF' => 'Total term frequency (how often a term occurs in all documents)',
+            'DocFreq' => 'n documents with this term',
+            'TermFreq'=> 'n times this term appears in this field'
+        ));
+
+        $termVectors = $this->getTermVectors();
+		$termFields = array_keys($termVectors);
+		sort($termFields);
+
+		print_r($termFields);
+		$tabSet = new \TabSet('REMOVETHIS #FIXME');
+
+		$tabs = array();
+
+		foreach ($termFields as $field) {
+			$terms = new \ArrayList();
+
+			foreach (array_keys($termVectors[$field]['terms']) as $term) {
+	        	$do = new \DataObject();
+		        $do->Term = $term;
+		        $stats = $termVectors[$field]['terms'][$term];
+		        $do->TTF = $stats['ttf'];
+		        $do->DocFreq = $stats['doc_freq'];
+		        $do->TermFreq = $stats['term_freq'];
+		        //print_r($stats);
+		        $terms->push($do);
+	        }
+
+	        $gridField = new \GridField(
+	            'TermsFor'.$field, // Field name
+	            $field, // Field title
+	            $terms,
+	            $config
+	        );
+
+	       $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
+	       $underscored = str_replace('.', '_', $field);
+	       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
+		}
+
+
+		//$tabSet->setTabs($tabs);
+		$fields->addFieldToTab('Root.ElasticaTerms', $tabSet);
+	    return $fields;
+	}
+
 
 }
