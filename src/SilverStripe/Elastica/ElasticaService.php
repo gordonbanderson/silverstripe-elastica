@@ -593,22 +593,19 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 		$params = array();
 
 		$fieldMappings = $searchable->getElasticaMapping()->getProperties();
-		print_r($fieldMappings);
+
 
 		$fields = array_keys($fieldMappings);
 		$allFields = array();
 		foreach ($fields as $field) {
-			echo "CHECKING $field\n";
 			array_push($allFields, $field);
 
 			$mapping = $fieldMappings[$field];
-			print_r($mapping);
+
 
 			if (isset($mapping['fields'])) {
-				print_r($mapping);
 				$subFields = array_keys($mapping['fields']);
 				foreach ($subFields as $subField) {
-					echo "\tSUB FIELD:$subField\n";
 					$name = $field.'.'.$subField;
 					array_push($allFields, $name);
 				}
