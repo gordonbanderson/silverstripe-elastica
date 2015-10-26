@@ -246,6 +246,15 @@ class Searchable extends \DataExtension {
 					$unstemmed['analyzer'] = "unstemmed";
 					$unstemmed['term_vector'] = "yes";
 					$extraFields = array('standard' => $unstemmed);
+
+					$shingles = array();
+					$shingles['type'] = "string";
+					$shingles['analyzer'] = "shingles";
+					$shingles['term_vector'] = "yes";
+					$extraFields = array('shingles' => $shingles);
+
+
+
 					$spec['fields'] = $extraFields;
 					// FIXME - make index/locale specific, get from settings
 					$spec['analyzer'] = 'stemmed';
@@ -367,6 +376,7 @@ class Searchable extends \DataExtension {
 	public function getFieldValuesAsArray($recurse = true) {
 		$fields = array();
 		$has_ones = $this->owner->has_one();
+
 		foreach ($this->getElasticaFields($recurse) as $field => $config) {
 			if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
@@ -471,7 +481,10 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index (non-SiteTree).
 	 */
 	public function onAfterWrite() {
-					$this->doIndexDocument();
+		error_log("ON AFTER WRITE: ");
+		error_log('OAW: DESC = '.$this->owner->Desription);
+
+		$this->doIndexDocument();
 /*
 		if (!($this->owner instanceof \SiteTree)) {
 			echo "SEARCHABLE: onAfterWrite T1 - INDEXING\n";
@@ -498,7 +511,11 @@ class Searchable extends \DataExtension {
 		if ($this->showRecordInSearch()) {
 			if (!$this->owner->IndexingOff) {
 				$this->service->index($this->owner);
+				error_log('INDEXING THIS DOCUMENT');
+
 			}
+		} else {
+			error_log('DID NOT INDEX THIS DOCUMENT');
 		}
 
 		$command = "curl 'localhost:9200/_cat/indices?v'";
@@ -809,8 +826,6 @@ class Searchable extends \DataExtension {
         $termVectors = $this->getTermVectors();
 		$termFields = array_keys($termVectors);
 		sort($termFields);
-
-		print_r($termFields);
 		$tabSet = new \TabSet('REMOVETHIS #FIXME');
 
 		$tabs = array();
