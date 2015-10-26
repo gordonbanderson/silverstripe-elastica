@@ -347,12 +347,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			}
 		}
 
-		$terms = array_unique($terms);
-
-		print_r($terms);
-
 		$terms = array_keys($terms);
-
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
