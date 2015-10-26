@@ -42,7 +42,7 @@ class BaseIndexSettings {
 	/*
 	Stopwords for this index
 	 */
-	private $stopWords = array();
+	protected $stopWords = array();
 
 	/**
 	 * Synonyms for this index in form of CSV terms => actual term
@@ -51,11 +51,16 @@ class BaseIndexSettings {
 	private $synonyms = array();
 
 
-	/**
-	 * The base type of the analyzer, e.g. german, french etc
-	 * @var string
+	/*
+	Filters added by the language specific settings
 	 */
-	private $analyzerType = 'english';
+	private $filters = array();
+
+	/*
+	Analyzers added by the language specific settings
+	 */
+	private $analyzers = array();
+
 
 	/**
 	 * Set to true to add an extra field containing a folded version of terms,
@@ -95,15 +100,24 @@ class BaseIndexSettings {
 		return $this->stopWords;
 	}
 
-	/*
-	Valid values are arabic, armenian, basque, brazilian, bulgarian, catalan, chinese, cjk, czech,
-	 danish, dutch, english, finnish, french, galician, german, greek, hindi, hungarian,
-	 indonesian, irish, italian, latvian, norwegian, persian, portuguese, romanian, russian,
-	 sorani, spanish, swedish, turkish, thai.
 
+	/**
+	 * Add a filter, expressed as an array
+	 * @param string $name The name of the filter
+	 * @param array $properties The filter modelled as an array
 	 */
-	public function setAnalyzerType($newAnalayzerType) {
-		$this->analyzerType = $newAnalayzerType;
+	public function addFilter($name, $properties) {
+		$this->filters[$name] = $properties;
+	}
+
+
+	/**
+	 * Add an analyzer, expressed as an array
+	 * @param string $name       The name of the analyzer
+	 * @param array $properties The analyzer modelled as an array
+	 */
+	public function addAnalyzer($name, $properties) {
+		$this->analyzers[$name] = $properties;
 	}
 
 
@@ -115,16 +129,17 @@ class BaseIndexSettings {
 		$settings['analysis'] = array();
 
 		// create redefined filters in this array, e.g. tweaked stopwords
-		$filters = array();
 
 		$properties = array();
-		$analyzers = array();
-		$analyzerStemmed = array();
 		$analyzerNotStemmed = array();
 		$analyzerFolded = array();
 
-		$analyzerStemmed['type'] = $this->analyzerType;
 		$analyzerNotStemmed['type'] = 'custom';
+
+		$this->addFilter('no_single_chars', array(
+			'type' => 'length',
+			'min' => 2
+		));
 
 
 
@@ -132,19 +147,42 @@ class BaseIndexSettings {
 			$stopwordFilter = array();
 			$stopwordFilter['type'] = 'stop';
 			$stopwordFilter['stopwords'] = $this->stopWords;
-			$filters['stopword_filter'] = $stopwordFilter;
+			$this->filters['stopword_filter'] = $stopwordFilter;
 		}
 
 		//$analyzerStemmed['char_filter'] = array('html_strip');
-		$analyzerStemmed['tokenizer'] = array('uax_url_email');
-		$filterNames = array_keys($filters);
-
-		$analyzerStemmed['filter'] =  $filterNames;
+		$filterNames = array_keys($this->filters);
 
 		//$analyzerNotStemmed['char_filter'] = array('html_strip');
 		$analyzerNotStemmed['tokenizer'] = 'uax_url_email';
 		array_push($filterNames, 'lowercase');
-		$analyzerNotStemmed['filter'] = $filterNames;
+		$analyzerNotStemmed['filter'] = array('no_single_chars', 'lowercase', 'stopword_filter');
+
+		//Autocomplete filter
+		/*
+		"autocomplete": {
+            "type":      "custom",
+            "tokenizer": "standard",
+            "filter": [
+                "lowercase",
+                "autocomplete_filter"
+            ]
+        }
+		 */
+		$this->addFilter('autocomplete', array(
+			'type' => 'edge_ngram',
+			'min_gram' => 1,
+			'max_gram' => 20
+		));
+
+		$this->addAnalyzer('autocomplete',array(
+			'type' => 'custom',
+			'tokenizer' => 'uax_url_email',
+			'filter' => array(
+				'lowercase',
+				'autocomplete'
+			)
+		));
 
 		//Folded analyzer
 		$analyzerFolded['tokenizer'] = 'uax_url_email';
@@ -152,15 +190,49 @@ class BaseIndexSettings {
 
 
 
-		//HTML needs removed for all indexes
-		$analyzers['stemmed'] = $analyzerStemmed;
-		$analyzers['unstemmed'] = $analyzerNotStemmed;
+		//HTML needs to have been removed for all indexes
+		//stemmed is set by the specific language provider
+		$this->analyzers['unstemmed'] = $analyzerNotStemmed;
+
+
 		if ($this->foldedAscii) {
 			$analyzers['folded'] = $analyzerFolded;
 		}
 
-		$settings['analysis']['analyzer'] = $analyzers;
-		$settings['analysis']['filter'] = $filters;
+
+		// Add a shingles filter, grouping terms together
+		/*
+
+
+ 			"filter_stop":{
+                  "type":"stop",
+                  "enable_position_increments":"false"
+               }
+
+
+
+		 */
+
+
+
+		$this->addFilter('filter_shingle', array(
+			'type' => 'shingle',
+			'min_shingle_size' => 2,
+			'max_shingle_size' => 5,
+			'output_unigrams' => false
+		));
+
+
+
+		//See https://www.elastic.co/blog/searching-with-shingles?q=shingle for details
+		$this->addAnalyzer('shingles', array(
+			'tokenizer' => 'uax_url_email',
+			'filter' => array("lowercase", "filter_shingle"),
+			'type' => 'custom'
+		));
+
+		$settings['analysis']['analyzer'] = $this->analyzers;
+		$settings['analysis']['filter'] = $this->filters;
 
 
 		$properties['index'] = $settings;
@@ -198,6 +270,10 @@ class BaseIndexSettings {
 		}';
 		*/
 		//$this->extend('alterIndexingProperties', $properties);
+		//
+		//
+
+		print_r($properties);
 		return $properties;
 	}
 }
