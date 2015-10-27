@@ -125,11 +125,8 @@ class ElasticaService {
 	        $termData = array();
 	        $termData['query'] = $data['query'];
 
-
-
 	        $path = str_replace('_search', '_validate/query', $path);
 	        $params = array('explain' => true, 'rewrite' => true);
-
 
 
 	        $response = $this->getClient()->request(
@@ -146,26 +143,25 @@ class ElasticaService {
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
 
-				if (substr($explanation,0, 2) == '((') {
-					$explanation = explode('-ConstantScore', $explanation)[0];
+				$explanation = explode('-ConstantScore', $explanation)[0];
 
-			        $bracketPos = strpos($explanation, ')~');
-			       	$explanation = substr($explanation, 2, $bracketPos-2);
+		        $bracketPos = strpos($explanation, ')~');
+		       	$explanation = substr($explanation, 2, $bracketPos-2);
 
-			        //Field name(s) => terms
-			        $splits = explode(' ', $explanation);
-			        foreach ($splits as $fieldAndTerm) {
-			        	$splits = explode(':', $fieldAndTerm);
-			        	$fieldname = $splits[0];
-			        	$term = $splits[1];
+		        //Field name(s) => terms
+		        $splits = explode(' ', $explanation);
+		        foreach ($splits as $fieldAndTerm) {
+		        	$splits = explode(':', $fieldAndTerm);
+		        	$fieldname = $splits[0];
+		        	$term = $splits[1];
 
-			        	if (!isset($terms[$fieldname])) {
-			        		$terms[$fieldname] = array();
-			        	}
+		        	if (!isset($terms[$fieldname])) {
+		        		$terms[$fieldname] = array();
+		        	}
 
-			        	array_push($terms[$fieldname], $term);
-			        }
-				}
+		        	array_push($terms[$fieldname], $term);
+		        }
+
 			}
 
 			$this->MoreLikeThisTerms = $terms;
