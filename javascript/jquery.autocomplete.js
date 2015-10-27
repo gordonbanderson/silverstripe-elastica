@@ -596,20 +596,10 @@
         },
 
         isBadQuery: function (q) {
-            if (!this.options.preventBadQueries){
-                return false;
-            }
 
-            var badQueries = this.badQueries,
-                i = badQueries.length;
+        	var trimmed = q.trim();
+        	return trimmed.length < 2;
 
-            while (i--) {
-                if (q.indexOf(badQueries[i]) === 0) {
-                    return true;
-                }
-            }
-
-            return false;
         },
 
         hide: function () {
