@@ -285,7 +285,7 @@ class ElasticSearcher {
 			#FIXME configuration
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
-				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were')
+				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were', 'his', 'url')
 		);
 
 
