@@ -251,7 +251,7 @@ class Searchable extends \DataExtension {
 					$shingles['type'] = "string";
 					$shingles['analyzer'] = "shingles";
 					$shingles['term_vector'] = "yes";
-					$extraFields = array('shingles' => $shingles);
+					$extraFields['shingles'] = $shingles;
 
 					//Add autocomplete field if so required
 					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
@@ -262,10 +262,8 @@ class Searchable extends \DataExtension {
 						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
 						$autocompleteField['search_analyzer'] = "autocomplete_search_analyzer";
 						$autocompleteField['term_vector'] = "yes";
-						$extraFields = array('autocomplete' => $autocompleteField);
+						$extraFields['autocomplete'] = $autocompleteField;
 					}
-
-
 
 					$spec['fields'] = $extraFields;
 					// FIXME - make index/locale specific, get from settings
