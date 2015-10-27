@@ -223,6 +223,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$searchable = Injector::inst()->create($class);
 
+		//FIXME better ways to do this #sleepyOClock
 		if (!$searchable->hasMethod('getElasticaFields')) {
 			throw new Exception($class.' is not searchable');
 		}
@@ -248,8 +249,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
 		$es->setStart($start);
 		$es->setPageLength($ep->ResultsPerPage);
-
-
 
 
 		//May not work
@@ -311,14 +310,15 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$standardFields = array();
 		foreach ($fieldsToSearch as $field => $value) {
 			$fieldsToSearch[$field.'.standard'] = $value;
+
+			//Experiment here with other fields to ad to similarity searching
+			//$fieldsToSearch[$field.'.shingles'] = $value;
+			//$fieldsToSearch[$field.'.autocomplete'] = $value;
 			unset($fieldsToSearch[$field]);
 		}
 
 		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
 		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-
-
-
 
 		// calculate time
 		$endTime = microtime(true);
@@ -331,22 +331,25 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['Elapsed'] = $elapsed;
 		$data['SearchPerformed'] = true;
 		$data['SearchPageLink'] = $ep->Link();
+		$data['SimilarTo'] = $instance;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
-
 
 
 		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
 
 
-		$terms = array();
+		$terms = new ArrayList();
 		foreach ($moreLikeThisTerms as $key => $term) {
 			$fieldTerms = $moreLikeThisTerms[$key];
 			foreach ($fieldTerms as $value) {
-				array_push($terms, $value);
+				$do = new DataObject();
+				$do->Value = $value;
+				$terms->push($do);
 			}
 		}
 
-		$terms = array_keys($terms);
+
+		$data['SimilarSearchTerms'] = $terms;
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
