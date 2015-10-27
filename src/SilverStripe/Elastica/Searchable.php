@@ -253,6 +253,18 @@ class Searchable extends \DataExtension {
 					$shingles['term_vector'] = "yes";
 					$extraFields = array('shingles' => $shingles);
 
+					//Add autocomplete field if so required
+					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
+
+					if (isset($autocomplete) && in_array($name, $autocomplete)) {
+						$autocompleteField = array();
+						$autocompleteField['type'] = "string";
+						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
+						$autocompleteField['search_analyzer'] = "autocomplete_search_analyzer";
+						$autocompleteField['term_vector'] = "yes";
+						$extraFields = array('autocomplete' => $autocompleteField);
+					}
+
 
 
 					$spec['fields'] = $extraFields;

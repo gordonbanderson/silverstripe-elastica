@@ -170,17 +170,28 @@ class BaseIndexSettings {
         }
 		 */
 		$this->addFilter('autocomplete', array(
-			'type' => 'edge_ngram',
-			'min_gram' => 1,
-			'max_gram' => 20
+			'type' => 'nGram',
+			'min_gram' => 2,
+			'max_gram' => 20,
+			'token_chars' => array('letter', 'digit','punctuation', 'symbol')
 		));
 
-		$this->addAnalyzer('autocomplete',array(
+		$this->addAnalyzer('autocomplete_index_analyzer',array(
 			'type' => 'custom',
-			'tokenizer' => 'uax_url_email',
+			'tokenizer' => 'whitespace',
 			'filter' => array(
 				'lowercase',
+				'asciifolding',
 				'autocomplete'
+			)
+		));
+
+		$this->addAnalyzer('autocomplete_search_analyzer',array(
+			'type' => 'custom',
+			'tokenizer' => 'whitespace',
+			'filter' => array(
+				'lowercase',
+				'asciifolding'
 			)
 		));
 
@@ -199,33 +210,17 @@ class BaseIndexSettings {
 			$analyzers['folded'] = $analyzerFolded;
 		}
 
-
-		// Add a shingles filter, grouping terms together
-		/*
-
-
- 			"filter_stop":{
-                  "type":"stop",
-                  "enable_position_increments":"false"
-               }
-
-
-
-		 */
-
-
-
+        //Store bigrams in the index, namely pairs of words
 		$this->addFilter('filter_shingle', array(
 			'type' => 'shingle',
 			'min_shingle_size' => 2,
-			'max_shingle_size' => 5,
+			'max_shingle_size' => 2,
 			'output_unigrams' => false
 		));
 
-
-
 		//See https://www.elastic.co/blog/searching-with-shingles?q=shingle for details
 		$this->addAnalyzer('shingles', array(
+			// Ensure URLs happily tokenized
 			'tokenizer' => 'uax_url_email',
 			'filter' => array("lowercase", "filter_shingle"),
 			'type' => 'custom'
