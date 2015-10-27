@@ -40,6 +40,8 @@ class ElasticSearchForm extends Form {
            $tf = new TextField("q", "", $searchText)
         );
 
+        $tf->addExtraClass('autocomplete');
+
         $buttonText = _t('SearchPage.SEARCH', 'Search');
         $actions = new FieldList(
             $fa = new FormAction('submit', $buttonText)
