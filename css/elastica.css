@@ -92,12 +92,18 @@ div.searchFooter {
 }
 
 .main .secondary ul.aggregations li span.facetToggle,
-.main .secondary ul.aggregations li .remove
+.main .secondary ul.aggregations li .remove,
+#cancelSimilar.remove
  {
 	color: #b80000;
 	font-family: 'WebSymbolsRegular';
 	font-size: 120%;
 	cursor: pointer;
+}
+
+
+#cancelSimilar.remove {
+	float: right;
 }
 
 .main .secondary ul.aggregations li.selected a {
@@ -160,3 +166,27 @@ div.autocomplete-suggestions {
 	color: black;
 }
 
+
+/* ---- similar search ---- */
+div.similarSearchInfo {
+	background: #EDEDED;
+	border: solid #999 1px;
+	padding: 10px;
+}
+
+
+div.terms ul{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	padding-top: 10px;
+}
+
+div.terms ul li {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	padding-right: 5px;
+	display: inline-block;
+	font-weight: bold;
+}
