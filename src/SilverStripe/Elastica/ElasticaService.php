@@ -101,6 +101,10 @@ class ElasticaService {
 	public function search($query, $types = '', $debugTerms = false) {
 		$query = Query::create($query); // may be a string
 
+		if (is_string($types)) {
+			$types = explode(',', $types);
+		}
+
         $data = $query->toArray();
 		if (isset($data['query']['more_like_this'])) {
 			$query->MoreLikeThis = true;
@@ -136,6 +140,8 @@ class ElasticaService {
 	        );
 
 			$r = $response->getData();
+			$terms = array();
+
 
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
@@ -147,7 +153,6 @@ class ElasticaService {
 			       	$explanation = substr($explanation, 2, $bracketPos-2);
 
 			        //Field name(s) => terms
-			        $terms = array();
 			        $splits = explode(' ', $explanation);
 			        foreach ($splits as $fieldAndTerm) {
 			        	$splits = explode(':', $fieldAndTerm);
@@ -166,11 +171,11 @@ class ElasticaService {
 			$this->MoreLikeThisTerms = $terms;
 		}
 
-
-		//If the query is a more like this, perform a validation request to get the terms used
-
         if ($types) {
-        	$search->addType($types);
+        	foreach($types as $type) {
+        		$search->addType($type);
+        	}
+
         }
 
         $path = $search->getPath();
@@ -216,9 +221,6 @@ class ElasticaService {
 
 		$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
-        if ($types) {
-        	$search->addType($types);
-        }
 
         $path = $search->getPath();
         $params = $search->getOptions();
