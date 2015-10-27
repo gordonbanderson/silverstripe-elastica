@@ -180,6 +180,47 @@ class QueryGenerator {
 	}
 
 
+	/*
+	curl -XPOST "http://localhost:9200/elasticademo_en_us/FlickrPhoto/_search?pretty" -d'
+{
+   "size": 10,
+   "query": {
+      "match": {
+         "Title.autcomplete": {
+            "query": "will",
+            "operator": "and"
+         }
+      }
+   },
+    "highlight" : {
+        "fields" : {
+            "Title.autcomplete" : {}
+        }
+    }
+}'
+
+
+
+
+
+	 */
+	public function generateElasticaAutocompleteQuery() {
+		$data = array(
+			'size' => 10,
+			'query' => array(
+				'match' => array(
+					'Title.autocomplete' => array(
+						'query' => $this->queryText,
+						'operator' => 'and'
+					)
+				)
+			)
+		);
+		$query = new Query($data);
+		return $query;
+	}
+
+
 	private function getQuerySuggester() {
 		$suggester = array();
 		$suggester['text'] = $this->queryText;
@@ -398,6 +439,7 @@ class QueryGenerator {
 		if ($fieldsAllowed) {
 			$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
 			$key .= '_' . str_replace(',', '_', str_replace("'", '_',$fieldsAllowedCSV));
+			$key = str_replace('.', '_', $key);
 		}
 
 		$result = $cache->load($key);
