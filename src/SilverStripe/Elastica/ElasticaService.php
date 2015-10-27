@@ -221,6 +221,12 @@ class ElasticaService {
 
 		$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
+		if ($types) {
+			foreach($types as $type) {
+				$search->addType($type);
+			}
+		}
+
 
         $path = $search->getPath();
         $params = $search->getOptions();
