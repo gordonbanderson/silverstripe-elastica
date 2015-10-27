@@ -28,12 +28,12 @@ class EnglishIndexSettings extends BaseIndexSettings {
 		//Add stemmers
 		$this->addFilter('english_stemmer', array(
 			'type' => 'stemmer',
-			'keywords' => "english"
+			'language' => "english"
 		));
 
 		$this->addFilter('english_possessive_stemmer', array(
 			'type' => 'stemmer',
-			'keywords' => "possessive_english"
+			'language' => "possessive_english"
 		));
 
 		//Optional
