@@ -213,9 +213,45 @@ class ElasticSearcher {
 			$this->SuggestedQuery = $resultList->SuggestedQuery;
 			$this->SuggestedQueryHighlighted = $resultList->SuggestedQueryHighlighted;
 		}
-
-
 		return $paginated;
+	}
+
+
+	/* Perform an autocomplete search */
+	public function autocomplete_search($q, $fieldsToSearch = null) {
+		if ($this->locale == null) {
+			if (!class_exists('Translatable')) {
+				// if no translatable we only have the default locale
+				$this->locale = \i18n::default_locale();
+			} else {
+				$this->locale = \Translatable::get_current_locale();
+			}
+		}
+
+		$qg = new QueryGenerator();
+		$qg->setQueryText($q);
+
+		$qg->setFields($fieldsToSearch);
+		$qg->setClasses($this->classes);
+
+		$qg->setPageLength($this->pageLength);
+		$qg->setStart(0);
+
+		$qg->setShowResultsForEmptyQuery(false);
+
+		$query = $qg->generateElasticaAutocompleteQuery();
+
+		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$elasticService->setLocale($this->locale);
+
+		$resultList = new ResultList($elasticService, $query, $q);
+
+		// restrict SilverStripe ClassNames returned
+		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
+		$types = $this->classes;
+		$resultList->setTypes($types);
+
+		return $resultList;
 	}
 
 
