@@ -33,7 +33,7 @@
 	    serviceUrl: '/autocomplete/search',
 	    minChars: 2, //Needs to be more than 1 otherwise no results will be returned due to isBadQuery method,
 	    width: '1000px',
-	    deferRequestBy: 500,
+	    deferRequestBy: 300,
 	    onSelect: function (suggestion) {
 	        alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
 	    },
