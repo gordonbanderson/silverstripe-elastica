@@ -209,6 +209,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		parent::init();
 
 		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
+		Requirements::javascript("elastica/javascript/jquery.autocomplete.js");
 		Requirements::javascript("elastica/javascript/elastica.js");
         Requirements::css("elastica/css/elastica.css");
 	}
@@ -225,8 +226,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		if (!$searchable->hasMethod('getElasticaFields')) {
 			throw new Exception($class.' is not searchable');
 		}
-
-
 
 		$instance = DataObject::get_by_id($class,$instanceID);
 
