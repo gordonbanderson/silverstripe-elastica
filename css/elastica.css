@@ -128,3 +128,35 @@ span.count {
 }
 
 
+//---- autocomplete ----
+div.autocomplete-suggestions {
+	overflow: auto;
+	font-size: 200%;
+}
+
+.autocomplete-suggestion {
+	padding: 2px 5px;
+	white-space: nowrap;
+	background: white;
+	overflow: hidden;
+}
+
+div.autocomplete-suggestions {
+	border: 1px solid #999;
+	-webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+	-moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+	box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+
+	 opacity: 0.95;
+    filter: alpha(opacity=90); /* For IE8 and earlier */
+}
+
+.autocomplete-selected {
+	background: #F0F0F0;
+}
+
+.autocomplete-suggestions strong {
+	font-weight: bold;
+	color: black;
+}
+
