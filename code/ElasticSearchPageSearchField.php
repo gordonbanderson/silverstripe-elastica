@@ -7,7 +7,8 @@ class ElasticSearchPageSearchField extends DataObject {
 		'Type' => 'Varchar', // the elasticsearch indexing type
 		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
 		'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
-		'Active' => 'Boolean' // preserve previous edits of weighting when classes changed
+		'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
+		'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
 	);
 
 	private static $defaults = array(
@@ -19,7 +20,7 @@ class ElasticSearchPageSearchField extends DataObject {
 
 	private static $has_one = array('ElasticSearchPage' => 'ElasticSearchPage');
 
-	private static $display_fields = array('Name','Weight','Searchable', 'SimilarSearchable');
+	private static $display_fields = array('Name','Weight','Searchable', 'SimilarSearchable', 'EnableAutocomplete');
 
 
 	function getCMSFields() {
@@ -32,6 +33,7 @@ class ElasticSearchPageSearchField extends DataObject {
 		$fields->addFieldToTab( 'Root.Main',  new NumericField( 'Weight', 'Weight') );
 		$fields->addFieldToTab( 'Root.Main',  new CheckboxField( 'Searchable', 'Search this field?') );
 		$fields->addFieldToTab( 'Root.Main',  new CheckboxField( 'SimilarSearchable', 'Use this field for similar search?') );
+		$fields->addFieldToTab( 'Root.Main',  new CheckboxField( 'EnableAutocomplete', 'Whether or not use to use autocomplete (if available)') );
 		return $fields;
 	}
 
