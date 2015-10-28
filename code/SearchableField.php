@@ -4,7 +4,8 @@ class SearchableField extends DataObject {
 	private static $db = array(
 		'Name' => 'Varchar', // the name of the field, e.g. Title
 		'ClazzName' => 'Varchar', // the ClassName this field belongs to
-		'Type' => 'Varchar' // the elasticsearch indexing type,
+		'Type' => 'Varchar', // the elasticsearch indexing type,
+		'Autocomplete' => 'Boolean' // Use this to check for autocomplete fields
 	);
 
 	private static $has_one = array('SearchableClass' => 'SearchableClass');
