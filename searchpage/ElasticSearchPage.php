@@ -504,7 +504,20 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	Obtain an instance of the form
 	*/
 	public function SearchForm() {
-		return new ElasticSearchForm($this, 'SearchForm');
+		$form = new ElasticSearchForm($this, 'SearchForm');
+		if($this->action == 'similar') {
+			$fields = $form->Fields();
+			$q = $fields->fieldByName('q');
+			$q->setDisabled(true);
+
+			$actions = $form->Actions();
+			foreach ($actions as $field) {
+				echo $field->getName();
+				$field->setDisabled(true);
+			}
+
+		};
+		return $form;
 	}
 
 }
