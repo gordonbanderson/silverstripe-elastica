@@ -434,12 +434,13 @@ class QueryGenerator {
 
 		error_log("CSV CLASSES: $csvClasses");
 
-		$key = rand(1,10000000).'SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
+		$key = rand(1,10000000).'SEARCHABLE_FIELDS_2_'.str_replace(',', '_', $csvClasses);
 
 		if ($fieldsAllowed) {
 			$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
 			$key .= '_' . str_replace(',', '_', str_replace("'", '_',$fieldsAllowedCSV));
 			$key = str_replace('.', '_', $key);
+			$key = str_replace(' ', '_', $key);
 		}
 
 		$result = $cache->load($key);
