@@ -492,6 +492,7 @@ class ElasticaService {
 		//Count the number of documents for this locale
 		$amount = 0;
 		foreach ($classes as $class) {
+			echo "Getting class count for $class\n";
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
 
@@ -576,14 +577,25 @@ class ElasticaService {
 		$whitelist = array('SearchableTestPage','FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
-							echo "INDEXED CLASSES: Checking $candidate\n";
+			echo "INDEXED CLASSES: Checking $candidate\n";
 
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
 
 			// Only allow test classes in testing mode
-			if (isset($interfaces['TestOnly']) && !in_array($candidate, $whitelist)) {
+			if (isset($interfaces['TestOnly'])) {
+
+				if (in_array($candidate, $whitelist)) {
+					if (!self::$test_mode) {
+						continue;
+					}
+				} else {
+					// If it's not in the test whitelist we definitely do not want to know
+					continue;
+				}
+
+
 				if (!self::$test_mode) {
 					echo "INDEXED CLASSES: Skipping $candidate, Dir isTest?".\Director::isTest()."\n";
 					continue;
