@@ -92,7 +92,8 @@ class ElasticSearchPage extends Page {
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
             'Name' => 'Name','Weight' => 'Weighting',
             'HumanReadableSearchable' => 'Searchable',
-            'HumanReadableSimilarSearchable' => 'Use in Similar Search'
+            'HumanReadableSimilarSearchable' => 'Use in Similar Search',
+            'EnableAutocomplete' => 'Enable autocomplete if available'
         ));
 
         $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
@@ -263,16 +264,12 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 		// filter by class or site tree
-		/*
-
 		if ($ep->SiteTreeOnly) {
 			$es->addFilter('IsInSiteTree', true);
 		} else {
 			$es->setClasses($ep->ClassesToSearch);
 		}
-		*/
-		//FIXME - inheritance
-		$es->setClasses($class);
+
 
 		//FIXME may not work
 		// set the optional aggregation manipulator
