@@ -17,14 +17,49 @@
 }
 
 #ElasticSearchForm_SearchForm fieldset {
-	float: left;
 }
 
 #ElasticSearchForm_SearchForm .Actions {
-	float: left;
 	padding-left: 20px;
 	padding-top: 2px;
+
 }
+
+
+article form#ElasticSearchForm_SearchForm  {
+	max-width: 100%;
+	width:100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+article form#ElasticSearchForm_SearchForm fieldset {
+	float: left;
+	/* line up centrally approx */
+	padding-left: 30px;
+}
+
+article form#ElasticSearchForm_SearchForm fieldset input.text {
+	float: none;
+	max-width: 100%;
+}
+
+
+form#ElasticSearchForm_SearchForm fieldset input.text {
+		width: 624px;
+
+}
+
+.no-sidebar form#ElasticSearchForm_SearchForm fieldset input.text {
+		width: 900px;
+
+}
+
+
+article form#ElasticSearchForm_SearchForm  .Actions {
+	float: left;
+}
+
 
 
 .aggregationMenu h3 {
