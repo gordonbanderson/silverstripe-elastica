@@ -50,6 +50,12 @@ class ElasticaService {
 	public static $indexing_request_ctr = 0;
 
 
+	/*
+	Enable this to allow test classes not to be ignored when indexing
+	 */
+	public static $test_mode = false;
+
+
 	/**
 	 * @param \Elastica\Client $client
 	 * @param string $index
@@ -59,6 +65,11 @@ class ElasticaService {
 		$this->indexName = $newIndexName;
 		$this->locale = \i18n::default_locale();
 
+	}
+
+
+	public static function setIsInTestMode() {
+		self::$test_mode = true;
 	}
 
 
@@ -381,6 +392,13 @@ class ElasticaService {
 			/** @var $sng Searchable */
 			$sng = singleton($class);
 			$mapping = $sng->getElasticaMapping();
+			$name = $sng->getElasticaType();
+			echo "ES: Defining mapping for {$name}\n";
+
+			if ($name == 'SearchableTestGrandFatherPage') {
+				//asdfsdf;
+				//die;
+			}
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
 		}
@@ -555,19 +573,27 @@ class ElasticaService {
 	public function getIndexedClasses() {
 		$classes = array();
 
-		//FIXME - make this configurable
 		$whitelist = array('SearchableTestPage','FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
+							echo "INDEXED CLASSES: Checking $candidate\n";
+
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
 
+			// Only allow test classes in testing mode
 			if (isset($interfaces['TestOnly']) && !in_array($candidate, $whitelist)) {
-				continue;
+				if (!self::$test_mode) {
+					echo "INDEXED CLASSES: Skipping $candidate, Dir isTest?".\Director::isTest()."\n";
+					continue;
+				}
+
 			}
 
 			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
+				echo "INDEXED CLASSES: Adding $candidate\n";
+
 				$classes[] = $candidate;
 			}
 		}
