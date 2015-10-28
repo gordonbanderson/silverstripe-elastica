@@ -57,27 +57,27 @@ class InheritanceTest extends ElasticsearchBaseTest {
 
 		echo "---- TERM VECTORS FOR GF PAGE ----\n";
 
-
-
 		$terms = $page->getTermVectors();
-		print_r($terms);
 
-		echo "\nAKEYS\n";
+		//Check the expected fields are indexed
+		$expected = array('Content','Content.shingles','Content.standard','FatherText','FatherText.shingles','FatherText.standard',
+			'GrandFatherText','GrandFatherText.shingles','GrandFatherText.standard','Link','Locale','Title','Title.autocomplete',
+			'Title.shingles','Title.standard');
+		$indexedFields = array_keys($terms);
+		sort($indexedFields);
+		foreach ($indexedFields as $field) {
+			echo "'".$field."',";
+		}
+		$this->assertEquals($expected, $indexedFields);
 
-		print_r(array_keys($terms));
+		$fatherTerms = $terms['FatherText.standard']['terms'];
+		$grandFatherTerms = $terms['GrandFatherText.standard']['terms'];
 
-		$fatherTerms = $terms['FatherText']['terms'];
-		$grandFatherTerms = $terms['GrandFatherText']['terms'];
-
-
-
-
-		$expected = array('a','father','field','grandfather','in','is','page','the','trace3');
+		$expected = array('father', 'field', 'grandfather', 'page', 'trace3');;
 		$this->assertEquals($expected, array_keys($fatherTerms));
-		$expected = array();
+
+		$expected = array('grandfather', 'page', 'trace4');
 		$this->assertEquals($expected, array_keys($grandFatherTerms));
-
-
 	}
 
 
@@ -101,23 +101,7 @@ class InheritanceTest extends ElasticsearchBaseTest {
 	public function testReindexing() {
 		//Reset the index, so that nothing has been indexed
 		$this->service->reset();
-
-		//Number of requests indexing wise made to Elasticsearch server
-		$reqs = $this->service->getIndexingRequestCtr();
-
-		$task = new ReindexTask($this->service);
-
-		// null request is fine as no parameters used
-		$task->run(null);
-
-		//Check that the number of indexing requests has increased by 2
-		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
-		//One call is made for each of Page and FlickrPhotoTO
-		$this->assertEquals(2,$deltaReqs);
-
-		// default installed pages plus 100 FlickrPhotoTOs
-		$this->checkNumberOfIndexedDocuments(20);
-
+		$this->service->define();
 	}
 
 
