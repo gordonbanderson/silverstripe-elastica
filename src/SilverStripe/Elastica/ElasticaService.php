@@ -394,11 +394,6 @@ class ElasticaService {
 			$mapping = $sng->getElasticaMapping();
 			$name = $sng->getElasticaType();
 			echo "ES: Defining mapping for {$name}\n";
-
-			if ($name == 'SearchableTestGrandFatherPage') {
-				//asdfsdf;
-				//die;
-			}
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
 		}
@@ -574,7 +569,8 @@ class ElasticaService {
 	public function getIndexedClasses() {
 		$classes = array();
 
-		$whitelist = array('SearchableTestPage','FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
+		$whitelist = array('SearchableTestPage', 'SearchableTestFatherPage', 'SearchableTestGrandFatherPage',
+			'FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
 			echo "INDEXED CLASSES: Checking $candidate\n";
@@ -607,6 +603,8 @@ class ElasticaService {
 				echo "INDEXED CLASSES: Adding $candidate\n";
 
 				$classes[] = $candidate;
+			} else {
+				echo "INDEXED CLASSES: Instance does not have extension Searchable\n";
 			}
 		}
 
