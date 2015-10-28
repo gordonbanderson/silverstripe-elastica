@@ -848,9 +848,19 @@ class Searchable extends \DataExtension {
 		        	$do = new \DataObject();
 			        $do->Term = $term;
 			        $stats = $termVectors[$field]['terms'][$term];
-			        $do->TTF = $stats['ttf'];
-			        $do->DocFreq = $stats['doc_freq'];
-			        $do->TermFreq = $stats['term_freq'];
+			        if (isset($stats['ttf'])) {
+			        	$do->TTF = $stats['ttf'];
+			        }
+
+			        if (isset($stats['doc_freq'])) {
+			        	$do->DocFreq = $stats['doc_freq'];
+			        }
+
+			        if (isset($stats['term_freq'])) {
+			        	$do->TermFreq = $stats['term_freq'];
+			        }
+
+
 			        //print_r($stats);
 			        $terms->push($do);
 		        }
