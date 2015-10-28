@@ -24,7 +24,7 @@ Group:
 SearchableTestPage:
   first:
     Title: First
-    IndexingOff: true
+    Content: TRACE0
   second:
     Title: Second
     IndexingOff: true
@@ -40,15 +40,15 @@ SearchableTestPage:
 SearchableTestFatherPage:
   father0001:
     Title: Father Page
-    Content: This is a father page
-    Father: This is the father field
+    Content: This is a father page TRACE1
+    FatherText: This is the father field TRACE2
 
 SearchableTestGrandFatherPage:
   grandfather0001:
-    Title: Father Page
-    Content: This is a father page
-    Father: This is the father field in a grandfather page
-    GrandFather: This is the grandfather page
+    Title: Grandfather Page
+    Content: This is a grand father page
+    FatherText: This is the father field in a grandfather page TRACE3
+    GrandFatherText: This is the grandfather page TRACE4
 
 
 
