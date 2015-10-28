@@ -259,7 +259,6 @@ class Searchable extends \DataExtension {
 					//echo "MAPPING FOR {$this->owner->ClassName}, $name: AUTOCOMPLETECONFIG=".print_r($autocomplete,1)."\n";
 
 					if (isset($autocomplete) && in_array($name, $autocomplete)) {
-						echo "ADDING AUTO DEL MAPPING\n";
 						$autocompleteField = array();
 						$autocompleteField['type'] = "string";
 						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
@@ -494,8 +493,6 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index (non-SiteTree).
 	 */
 	public function onAfterWrite() {
-		error_log("ON AFTER WRITE: ");
-		error_log('OAW: DESC = '.$this->owner->Desription);
 
 		$this->doIndexDocument();
 /*
@@ -524,11 +521,7 @@ class Searchable extends \DataExtension {
 		if ($this->showRecordInSearch()) {
 			if (!$this->owner->IndexingOff) {
 				$this->service->index($this->owner);
-				error_log('INDEXING THIS DOCUMENT');
-
 			}
-		} else {
-			error_log('DID NOT INDEX THIS DOCUMENT');
 		}
 
 		$command = "curl 'localhost:9200/_cat/indices?v'";
@@ -720,8 +713,8 @@ class Searchable extends \DataExtension {
 		}
 
 		foreach ($searchableFields as $name => $searchableField) {
-			echo "Checkingg searchable field $name =>\n";
-			print_r($searchableField);
+			//echo "Checkingg searchable field $name =>\n";
+			//print_r($searchableField);
 
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
