@@ -9,6 +9,10 @@ SiteTree:
 
     # Make the SiteTree searchable
     - 'SilverStripe\Elastica\Searchable'
+
+  searchable_autocomplete:
+    - Title
+
 DevBuildController:
   extensions:
     - SilverStripe\Elastica\ClearElasticFieldCacheExtension
