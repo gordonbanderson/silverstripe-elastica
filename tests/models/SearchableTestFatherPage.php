@@ -5,10 +5,10 @@
  * @subpackage tests
  */
 class SearchableTestFatherPage extends SearchableTestPage {
-	private static $searchable_fields = array('Father');
+	private static $searchable_fields = array('FatherText');
 
 	private static $db = array(
-		'Father' => 'Varchar(255)'
+		'FatherText' => 'Varchar(255)'
 	);
 }
 

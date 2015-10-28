@@ -5,10 +5,10 @@
  * @subpackage tests
  */
 class SearchableTestGrandFatherPage extends SearchableTestFatherPage implements TestOnly {
-	private static $searchable_fields = array('GrandFather');
+	private static $searchable_fields = array('GrandFatherText');
 
 	private static $db = array(
-		'GrandFather' => 'Varchar(255)'
+		'GrandFatherText' => 'Varchar(255)'
 	);
 }
 
