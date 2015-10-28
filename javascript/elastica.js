@@ -1,6 +1,20 @@
 /*jslint white: true */
 (function($) {
 	$(document).ready(function() {
+		$('#cancelSimilar').click(function(e) {
+			var form = $(this).parent().next();
+			console.log(form);
+			form.find('input.action').removeAttr('disabled');
+			var inputField = form.find('input.text');
+			inputField.removeAttr('disabled');
+			inputField.focus();
+			$(this).parent().remove();
+
+			$('div.searchResults').remove();
+			$('div#PageNumbers').remove();
+
+		});
+
 		$('.facetToggle').click(function(e) {
 			var jel = $(e.target);
 
