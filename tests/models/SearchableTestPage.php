@@ -5,7 +5,7 @@
  * @subpackage tests
  */
 class SearchableTestPage extends Page implements TestOnly {
-	private static $searchable_fields = array('Title', 'Content','Country','PageDate');
+	private static $searchable_fields = array('Country','PageDate');
 
 	private static $db = array(
 		'Country' => 'Varchar',
