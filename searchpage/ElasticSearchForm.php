@@ -40,7 +40,6 @@ class ElasticSearchForm extends Form {
            $tf = new TextField("q", "", $searchText)
         );
 
-        $tf->addExtraClass('autocomplete');
 
         $buttonText = _t('SearchPage.SEARCH', 'Search');
         $actions = new FieldList(
@@ -60,7 +59,15 @@ class ElasticSearchForm extends Form {
 		parent::__construct($controller, $name, $fields, $actions);
 		$this->setFormMethod('post');
 		$this->disableSecurityToken();
+		$this->enableAutocomplete();
 	}
+
+
+	public function enableAutocomplete() {
+		$q = $this->Fields()->fieldByName('q');
+		$q->addExtraClass('autocomplete');
+	}
+
 
 	/**
 	 * Optionally allow templates to override the text of the submit button, perhaps if using a icon font
