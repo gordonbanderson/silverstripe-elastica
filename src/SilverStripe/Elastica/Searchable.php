@@ -256,7 +256,10 @@ class Searchable extends \DataExtension {
 					//Add autocomplete field if so required
 					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
 
+					//echo "MAPPING FOR {$this->owner->ClassName}, $name: AUTOCOMPLETECONFIG=".print_r($autocomplete,1)."\n";
+
 					if (isset($autocomplete) && in_array($name, $autocomplete)) {
+						echo "ADDING AUTO DEL MAPPING\n";
 						$autocompleteField = array();
 						$autocompleteField['type'] = "string";
 						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
@@ -717,8 +720,8 @@ class Searchable extends \DataExtension {
 		}
 
 		foreach ($searchableFields as $name => $searchableField) {
-			//echo "Checkingg searchable field $name =>\n";
-			//print_r($searchableField);
+			echo "Checkingg searchable field $name =>\n";
+			print_r($searchableField);
 
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
@@ -752,6 +755,10 @@ class Searchable extends \DataExtension {
 					$doSF->Type = 'relationship';
 				}
 				$doSF->SearchableClassID = $doSC->ID;
+
+				if (isset($searchableField['fields']['autocomplete'])) {
+					$doSF->Autocomplete = true;
+				}
 
 
 				$doSF->write();
@@ -833,42 +840,45 @@ class Searchable extends \DataExtension {
             'TermFreq'=> 'n times this term appears in this field'
         ));
 
-        $termVectors = $this->getTermVectors();
-		$termFields = array_keys($termVectors);
-		sort($termFields);
-		$tabSet = new \TabSet('REMOVETHIS #FIXME');
+		if ($this->owner->ShowInSearch && $this->owner->isPublished()) {
+			$termVectors = $this->getTermVectors();
+			$termFields = array_keys($termVectors);
+			sort($termFields);
+			$tabSet = new \TabSet('REMOVETHIS #FIXME');
 
-		$tabs = array();
+			$tabs = array();
 
-		foreach ($termFields as $field) {
-			$terms = new \ArrayList();
+			foreach ($termFields as $field) {
+				$terms = new \ArrayList();
 
-			foreach (array_keys($termVectors[$field]['terms']) as $term) {
-	        	$do = new \DataObject();
-		        $do->Term = $term;
-		        $stats = $termVectors[$field]['terms'][$term];
-		        $do->TTF = $stats['ttf'];
-		        $do->DocFreq = $stats['doc_freq'];
-		        $do->TermFreq = $stats['term_freq'];
-		        //print_r($stats);
-		        $terms->push($do);
-	        }
+				foreach (array_keys($termVectors[$field]['terms']) as $term) {
+		        	$do = new \DataObject();
+			        $do->Term = $term;
+			        $stats = $termVectors[$field]['terms'][$term];
+			        $do->TTF = $stats['ttf'];
+			        $do->DocFreq = $stats['doc_freq'];
+			        $do->TermFreq = $stats['term_freq'];
+			        //print_r($stats);
+			        $terms->push($do);
+		        }
 
-	        $gridField = new \GridField(
-	            'TermsFor'.$field, // Field name
-	            $field, // Field title
-	            $terms,
-	            $config
-	        );
+		        $gridField = new \GridField(
+		            'TermsFor'.$field, // Field name
+		            $field, // Field title
+		            $terms,
+		            $config
+		        );
 
-	       $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
-	       $underscored = str_replace('.', '_', $field);
-	       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
+		       $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
+		       $underscored = str_replace('.', '_', $field);
+		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
+			}
+
+
+			//$tabSet->setTabs($tabs);
+			$fields->addFieldToTab('Root.ElasticaTerms', $tabSet);
 		}
 
-
-		//$tabSet->setTabs($tabs);
-		$fields->addFieldToTab('Root.ElasticaTerms', $tabSet);
 	    return $fields;
 	}
 
