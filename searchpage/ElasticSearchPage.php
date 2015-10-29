@@ -38,9 +38,19 @@ class ElasticSearchPage extends Page {
 		'ContentForEmptySearch' => 'HTMLText'
 	);
 
-	private static $has_many = array(
-		'SearchableFields' => 'ElasticSearchPageSearchField'
+	private static $many_many = array(
+		'ElasticaSearchableFields' => 'SearchableField'
 	);
+
+	public static $many_many_extraFields = array(
+    	'SearchableFields' => array(
+    		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
+			'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
+			'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
+			'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
+    	)
+  	);
+
 
 	/*
 	Add a tab with details of what to search
@@ -99,6 +109,7 @@ class ElasticSearchPage extends Page {
         $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
 		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
 
+/*
 		$filter = array('ElasticSearchPageID' => $this->ID, 'Active' => true);
 		$searchFields = ElasticSearchPageSearchField::get()->filter($filter)->sort('Name');
 
@@ -117,6 +128,7 @@ class ElasticSearchPage extends Page {
         $messageField = new LiteralField('SearchFieldsMessage',$html);
         $messageField->addExtraClass('message warning');
         $fields->addFieldToTab('Root.SearchDetails', $messageField);
+*/
 
 		return $fields;
 	}
@@ -147,13 +159,95 @@ class ElasticSearchPage extends Page {
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-		$names = array();
+		error_log(print_r($nameToMapping,1));
+
+		$names = array_keys($nameToMapping);
+
+		#FIXME - deal with empty case and also SiteTree only
+		$relevantClasses = $this->ClassesToSearch;
+		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
+		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
+		error_log('QUOTED CLASSES:'.$quotedClasses);
+		error_log('QUOTED NAMES:'.$quotedNames);
+
+		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
+
+
+		// Get the searchfields for the ClassNames searched
+		$sfs = SearchableField::get()->where($where);
+
+		error_log('SFS exists? '.$sfs->exists());
+		error_log('SFS count? '.$sfs->count());
+
+		$getIDFunc = function($dataObject) {
+		    return $dataObject->ID;
+		};
+		$sfsIDs = array_map($getIDFunc, $sfs->toArray());
+		error_log('SFS ID:'.print_r($sfsIDs,1));
+
+		// Get the existing searchable fields associated with this ElasticaSearchPage
+		$esfs = $this->ElasticaSearchableFields();
+
+		$newIDs = $sfsIDs;
+		error_log('SEARCHABLE FIELDS FOR PAGE:');
+
+		error_log(print_r($esfs,1));
+
+		if ($esfs->exist()) {
+			$esfsIDs = array_map($getIDFunc, $esfs->toArray());
+			print_r($esfsIDs);
+			asdf;
+		}
+
+
+		error_log('NEW SEARCHABLE FIELD IDS:'.print_r($newIDs,1));
+
+		$newEsfs = array_diff($sfs->column('ID'),$esfs->column('ID'));
+		error_log('NEW IDS:'.$newEsfs);
+
+		foreach ($sfs as $sf) {
+			error_log($sf->ClazzName.':'.$sf->Name);
+		}
+
+		adfdf;
+
+
+		$existingSearchFields = $this->ElasticaSearchableFields();
+
 		foreach (array_keys($nameToMapping) as $name) {
 			$type = $nameToMapping[$name];
 			array_push($names, "'".$name."'");
 			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
+			$where = "Name='$name' AND ClazzName IN (quotedClasses)";
+
+			// There may be more than one field with the same name, e.g. a Title in FlickrPhoto and
+			// that of a SiteTree class, or indeed multiple SiteTree classes
+			$sfs = SearchableField::get();
+
+		}
+
+
+
+
+		/*
+Array
+(
+    [SeriesTitle] =&gt; string
+    [Episode Title] =&gt; string
+    [Description] =&gt; string
+    [Title] =&gt; string
+    [Content] =&gt; string
+)
+
+		 foreach (array_keys($nameToMapping) as $name) {
+			$type = $nameToMapping[$name];
+			array_push($names, "'".$name."'");
+			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
+			//FIXME model changed
 			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
 			if (!$esf) {
+							//FIXME model changed
+
 				$esf = new ElasticSearchPageSearchField();
 				$esf->Name = $name;
 				$esf->Type = $type;
@@ -176,7 +270,7 @@ class ElasticSearchPage extends Page {
 			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
 			DB::query($sql);
 		}
-
+		*/
 	}
 
 
