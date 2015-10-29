@@ -80,6 +80,22 @@ class ElasticaUtiTest extends SapphireTest {
 
 
 	/**
+	 * Test parsing no terms suggested
+	 */
+	public function testExplanationNoTerms() {
+		$explanation = "() -ConstantScore(_uid:FlickrPhoto#7369)";
+		$expected = array();
+		$this->assertEquals($expected, ElasticaUtil::parseSuggestionExplanation($explanation));
+	}
+
+
+	public function testExplanationSingleStartingBracket() {
+		$explanation = "((Title.standard:wellington Title.standard:view Description.standard:new ";
+		$explanation .= "Description.standard:zealand Description.standard:wellington Description.standard:view Description.standard:including Description.standard:buildings Description.standard:exhibition Description.standard:aerial)~3) -ConstantScore(_uid:FlickrPhoto#3079)";
+	}
+
+
+	/**
 	 * Simulate a call to Elastica to get suggestions for a given phrase
 	 * @return [type] [description]
 	 */
