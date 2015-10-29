@@ -5,6 +5,7 @@ namespace SilverStripe\Elastica;
 use Elastica\Client;
 use Elastica\Query;
 use Elastica\Search;
+use SilverStripe\Elastica\ElasticaUtil;
 
 /**
  * A service used to interact with elastic search.
@@ -139,7 +140,6 @@ class ElasticaService {
 	        $path = str_replace('_search', '_validate/query', $path);
 	        $params = array('explain' => true, 'rewrite' => true);
 
-
 	        $response = $this->getClient()->request(
 	            $path,
 	            \Elastica\Request::GET,
@@ -148,34 +148,21 @@ class ElasticaService {
 	        );
 
 			$r = $response->getData();
-			$terms = array();
+
+			$terms = null; // keep in scope
 
 
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
-
-				$explanation = explode('-ConstantScore', $explanation)[0];
-
-		        $bracketPos = strpos($explanation, ')~');
-		       	$explanation = substr($explanation, 2, $bracketPos-2);
-
-		        //Field name(s) => terms
-		        $splits = explode(' ', $explanation);
-		        foreach ($splits as $fieldAndTerm) {
-		        	$splits = explode(':', $fieldAndTerm);
-		        	$fieldname = $splits[0];
-		        	$term = $splits[1];
-
-		        	if (!isset($terms[$fieldname])) {
-		        		$terms[$fieldname] = array();
-		        	}
-
-		        	array_push($terms[$fieldname], $term);
-		        }
+				//echo $explanation;
+				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
 
 			}
 
-			$this->MoreLikeThisTerms = $terms;
+			if (isset($terms)) {
+				$this->MoreLikeThisTerms = $terms;
+			}
+
 		}
 
         if ($types) {
@@ -302,7 +289,6 @@ class ElasticaService {
 			$type = $index->getType($typeName);
 			$this->ensureMapping($type, $record);
 
-			error_log(print_r($document,1));
 			$type->addDocument($document);
 			$index->refresh();
 			self::$indexing_request_ctr++;
