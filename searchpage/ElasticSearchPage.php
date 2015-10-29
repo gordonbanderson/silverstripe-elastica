@@ -159,57 +159,64 @@ class ElasticSearchPage extends Page {
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-		error_log(print_r($nameToMapping,1));
 
 		$names = array_keys($nameToMapping);
+
 
 		#FIXME - deal with empty case and also SiteTree only
 		$relevantClasses = $this->ClassesToSearch;
 		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
-		error_log('QUOTED CLASSES:'.$quotedClasses);
-		error_log('QUOTED NAMES:'.$quotedNames);
+
+
+
 
 		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
 
 
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
-
-		error_log('SFS exists? '.$sfs->exists());
-		error_log('SFS count? '.$sfs->count());
-
-		$getIDFunc = function($dataObject) {
-		    return $dataObject->ID;
-		};
-		$sfsIDs = array_map($getIDFunc, $sfs->toArray());
-		error_log('SFS ID:'.print_r($sfsIDs,1));
-
-		// Get the existing searchable fields associated with this ElasticaSearchPage
 		$esfs = $this->ElasticaSearchableFields();
 
-		$newIDs = $sfsIDs;
-		error_log('SEARCHABLE FIELDS FOR PAGE:');
+		// id to title
+//	 * @example $list = $list->exclude(array('Name'=>'bob, 'Age'=>21)); // exclude bob that has Age 21
+/*
+    [163] => TakenAt
+    [164] => Title
+    [165] => Description
+    [166] => FlickrID
+    [167] => ShutterSpeed
+    [168] => FocalLength35mm
+    [169] => OriginalHeight
+    [170] => OriginalWidth
+    [171] => Aperture
+    [172] => GeoIsPublic
+    [173] => SmallURL
+    [174] => SmallWidth
+    [175] => SmallHeight
+    [176] => SquareURL
+    [177] => SquareWidth
+    [178] => SquareHeight
+    [179] => ISO
+    [180] => AspectRatio
+    [181] => FlickrSets
+    [182] => FlickrTags
+    [183] => Photographer
 
-		error_log(print_r($esfs,1));
+    sfs - all possible fields for ClassesToSearch
+    esfs - already existing
+ */
+    	$toRemove = array_keys($esfs->map()->toArray());
 
-		if ($esfs->exist()) {
-			$esfsIDs = array_map($getIDFunc, $esfs->toArray());
-			print_r($esfsIDs);
-			asdf;
+
+
+		$newSearchableFields = $sfs->exclude('ID', $toRemove);
+
+		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
+			error_log('NEW FIELD:'.$newSearchableField->Name);
+			$esfs->add($newSearchableField);
 		}
 
-
-		error_log('NEW SEARCHABLE FIELD IDS:'.print_r($newIDs,1));
-
-		$newEsfs = array_diff($sfs->column('ID'),$esfs->column('ID'));
-		error_log('NEW IDS:'.$newEsfs);
-
-		foreach ($sfs as $sf) {
-			error_log($sf->ClazzName.':'.$sf->Name);
-		}
-
-		adfdf;
 
 
 		$existingSearchFields = $this->ElasticaSearchableFields();
