@@ -128,4 +128,38 @@ class ElasticaUtil {
 		}
 		return $resultArray;
 	}
+
+
+
+	public static function parseSuggestionExplanation($explanation) {
+
+		$explanation = explode('-ConstantScore', $explanation)[0];
+
+        $bracketPos = strpos($explanation, ')~');
+       	$explanation = substr($explanation, 2, $bracketPos-2);
+
+       	$terms = array();
+
+        //Field name(s) => terms
+        $splits = explode(' ', $explanation);
+        foreach ($splits as $fieldAndTerm) {
+        	$splits = explode(':', $fieldAndTerm);
+
+        	// This is the no terms case
+        	if (sizeof($splits) < 2) {
+        		break;
+        	}
+
+        	$fieldname = $splits[0];
+        	$term = $splits[1];
+
+        	if (!isset($terms[$fieldname])) {
+        		$terms[$fieldname] = array();
+        	}
+
+        	array_push($terms[$fieldname], $term);
+        }
+
+        return $terms;
+	}
 }
