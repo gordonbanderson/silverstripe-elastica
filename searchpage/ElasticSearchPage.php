@@ -42,8 +42,8 @@ class ElasticSearchPage extends Page {
 		'ElasticaSearchableFields' => 'SearchableField'
 	);
 
-	public static $many_many_extraFields = array(
-    	'SearchableFields' => array(
+	private static $many_many_extraFields = array(
+    	'ElasticaSearchableFields' => array(
     		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
 			'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
 			'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
@@ -129,6 +129,33 @@ class ElasticSearchPage extends Page {
         $messageField->addExtraClass('message warning');
         $fields->addFieldToTab('Root.SearchDetails', $messageField);
 */
+
+        //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
+        $config = GridFieldConfig_RelationEditor::create();
+
+		$config->removeComponentsByType(new GridFieldDetailForm());
+		$config->removeComponentsByType(new GridFieldDataColumns());
+		$config->removeComponentsByType(new GridFieldAddNewButton());
+
+		$edittest = new GridFieldDetailForm();
+		$edittest->setFields(FieldList::create(
+			CheckboxField::create('ManyMany[Searchable]', 'Searchable'),
+			CheckboxField::create('ManyMany[SimilarSearchable]', 'SimilarSearchable')
+		));
+		$summaryfieldsconf = new GridFieldDataColumns();
+		$summaryfieldsconf->setDisplayFields(array(
+			'Name' => 'Name',
+			'Searchable' => 'Use for Search?',
+			'SimilarSearchable' => 'Use for Similar Search?',
+			'EnableAutocomplete' => 'Enable Autocomplete'
+			)
+		);
+
+		$config->addComponent($edittest);
+		$config->addComponent($summaryfieldsconf, new GridFieldFilterHeader());
+
+		$field = GridField::create('ElasticaSearchableFields', null, $this->ElasticaSearchableFields(), $config);
+		$fields->addFieldToTab('Root.SearchDetails', $field);
 
 		return $fields;
 	}
