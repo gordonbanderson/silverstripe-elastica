@@ -98,16 +98,6 @@ class ElasticSearchPage extends Page {
 				"Select a field to edit it's properties").'</p>';
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
 
-		$config = GridFieldConfig_RecordEditor::create();
-		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Name' => 'Name','Weight' => 'Weighting',
-            'HumanReadableSearchable' => 'Searchable',
-            'HumanReadableSimilarSearchable' => 'Use in Similar Search',
-            'EnableAutocomplete' => 'Enable autocomplete if available'
-        ));
-
-        $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
-		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
 
 /*
 		$filter = array('ElasticSearchPageID' => $this->ID, 'Active' => true);
@@ -131,7 +121,8 @@ class ElasticSearchPage extends Page {
 */
 
         //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
-        $config = GridFieldConfig_RelationEditor::create();
+        $config = GridFieldConfig_RelationEditor::create(100);
+
 
 		$config->removeComponentsByType(new GridFieldDetailForm());
 		$config->removeComponentsByType(new GridFieldDataColumns());
@@ -140,11 +131,13 @@ class ElasticSearchPage extends Page {
 		$edittest = new GridFieldDetailForm();
 		$edittest->setFields(FieldList::create(
 			CheckboxField::create('ManyMany[Searchable]', 'Searchable'),
-			CheckboxField::create('ManyMany[SimilarSearchable]', 'SimilarSearchable')
+			CheckboxField::create('ManyMany[SimilarSearchable]', 'SimilarSearchable'),
+			CheckboxField::create('ManyMany[EnableAutocomplete]', 'EnableAutocomplete')
 		));
 		$summaryfieldsconf = new GridFieldDataColumns();
 		$summaryfieldsconf->setDisplayFields(array(
 			'Name' => 'Name',
+			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
 			'EnableAutocomplete' => 'Enable Autocomplete'
@@ -154,7 +147,8 @@ class ElasticSearchPage extends Page {
 		$config->addComponent($edittest);
 		$config->addComponent($summaryfieldsconf, new GridFieldFilterHeader());
 
-		$field = GridField::create('ElasticaSearchableFields', null, $this->ElasticaSearchableFields(), $config);
+		$activeFields = $this->ElasticaSearchableFields()->filter('Active', true);
+		$field = GridField::create('ElasticaSearchableFields', null, $activeFields, $config);
 		$fields->addFieldToTab('Root.SearchDetails', $field);
 
 		return $fields;
@@ -185,6 +179,7 @@ class ElasticSearchPage extends Page {
 
 	public function onAfterWrite() {
 		// ClassesToSearch, SiteTreeOnly
+		// FIXME - move to a separate testable method and call at build time also
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 
 		$names = array_keys($nameToMapping);
@@ -201,64 +196,41 @@ class ElasticSearchPage extends Page {
 		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
 
 
+
+
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
+		$activeIDs = array_keys($sfs->map()->toArray());
+		$activeIDs = implode(',', $activeIDs);
+
+		// Get the searchable fields associated with this search page
 		$esfs = $this->ElasticaSearchableFields();
 
-		// id to title
-//	 * @example $list = $list->exclude(array('Name'=>'bob, 'Age'=>21)); // exclude bob that has Age 21
-/*
-    [163] => TakenAt
-    [164] => Title
-    [165] => Description
-    [166] => FlickrID
-    [167] => ShutterSpeed
-    [168] => FocalLength35mm
-    [169] => OriginalHeight
-    [170] => OriginalWidth
-    [171] => Aperture
-    [172] => GeoIsPublic
-    [173] => SmallURL
-    [174] => SmallWidth
-    [175] => SmallHeight
-    [176] => SquareURL
-    [177] => SquareWidth
-    [178] => SquareHeight
-    [179] => ISO
-    [180] => AspectRatio
-    [181] => FlickrSets
-    [182] => FlickrTags
-    [183] => Photographer
-
-    sfs - all possible fields for ClassesToSearch
-    esfs - already existing
- */
-    	$toRemove = array_keys($esfs->map()->toArray());
-
-
-
-		$newSearchableFields = $sfs->exclude('ID', $toRemove);
+		// Remove existing searchable fields for this page from the list of all available
+    	$delta = array_keys($esfs->map()->toArray());
+		$newSearchableFields = $sfs->exclude('ID', $delta);
 
 		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
 			error_log('NEW FIELD:'.$newSearchableField->Name);
+			$newSearchableField->Active = true;
 			$esfs->add($newSearchableField);
 		}
 
+		//FIXME deal with the no classes case #ZZZZ
+
+		// Mark all the fields for this page as inactive/active as appropriate
+		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
+		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID NOT IN (";
+		$sql .= "$activeIDs)";
+		DB::query($sql);
+
+		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=1 WHERE ";
+		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
+		$sql .= "$activeIDs)";
+		DB::query($sql);
 
 
-		$existingSearchFields = $this->ElasticaSearchableFields();
 
-		foreach (array_keys($nameToMapping) as $name) {
-			$type = $nameToMapping[$name];
-			array_push($names, "'".$name."'");
-			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
-			$where = "Name='$name' AND ClazzName IN (quotedClasses)";
-
-			// There may be more than one field with the same name, e.g. a Title in FlickrPhoto and
-			// that of a SiteTree class, or indeed multiple SiteTree classes
-			$sfs = SearchableField::get();
-
-		}
 
 
 
@@ -293,17 +265,7 @@ Array
 		$relevantNames = implode(',', $names);
 
 
-		// Can't use true and false here, as SQLite3 doesn't have booleans.
-		// Instead use 0 and 1, otherwise tests don't work.
-		if (sizeof($names) > 0) {
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 0 WHERE ";
-			$sql .= "Name NOT IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-			DB::query($sql);
 
-			$sql = "UPDATE ElasticSearchPageSearchField SET Active = 1 WHERE ";
-			$sql .= "Name IN ($relevantNames) AND ElasticSearchPageID={$this->ID};";
-			DB::query($sql);
-		}
 		*/
 	}
 
