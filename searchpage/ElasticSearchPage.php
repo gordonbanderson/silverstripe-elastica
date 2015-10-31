@@ -14,6 +14,7 @@ use Elastica\Query\Filtered;
 use Elastica\Query\Range;
 use \SilverStripe\Elastica\ElasticSearcher;
 use \SilverStripe\Elastica\QueryGenerator;
+use \SilverStripe\Elastica\ElasticaUtil;
 
 //FIXME namespace
 
@@ -109,6 +110,7 @@ class ElasticSearchPage extends Page {
 		$pickerConfig->removeComponentsByType(new GridFieldDeleteAction());
 		$pickerConfig->removeComponentsByType(new PickerFieldAddExistingSearchButton());
 
+		$pickerConfig->getComponentByType('GridFieldPaginator')->setItemsPerPage(100);
 
 
         $searchPicker->enableEdit();
@@ -155,9 +157,8 @@ class ElasticSearchPage extends Page {
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
-			'EnableAutocomplete' => 'Enable Autocomplete'
+			'EnableAutocomplete' => 'Enable Autocomplete?'
         ));
-
 
 
 
@@ -311,6 +312,11 @@ Array
 	 */
 	public function HasAggregations() {
 		return $this->SearchHelper != null;
+	}
+
+
+	public function getHumanReadableEnableAutoComplete() {
+		return ElasticaUtil::showBooleanHumanReadable($this->EnableAutocomplete);
 	}
 }
 
