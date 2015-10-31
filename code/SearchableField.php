@@ -23,10 +23,28 @@ class SearchableField extends DataObject {
 		$fields = new FieldList();
 		$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
 		$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
+		$fields->addFieldToTab( 'Root.Main',  $cf = new TextField( 'ClazzName', 'Class sourced from') );
 		$fields->addFieldToTab( 'Root.Main',  $nf = new TextField( 'Name', 'Name') );
+		$cf->setDisabled(true);
 		$nf->setDisabled(true);
+		$cf->setReadOnly(true);
+		$nf->setReadOnly(true);
 
 		return $fields;
+	}
+
+	/*
+	Deletion/inactivity is handled by scripts.  Not end user deletable
+	 */
+	public function canDelete($member = null) {
+		return false;
+	}
+
+	/*
+	Creation is handled by scripts at build time, not end user creatable
+	 */
+	public function canCreate($member = null) {
+		return false;
 	}
 
 }
