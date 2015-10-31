@@ -48,7 +48,8 @@ class ElasticSearchPage extends Page {
 		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
 		'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
 		'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
-		'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
+		'EnableAutocomplete' => 'Boolean', // whether or not to show autocomplete search for this field
+		'Weight' => 'Int' // Weight to apply to this field in a search
 		)
   	);
 
@@ -121,6 +122,7 @@ class ElasticSearchPage extends Page {
 			HiddenField::create('Autocomplete', 'This can be autocompleted'),
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
+			TextField::create('Weight', 'Weighting'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
 
@@ -157,6 +159,7 @@ class ElasticSearchPage extends Page {
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
+			'Weight' => 'Weighting',
 			'EnableAutocomplete' => 'Enable Autocomplete?'
         ));
 
@@ -214,12 +217,7 @@ class ElasticSearchPage extends Page {
 		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
-
-
-
 		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
-
-
 
 
 		// Get the searchfields for the ClassNames searched
@@ -237,6 +235,7 @@ class ElasticSearchPage extends Page {
 		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
 			error_log('NEW FIELD:'.$newSearchableField->Name);
 			$newSearchableField->Active = true;
+			$newSearchableField->Weight = 1;
 			$esfs->add($newSearchableField);
 		}
 
@@ -405,18 +404,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
 		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
-
-		foreach ($editedSearchFields->getIterator() as $searchField) {
-			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
-		}
-
-		// get the edited fields to search from the database for this search page
-		// Convert this into a name => weighting array
-		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'SimilarSearchable' => true));
+		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
+			'Active' => true,
+			'SimilarSearchable' => true
+		));
 
 		foreach ($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
@@ -543,8 +534,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
 		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
+		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
+			'Active' => true,
+			'Searchable' => true
+		));
 
 		foreach ($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
