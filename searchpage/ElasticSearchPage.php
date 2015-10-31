@@ -44,11 +44,11 @@ class ElasticSearchPage extends Page {
 
 	private static $many_many_extraFields = array(
     	'ElasticaSearchableFields' => array(
-    		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
-			'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
-			'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
-			'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
-    	)
+		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
+		'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
+		'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
+		'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
+		)
   	);
 
 
@@ -98,24 +98,32 @@ class ElasticSearchPage extends Page {
 				"Select a field to edit it's properties").'</p>';
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
 
+		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
+			$this->ElasticaSearchableFields()->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
 
-        //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
-        $config = GridFieldConfig_RelationEditor::create(100);
+		$fields->addFieldToTab('Root.SearchDetails', $searchPicker);
+
+		$pickerConfig = $searchPicker->getConfig();
+
+		$pickerConfig->removeComponentsByType(new GridFieldAddNewButton());
+		$pickerConfig->removeComponentsByType(new GridFieldDeleteAction());
+		$pickerConfig->removeComponentsByType(new PickerFieldAddExistingSearchButton());
 
 
-		$config->removeComponentsByType(new GridFieldDetailForm());
-		$config->removeComponentsByType(new GridFieldDataColumns());
-		$config->removeComponentsByType(new GridFieldAddNewButton());
 
-		$edittest = new GridFieldDetailForm();
+        $searchPicker->enableEdit();
+		$edittest = $pickerConfig->getComponentByType('GridFieldDetailForm');
 		$edittest->setFields(FieldList::create(
-			TextField::create('ClazzName', 'Class'),
 			TextField::create('Name', 'Field Name'),
+			TextField::create('ClazzName', 'Class'),
 			HiddenField::create('Autocomplete', 'This can be autocompleted'),
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
+
+
+
 
 		$edittest->setItemEditFormCallback(function($form) {
 			error_log($form->ID);
@@ -139,16 +147,25 @@ class ElasticSearchPage extends Page {
 		});
 
 
-		$summaryfieldsconf = new GridFieldDataColumns();
-		$summaryfieldsconf->setDisplayFields(array(
-			'ClazzName' => 'Class',
+		// What do display on the grid of searchable fields
+		$dataColumns = $pickerConfig->getComponentByType('GridFieldDataColumns');
+        $dataColumns->setDisplayFields(array(
 			'Name' => 'Name',
+        	'ClazzName' => 'Class',
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
 			'EnableAutocomplete' => 'Enable Autocomplete'
-			)
-		);
+        ));
+
+
+
+
+
+/*
+        //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
+
+
 
 		$config->addComponent($edittest);
 		$config->addComponent($summaryfieldsconf, new GridFieldFilterHeader());
@@ -156,7 +173,7 @@ class ElasticSearchPage extends Page {
 		$activeFields = $this->ElasticaSearchableFields()->filter('Active', true);
 		$field = GridField::create('ElasticaSearchableFields', null, $activeFields, $config);
 		$fields->addFieldToTab('Root.SearchDetails', $field);
-
+*/
 		return $fields;
 	}
 
