@@ -122,7 +122,7 @@ class ElasticSearchPage extends Page {
 			HiddenField::create('Autocomplete', 'This can be autocompleted'),
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
-			TextField::create('Weight', 'Weighting'),
+			TextField::create('ManyMany[Weight]', 'Weighting'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
 
