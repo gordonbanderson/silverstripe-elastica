@@ -29,6 +29,14 @@ class ElasticaUtil {
 	}
 
 
+	/*
+	Display a human readable yes or no
+	 */
+	public static function showBooleanHumanReadable($assertion) {
+		return $assertion ? 'Yes' : 'No';
+	}
+
+
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
 		$suggestedPhrase = null;
 		$originalQuery = $alternativeQuerySuggestions[0]['text'];
