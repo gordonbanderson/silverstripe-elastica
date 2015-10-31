@@ -99,27 +99,6 @@ class ElasticSearchPage extends Page {
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
 
 
-/*
-		$filter = array('ElasticSearchPageID' => $this->ID, 'Active' => true);
-		$searchFields = ElasticSearchPageSearchField::get()->filter($filter)->sort('Name');
-
-        $gridField = new GridField(
-            'ElasticSearchPageSearchField', // Field name
-            'Field to Search', // Field title
-            $searchFields,
-            $config
-        );
-
-        $fields->addFieldToTab('Root.SearchDetails', $gridField);
-
-        $html = '<p id="SearchFieldsMessage" class="warning message" style="display:none;">'.
-        _t('Elastica.SEARCH_FIELDS_WILL_APPEAR_AFTER_SAVE',
-        		'Search fields available will reappear after this page has been saved').'</p>';
-        $messageField = new LiteralField('SearchFieldsMessage',$html);
-        $messageField->addExtraClass('message warning');
-        $fields->addFieldToTab('Root.SearchDetails', $messageField);
-*/
-
         //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
         $config = GridFieldConfig_RelationEditor::create(100);
 
@@ -130,12 +109,39 @@ class ElasticSearchPage extends Page {
 
 		$edittest = new GridFieldDetailForm();
 		$edittest->setFields(FieldList::create(
-			CheckboxField::create('ManyMany[Searchable]', 'Searchable'),
-			CheckboxField::create('ManyMany[SimilarSearchable]', 'SimilarSearchable'),
-			CheckboxField::create('ManyMany[EnableAutocomplete]', 'EnableAutocomplete')
+			TextField::create('ClazzName', 'Class'),
+			TextField::create('Name', 'Field Name'),
+			HiddenField::create('Autocomplete', 'This can be autocompleted'),
+			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
+			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
+			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
+
+		$edittest->setItemEditFormCallback(function($form) {
+			error_log($form->ID);
+			// Get the image field from the form fields
+			$fields = $form->Fields();
+
+			$fieldAutocomplete = $fields->dataFieldByName('Autocomplete');
+			$fieldEnableAutcomplete = $fields->dataFieldByName('ManyMany[EnableAutocomplete]');
+
+			$fields->dataFieldByName('ClazzName')->setReadOnly(true);
+			$fields->dataFieldByName('ClazzName')->setDisabled(true);
+			$fields->dataFieldByName('Name')->setReadOnly(true);
+			$fields->dataFieldByName('Name')->setDisabled(true);
+
+			if (!$fieldAutocomplete->Value() == '1') {
+				// Set the folder name, easy!
+				$fieldEnableAutcomplete->setDisabled(true);
+				$fieldEnableAutcomplete->setTitle("Autcomplete is not available for this field");
+			}
+
+		});
+
+
 		$summaryfieldsconf = new GridFieldDataColumns();
 		$summaryfieldsconf->setDisplayFields(array(
+			'ClazzName' => 'Class',
 			'Name' => 'Name',
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
