@@ -77,70 +77,73 @@
 			        } else  if (autoCompleteFn == 'SEARCH') {
 			        	// text is already set, find search button and click
 			        	var searchForm = jqInputBox.parent().parent().parent().parent();
-			        	console.log('BUTTON', searchForm);
 			        	searchForm.submit();
 			        }
 			    },
 			    formatResult: function (suggestion, currentValue) {
-	    		    		//console.log('++++ NEW SEARCH AND MATCH ++++');
+	    		   	//console.log('++++ NEW SEARCH AND MATCH ++++');
 
-		    	var marker = ' ZQXVRCTBNYQ ';
-		    	//console.log('Suggestion:', suggestion);
-		    	//console.log('Current value:', currentValue);
-		    	var tokens = currentValue.split(' ');
-		    	//console.log('TOKENS', tokens);
-		    	// split("(?i)XXX")
-		    	// Sort tokens largest first
-		    	tokens.sort(function(a, b) { return b.length - a.length; });
-		    	var highlightedValue = [marker+suggestion.value+marker];
-		    	for (var i = 0; i < tokens.length; i++) {
-		    		var nextHighlightedValue = [];
-		    		//console.log("---- PROCESSING TOKEN "+tokens[i]+' --------');
-		    		for (var j = 0; j < highlightedValue.length; j++) {
-		    			var section = highlightedValue[j];
-		    			//console.log('SECTION', section);
-		    			if (!section.highlighted) {
-		    				var token = tokens[i];
+			    	var marker = ' ZQXVRCTBNYQ ';
+			    	console.log('Suggestion:', suggestion);
+			    	console.log('Current value:', currentValue);
+			    	var tokens = currentValue.trim().split(' ');
+			    	//console.log('TOKENS', tokens);
+			    	// split("(?i)XXX")
+			    	// Sort tokens largest first
+			    	tokens.sort(function(a, b) { return b.length - a.length; });
 
-				    		var splitter = new RegExp(token, 'ig');
-				    		//console.log(splitter);
-				    		var splits = section.split(splitter);
+			    	console.log('Tokens', tokens);
 
-				    		var joiner = '<strong>'+token+'</strong>';
-				    		joiner.highlighted = true;
+			    	suggestionText = suggestion.value.trim();
+			    	var highlightedValue = [marker+suggestionText+marker];
+			    	for (var i = 0; i < tokens.length; i++) {
+			    		var nextHighlightedValue = [];
+			    		console.log("---- PROCESSING TOKEN "+tokens[i]+' --------');
+			    		for (var j = 0; j < highlightedValue.length; j++) {
+			    			var section = highlightedValue[j];
+			    			console.log('SECTION', section);
+			    			if (!section.highlighted) {
+			    				var token = tokens[i];
 
-				    		for (var k = 0; k < splits.length; k++) {
-				    			nextHighlightedValue.push(splits[k]);
+					    		var splitter = new RegExp(token, 'ig');
+					    		console.log(splitter);
+					    		var splits = section.split(splitter);
 
-				    			// no last item as there is a marker to prevent this
-				    			if (k != (splits.length-1)) {
-				    				nextHighlightedValue.push(joiner);
-				    			}
+					    		var joiner = '<strong>'+token+'</strong>';
+					    		joiner.highlighted = true;
 
-				    		};
+					    		for (var k = 0; k < splits.length; k++) {
+					    			nextHighlightedValue.push(splits[k]);
 
-				    		//console.log('Split by token *'+token+'*');
-				    		//console.log(splits);
+					    			// no last item as there is a marker to prevent this
+					    			if (k != (splits.length-1)) {
+					    				nextHighlightedValue.push(joiner);
+					    			}
 
-				    		//console.log(highlightedValue);
-		    			} else {
-		    				nextHighlightedValue.push(section);
-		    			}
-		    		};
+					    		};
 
-		    		highlightedValue = nextHighlightedValue
-		    		//console.log('HIGHLIGHTED IN PROGRESS', highlightedValue);
+					    		console.log('Split by token *'+token+'*');
+					    		console.log(splits);
 
-		    	};
-		    	//console.log(highlightedValue);
+					    		console.log(highlightedValue);
+			    			} else {
+			    				nextHighlightedValue.push(section);
+			    			}
+			    		};
 
-		    	//console.log('SUGGESTION', suggestion);
-		    	//console.log('HIGHLIGHTED', highlightedValue);
-		    	var result = highlightedValue.join('');
-		    	result = result.replace(marker, '');
-		    	result = result.replace(marker, '');
-		    	return result.trim();
-		    }
+			    		highlightedValue = nextHighlightedValue
+			    		console.log('HIGHLIGHTED IN PROGRESS', highlightedValue);
+
+			    	};
+			    	console.log(highlightedValue);
+
+			    	console.log('SUGGESTION', suggestion);
+			    	console.log('HIGHLIGHTED', highlightedValue);
+			    	var result = highlightedValue.join('');
+			    	result = result.replace(marker, '');
+			    	result = result.replace(marker, '');
+			    	return result.trim();
+			    }
 			})
 		}
 	});
