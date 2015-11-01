@@ -24,12 +24,16 @@ class ElasticaAutoCompleteController extends Controller {
 	public function search() {
 		$es = new ElasticSearcher();
 		$query = $this->request->getVar('query');
+		$classes = $this->request->getVar('classes');
+
+		// Makes most sense to only provide one field here, e.g. Title, Name
+		$field = $this->request->getVar('field');
 
 		error_log('QUERY:'.$query);
 
 		// start, and page length, i.e. pagination
 		$es->setPageLength(10);
-		$es->setClasses(array('FlickrPhoto'));
+		$es->setClasses($classes);
 		$resultList = $es->autocomplete_search($query, array('Title' => 1));
 		$result = array();
 		$result['Query'] = $query;
