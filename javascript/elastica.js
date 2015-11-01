@@ -51,8 +51,8 @@
 		var classes = jqInputBox.attr('data-autocomplete-classes');
 		var autoCompleteFn = jqInputBox.attr('data-autocomplete-function');
 		var sourceLink = jqInputBox.attr('data-autocomplete-source');
-		if (field == null || field == '' || classes == null || classes == '' ||
-			autoCompleteFn == null || autoCompleteFn == '') {
+		if (field === null || field === '' || classes === null || classes === '' ||
+			autoCompleteFn === null || autoCompleteFn === '') {
 			alert('Autocomplete not configured correctly');
 		} else {
 			jqInputBox.autocomplete({
@@ -67,11 +67,10 @@
 				},
 				onSelect: function(suggestion) {
 					if (autoCompleteFn == 'GOTO') {
-						var link = suggestion.data['Link'];
+						var link = suggestion.data.Link;
 						window.location.href = link;
 					} else if (autoCompleteFn == 'SIMILAR') {
-						var link = sourceLink;
-						link = link + 'similar/' + suggestion.data['Class'] + '/' + suggestion.data['ID'];
+						var link = sourceLink+'similar/' + suggestion.data.Class + '/' + suggestion.data.ID;
 						window.location.href = link;
 					} else if (autoCompleteFn == 'SEARCH') {
 						// text is already set, find search button and click
@@ -112,22 +111,22 @@
 										joiner.highlighted = true;
 										nextHighlightedValue.push(joiner);
 									}
-								};
+								}
 
 							} else {
 								nextHighlightedValue.push(section);
 							}
-						};
+						}
 
-						highlightedValue = nextHighlightedValue
-					};
+						highlightedValue = nextHighlightedValue;
+					}
 
 					var result = highlightedValue.join('');
 					result = result.replace(marker, '');
 					result = result.replace(marker, '');
 					return result.trim();
 				}
-			})
+			});
 		}
 	});
 
