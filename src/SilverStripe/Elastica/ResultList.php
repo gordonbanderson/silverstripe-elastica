@@ -85,7 +85,10 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
+
 			$ers = $this->service->search($this->query,$this->types);
+
+
 			if (isset($ers->MoreLikeThisTerms)) {
 				$this->MoreLikeThisTerms = $ers->MoreLikeThisTerms;
 			}
@@ -100,11 +103,9 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 				}
 			}
 
-
 			$this->TotalItems = $ers->getTotalHits();
 			$this->TotalTime = $ers->getTotalTime();
 			$this->_cachedResults = $ers->getResults();
-
 			// make the aggregations available to the templating, title casing
 			// to be consistent with normal templating conventions
 			$aggs = $ers->getAggregations();
@@ -132,8 +133,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$aggsTemplate = new \ArrayList();
 
 			// Convert the buckets into a form suitable for SilverStripe templates
-			$q = isset($_GET['q']) ? $_GET['q'] : '';
-			$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+			$q = $this->originalQueryText;
 
 			// if not search term remove it and aggregate with a blank query
 			if ($q == '' && sizeof($aggs) > 0) {
