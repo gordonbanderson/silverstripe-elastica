@@ -593,7 +593,12 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				echo $field->getName();
 				$field->setDisabled(true);
 			}
-		} else {
+		}
+
+		/*
+		A field needs to be chosen for autocompletion, if not no autocomplete
+		 */
+		if ($this->AutoCompleteFieldID > 0) {
 			$q->setAttribute('data-autocomplete', 'true');
 			$q->setAttribute('data-autocomplete-field', 'Title');
 			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
@@ -601,8 +606,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setAttribute('data-autocomplete-function',
 				$this->AutocompleteFunction()->Slug);
 		}
-
-
 
 		return $form;
 	}
