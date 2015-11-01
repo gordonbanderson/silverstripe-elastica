@@ -54,7 +54,10 @@ class ElasticSearchPage extends Page {
   	);
 
 
-  	private static $has_one = array('AutoCompleteFunction' => 'AutoCompleteOption');
+  	private static $has_one = array(
+  		'AutoCompleteFunction' => 'AutoCompleteOption',
+  		'AutoCompleteField' => 'SearchableField'
+  	);
 
 
 	/*
@@ -98,10 +101,7 @@ class ElasticSearchPage extends Page {
 
 		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 
-		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
-		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
-				"Select a field to edit it's properties").'</p>';
-		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
+
 
 
 
@@ -110,9 +110,25 @@ class ElasticSearchPage extends Page {
         $df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
         							setSource($ottos);
         $df->setEmptyString('-- Please select what do do after find as you type has occurred --');
-        $fields->addFieldToTab('Root.SearchDetails', $df);
 
+        $ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete',1)->Map('ID', 'Name')->toArray();
+        $autoCompleteFieldDF = DropDownField::create('AutoCompleteFieldID', 'Field to use for autocomplete')->setSource($ottos);
+        $autoCompleteFieldDF->setEmptyString('-- Please select which field to use for autocomplete --');
 
+        //$fieldSet = new \FieldSet($df);
+        //$fields->addFieldToTab('Root.SearchDetails', $fieldSet);
+
+$fields->addFieldToTab("Root.SearchDetails",
+  		FieldGroup::create(
+  			$autoCompleteFieldDF,
+ 			$df
+ 		)->setTitle('Autocomplete')
+ );
+        // ---- grid of searchable fields ----
+        		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
+		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
+				"Select a field to edit it's properties").'</p>';
+		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
 			$this->ElasticaSearchableFields()->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
 
@@ -170,8 +186,7 @@ class ElasticSearchPage extends Page {
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
-			'Weight' => 'Weighting',
-			'EnableAutocomplete' => 'Enable Autocomplete?'
+			'Weight' => 'Weighting'
         ));
 
 
@@ -203,12 +218,9 @@ class ElasticSearchPage extends Page {
 
 
 	public function onAfterWrite() {
-		// ClassesToSearch, SiteTreeOnly
 		// FIXME - move to a separate testable method and call at build time also
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-
 		$names = array_keys($nameToMapping);
-
 
 		#FIXME - deal with empty case and also SiteTree only
 		$relevantClasses = $this->ClassesToSearch;
@@ -216,7 +228,6 @@ class ElasticSearchPage extends Page {
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
 		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
-
 
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
@@ -249,45 +260,6 @@ class ElasticSearchPage extends Page {
 		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
 		$sql .= "$activeIDs)";
 		DB::query($sql);
-
-
-
-
-
-
-
-		/*
-Array
-(
-    [SeriesTitle] =&gt; string
-    [Episode Title] =&gt; string
-    [Description] =&gt; string
-    [Title] =&gt; string
-    [Content] =&gt; string
-)
-
-		 foreach (array_keys($nameToMapping) as $name) {
-			$type = $nameToMapping[$name];
-			array_push($names, "'".$name."'");
-			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
-			//FIXME model changed
-			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
-			if (!$esf) {
-							//FIXME model changed
-
-				$esf = new ElasticSearchPageSearchField();
-				$esf->Name = $name;
-				$esf->Type = $type;
-				$esf->ElasticSearchPageID = $this->ID;
-				$esf->write();
-			}
-		}
-
-		$relevantNames = implode(',', $names);
-
-
-
-		*/
 	}
 
 
