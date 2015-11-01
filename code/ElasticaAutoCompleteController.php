@@ -24,6 +24,7 @@ class ElasticaAutoCompleteController extends Controller {
 	public function search() {
 		$es = new ElasticSearcher();
 		$query = $this->request->getVar('query');
+		$query = trim($query);
 		$classes = $this->request->getVar('classes');
 
 		// Makes most sense to only provide one field here, e.g. Title, Name
