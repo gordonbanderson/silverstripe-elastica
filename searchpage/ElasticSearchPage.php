@@ -48,8 +48,15 @@ class ElasticSearchPage extends Page {
 		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
 		'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
 		'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
-		'EnableAutocomplete' => 'Boolean' // whether or not to show autocomplete search for this field
+		'EnableAutocomplete' => 'Boolean', // whether or not to show autocomplete search for this field
+		'Weight' => 'Int' // Weight to apply to this field in a search
 		)
+  	);
+
+
+  	private static $has_one = array(
+  		'AutoCompleteFunction' => 'AutoCompleteOption',
+  		'AutoCompleteField' => 'SearchableField'
   	);
 
 
@@ -94,11 +101,34 @@ class ElasticSearchPage extends Page {
 
 		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 
-		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
+
+
+
+
+        $ottos = AutoCompleteOption::get()->Filter('Locale', $this->Locale)->map('ID', 'Name')->
+        									toArray();
+        $df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
+        							setSource($ottos);
+        $df->setEmptyString('-- Please select what do do after find as you type has occurred --');
+
+        $ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete',1)->Map('ID', 'Name')->toArray();
+        $autoCompleteFieldDF = DropDownField::create('AutoCompleteFieldID', 'Field to use for autocomplete')->setSource($ottos);
+        $autoCompleteFieldDF->setEmptyString('-- Please select which field to use for autocomplete --');
+
+        //$fieldSet = new \FieldSet($df);
+        //$fields->addFieldToTab('Root.SearchDetails', $fieldSet);
+
+$fields->addFieldToTab("Root.SearchDetails",
+  		FieldGroup::create(
+  			$autoCompleteFieldDF,
+ 			$df
+ 		)->setTitle('Autocomplete')
+ );
+        // ---- grid of searchable fields ----
+        		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
 		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
 				"Select a field to edit it's properties").'</p>';
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
-
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
 			$this->ElasticaSearchableFields()->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
 
@@ -121,10 +151,9 @@ class ElasticSearchPage extends Page {
 			HiddenField::create('Autocomplete', 'This can be autocompleted'),
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
+			TextField::create('ManyMany[Weight]', 'Weighting'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
-
-
 
 
 		$edittest->setItemEditFormCallback(function($form) {
@@ -157,24 +186,11 @@ class ElasticSearchPage extends Page {
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
-			'EnableAutocomplete' => 'Enable Autocomplete?'
+			'Weight' => 'Weighting'
         ));
 
 
 
-
-/*
-        //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
-
-
-
-		$config->addComponent($edittest);
-		$config->addComponent($summaryfieldsconf, new GridFieldFilterHeader());
-
-		$activeFields = $this->ElasticaSearchableFields()->filter('Active', true);
-		$field = GridField::create('ElasticaSearchableFields', null, $activeFields, $config);
-		$fields->addFieldToTab('Root.SearchDetails', $field);
-*/
 		return $fields;
 	}
 
@@ -202,25 +218,16 @@ class ElasticSearchPage extends Page {
 
 
 	public function onAfterWrite() {
-		// ClassesToSearch, SiteTreeOnly
 		// FIXME - move to a separate testable method and call at build time also
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
-
 		$names = array_keys($nameToMapping);
-
 
 		#FIXME - deal with empty case and also SiteTree only
 		$relevantClasses = $this->ClassesToSearch;
 		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
-
-
-
 		$where = "Name in ($quotedNames) AND ClazzName IN ($quotedClasses)";
-
-
-
 
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
@@ -237,6 +244,7 @@ class ElasticSearchPage extends Page {
 		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
 			error_log('NEW FIELD:'.$newSearchableField->Name);
 			$newSearchableField->Active = true;
+			$newSearchableField->Weight = 1;
 			$esfs->add($newSearchableField);
 		}
 
@@ -252,45 +260,6 @@ class ElasticSearchPage extends Page {
 		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
 		$sql .= "$activeIDs)";
 		DB::query($sql);
-
-
-
-
-
-
-
-		/*
-Array
-(
-    [SeriesTitle] =&gt; string
-    [Episode Title] =&gt; string
-    [Description] =&gt; string
-    [Title] =&gt; string
-    [Content] =&gt; string
-)
-
-		 foreach (array_keys($nameToMapping) as $name) {
-			$type = $nameToMapping[$name];
-			array_push($names, "'".$name."'");
-			$filter = array('Name' => $name, 'ElasticSearchPageID' => $this->ID);
-			//FIXME model changed
-			$esf = ElasticSearchPageSearchField::get()->filter($filter)->first();
-			if (!$esf) {
-							//FIXME model changed
-
-				$esf = new ElasticSearchPageSearchField();
-				$esf->Name = $name;
-				$esf->Type = $type;
-				$esf->ElasticSearchPageID = $this->ID;
-				$esf->write();
-			}
-		}
-
-		$relevantNames = implode(',', $names);
-
-
-
-		*/
 	}
 
 
@@ -405,18 +374,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
 		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
-
-		foreach ($editedSearchFields->getIterator() as $searchField) {
-			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
-		}
-
-		// get the edited fields to search from the database for this search page
-		// Convert this into a name => weighting array
-		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'SimilarSearchable' => true));
+		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
+			'Active' => true,
+			'SimilarSearchable' => true
+		));
 
 		foreach ($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
@@ -453,7 +414,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
 
+		//print_r($moreLikeThisTerms);
+		//die;
 
+		$fieldToTerms = new ArrayList();
+		foreach (array_keys($moreLikeThisTerms) as $fieldName) {
+			$readableFieldName = str_replace('.standard', '', $fieldName);
+			$fieldTerms = new ArrayList();
+			foreach ($moreLikeThisTerms[$fieldName] as $value) {
+				$do = new DataObject();
+				$do->Term = $value;
+				$fieldTerms->push($do);
+			}
+
+			$do = new DataObject();
+			$do->FieldName = $readableFieldName;
+			$do->Terms = $fieldTerms;
+			$fieldToTerms->push($do);
+		}
+
+/*
 		$terms = new ArrayList();
 		foreach ($moreLikeThisTerms as $key => $term) {
 			$fieldTerms = $moreLikeThisTerms[$key];
@@ -463,9 +443,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$terms->push($do);
 			}
 		}
+*/
 
 
-		$data['SimilarSearchTerms'] = $terms;
+		$data['SimilarSearchTerms'] = $fieldToTerms;
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
@@ -543,8 +524,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
 		$fieldsToSearch = array();
-		$editedSearchFields = ElasticSearchPageSearchField::get()->filter(array(
-			'ElasticSearchPageID' => $this->ID, 'Active' => true, 'Searchable' => true));
+		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
+			'Active' => true,
+			'Searchable' => true
+		));
 
 		foreach ($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
@@ -621,18 +604,29 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	*/
 	public function SearchForm() {
 		$form = new ElasticSearchForm($this, 'SearchForm');
+		$fields = $form->Fields();
+		$q = $fields->fieldByName('q');
 		if($this->action == 'similar') {
-			$fields = $form->Fields();
-			$q = $fields->fieldByName('q');
 			$q->setDisabled(true);
-
 			$actions = $form->Actions();
 			foreach ($actions as $field) {
 				echo $field->getName();
 				$field->setDisabled(true);
 			}
+		}
 
-		};
+		/*
+		A field needs to be chosen for autocompletion, if not no autocomplete
+		 */
+		if ($this->AutoCompleteFieldID > 0) {
+			$q->setAttribute('data-autocomplete', 'true');
+			$q->setAttribute('data-autocomplete-field', 'Title');
+			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
+			$q->setAttribute('data-autocomplete-source',$this->Link());
+			$q->setAttribute('data-autocomplete-function',
+				$this->AutocompleteFunction()->Slug);
+		}
+
 		return $form;
 	}
 

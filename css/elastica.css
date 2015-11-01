@@ -223,5 +223,11 @@ div.terms ul li {
 	margin: 0;
 	padding-right: 5px;
 	display: inline-block;
+	font-style: italic;
+}
+
+div.terms ul li.fieldName {
 	font-weight: bold;
+	font-style: normal;
+	padding-right: 0px;
 }
