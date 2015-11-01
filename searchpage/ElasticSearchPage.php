@@ -127,8 +127,6 @@ class ElasticSearchPage extends Page {
 		));
 
 
-
-
 		$edittest->setItemEditFormCallback(function($form) {
 			error_log($form->ID);
 			// Get the image field from the form fields
@@ -614,18 +612,24 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	*/
 	public function SearchForm() {
 		$form = new ElasticSearchForm($this, 'SearchForm');
+		$fields = $form->Fields();
+		$q = $fields->fieldByName('q');
 		if($this->action == 'similar') {
-			$fields = $form->Fields();
-			$q = $fields->fieldByName('q');
 			$q->setDisabled(true);
-
 			$actions = $form->Actions();
 			foreach ($actions as $field) {
 				echo $field->getName();
 				$field->setDisabled(true);
 			}
+		} else {
+			$q->setAttribute('data-autocomplete', 'true');
+			$q->setAttribute('data-autocomplete-field', 'Title');
+			$q->setAttribute('data-autocomplete-classes', 'FlickrPhoto');
 
-		};
+		}
+
+
+
 		return $form;
 	}
 
