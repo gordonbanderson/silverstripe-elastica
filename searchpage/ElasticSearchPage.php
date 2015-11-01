@@ -624,7 +624,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} else {
 			$q->setAttribute('data-autocomplete', 'true');
 			$q->setAttribute('data-autocomplete-field', 'Title');
-			$q->setAttribute('data-autocomplete-classes', 'FlickrPhoto');
+			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
 
 		}
 
