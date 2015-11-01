@@ -53,7 +53,10 @@
 		console.log(jqInputBox);
 		var field = jqInputBox.attr('data-autocomplete-field');
 		var classes = jqInputBox.attr('data-autocomplete-classes');
-		if (field == null || field == '' || classes == null || classes == '') {
+		var autoCompleteFn = jqInputBox.attr('data-autocomplete-function');
+		var sourceLink = jqInputBox.attr('data-autocomplete-source');
+		if (field == null || field == '' || classes == null || classes == '' ||
+			autoCompleteFn == null || autoCompleteFn == '') {
 			alert('Autocomplete not configured correctly');
 		} else {
 			jqInputBox.autocomplete({
@@ -64,7 +67,19 @@
 			    deferRequestBy: 250,
 			    params: {'field': field, 'classes': classes},
 			    onSelect: function (suggestion) {
-			        alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
+			        if (autoCompleteFn == 'GOTO') {
+			        	var link = suggestion.data['Link'];
+			        	window.location.href = link;
+			        } else if (autoCompleteFn == 'SIMILAR') {
+			        	var link = sourceLink;
+			        	link = link + 'similar/'+suggestion.data['Class']+'/'+suggestion.data['ID'];
+			        	window.location.href = link;
+			        } else  if (autoCompleteFn == 'SEARCH') {
+			        	// text is already set, find search button and click
+			        	var searchForm = jqInputBox.parent().parent().parent().parent();
+			        	console.log('BUTTON', searchForm);
+			        	searchForm.submit();
+			        }
 			    },
 			    formatResult: function (suggestion, currentValue) {
 	    		    		//console.log('++++ NEW SEARCH AND MATCH ++++');
