@@ -58,9 +58,11 @@
 		} else {
 			jqInputBox.autocomplete({
 				serviceUrl: '/autocomplete/search',
+				preventBadQueries: false,
 			    minChars: 2, //Needs to be more than 1 otherwise no results will be returned due to isBadQuery method,
 			    width: '1000px',
-			    deferRequestBy: 300,
+			    deferRequestBy: 250,
+			    params: {'field': field, 'classes': classes},
 			    onSelect: function (suggestion) {
 			        alert('You selected: ' + suggestion.value + ', ' + suggestion.data);
 			    },
