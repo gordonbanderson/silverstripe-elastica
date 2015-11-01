@@ -414,7 +414,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
 
+		//print_r($moreLikeThisTerms);
+		//die;
 
+		$fieldToTerms = new ArrayList();
+		foreach (array_keys($moreLikeThisTerms) as $fieldName) {
+			$readableFieldName = str_replace('.standard', '', $fieldName);
+			$fieldTerms = new ArrayList();
+			foreach ($moreLikeThisTerms[$fieldName] as $value) {
+				$do = new DataObject();
+				$do->Term = $value;
+				$fieldTerms->push($do);
+			}
+
+			$do = new DataObject();
+			$do->FieldName = $readableFieldName;
+			$do->Terms = $fieldTerms;
+			$fieldToTerms->push($do);
+		}
+
+/*
 		$terms = new ArrayList();
 		foreach ($moreLikeThisTerms as $key => $term) {
 			$fieldTerms = $moreLikeThisTerms[$key];
@@ -424,9 +443,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$terms->push($do);
 			}
 		}
+*/
 
 
-		$data['SimilarSearchTerms'] = $terms;
+		$data['SimilarSearchTerms'] = $fieldToTerms;
 
 		//Add a 'similar' link to each of the results
 		$link = $this->Link();
