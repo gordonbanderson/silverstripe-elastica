@@ -54,6 +54,9 @@ class ElasticSearchPage extends Page {
   	);
 
 
+  	private static $has_one = array('AutoCompleteFunction' => 'AutoCompleteOption');
+
+
 	/*
 	Add a tab with details of what to search
 	 */
@@ -99,6 +102,16 @@ class ElasticSearchPage extends Page {
 		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
 				"Select a field to edit it's properties").'</p>';
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
+
+
+
+        $ottos = AutoCompleteOption::get()->Filter('Locale', $this->Locale)->map('ID', 'Name')->
+        									toArray();
+        $df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
+        							setSource($ottos);
+        $df->setEmptyString('-- Please select what do do after find as you type has occurred --');
+        $fields->addFieldToTab('Root.SearchDetails', $df);
+
 
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
 			$this->ElasticaSearchableFields()->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
@@ -163,19 +176,6 @@ class ElasticSearchPage extends Page {
 
 
 
-
-/*
-        //Based on http://www.silverstripe.org/community/forums/data-model-questions/show/21178
-
-
-
-		$config->addComponent($edittest);
-		$config->addComponent($summaryfieldsconf, new GridFieldFilterHeader());
-
-		$activeFields = $this->ElasticaSearchableFields()->filter('Active', true);
-		$field = GridField::create('ElasticaSearchableFields', null, $activeFields, $config);
-		$fields->addFieldToTab('Root.SearchDetails', $field);
-*/
 		return $fields;
 	}
 
@@ -625,7 +625,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setAttribute('data-autocomplete', 'true');
 			$q->setAttribute('data-autocomplete-field', 'Title');
 			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
-
+			$q->setAttribute('data-autocomplete-source',$this->Link());
+			$q->setAttribute('data-autocomplete-function',
+				$this->AutocompleteFunction()->Slug);
 		}
 
 
