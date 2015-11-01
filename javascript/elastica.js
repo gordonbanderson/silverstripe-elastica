@@ -109,17 +109,35 @@
 					    		console.log(splitter);
 					    		var splits = section.split(splitter);
 
-					    		var joiner = '<strong>'+token+'</strong>';
-					    		joiner.highlighted = true;
+					    		console.log('SPLITS', splits);
 
+/*
+					    		var tokenPos = section.indexOf(token);
+					    		var tokenLen = token.length;
+					    		if (tokenPos != -1) {
+					    			var origToken = section.substr(tokenPos, tokenLen);
+					    			console.log('ORIG TOKEN:', origToken);
+					    		}
+					    		console.log('TOKEN POS', tokenPos);
+*/
+
+
+
+					    		var lenCtr = 0;
 					    		for (var k = 0; k < splits.length; k++) {
 					    			nextHighlightedValue.push(splits[k]);
-
+					    			lenCtr += splits[k].length;
+					    			console.log('LEN CTR', lenCtr);
 					    			// no last item as there is a marker to prevent this
 					    			if (k != (splits.length-1)) {
+					    				originalToken = section.substr(lenCtr, token.length);
+					    				lenCtr += token.length;
+					    				joiner = '<strong>'+originalToken+'</strong>';
+					    									    		joiner.highlighted = true;
+console.log('ORIGINAL TOKEN', originalToken);
+
 					    				nextHighlightedValue.push(joiner);
 					    			}
-
 					    		};
 
 					    		console.log('Split by token *'+token+'*');
