@@ -81,11 +81,8 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		$this->assertFalse(isset($query['sort']), 'Sort should not be set as text is being used');
 
-		$q = new \stdClass();
-
-		print_r($resultList->getQuery());
-
-		$this->assertEquals($q, $query['query']['match_all']);
+		$expected = array('query' => 'New Zealand', 'lenient' => 1);
+		$this->assertEquals($expected, $query['query']['query_string']);
 
 
 		// check the aggregate results
@@ -267,7 +264,8 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$q = new \stdClass();
 		print_r($resultList->getQuery());
 
-		$this->assertEquals($q, $query['query']['match_all']);
+		$this->assertFalse(isset($query['query']));
+		// WAS $this->assertEquals($q, $query['query']['match_all']);
 
 		$aggs = array();
 		$aggs['Aperture'] = array();
@@ -1044,7 +1042,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$es->showResultsForEmptySearch();
 
 		$resultList = $es->search($queryText, $fields);
-
 		$ctr = 0;
 
 		echo "{$resultList->count()} items found searching for '$queryText'\n\n";
@@ -1057,8 +1054,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 				}
 			}
 		}
-
-
 
 		return $resultList;
 	}
