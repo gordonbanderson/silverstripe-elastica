@@ -38,9 +38,14 @@ class ElasticaAutoCompleteController extends Controller {
 		$result = array();
 		$result['Query'] = $query;
 		$suggestions = array();
+
 		foreach ($resultList->getResults() as $singleResult) {
 			$suggestion = array('value' => $singleResult->Title);
-			$suggestion['data'] = $singleResult->ID;
+			$suggestion['data'] = array(
+				'ID' => $singleResult->getParam('_id'),
+				'Class' => $singleResult->getParam('_type'),
+				'Link' => $singleResult->Link
+			);
 			array_push($suggestions, $suggestion);
 		}
 
