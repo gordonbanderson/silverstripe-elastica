@@ -80,29 +80,4 @@ class InheritanceTest extends ElasticsearchBaseTest {
 		$this->assertEquals($expected, array_keys($grandFatherTerms));
 	}
 
-
-
-	public function testSearchableFatherTestPage() {
-		echo "\n\n\n\n>>>>>>>>>>>>> TEST SEARCHABLE FATHER TEST PAGE <<<<<<<<<<<<<<<<<<\n\n\n\n";
-		$page = $this->objFromFixture('SearchableTestFatherPage', 'father0001');
-		$page->getAllSearchableFields();
-	}
-
-
-	public function testSearchableTestPage() {
-				echo "\n\n\n\n>>>>>>>>>>>>> TEST SEARCHABLE TEST PAGE <<<<<<<<<<<<<<<<<<\n\n\n\n";
-
-		$page = $this->objFromFixture('SearchableTestPage', 'first');
-		$page->getAllSearchableFields();
-	}
-
-
-
-	public function testReindexing() {
-		//Reset the index, so that nothing has been indexed
-		$this->service->reset();
-		$this->service->define();
-	}
-
-
 }
