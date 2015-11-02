@@ -45,18 +45,66 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 		$config = $indexSettings->generateConfig();
 		$config = $config['index'];
 
+
+		print_r($config);
+
 		// check stemmed settings first
 		print_r($config);
 
-		// check for existence and then actual values of analysis
+		// Check filters
 		$filters = $config['analysis']['filter'];
 
-		$stopwordFilter = $filters['stopword_filter'];
+		$stopwordFilter = $filters['english_stop'];
 		$this->assertEquals('stop', $stopwordFilter['type']);
 		$this->assertEquals(
 			$indexSettings->getStopWords(),
 			$stopwordFilter['stopwords']
 		);
+		$this->assertFalse(isset($filters['stopword_filter']));
+
+		$english_stemmer = $filters['english_stemmer'];
+		$expected = array('type' => 'stemmer', 'language' => 'english');
+		$this->assertEquals($expected, $english_stemmer);
+
+		$english_possessive_stemmer = $filters['english_possessive_stemmer'];
+		$expected = array('type' => 'stemmer', 'language' => 'possessive_english');
+		$this->assertEquals($expected, $english_possessive_stemmer);
+
+		$english_snowball = $filters['english_snowball'];
+		$expected = array('type' => 'snowball', 'language' => 'English');
+		$this->assertEquals($expected, $english_snowball);
+
+
+		$no_single_chars = $filters['no_single_chars'];
+		$expected = array('type' => 'length', 'min' => '2');
+		$this->assertEquals($expected, $no_single_chars);
+
+
+		$english_stemmer = $filters['english_stemmer'];
+		$expected = array('type' => 'stemmer', 'language' => 'english');
+		$this->assertEquals($expected, $english_stemmer);
+
+		$autocomplete = $filters['autocomplete'];
+		$expected = array(
+			'type' => 'nGram',
+			'min_gram' => 2,
+			'max_gram' => 20,
+			'token_chars' => array('letter', 'digit', 'punctuation', 'symbol')
+		);
+		$this->assertEquals($expected, $autocomplete);
+
+
+		$filter_shingle = $filters['filter_shingle'];
+		$expected = array(
+			'type' => 'shingle',
+			'min_shingle_size' => '2',
+			'max_shingle_size' => '2',
+			'output_unigrams' => false
+		);
+		$this->assertEquals($expected, $filter_shingle);
+
+
+
 
 		// check for existence and then actual values of analyzer
 		$analyzers = $config['analysis']['analyzer'];
@@ -76,6 +124,36 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 		//Difference here is deliberate lack of a stemmer
 		$expected = array('no_single_chars', 'lowercase', 'english_stop');
 		$this->assertEquals($expected, $unstemmedAnalyzer['filter']);
+
+		// Check autocomplete index analyzer
+		$autocompleteIndexAnalyzer = $analyzers['autocomplete_index_analyzer'];
+		$expected = array(
+			'type' => 'custom',
+			'tokenizer' => 'whitespace',
+			'filter' => array('lowercase', 'asciifolding', 'autocomplete')
+		);
+		$this->assertEquals($expected, $autocompleteIndexAnalyzer);
+
+
+		// Check autocomplete search analyzer
+		$autocompleteSearchAnalyzer = $analyzers['autocomplete_search_analyzer'];
+		$expected = array(
+			'type' => 'custom',
+			'tokenizer' => 'whitespace',
+			'filter' => array('lowercase', 'asciifolding')
+		);
+		$this->assertEquals($expected, $autocompleteSearchAnalyzer);
+
+		// Check shingles analyzer
+		$shinglesAnalyzer = $analyzers['shingles'];
+		$expected = array(
+			'type' => 'custom',
+			'tokenizer' => 'uax_url_email',
+			'filter' => array('lowercase', 'filter_shingle')
+		);
+
+		$this->assertEquals($expected, $shinglesAnalyzer);
+
 	}
 
 
