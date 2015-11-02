@@ -175,7 +175,6 @@ class QueryGenerator {
 		$phrase->setHighlight($preTags, $postTags);
 		$suggest->addSuggestion($phrase);
 		$query->setSuggest($suggest);
-
 		return $query;
 	}
 
@@ -434,7 +433,7 @@ class QueryGenerator {
 
 		error_log("CSV CLASSES: $csvClasses");
 
-		$key = rand(1,10000000).'SEARCHABLE_FIELDS_2_'.str_replace(',', '_', $csvClasses);
+		$key ='SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
 
 		if ($fieldsAllowed) {
 			$fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
