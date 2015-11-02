@@ -64,14 +64,18 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 
 		$actual = $stemmedAnalyzer['tokenizer'];
 		$filterNames = $stemmedAnalyzer['filter'];
+		print_r($filterNames);
 
-		$this->assertEquals('stopword_filter', $filterNames[0]);
+		$expected = array('no_single_chars', 'english_snowball', 'lowercase', 'english_stop');
 
 		// check the unstemmed analyzer
 		$unstemmedAnalyzer = $analyzers['unstemmed'];
 		$this->assertEquals('custom', $unstemmedAnalyzer['type']);
-		$this->assertEquals('standard', $unstemmedAnalyzer['tokenizer']);
-		$this->assertEquals('stopword_filter', $unstemmedAnalyzer['filter'][0]);
+		$this->assertEquals('uax_url_email', $unstemmedAnalyzer['tokenizer']);
+
+		//Difference here is deliberate lack of a stemmer
+		$expected = array('no_single_chars', 'lowercase', 'english_stop');
+		$this->assertEquals($expected, $unstemmedAnalyzer['filter']);
 	}
 
 
