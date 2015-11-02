@@ -31,12 +31,16 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhoto');
-		$results = $es->moreLikeThis($fp);
+
+		$fields = array('Title');
+		$results = $es->moreLikeThis($fp, $fields);
 
 		echo "RESULTS:\n";
 		foreach ($results as $result) {
 			echo "-\t{$result->Title}\n";
 		}
+
+		$this->fail('TODO - add an actual test');
 	}
 
 }
