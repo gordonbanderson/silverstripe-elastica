@@ -97,9 +97,30 @@ class ElasticaUtiTest extends SapphireTest {
 		$explanation = "((Title.standard:wellington Title.standard:view Description.standard:new ";
 		$explanation .= "Description.standard:zealand Description.standard:wellington Description.standard:view Description.standard:including Description.standard:buildings Description.standard:exhibition Description.standard:aerial)~3) -ConstantScore(_uid:FlickrPhoto#3079)";
 		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+
+		$termsDescription = $terms['Description.standard'];
+		sort($termsDescription);
+
+		$termsTitle = $terms['Title.standard'];
+		sort($termsTitle);
+
 		$expected = array(
-			'Title.standard' => array('wellington', 'view'),
-			'Description.standard' => array('new', 'zealand', 'wellington', 'view', 'including', 'buildings', 'exhibition', 'aerial')
+			'Title.standard' => $termsTitle,
+			'Description.standard' => $termsDescription
+		);
+
+		$terms = array(
+			'Title.standard' => array('view', 'wellington'),
+			'Description.standard' => array(
+				'aerial',
+				'buildings',
+				'exhibition',
+				'including',
+				'new',
+				'view',
+				'wellington',
+				'zealand'
+			)
 		);
 		$this->assertEquals($expected, $terms);
 	}
