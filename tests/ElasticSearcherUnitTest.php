@@ -25,14 +25,16 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testMoreLikeThis() {
+	public function testMoreLikeThisSinglePhoto() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
+
+		echo "FP: Original title: {$fp->Title}\n";
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhoto');
 
-		$fields = array('Description.standard','Title.standard');
+		$fields = array('Description.standard' => 1,'Title.standard' => 1);
 		$results = $es->moreLikeThis($fp, $fields);
 
 		echo "RESULTS:\n";
@@ -44,11 +46,17 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		print_r($terms);
 
 		$fieldNamesReturned = array_keys($terms);
-		sort($fields);
+		$fieldNames = array_keys($fields);
+		sort($fieldNames);
 		sort($fieldNamesReturned);
-		$this->assertEquals($fields, $fieldNamesReturned);
+		$this->assertEquals($fieldNames, $fieldNamesReturned);
 
-		$this->fail('TODO - add an actual test');
+		//FIXME - this seems anomolyous, check in more detail
+		$expected = array('new');
+		$this->assertEquals($expected, $terms['Title.standard']);
+
+		$expected = array('date','other','place','library','title','version','new', 'see', 'physical');
+		$this->assertEquals($expected, $terms['Description.standard']);
 	}
 
 }
