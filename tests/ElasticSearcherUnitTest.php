@@ -32,13 +32,21 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhoto');
 
-		$fields = array('Title');
+		$fields = array('Description.standard','Title.standard');
 		$results = $es->moreLikeThis($fp, $fields);
 
 		echo "RESULTS:\n";
 		foreach ($results as $result) {
 			echo "-\t{$result->Title}\n";
 		}
+
+		$terms = $results->getList()->MoreLikeThisTerms;
+		print_r($terms);
+
+		$fieldNamesReturned = array_keys($terms);
+		sort($fields);
+		sort($fieldNamesReturned);
+		$this->assertEquals($fields, $fieldNamesReturned);
 
 		$this->fail('TODO - add an actual test');
 	}
