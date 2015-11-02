@@ -145,13 +145,14 @@ class BaseIndexSettings {
 		));
 
 
-
+/*
 		if (sizeof($this->stopWords) > 0) {
 			$stopwordFilter = array();
 			$stopwordFilter['type'] = 'stop';
 			$stopwordFilter['stopwords'] = $this->stopWords;
 			$this->filters['stopword_filter'] = $stopwordFilter;
 		}
+*/
 
 		//$analyzerStemmed['char_filter'] = array('html_strip');
 		$filterNames = array_keys($this->filters);
