@@ -17,6 +17,8 @@ class EnglishIndexSettings extends BaseIndexSettings {
 			'stopwords' => $this->stopWords
 		));
 
+		$this->stopWordFilter = 'english_stop';
+
 /*
 		//Add words here not to be stemmed
 		$this->addFilter('english_keywords', array(
@@ -42,13 +44,10 @@ class EnglishIndexSettings extends BaseIndexSettings {
 			'language' => 'English'
 		));
 
-
-
-
 		$englishWithURLs = array(
 			'tokenizer' => 'uax_url_email',
 			//'filter' => array('english_possessive_stemmer', 'lowercase', 'english_stop', /*'english_keywords',*/ 'english_stemmer' ),
-			'filter' => array('no_single_chars', 'english_snowball', 'lowercase', 'english_stop' ),
+			'filter' => array('no_single_chars', 'english_snowball', 'lowercase', $this->stopWordFilter ),
 			'type' => 'custom'
 		);
 
