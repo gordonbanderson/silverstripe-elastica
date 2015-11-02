@@ -258,7 +258,7 @@ class ElasticSearcher {
 	/**
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
-	 * @param  array $fieldsToSearch  array of fieldnames to search
+	 * @param  array $fieldsToSearch  array of fieldnames to search, mapped to weighting
 	 * @return resultList  List of results
 	 */
 	public function moreLikeThis($indexedItem, $fieldsToSearch) {
@@ -271,8 +271,15 @@ class ElasticSearcher {
 			}
 		}
 
+		$weightedFieldsArray = array();
+		foreach ($fieldsToSearch as $field => $weighting) {
+			$weightedField = $field.'^'.$weighting;
+			$weightedField = str_replace('^1', '', $weightedField);
+			array_push($weightedFieldsArray, $weightedField);
+		}
+
 		$mlt = array(
-			'fields' => $fieldsToSearch,
+			'fields' => $weightedFieldsArray,
 			'docs' => array(
 				array(
 				'_type' => $indexedItem->ClassName,
@@ -292,11 +299,12 @@ class ElasticSearcher {
         $query = new Query();
         $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
+
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
 
-// pagination
+		// pagination
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
 
@@ -309,14 +317,9 @@ class ElasticSearcher {
 		$paginated->setPageStart($this->start);
 		$paginated->setPageLength($this->pageLength);
 		$paginated->setTotalItems($resultList->getTotalItems());
-
 		$this->aggregations = $resultList->getAggregations();
 
 		return $paginated;
-
-        //$mltQuery->setMaxQueryTerms(1);
-        //$mltQuery->setMinDocFrequency(1);
-        //$mltQuery->setMinTermFrequency(1);
 	}
 
 
