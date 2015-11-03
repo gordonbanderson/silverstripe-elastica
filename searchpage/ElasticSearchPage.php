@@ -13,6 +13,7 @@ use Elastica\Aggregation\Terms;
 use Elastica\Query\Filtered;
 use Elastica\Query\Range;
 use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\Searchable;
 use \SilverStripe\Elastica\QueryGenerator;
 use \SilverStripe\Elastica\ElasticaUtil;
 
@@ -196,7 +197,7 @@ $fields->addFieldToTab("Root.SearchDetails",
 
 
 	/**
-	 * Avoid duplicate identifiers
+	 * Avoid duplicate identifiers, and check that ClassesToSearch actually exist and are Searchable
 	 * @return DataObject result with or without error
 	 */
 	public function validate() {
@@ -213,6 +214,26 @@ $fields->addFieldToTab("Root.SearchDetails",
 		if ($existing > 0) {
 			$result->error('The identifier '.$this->Identifier.' already exists');
 		}
+
+		// now check classes to search actually exist
+		if ($this->ClassesToSearch) {
+			$toSearch = explode(',', $this->ClassesToSearch);
+			foreach ($toSearch as $clazz) {
+				echo "Checking CLAZZ:*$clazz*\n";
+				try {
+					$instance = Injector::inst()->create($clazz);
+					if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
+						print_r($this);
+						$result->error('The class '.$clazz.' must have the Searchable extension');
+					}
+				} catch (ReflectionException $e) {
+					$result->error('The class '.$clazz.' does not exist');
+				}
+
+			}
+		}
+
+
 		return $result;
 	}
 
