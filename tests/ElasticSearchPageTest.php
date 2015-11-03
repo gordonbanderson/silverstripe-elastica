@@ -25,6 +25,62 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testInvalidClassName() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->ClassesToSearch = 'ThisClassDoesNotExist';
+
+		try {
+			$searchPage->write();
+			$this->fail('Page should not be writeable');
+		} catch (ValidationException $e) {
+			$this->assertEquals('The class ThisClassDoesNotExist does not exist', $e->getMessage());
+		}
+	}
+
+
+
+	public function testNonSearchableClass() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+
+		// This does not implement searchable
+		$searchPage->ClassesToSearch = 'Member';
+
+		try {
+			$searchPage->write();
+			$this->fail('Page should not be writeable');
+		} catch (ValidationException $e) {
+			$this->assertEquals('The class Member must have the Searchable extension', $e->getMessage());
+		}
+	}
+
+
+	/*
+	Test setting up a search page for data objects as if editing the CMS directly
+	 */
+	public function testSearchPageForDataObjects() {
+		echo "========================== TEST STARTS NOW ==========================\n";
+		//$this->devBuild();
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+
+		$searchPage->ClassesToSearch = 'FlickrPhotoTO';
+		$searchPage->InSiteTree = false;
+		$searchPage->Title = '**** Flickr Photo Search ****';
+		$searchPage->write();
+		//$searchPage->publish('Stage', 'Live');
+
+		$filter = array('ClazzName' => 'FlickrPhoto', 'Name' => 'Title');
+
+		//Check fieldnames as expected
+		$searchableFields = $searchPage->ElasticaSearchableFields();
+		$sfs = $searchableFields->map('Name')->toArray();
+		sort($sfs);
+		$expected = array('Aperture','AspectRatio','Description','FirstViewed','FlickrID',
+			'FlickrSetTOs','FlickrTagTOs','FocalLength35mm','ISO','Photographer','ShutterSpeed',
+			'TakenAt','Title');
+		$this->assertEquals($expected, $sfs);
+	}
+
+
 	/*
 	Test that during the build process, requireDefaultRecords creates records for
 	each unique field name declared in searchable_fields
@@ -63,7 +119,9 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$searchPage->write();
 		$scs = SearchableClass::get();
 
-		$sfs = ElasticSearchPageSearchField::get();
+		$sfs = $searchPage->SearchableFields();
+
+
 
 		// check the names expected to appear
 
