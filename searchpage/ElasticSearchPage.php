@@ -119,13 +119,13 @@ class ElasticSearchPage extends Page {
         //$fieldSet = new \FieldSet($df);
         //$fields->addFieldToTab('Root.SearchDetails', $fieldSet);
 
-$fields->addFieldToTab("Root.SearchDetails",
-  		FieldGroup::create(
-  			$autoCompleteFieldDF,
- 			$df
- 		)->setTitle('Autocomplete')
- );
-        // ---- grid of searchable fields ----
+		$fields->addFieldToTab("Root.SearchDetails",
+		  		FieldGroup::create(
+		  			$autoCompleteFieldDF,
+		 			$df
+		 		)->setTitle('Autocomplete')
+		 );
+		        // ---- grid of searchable fields ----
         		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
 		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
 				"Select a field to edit it's properties").'</p>';
@@ -215,24 +215,26 @@ $fields->addFieldToTab("Root.SearchDetails",
 			$result->error('The identifier '.$this->Identifier.' already exists');
 		}
 
-		// now check classes to search actually exist
-		if ($this->ClassesToSearch) {
-			$toSearch = explode(',', $this->ClassesToSearch);
-			foreach ($toSearch as $clazz) {
-				echo "Checking CLAZZ:*$clazz*\n";
-				try {
-					$instance = Injector::inst()->create($clazz);
-					if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
-						print_r($this);
-						$result->error('The class '.$clazz.' must have the Searchable extension');
+		// now check classes to search actually exist, assuming in site tree not set
+		if (!$this->SiteTreeOnly) {
+			if ($this->ClassesToSearch == '') {
+				$result->error('At least one searchable class must be available, or SiteTreeOnly flag set');
+			} else {
+				$toSearch = explode(',', $this->ClassesToSearch);
+				foreach ($toSearch as $clazz) {
+					echo "Checking CLAZZ:*$clazz*\n";
+					try {
+						$instance = Injector::inst()->create($clazz);
+						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
+							print_r($this);
+							$result->error('The class '.$clazz.' must have the Searchable extension');
+						}
+					} catch (ReflectionException $e) {
+						$result->error('The class '.$clazz.' does not exist');
 					}
-				} catch (ReflectionException $e) {
-					$result->error('The class '.$clazz.' does not exist');
 				}
-
 			}
 		}
-
 
 		return $result;
 	}
