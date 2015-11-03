@@ -359,12 +359,12 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 
 	public function testFoldedIndexes() {
-		$this->assertTrue(false, 'To do');
+		$this->markTestIncomplete('Folded test to do');
 	}
 
 
 	public function testSynonymIndexes() {
-		$this->assertTrue(false, 'To do');
+		$this->markTestIncomplete('Synonym test to do');
 	}
 
 

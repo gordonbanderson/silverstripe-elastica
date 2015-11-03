@@ -13,6 +13,7 @@ use Elastica\Aggregation\Terms;
 use Elastica\Query\Filtered;
 use Elastica\Query\Range;
 use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\Searchable;
 use \SilverStripe\Elastica\QueryGenerator;
 use \SilverStripe\Elastica\ElasticaUtil;
 
@@ -118,13 +119,13 @@ class ElasticSearchPage extends Page {
         //$fieldSet = new \FieldSet($df);
         //$fields->addFieldToTab('Root.SearchDetails', $fieldSet);
 
-$fields->addFieldToTab("Root.SearchDetails",
-  		FieldGroup::create(
-  			$autoCompleteFieldDF,
- 			$df
- 		)->setTitle('Autocomplete')
- );
-        // ---- grid of searchable fields ----
+		$fields->addFieldToTab("Root.SearchDetails",
+		  		FieldGroup::create(
+		  			$autoCompleteFieldDF,
+		 			$df
+		 		)->setTitle('Autocomplete')
+		 );
+		        // ---- grid of searchable fields ----
         		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
 		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
 				"Select a field to edit it's properties").'</p>';
@@ -196,7 +197,7 @@ $fields->addFieldToTab("Root.SearchDetails",
 
 
 	/**
-	 * Avoid duplicate identifiers
+	 * Avoid duplicate identifiers, and check that ClassesToSearch actually exist and are Searchable
 	 * @return DataObject result with or without error
 	 */
 	public function validate() {
@@ -213,6 +214,27 @@ $fields->addFieldToTab("Root.SearchDetails",
 		if ($existing > 0) {
 			$result->error('The identifier '.$this->Identifier.' already exists');
 		}
+
+		// now check classes to search actually exist, assuming in site tree not set
+		if (!$this->SiteTreeOnly) {
+			if ($this->ClassesToSearch == '') {
+				$result->error('At least one searchable class must be available, or SiteTreeOnly flag set');
+			} else {
+				$toSearch = explode(',', $this->ClassesToSearch);
+				foreach ($toSearch as $clazz) {
+					try {
+						$instance = Injector::inst()->create($clazz);
+						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
+							print_r($this);
+							$result->error('The class '.$clazz.' must have the Searchable extension');
+						}
+					} catch (ReflectionException $e) {
+						$result->error('The class '.$clazz.' does not exist');
+					}
+				}
+			}
+		}
+
 		return $result;
 	}
 
@@ -222,8 +244,12 @@ $fields->addFieldToTab("Root.SearchDetails",
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 		$names = array_keys($nameToMapping);
 
-		#FIXME - deal with empty case and also SiteTree only
-		$relevantClasses = $this->ClassesToSearch;
+		#FIXME -  SiteTree only
+		$relevantClasses = $this->ClassesToSearch; // due to validation this will be valid
+		if ($this->SiteTreeOnly) {
+			$relevantClasses = SearchableClass::get()->filter('InSiteTree', true)->Map('Name')->toArray();
+
+		}
 		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
@@ -231,8 +257,7 @@ $fields->addFieldToTab("Root.SearchDetails",
 
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
-		$activeIDs = array_keys($sfs->map()->toArray());
-		$activeIDs = implode(',', $activeIDs);
+
 
 		// Get the searchable fields associated with this search page
 		$esfs = $this->ElasticaSearchableFields();
@@ -248,14 +273,17 @@ $fields->addFieldToTab("Root.SearchDetails",
 			$esfs->add($newSearchableField);
 		}
 
-		//FIXME deal with the no classes case #ZZZZ
-
-		// Mark all the fields for this page as inactive/active as appropriate
+		// Mark all the fields for this page as inactive initially
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
-		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID NOT IN (";
-		$sql .= "$activeIDs)";
+		$sql .= "ElasticSearchPageID={$this->ID}";
+
 		DB::query($sql);
 
+
+		$activeIDs = array_keys($sfs->map()->toArray());
+		$activeIDs = implode(',', $activeIDs);
+
+		//Mark as active the relevant ones
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=1 WHERE ";
 		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
 		$sql .= "$activeIDs)";
@@ -610,7 +638,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setDisabled(true);
 			$actions = $form->Actions();
 			foreach ($actions as $field) {
-				echo $field->getName();
 				$field->setDisabled(true);
 			}
 		}

@@ -27,13 +27,31 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected = array(
 			'query' => $qs,
 			'size' => 10,
-			'from' => 0
+			'from' => 0,
+			'suggest' => $this->getDefaultSuggest('New Zealand')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setShowResultsForEmptyQuery(true);
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
+	}
+
+
+	private function getDefaultSuggest($q) {
+		return array(
+				'query-phrase-suggestions' => array(
+					'phrase' => array(
+						'field' => '_all',
+						'size' => 4,
+						'highlight' => array(
+							'pre_tag' => '<strong class="hl">',
+							'post_tag' => '</strong>'
+						)
+					),
+					'text' => $q
+				)
+		);
 	}
 
 
@@ -48,7 +66,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected = array(
 			'query' => $qs,
 			'size' => 10,
-			'from' => 0
+			'from' => 0,
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -62,13 +81,14 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setSelectedFilters(null);
 		$qg->setShowResultsForEmptyQuery(true);
 
-		//FIXME ideally want entirely empty query here but this works as a stopgap
 		$qs = array('query_string' => array('query' => '*', 'lenient' => true));
+
+		//In order to show all results an empty query works,
+		//e.g. curl -XGET 'http://localhost:9200/elastica_ss_module_test_en_us/_search?pretty'
 		$expected = array(
-			'query' => array(
-			'match_all' => new \stdClass()),
 			'size' => 10,
-			'from' => 0
+			'from' => 0,
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -97,7 +117,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected = array(
 			'query' => $qs,
 			'size' => 10,
-			'from' => 0
+			'from' => 0,
+			'suggest' => $this->getDefaultSuggest('New Zealand')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -121,28 +142,28 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 		//Case of empty query, do not show results
 		$qg->setShowResultsForEmptyQuery(false);
-		$qs = array('multi_match' => array(
-			'fields' => array('Title','Title.*','Description','Description.*'),
-			'type' => 'most_fields',
-			'query' => '',
-			'lenient' => true
+		$qs = array(
+			'multi_match' => array(
+				'fields' => array('Title','Title.*','Description','Description.*'),
+				'type' => 'most_fields',
+				'query' => '',
+				'lenient' => true
 			)
 		);
 		$expected = array(
 			'query' => $qs,
 			'size' => 10,
-			'from' => 0
+			'from' => 0,
+			'suggest' => $this->getDefaultSuggest('')
 		);
+
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 
 		// Now the case of empty query and show results
 		$qg->setShowResultsForEmptyQuery(true);
 		unset($expected['query']);
-		$expected['query'] = array('match_all' => new \stdClass());
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
-
-
 	}
 
 
@@ -166,14 +187,13 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 		$aggs = $this->baseAggs();
 
-		//FIXME - query needs removed in this case, leave as a reminder for now until
 		//tests are complete
 		$expected = array(
 			'aggs' => $aggs,
 			'size' => 10,
 			'from' => 0,
-			'query' => array('match_all' => new \stdClass()),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		print_r($qg->generateElasticaQuery());
@@ -185,6 +205,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		unset($expected['sort']);
 		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setShowResultsForEmptyQuery(false);
@@ -298,7 +319,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					'filter' => array('term' => array('ISO' => 400))
 				)
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
@@ -307,6 +329,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setQueryText('New Zealand');
 		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
@@ -342,7 +365,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					)
 				))
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
@@ -351,6 +375,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setQueryText('New Zealand');
 		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -385,7 +410,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					)
 				))
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -393,6 +419,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setQueryText('New Zealand');
 		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -418,7 +445,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					'filter' => array('term' => array('ISO' => 400))
 				)
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
@@ -433,7 +461,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
 			'type' => 'most_fields'
 		);
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
+
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
+		print_r($qg->generateElasticaQuery()->toArray());
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -469,7 +499,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					)
 				))
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		echo(json_encode($qg->generateElasticaQuery()->toArray()));
@@ -483,6 +514,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
 			'type' => 'most_fields'
 		);
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -518,7 +550,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 					)
 				))
 			),
-			'sort' => array('TakenAt' => 'desc')
+			'sort' => array('TakenAt' => 'desc'),
+			'suggest' => $this->getDefaultSuggest('')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
@@ -531,6 +564,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'fields' => array('Title^2', 'Title.*^2','Content', 'Content.*'),
 			'type' => 'most_fields'
 		);
+		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -646,7 +680,8 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected = array(
 			'query' => $qs,
 			'size' => 12,
-			'from' => 24
+			'from' => 24,
+			'suggest' => $this->getDefaultSuggest('New Zealand')
 		);
 
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());

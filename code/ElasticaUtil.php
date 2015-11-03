@@ -138,18 +138,35 @@ class ElasticaUtil {
 	}
 
 
-
+	/**
+	 * The output format of this function is not documented, so at best this is guess work to an
+	 * extent.  Possible formats are:
+	 * - ((Title.standard:great Content.standard:ammunition Content.standard:could
+	 *     Content.standard:bair Content.standard:dancing Content.standard:column
+	 *     Content.standard:company Content.standard:infantry Content.standard:men
+	 *     Content.standard:soldier Content.standard:brigade Content.standard:zealand
+	 *     Content.standard:new)~3)
+	 *     -ConstantScore(_uid:GutenbergBookExtract#1519)
+	 *
+	 * @param  string $explanation explanation string for more like this terms from Elasticsearch
+	 * @return array             Array of fieldnames mapped to terms
+	 */
 	public static function parseSuggestionExplanation($explanation) {
 
 		$explanation = explode('-ConstantScore', $explanation)[0];
 
         $bracketPos = strpos($explanation, ')~');
-       	$explanation = substr($explanation, 2, $bracketPos-2);
+
+        if (substr($explanation, 0,2) == '((') {
+        	$explanation = substr($explanation, 2, $bracketPos-2);
+        }
+
 
        	$terms = array();
 
         //Field name(s) => terms
         $splits = explode(' ', $explanation);
+
         foreach ($splits as $fieldAndTerm) {
         	$splits = explode(':', $fieldAndTerm);
 

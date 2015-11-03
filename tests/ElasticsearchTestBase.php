@@ -14,6 +14,14 @@ class ElasticsearchBaseTest extends SapphireTest {
 	);
 
 	public function setUpOnce() {
+
+		// add Searchable extension where appropriate
+		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
+		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
+		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
+
 		$config = Config::inst();
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
@@ -35,12 +43,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
-		// add Searchable extension where appropriate
-		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
-		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
@@ -79,6 +81,13 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		$task->run(null);
 
+	}
+
+
+	protected function devBuild() {
+		$task = new \BuildTask();
+		// null request is fine as no parameters used
+		$task->run(null);
 	}
 
 

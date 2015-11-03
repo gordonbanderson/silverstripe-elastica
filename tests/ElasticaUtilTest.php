@@ -1,5 +1,8 @@
 <?php
 
+use SilverStripe\Elastica\ElasticaUtil;
+
+
 /**
  * Test the functionality of ElasticaUtil class
  * @package elastica
@@ -82,16 +85,53 @@ class ElasticaUtiTest extends SapphireTest {
 	/**
 	 * Test parsing no terms suggested
 	 */
-	public function testExplanationNoTerms() {
+	public function testParseExplanationNoTerms() {
 		$explanation = "() -ConstantScore(_uid:FlickrPhoto#7369)";
 		$expected = array();
-		$this->assertEquals($expected, ElasticaUtil::parseSuggestionExplanation($explanation));
+		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+		$this->assertEquals($expected, $terms);
 	}
 
 
-	public function testExplanationSingleStartingBracket() {
+	public function testParseExplanationDoubleStartingBracket() {
 		$explanation = "((Title.standard:wellington Title.standard:view Description.standard:new ";
 		$explanation .= "Description.standard:zealand Description.standard:wellington Description.standard:view Description.standard:including Description.standard:buildings Description.standard:exhibition Description.standard:aerial)~3) -ConstantScore(_uid:FlickrPhoto#3079)";
+		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+
+		$termsDescription = $terms['Description.standard'];
+		sort($termsDescription);
+
+		$termsTitle = $terms['Title.standard'];
+		sort($termsTitle);
+
+		$expected = array(
+			'Title.standard' => $termsTitle,
+			'Description.standard' => $termsDescription
+		);
+
+		$terms = array(
+			'Title.standard' => array('view', 'wellington'),
+			'Description.standard' => array(
+				'aerial',
+				'buildings',
+				'exhibition',
+				'including',
+				'new',
+				'view',
+				'wellington',
+				'zealand'
+			)
+		);
+		$this->assertEquals($expected, $terms);
+	}
+
+
+
+	public function testParseExplanationNoLeadingBrackets() {
+		$explanation = "Title.standard:new -ConstantScore(_uid:FlickrPhotoTO#76)";
+		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+		$expected = array('Title.standard' => array('new'));
+		$this->assertEquals($expected, $terms);
 	}
 
 

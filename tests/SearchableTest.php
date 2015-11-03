@@ -45,10 +45,17 @@ class SearchableTest extends ElasticsearchBaseTest {
 			'fields' => array(
 				'standard' => array(
 					'type' => 'string',
-					'analyzer' => 'unstemmed'
+					'analyzer' => 'unstemmed',
+					'term_vector' => 'yes'
+				),
+				'shingles' => array(
+					'type' => 'string',
+					'analyzer' => 'shingles',
+					'term_vector' => 'yes'
 				)
 			),
-			'analyzer' => 'stemmed'
+			'analyzer' => 'stemmed',
+			'term_vector' => 'yes'
 		);
 
 		/*
@@ -98,7 +105,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 		// check strings
-		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'unstemmed');
+		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'unstemmed', 'term_vector' => 'yes');
 		foreach ($shouldBeString as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 
@@ -114,7 +121,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals($expectedStandardArray,$fieldProperties['fields']['standard']);
 
 			// check for only 3 entries
-			$this->assertEquals(3, sizeof(array_keys($fieldProperties)));
+			$this->assertEquals(4, sizeof(array_keys($fieldProperties)));
 		}
 
 		// check ints
@@ -267,7 +274,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
-		$page = $this->objFromFixture('Page', 'page0001');
+		$page = $this->objFromFixture('SiteTree', 'sitetree001');
 		$page->doUnpublish();
 
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);

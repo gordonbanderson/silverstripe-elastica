@@ -62,6 +62,9 @@ class BaseIndexSettings {
 	private $analyzers = array();
 
 
+	protected $stopWordFilter = null;
+
+
 	/**
 	 * Set to true to add an extra field containing a folded version of terms,
 	 * i.e. not accents on the letters
@@ -142,13 +145,14 @@ class BaseIndexSettings {
 		));
 
 
-
+/*
 		if (sizeof($this->stopWords) > 0) {
 			$stopwordFilter = array();
 			$stopwordFilter['type'] = 'stop';
 			$stopwordFilter['stopwords'] = $this->stopWords;
 			$this->filters['stopword_filter'] = $stopwordFilter;
 		}
+*/
 
 		//$analyzerStemmed['char_filter'] = array('html_strip');
 		$filterNames = array_keys($this->filters);
@@ -156,7 +160,7 @@ class BaseIndexSettings {
 		//$analyzerNotStemmed['char_filter'] = array('html_strip');
 		$analyzerNotStemmed['tokenizer'] = 'uax_url_email';
 		array_push($filterNames, 'lowercase');
-		$analyzerNotStemmed['filter'] = array('no_single_chars', 'lowercase', 'stopword_filter');
+		$analyzerNotStemmed['filter'] = array('no_single_chars', 'lowercase', $this->stopWordFilter);
 
 		//Autocomplete filter
 		/*
