@@ -222,7 +222,6 @@ class ElasticSearchPage extends Page {
 			} else {
 				$toSearch = explode(',', $this->ClassesToSearch);
 				foreach ($toSearch as $clazz) {
-					echo "Checking CLAZZ:*$clazz*\n";
 					try {
 						$instance = Injector::inst()->create($clazz);
 						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
@@ -245,8 +244,12 @@ class ElasticSearchPage extends Page {
 		$nameToMapping = QueryGenerator::getSearchFieldsMappingForClasses($this->ClassesToSearch);
 		$names = array_keys($nameToMapping);
 
-		#FIXME - deal with empty case and also SiteTree only
-		$relevantClasses = $this->ClassesToSearch;
+		#FIXME -  SiteTree only
+		$relevantClasses = $this->ClassesToSearch; // due to validation this will be valid
+		if ($this->SiteTreeOnly) {
+			$relevantClasses = SearchableClass::get()->filter('InSiteTree', true)->Map('Name')->toArray();
+
+		}
 		$quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
 		$quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
@@ -254,8 +257,7 @@ class ElasticSearchPage extends Page {
 
 		// Get the searchfields for the ClassNames searched
 		$sfs = SearchableField::get()->where($where);
-		$activeIDs = array_keys($sfs->map()->toArray());
-		$activeIDs = implode(',', $activeIDs);
+
 
 		// Get the searchable fields associated with this search page
 		$esfs = $this->ElasticaSearchableFields();
@@ -271,14 +273,17 @@ class ElasticSearchPage extends Page {
 			$esfs->add($newSearchableField);
 		}
 
-		//FIXME deal with the no classes case #ZZZZ
-
-		// Mark all the fields for this page as inactive/active as appropriate
+		// Mark all the fields for this page as inactive initially
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
-		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID NOT IN (";
-		$sql .= "$activeIDs)";
+		$sql .= "ElasticSearchPageID={$this->ID}";
+
 		DB::query($sql);
 
+
+		$activeIDs = array_keys($sfs->map()->toArray());
+		$activeIDs = implode(',', $activeIDs);
+
+		//Mark as active the relevant ones
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=1 WHERE ";
 		$sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
 		$sql .= "$activeIDs)";
@@ -633,7 +638,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setDisabled(true);
 			$actions = $form->Actions();
 			foreach ($actions as $field) {
-				echo $field->getName();
 				$field->setDisabled(true);
 			}
 		}
