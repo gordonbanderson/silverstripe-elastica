@@ -130,7 +130,7 @@ $fields->addFieldToTab("Root.SearchDetails",
 				"Select a field to edit it's properties").'</p>';
 		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
-			$this->ElasticaSearchableFields()->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
+			$this->ElasticaSearchableFields()->filter('Active', 1)->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
 
 		$fields->addFieldToTab('Root.SearchDetails', $searchPicker);
 
