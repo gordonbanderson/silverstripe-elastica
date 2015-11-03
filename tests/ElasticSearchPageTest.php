@@ -38,6 +38,24 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testEmptySearchableClass() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+
+		// This does not implement searchable
+		$searchPage->ClassesToSearch = '';
+		$searchPage->SiteTreeOnly = false;
+
+		try {
+			$searchPage->write();
+			$this->fail('Page should not be writeable');
+		} catch (ValidationException $e) {
+			$this->assertEquals(
+				'At least one searchable class must be available, or SiteTreeOnly flag set',
+				$e->getMessage()
+			);
+		}
+	}
+
 
 	public function testNonSearchableClass() {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
@@ -63,20 +81,32 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
 		$searchPage->ClassesToSearch = 'FlickrPhotoTO';
-		$searchPage->InSiteTree = false;
+		$searchPage->SiteTreeOnly = 0;
 		$searchPage->Title = '**** Flickr Photo Search ****';
 		$searchPage->write();
 		//$searchPage->publish('Stage', 'Live');
 
-		$filter = array('ClazzName' => 'FlickrPhoto', 'Name' => 'Title');
+		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Title');
 
 		//Check fieldnames as expected
-		$searchableFields = $searchPage->ElasticaSearchableFields();
+		$searchableFields = $searchPage->ElasticaSearchableFields()->filter('Active',1);
 		$sfs = $searchableFields->map('Name')->toArray();
 		sort($sfs);
 		$expected = array('Aperture','AspectRatio','Description','FirstViewed','FlickrID',
 			'FlickrSetTOs','FlickrTagTOs','FocalLength35mm','ISO','Photographer','ShutterSpeed',
 			'TakenAt','Title');
+		$this->assertEquals($expected, $sfs);
+
+
+		$searchPage->ClassesToSearch = '';
+		$searchPage->SiteTreeOnly = 1;
+		$searchPage->Title = '**** SiteTree Search ****';
+		$searchPage->write();
+
+		$searchableFields = $searchPage->ElasticaSearchableFields()->filter('Active',1);
+		$sfs = $searchableFields->map('Name')->toArray();
+		sort($sfs);
+		$expected = array('Content', 'Country', 'PageDate', 'Title');
 		$this->assertEquals($expected, $sfs);
 	}
 
@@ -135,7 +165,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			if ($start == 'Flickr') {
 				$inSiteTree = 0;
 			};
-			echo $sc->Name.', ist='.$sc->InSiteTree.'\n';
 			$this->assertEquals($inSiteTree,$sc->InSiteTree);
 
 			$expectedNames = $expected[$expectedClass];
@@ -147,10 +176,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			}
 		}
 		$nSearchableFields = SearchableField::get()->count();
-
-		foreach (SearchableField::get()->sort('Name') as $sf) {
-			echo $sf->Name."\n";
-		}
 
 		$this->assertEquals($fieldCtr, $nSearchableFields);
 	}
