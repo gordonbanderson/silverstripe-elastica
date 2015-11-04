@@ -78,5 +78,16 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 		$body = $response->getBody();
 		$result3 = json_decode($body);
 		$this->assertEquals($result2->suggestions, $result3->suggestions);
+
+
+		// test a non existent class, for now return blanks so as to avoid extra overhead as this
+		// method is called often
+		$url = 'autocomplete/search?field=FieldThatDoesNotExist&classes=FlickrPhotoTO&query=the';
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+		$body = $response->getBody();
+		$result4 = json_decode($body);
+		print_r($result4);
+		$this->assertEquals(0, sizeof($result4->suggestions));
 	}
 }
