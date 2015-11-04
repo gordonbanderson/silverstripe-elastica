@@ -21,19 +21,23 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$esp->write();
 
 		//Simulate selecting Title and Description as searchable fields in the CMS interface
-		$espf1 = new ElasticSearchPageSearchField();
+		$sfs = new ArrayList();
+
+		$espf1 = new SearchableField();
 		$espf1->ElasticPageID = $esp->ID;
 		$espf1->Searchable = true;
 		$espf1->Name = 'Title';
 		$espf1->Type = 'string';
-		$espf1->write();
+		$esp->ElasticaSearchableFields()->add($espf1);
 
-		$espf2 = new ElasticSearchPageSearchField();
+		$espf2 = new SearchableField();
 		$espf2->ElasticPageID = $esp->ID;
 		$espf2->Searchable = true;
 		$espf2->Name = 'Description';
 		$espf2->Type = 'string';
-		$espf2->write();
+		$esp->ElasticaSearchableFields()->add($espf2);
+
+
 
 		$esp->publish('Stage','Live');
 		$this->ElasticSearchPage = $esp;
@@ -96,7 +100,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
-			"Page 1 of 1 (3 results found");
+			"Page 1 of 1  (3 results found");
 
 
 		//Check all the result highlights for mineralogy matches
@@ -150,7 +154,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		//There are 2 results for 'Contact Us', as 'About Us' has an Us in the title.
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
-			"Page 1 of 1 (2 results found in");
+			"Page 1 of 1  (2 results found in");
 
 		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
 		//the apparently erroneous addition of 1 to the required 2
@@ -184,10 +188,12 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 
+		print_r($response);
+
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
-			"Page 1 of 2 (10 results found in");
+			"Page 1 of 2  (11 results found in");
 
 		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
 		//the apparently erroneous addition of 1 to the required 10
@@ -210,7 +216,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		//FIXME pluralisation probably needs fixed here, change test later acoordingly
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
-			"Page 2 of 2 (1 results found in");
+			"Page 2 of 2  (1 results found in");
 
 		//The classname 'searchResults' appears to be matching the contained 'searchResult', hence
 		//the apparently erroneous addition of 1 to the required 1
