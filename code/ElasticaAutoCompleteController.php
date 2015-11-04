@@ -26,6 +26,7 @@ class ElasticaAutoCompleteController extends Controller {
 		$query = $this->request->getVar('query');
 		$query = trim($query);
 		$classes = $this->request->getVar('classes');
+		$field = $this->request->getVar('field');
 
 		// Makes most sense to only provide one field here, e.g. Title, Name
 		$field = $this->request->getVar('field');
@@ -35,7 +36,7 @@ class ElasticaAutoCompleteController extends Controller {
 		// start, and page length, i.e. pagination
 		$es->setPageLength(10);
 		$es->setClasses($classes);
-		$resultList = $es->autocomplete_search($query, array('Title' => 1));
+		$resultList = $es->autocomplete_search($query, array($field => 1));
 		$result = array();
 		$result['Query'] = $query;
 		$suggestions = array();
