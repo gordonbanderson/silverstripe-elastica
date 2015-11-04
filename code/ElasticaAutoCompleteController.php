@@ -51,7 +51,12 @@ class ElasticaAutoCompleteController extends Controller {
 		}
 
 		$result['suggestions'] = $suggestions;
-		echo json_encode($result);
-		die;
+
+
+		$json = json_encode($result);
+
+		$this->response->addHeader('Content-Type', 'application/json');
+		//$this->response->setBody($json);
+		return $json;
 	}
 }
