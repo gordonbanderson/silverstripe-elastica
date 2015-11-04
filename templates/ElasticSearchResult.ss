@@ -1,5 +1,5 @@
 <div class="searchResult" id="{$ClassName}_$ID">
-<a href="$Link"><h4><% if $SearchHighlightsByField.Title_standard %>asdfsadf <% loop $SearchHighlightsByField.Title_standard %>$Snippet<% end_loop %><% else %>$Title<% end_if %></h4></a>
+<a href="$Link"><h4><% if $SearchHighlightsByField.Title_standard %><% loop $SearchHighlightsByField.Title_standard %>$Snippet<% end_loop %><% else %>$Title<% end_if %></h4></a>
 <% loop $SearchHighlights %>$Snippet &hellip;<% end_loop %>
 
 <div class="searchFooter">
