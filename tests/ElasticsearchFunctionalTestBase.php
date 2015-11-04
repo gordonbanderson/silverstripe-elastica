@@ -112,7 +112,8 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$ctr = 0;
 		foreach ($items as $item) {
 			$text = strip_tags($item);
-			echo "\$this->assertSelectorStartsWithOrEquals('strong.highlight', $ctr, '$text');\n";
+			echo "SELECTED:\$this->assertSelectorStartsWithOrEquals('strong.hl', $ctr, '$text');\n";
+			echo $item;
 			$ctr++;
 		}
 
