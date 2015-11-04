@@ -218,7 +218,7 @@ class ElasticSearcher {
 
 
 	/* Perform an autocomplete search */
-	public function autocomplete_search($q, $fieldsToSearch = null) {
+	public function autocomplete_search($q, $field) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -231,7 +231,8 @@ class ElasticSearcher {
 		$qg = new QueryGenerator();
 		$qg->setQueryText($q);
 
-		$qg->setFields($fieldsToSearch);
+		//only one field but must be array
+		$qg->setFields(array($field));
 		$qg->setClasses($this->classes);
 
 		$qg->setPageLength($this->pageLength);
