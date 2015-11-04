@@ -815,11 +815,6 @@ class Searchable extends \DataExtension {
 
 
     public function updateCMSFields(FieldList $fields) {
-
-		$fields->push( new \TabSet( "Wibble", $mainTab = new \Tab( "asdfsadfda" ) ) );
-		$mainTab->setTitle( _t( 'SiteTree.TABMAINE', "asdfsadfda" ) );
-
-
 		$config = \GridFieldConfig_RecordViewer::create(100);
 
 		// remove add button
