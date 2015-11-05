@@ -152,7 +152,8 @@ class ElasticSearchPage extends Page {
 			HiddenField::create('Autocomplete', 'This can be autocompleted'),
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
-			TextField::create('ManyMany[Weight]', 'Weighting'),
+			NumericField::create('ManyMany[Weight]', 'Weighting'),
+			CheckboxField::create('ShowHighlights', 'Show highlights from search in results for this field'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
 
@@ -187,6 +188,7 @@ class ElasticSearchPage extends Page {
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
+			'ShowHighlights' => 'Show Search Highlights',
 			'Weight' => 'Weighting'
         ));
 
@@ -196,6 +198,11 @@ class ElasticSearchPage extends Page {
 	}
 
 
+	public function getCMSValidator() {
+        return new ElasticSearchPage_Validator();
+    }
+
+
 	/**
 	 * Avoid duplicate identifiers, and check that ClassesToSearch actually exist and are Searchable
 	 * @return DataObject result with or without error
@@ -203,7 +210,6 @@ class ElasticSearchPage extends Page {
 	public function validate() {
 		$result = parent::validate();
 		$mode = Versioned::get_reading_mode();
-
 		$suffix =  '';
 		if ($mode == 'Stage.Live') {
 			$suffix = '_Live';
@@ -215,7 +221,11 @@ class ElasticSearchPage extends Page {
 			$result->error('The identifier '.$this->Identifier.' already exists');
 		}
 
+
+		error_log('CTS:'.$this->ClassesToSearch);
+
 		// now check classes to search actually exist, assuming in site tree not set
+		error_log('STO:'.$this->SiteTreeOnly);
 		if (!$this->SiteTreeOnly) {
 			if ($this->ClassesToSearch == '') {
 				$result->error('At least one searchable class must be available, or SiteTreeOnly flag set');
@@ -225,21 +235,12 @@ class ElasticSearchPage extends Page {
 					try {
 						$instance = Injector::inst()->create($clazz);
 						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
-							print_r($this);
 							$result->error('The class '.$clazz.' must have the Searchable extension');
 						}
 					} catch (ReflectionException $e) {
 						$result->error('The class '.$clazz.' does not exist');
 					}
 				}
-			}
-		}
-
-
-		// now check the searchable fields
-		foreach ($this->ElasticaSearchableFields() as $searchableField) {
-			if ($searchableField->Weight <= 0) {
-				$result->error('Weighting of a searchable field must be a positive integer');
 			}
 		}
 
@@ -578,6 +579,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// now actually perform the search using the original query
 		$paginated = $es->search($q, $fieldsToSearch);
 
+		// This is the case of the original query having a better one suggested.  Do a
+		// second search for the suggested query, throwing away the original
 		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
 			$data['SuggestedQuery'] = $es->getSuggestedQuery();
 			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
