@@ -107,17 +107,20 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	 * @return boolean
 	 */
 	public function assertSelectorStartsWithOrEquals($selector, $index, $expectedPrefix) {
+		echo "\nSELECTOR:$selector\n";
 		$items = $this->cssParser()->getBySelector($selector);
 
 		$ctr = 0;
 		foreach ($items as $item) {
 			$text = strip_tags($item);
-			echo "\$this->assertSelectorStartsWithOrEquals('strong.highlight', $ctr, '$text');\n";
+			//echo "SELECTED:\$this->assertSelectorStartsWithOrEquals('strong.hl', $ctr, '$text');\n";
+			echo "ITEM:".$item."\n";
 			$ctr++;
 		}
 
 		$ctr = 0;
 		$item = strip_tags($items[$index]);
+
 
 		$errorMessage = "Failed to assert that '$item' started with '$expectedPrefix'";
 		$this->assertStringStartsWith($expectedPrefix, $item, $errorMessage);

@@ -235,6 +235,14 @@ class ElasticSearchPage extends Page {
 			}
 		}
 
+
+		// now check the searchable fields
+		foreach ($this->ElasticaSearchableFields() as $searchableField) {
+			if ($searchableField->Weight <= 0) {
+				$result->error('Weighting of a searchable field must be a positive integer');
+			}
+		}
+
 		return $result;
 	}
 
@@ -270,7 +278,13 @@ class ElasticSearchPage extends Page {
 			error_log('NEW FIELD:'.$newSearchableField->Name);
 			$newSearchableField->Active = true;
 			$newSearchableField->Weight = 1;
+
 			$esfs->add($newSearchableField);
+
+			// Note 1 used instead of true for SQLite3 testing compatibility
+			$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
+			$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
+			DB::query($sql);
 		}
 
 		// Mark all the fields for this page as inactive initially

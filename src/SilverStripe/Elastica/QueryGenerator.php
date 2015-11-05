@@ -204,11 +204,15 @@ class QueryGenerator {
 
 	 */
 	public function generateElasticaAutocompleteQuery() {
+
+		$field = array_keys($this->fields[0])[0];
+		print_r($field);
+
 		$data = array(
 			'size' => 10,
 			'query' => array(
 				'match' => array(
-					'Title.autocomplete' => array(
+					$field.'.autocomplete' => array(
 						'query' => $this->queryText,
 						'operator' => 'and'
 					)
