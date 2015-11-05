@@ -150,7 +150,7 @@ class ElasticSearcher {
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
-	 * @param  string $q query string
+	 * @param  string $q query string, e.g. 'New Zealand'
 	 * @param array $fieldsToSearch Mapping of name to an array of mapping Weight and Elastic mapping,
 	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
@@ -164,9 +164,6 @@ class ElasticSearcher {
 				$this->locale = \Translatable::get_current_locale();
 			}
 		}
-
-		// pagination
-
 
 		$qg = new QueryGenerator();
 		$qg->setQueryText($q);
