@@ -348,8 +348,6 @@ class ElasticSearcher {
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
 
-		print_r($query);
-
 		$resultList = new ResultList($elasticService, $query, null);
         // at this point ResultList object, not yet executed search query
 		$paginated = new \PaginatedList(
