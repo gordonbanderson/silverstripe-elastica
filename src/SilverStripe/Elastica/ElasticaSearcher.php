@@ -284,14 +284,56 @@ class ElasticSearcher {
 				'_id' => $indexedItem->ID
 				)
 			),
-			'min_term_freq' => 1,
-			'max_query_terms' => 12,
-			'min_word_length' => 3,
+			// defaults - FIXME, make configurable
+			// ---- term selection params ----
+			'min_term_freq' => 2,
+			'max_query_terms' => 25,
+			'min_doc_freq' => 2,
+			'max_doc_freq' => 0, // unbounded
+			'min_word_length' => 0, // no min
+			'max_word_length' => 0, // unbounded
+
+			// ---- query formation params ----
+			'minimum_should_match' => '5%',
+
+
 			#FIXME configuration
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
 				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were', 'his', 'url','had','not','our','you')
 		);
+
+
+
+		$mlt = array(
+			'fields' => $weightedFieldsArray,
+			'docs' => array(
+				array(
+				'_type' => $indexedItem->ClassName,
+				'_id' => $indexedItem->ID
+				)
+			),
+			// defaults - FIXME, make configurable
+			// see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
+			// ---- term selection params ----
+			'min_term_freq' => 2,
+			'max_query_terms' => 25,
+			'min_word_length' => 3,
+			'min_doc_freq' => 2,
+			//'max_doc_freq' =>  0, // this causes no results to be returned
+			'min_word_length' => 0, // no min
+			'min_word_length' => 0, // no min
+			'max_word_length' => 0, // unbounded
+
+			// ---- query formation params ----
+			'minimum_should_match' => '30%', // see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
+
+			#FIXME configuration
+			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click', 'we', 'us',
+				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
+				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were', 'his', 'url','had','not','our','you')
+		);
+
 
 
         $query = new Query();
@@ -305,6 +347,8 @@ class ElasticSearcher {
 		// pagination
 		$query->setLimit($this->pageLength);
 		$query->setFrom($this->start);
+
+		print_r($query);
 
 		$resultList = new ResultList($elasticService, $query, null);
         // at this point ResultList object, not yet executed search query
