@@ -112,7 +112,6 @@ class ElasticaService {
 	 */
 	public function search($query, $types = '', $debugTerms = false) {
 		$query = Query::create($query); // may be a string
-
 		if (is_string($types)) {
 			$types = explode(',', $types);
 		}
@@ -128,7 +127,8 @@ class ElasticaService {
 		$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
 
-		// If the query is a 'more like this' we can get the terms used for searching
+		// If the query is a 'more like this' we can get the terms used for searching by performing
+		// an extra query, in this case a query validation with explain and rewrite turned on
 		if ($query->MoreLikeThis) {
 			$termsQuery = clone $query;
 			$path = $search->getPath();
@@ -169,7 +169,6 @@ class ElasticaService {
         	foreach($types as $type) {
         		$search->addType($type);
         	}
-
         }
 
         $path = $search->getPath();
@@ -181,18 +180,32 @@ class ElasticaService {
 		$postTags = $highlightsCfg['PostTags'];
 		$fragmentSize = $highlightsCfg['Phrase']['FragmentSize'];
 		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
+		$noMatchSize = $highlightsCfg['Phrase']['NoMatchSize'];
+
+
+
+		$quotedTypes = QueryGenerator::convertToQuotedCSV($types);
+		$filter = array('Type' => 'string', 'ShowHighlights' => true);
+		$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
+
+		$highlightFields = array();
+
+		// FIXME - maybe make these configurable in the CMS?
+		foreach ($stringFields as $name) {
+			$highlightFields[$name.'.standard'] = array(
+				'fragment_size' => $fragmentSize,
+				'number_of_fragments' => $nFragments,
+				'no_match_size'=> 200
+			);
+		}
 
 		$highlights = array(
 			'pre_tags' => array($preTags),
 			'post_tags' => array($postTags),
-			'fields' => array(
-				"*" => json_decode('{}'),
-				'phrase' => array(
-					'fragment_size' => $fragmentSize,
-					'number_of_fragments' => $nFragments,
-				),
-			),
+			'fields' => $highlightFields
 		);
+
+		print_r($highlightFields);
 
 
 		if ($query->MoreLikeThis) {
@@ -224,15 +237,10 @@ class ElasticaService {
 
         $path = $search->getPath();
         $params = $search->getOptions();
-
-
-
 		$searchResults = $search->search($query);
-
 		if (isset($this->MoreLikeThisTerms)) {
 			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
-
 
         return $searchResults;
 	}
