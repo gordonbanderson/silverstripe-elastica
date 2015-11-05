@@ -291,9 +291,7 @@ class ElasticSearchPage extends Page {
 		// Mark all the fields for this page as inactive initially
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
 		$sql .= "ElasticSearchPageID={$this->ID}";
-
 		DB::query($sql);
-
 
 		$activeIDs = array_keys($sfs->map()->toArray());
 		$activeIDs = implode(',', $activeIDs);
@@ -438,7 +436,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-		$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
+		$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
 
 		// calculate time
 		$endTime = microtime(true);
