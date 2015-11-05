@@ -3,5 +3,6 @@ Elastica:
     PreTags: '<strong class="hl">'
     PostTags: '</strong>'
     Phrase:
-      FragmentSize: 200
+      FragmentSize: 100
       NumberOfFragments: 4
+      NoMatchSize: 150
