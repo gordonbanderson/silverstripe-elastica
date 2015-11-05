@@ -205,9 +205,6 @@ class ElasticaService {
 			'fields' => $highlightFields
 		);
 
-		print_r($highlightFields);
-
-
 		if ($query->MoreLikeThis) {
 			$termsMatchingQuery = array();
 			foreach ($this->MoreLikeThisTerms as $field => $terms) {
