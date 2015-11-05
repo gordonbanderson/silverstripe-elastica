@@ -85,9 +85,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 */
 	public function getResults() {
 		if (!isset($this->_cachedResults)) {
-
 			$ers = $this->service->search($this->query,$this->types);
-
 
 			if (isset($ers->MoreLikeThisTerms)) {
 				$this->MoreLikeThisTerms = $ers->MoreLikeThisTerms;
@@ -301,7 +299,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 		}
 
 		// Title and Link are special cases
-		$ignore = array('Title', 'Link');
+		$ignore = array('Title', 'Link', 'Title.standard', 'Link.standard');
 
 		foreach ($found as $item) {
 			// Safeguards against indexed items which might no longer be in the DB
