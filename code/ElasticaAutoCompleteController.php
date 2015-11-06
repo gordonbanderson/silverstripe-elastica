@@ -6,21 +6,10 @@ class ElasticaAutoCompleteController extends Controller {
 		'search' => 'search'
 	);
 
+
 	private static $allowed_actions = array('search');
 
 
-/*
-{
-    // Query is not required as of version 1.2.5
-    "query": "Unit",
-    "suggestions": [
-        { "value": "United Arab Emirates", "data": "AE" },
-        { "value": "United Kingdom",       "data": "UK" },
-        { "value": "United States",        "data": "US" }
-    ]
-}
-
- */
 	public function search() {
 		$es = new ElasticSearcher();
 		$query = $this->request->getVar('query');
