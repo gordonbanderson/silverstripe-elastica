@@ -9,6 +9,13 @@ use SilverStripe\Elastica\ElasticaUtil;
  */
 class ElasticaUtiTest extends SapphireTest {
 
+	public function testHumanReadableFalse() {
+		$this->assertEquals('No', ElasticaUtil::showBooleanHumanReadable(false));
+	}
+
+	public function testHumanReadableTrue() {
+		$this->assertEquals('No', ElasticaUtil::showBooleanHumanReadable(false));
+	}
 
 	public function testPairOfConsecutiveIncorrectWords() {
 		$sa = $this->getSuggestionArray('New Zealind raalway',
