@@ -26,7 +26,7 @@ class AutoCompleteOption extends DataObject {
 	public function requireDefaultRecords() {
 		parent::requireDefaultRecords();
 
-		$similar = AutoCompleteOption::get()->filter('Name','Similar')->first();
+		$similar = AutoCompleteOption::get()->filter('Name', 'Similar')->first();
 		if (!$similar) {
 			$similar = new AutoCompleteOption();
 			$similar->Name = 'Similar';
@@ -36,7 +36,7 @@ class AutoCompleteOption extends DataObject {
 			$similar->write();
 		}
 
-		$search = AutoCompleteOption::get()->filter('Name','Search')->first();
+		$search = AutoCompleteOption::get()->filter('Name', 'Search')->first();
 		if (!$search) {
 			$search = new AutoCompleteOption();
 			$search->Name = 'Search';
@@ -46,7 +46,7 @@ class AutoCompleteOption extends DataObject {
 			$search->write();
 		}
 
-		$goto = AutoCompleteOption::get()->filter('Name','GoToRecord')->first();
+		$goto = AutoCompleteOption::get()->filter('Name', 'GoToRecord')->first();
 		if (!$goto) {
 			$goto = new AutoCompleteOption();
 			$goto->Name = 'GoToRecord';
