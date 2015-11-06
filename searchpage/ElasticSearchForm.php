@@ -18,15 +18,6 @@ class ElasticSearchForm extends Form {
 
 
 	/**
-	 * Set a new list of types (SilverStripe classes) to search for
-	 * @param string $newTypes comma separated list of types to search for
-	 */
-	public function setTypes($newTypes) {
-		$this->types = $newTypes;
-	}
-
-
-	/**
 	 *
 	 * @param Controller $controller
 	 * @param string $name The name of the form (used in URL addressing)
