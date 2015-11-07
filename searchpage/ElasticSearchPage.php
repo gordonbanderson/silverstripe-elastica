@@ -67,6 +67,11 @@ class ElasticSearchPage extends Page {
 	function getCMSFields() {
 		Requirements::javascript('elastica/javascript/elasticaedit.js');
 		$fields = parent::getCMSFields();
+		// ---- search details tab ----
+		$identifierField = new TextField('Identifier',
+			'Identifier to allow this page to be found in form templates');
+		$fields->addFieldToTab('Root.SearchDetails', $identifierField);
+
 
 		$fields->addFieldToTab('Root.SearchDetails', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
 		$fields->addFieldToTab('Root.SearchDetails', new TextField('ClassesToSearch'));
@@ -92,15 +97,12 @@ class ElasticSearchPage extends Page {
 		$fields->addFieldToTab('Root.Main', new HTMLEditorField('ContentForEmptySearch'));
 
 
-
-		$identifierField = new TextField('Identifier',
-			'Identifier to allow this page to be found in form templates');
-		$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
+			$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
 											'The number of results to return on a page'));
 		$fields->addFieldToTab('Root.SearchDetails', new TextField('SearchHelper',
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
-		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
+
 
 
 
@@ -324,10 +326,6 @@ class ElasticSearchPage extends Page {
 		return $this->SearchHelper != null;
 	}
 
-
-	public function getHumanReadableEnableAutoComplete() {
-		return ElasticaUtil::showBooleanHumanReadable($this->EnableAutocomplete);
-	}
 }
 
 
