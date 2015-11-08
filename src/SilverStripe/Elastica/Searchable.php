@@ -632,7 +632,7 @@ class Searchable extends \DataExtension {
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName.'()'] = $rewrite;
 					} else {
-						user_error($methodName.' not found in class '.$this->owner->ClassName.
+						user_error('The method '.$methodName.' not found in class '.$this->owner->ClassName.
 								', please check configuration');
 						die;
 					}
