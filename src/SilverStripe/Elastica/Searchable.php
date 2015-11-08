@@ -623,7 +623,7 @@ class Searchable extends \DataExtension {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) {
-							user_error('The field $searchable_fields must be set for class '.$relClass);
+							user_error('The field $searchable_fields must be set for the class '.$relClass);
 							die;
 						}
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
