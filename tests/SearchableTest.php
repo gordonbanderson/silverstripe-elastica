@@ -284,6 +284,32 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testNoSearchableFieldsConfigured() {
+		$config = Config::inst();
+		$config->remove('FlickrPhotoTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrPhotoTO', $e->getMessage());
+		}
+	}
+
+
+	public function testNoSearchableFieldsConfiguredForRelation() {
+		$config = Config::inst();
+		$config->remove('FlickrTagTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrTagTO', $e->getMessage());
+		}
+	}
+
+
 
 	private function getResultsFor($query, $pageLength = 10) {
 		$es = new ElasticSearcher();
