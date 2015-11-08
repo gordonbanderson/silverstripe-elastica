@@ -297,7 +297,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testNoSearchableFieldsConfiguredForRelation() {
+	public function testNoSearchableFieldsConfiguredForHasManyRelation() {
 		$config = Config::inst();
 		$config->remove('FlickrTagTO', 'searchable_fields');
 		$fp = Injector::inst()->create('FlickrPhotoTO');
@@ -306,6 +306,19 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
 		} catch (Exception $e) {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrTagTO', $e->getMessage());
+		}
+	}
+
+
+	public function testNoSearchableFieldsConfiguredForHasOneRelation() {
+		$config = Config::inst();
+		$config->remove('FlickrAuthorTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrAuthorTO', $e->getMessage());
 		}
 	}
 
