@@ -30,16 +30,22 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	private $types = '';
 
 	/**
+	 * Filters, i.e. selected aggregations, to apply to the search
+	 */
+	private $filters = array();
+
+	/**
 	 * An array list of aggregations from this search
 	 * @var ArrayList
 	 */
 	private $aggregations;
 
 
-	public function __construct(ElasticaService $service, Query $query, $q) {
+	public function __construct(ElasticaService $service, Query $query, $q, $filters) {
 		$this->service = $service;
 		$this->query = $query;
 		$this->originalQueryText = $q;
+		$this->filters = $filters;
 	}
 
 	public function __clone() {
@@ -60,6 +66,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	public function setTypes($newTypes) {
 		$this->types = $newTypes;
 	}
+
 
 	/**
 	 * @return \Elastica\Query
@@ -108,9 +115,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// to be consistent with normal templating conventions
 			$aggs = $ers->getAggregations();
 
-			// store aggregations already selected
-			$selectedAggregations = array();
-
 			// array of index field name to human readable title
 			$indexedFieldTitleMapping = array();
 
@@ -120,12 +124,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 				$manipulator->query = $this->query;
 				$manipulator->updateAggregation($aggs);
 
-				$keys = array_keys($aggs);
-				foreach ($keys as $key) {
-					if(isset($_GET[$key])) {
-						$selectedAggregations[$key] = $_GET[$key];
-					}
-				}
 				$indexedFieldTitleMapping = $manipulator->getIndexFieldTitleMapping();
 			}
 			$aggsTemplate = new \ArrayList();
@@ -150,7 +148,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			}
 
 			// now add the selected facets
-			foreach ($selectedAggregations as $key => $value) {
+			foreach ($this->filters as $key => $value) {
 				if ($prefixAmp) {
 					$baseURL .= '&';
 				} else {
@@ -186,17 +184,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						}
 
 						// check if currently selected
-						if (isset($selectedAggregations[$key])) {
-							//echo " - cf ".$selectedAggregations[$key].' and '.(string)$value['key']."\n";
+						if (isset($this->filters[$key])) {
 
-							if ($selectedAggregations[$key] === (string)$value['key']) {
+							if ($$this->filters[$key] === (string)$value['key']) {
 								//echo "     - Marked as selected \n";
 								$ct->IsSelected = true;
 								// mark this facet as having been selected, so optional toggling
 								// of the display of the facet can be done via the template.
 								$aggDO->IsSelected = true;
 
-								$urlParam = $key.'='.urlencode($selectedAggregations[$key]);
+								$urlParam = $key.'='.urlencode($$this->filters[$key]);
 
 								//echo "    - URL PARAM : $urlParam \n";
 

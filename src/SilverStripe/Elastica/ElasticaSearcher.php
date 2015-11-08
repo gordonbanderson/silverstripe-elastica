@@ -184,7 +184,7 @@ class ElasticSearcher {
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		$resultList = new ResultList($elasticService, $query, $q);
+		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
@@ -242,7 +242,7 @@ class ElasticSearcher {
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 
-		$resultList = new ResultList($elasticService, $query, $q);
+		$resultList = new ResultList($elasticService, $query, $q); // no filters here
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
