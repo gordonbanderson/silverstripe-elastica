@@ -323,6 +323,21 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testSearchableMethodNotExist() {
+		$config = Config::inst();
+		$config->remove('FlickrPhotoTO', 'searchable_relationships');
+		$config->update('FlickrPhotoTO', 'searchable_relationships',array('thisMethodDoesNotExist'));
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed searchable relationship does not exist");
+		} catch (Exception $e) {
+			$this->assertEquals('The method thisMethodDoesNotExist not found in class FlickrPhotoTO, please check configuration',
+				 $e->getMessage());
+		}
+	}
+
+
 
 	private function getResultsFor($query, $pageLength = 10) {
 		$es = new ElasticSearcher();
