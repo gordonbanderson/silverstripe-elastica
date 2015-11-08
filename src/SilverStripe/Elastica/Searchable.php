@@ -610,7 +610,7 @@ class Searchable extends \DataExtension {
 						$relClass = $has_lists[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) {
-							user_error('The field $searchable_fields must be set for class '.$relClass);
+							user_error('The field $searchable_fields must be set for the class '.$relClass);
 							die;
 						}
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
@@ -623,7 +623,7 @@ class Searchable extends \DataExtension {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) {
-							user_error('The field $searchable_fields must be set for class '.$relClass);
+							user_error('The field $searchable_fields must be set for the class '.$relClass);
 							die;
 						}
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
@@ -632,7 +632,7 @@ class Searchable extends \DataExtension {
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName.'()'] = $rewrite;
 					} else {
-						user_error($methodName.' not found in class '.$this->owner->ClassName.
+						user_error('The method '.$methodName.' not found in class '.$this->owner->ClassName.
 								', please check configuration');
 						die;
 					}
@@ -660,27 +660,7 @@ class Searchable extends \DataExtension {
 		$rewrite = array();
 		foreach($fields as $name => $specOrName) {
 			$identifer = (is_int($name)) ? $specOrName : $name;
-
-			if(is_int($name)) {
-				// Format: array('MyFieldName')
-				$rewrite[$identifer] = array();
-			} elseif(is_array($specOrName)) {
-				// Format: array('MyFieldName' => array(
-				//   'filter => 'ExactMatchFilter',
-				//   'field' => 'NumericField', // optional
-				//   'title' => 'My Title', // optiona.
-				// ))
-				$rewrite[$identifer] = array_merge(
-					array('filter' => $objectInContext->relObject($identifer)->
-						stat('default_search_filter_class')),
-					(array)$specOrName
-				);
-			} else {
-				// Format: array('MyFieldName' => 'ExactMatchFilter')
-				$rewrite[$identifer] = array(
-					'filter' => $specOrName,
-				);
-			}
+			$rewrite[$identifer] = array();
 			if(!isset($rewrite[$identifer]['title'])) {
 				$rewrite[$identifer]['title'] = (isset($labels[$identifer]))
 					? $labels[$identifer] : \FormField::name_to_label($identifer);
@@ -814,13 +794,8 @@ class Searchable extends \DataExtension {
 
 
 
-    public function updateCMSFields(FieldList $fields) {
+    public function updateCMSFields(\FieldList $fields) {
 		$config = \GridFieldConfig_RecordViewer::create(100);
-
-		// remove add button
-		$config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
-		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
-
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
             'Term' => 'Term',
             'TTF' => 'Total term frequency (how often a term occurs in all documents)',

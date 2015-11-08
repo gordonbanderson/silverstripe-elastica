@@ -179,6 +179,40 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 		$this->assertEquals($fieldCtr, $nSearchableFields);
 	}
+
+
+
+	public function testGetCMSValidator() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$validator = $searchPage->getCMSValidator();
+		$this->assertEquals('ElasticSearchPage_Validator', get_class($validator));
+	}
+
+
+	public function testValidateClassesToSearchNonExistent() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->ClassesToSearch = 'WibbleWobble'; // does not exist
+		$searchPage->SiteTreeOnly = false;
+		try {
+			$searchPage->write();
+			$this->fail('Test should have failed as WibbleWobble is not a valid class');
+		} catch (ValidationException $e) {
+			$this->assertEquals('The class WibbleWobble does not exist', $e->getMessage());
+		}
+	}
+
+
+	public function testValidateClassesToSearchNotSearchable() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->ClassesToSearch = 'member'; // does not implement Searchable
+		$searchPage->SiteTreeOnly = false;
+		try {
+			$searchPage->write();
+			$this->fail('Test should have failed as WibbleWobble is not a valid class');
+		} catch (ValidationException $e) {
+			$this->assertEquals('The class member must have the Searchable extension', $e->getMessage());
+		}
+	}
 }
 
 

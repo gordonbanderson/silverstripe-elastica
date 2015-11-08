@@ -209,17 +209,20 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['Description'] = 'Test photograph';
 		$expected['TakenAt'] = '2012-04-24 18:12:00';
 		$expected['FirstViewed'] = '2012-04-28';
-		$expected['Aperture'] = 8.0;
+		$expected['Aperture'] = '8';
 
 		//Shutter speed is altered for aggregations
 		$expected['ShutterSpeed'] = '0.01|1/100';
-		$expected['FocalLength35mm'] = 140;
-		$expected['ISO'] = 400;
-		$expected['AspectRatio'] = 1.013;
+		$expected['FocalLength35mm'] = '140';
+		$expected['ISO'] = '400';
+		$expected['AspectRatio'] = '1.013';
 		$expected['Photographer'] = array();
 		$expected['FlickrTagTOs'] = array();
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
+		$expected['location'] = array('lat' => 0, 'lon' => 0);
+
+		print_r($doc);
 
 		$this->assertEquals($expected, $doc);
 	}
@@ -281,6 +284,94 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
+
+
+	public function testGetCMSFields() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fields = $flickrPhoto->getCMSFields();
+
+		$tab = $this->checkTabExists($fields,'ElasticaTerms');
+
+		//Check fields
+
+		$this->fail('Need to fix the REMOVE ME tab');
+	}
+
+
+	public function testNoSearchableFieldsConfigured() {
+		$config = Config::inst();
+		$sf = $config->get('FlickrPhotoTO', 'searchable_fields');
+		$config->remove('FlickrPhotoTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrPhotoTO', $e->getMessage());
+		}
+
+		$config->update('FlickrPhotoTO' ,'searchable_fields', $sf);
+	}
+
+
+	public function testNoSearchableFieldsConfiguredForHasManyRelation() {
+		$config = Config::inst();
+		$sf = $config->get('FlickrTagTO', 'searchable_fields');
+		$config->remove('FlickrTagTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrTagTO', $e->getMessage());
+		}
+
+		$config->update('FlickrTagTO' ,'searchable_fields', $sf);
+
+	}
+
+
+	public function testNoSearchableFieldsConfiguredForHasOneRelation() {
+		$config = Config::inst();
+		$sf = $config->get('FlickrAuthorTO', 'searchable_fields');
+		$config->remove('FlickrAuthorTO', 'searchable_fields');
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
+		} catch (Exception $e) {
+			$this->assertEquals('The field $searchable_fields must be set for the class FlickrAuthorTO', $e->getMessage());
+		}
+
+		$config->update('FlickrAuthorTO' ,'searchable_fields', $sf);
+
+	}
+
+
+	public function testSearchableMethodNotExist() {
+		$config = Config::inst();
+		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
+		$config->remove('FlickrPhotoTO', 'searchable_relationships');
+		$config->update('FlickrPhotoTO', 'searchable_relationships',array('thisMethodDoesNotExist'));
+		$fp = Injector::inst()->create('FlickrPhotoTO');
+		try {
+			$fields = $fp->getAllSearchableFields();
+			$this->fail("getAllSearchableFields should have failed searchable relationship does not exist");
+		} catch (Exception $e) {
+			$this->assertEquals('The method thisMethodDoesNotExist not found in class FlickrPhotoTO, please check configuration',
+				 $e->getMessage());
+		}
+		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
+	}
+
+
+	public function testFieldsToElasticaConfig() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fields = $flickrPhoto->getAllSearchableFields();
+		print_r($fields);
+
 	}
 
 

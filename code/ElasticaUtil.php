@@ -38,16 +38,11 @@ class ElasticaUtil {
 
 
 	public static function getPhraseSuggestion($alternativeQuerySuggestions) {
-		$suggestedPhrase = null;
 		$originalQuery = $alternativeQuerySuggestions[0]['text'];
 
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
-		$lenPreTags = strlen($preTags);
-		$lenPostTags = strlen($postTags);
-
-		$suggestedPhraseCapitalised = array();
 
 		//Use the first suggested phrase
 		$options = $alternativeQuerySuggestions[0]['options'];
@@ -64,13 +59,9 @@ class ElasticaUtil {
 			$suggestedParts = explode(' ', $suggestedPhrase);
 
 			$markedHighlightedParts = ' '.$suggestedPhraseHighlighted.' ';
-			//echo "T1 *$markedHighlightedParts*, pretags = *$preTags*\n";
 			$markedHighlightedParts = str_replace(' '.$preTags, ' '.self::$pre_marker, $markedHighlightedParts);
-			//echo "T2 *$markedHighlightedParts*, postTags = *$postTags*\n";
 
-			//echo "T2a Replacing *$postTags* with ".self::$post_marker." in *$markedHighlightedParts*\n";
 			$markedHighlightedParts = str_replace($postTags.' ', self::$post_marker, $markedHighlightedParts);
-			//echo "T3 *$markedHighlightedParts*\n";
 
 			$markedHighlightedParts = trim($markedHighlightedParts);
 			$markedHighlightedParts = trim($markedHighlightedParts);
@@ -125,11 +116,8 @@ class ElasticaUtil {
 			}
 
 			$highlighted = ' '.implode(' ', $highlighted).' ';
-			//echo "T1 $highlighted\n";
 			$highlighted = str_replace(self::$pre_marker, ' '.$preTags, $highlighted);
-			//echo "T2 $highlighted\n";
 			$highlighted = str_replace(self::$post_marker, $postTags.' ', $highlighted);
-			//echo "T3 $highlighted\n";
 
 			$resultArray['suggestedQuery'] = implode(' ', $plain);
 			$resultArray['suggestedQueryHighlighted'] = trim($highlighted);
