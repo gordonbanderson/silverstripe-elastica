@@ -262,6 +262,39 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testDeleteNonExistentDoc() {
+		/*
+		$fp = new FlickrPhotoTO();
+		$fp->Title = 'Test Deletion';
+		$fp->IndexingOff = true; // do no index this
+		$fp->write();
+		$fp->IndexingOff = false;
+		$this->assertFalse($fp->IndexingOff);
+		try {
+			$fp->delete();
+			$this->fail('Deletion of non indexed DataObject should have failed');
+		} catch (Exception $e) {
+			$this->assertEquals('Doc of id 2 not found and can not be deleted', $e->getMessage());
+		}
+		*/
+
+	$fp = new FlickrPhotoTO();
+		$fp->Title = 'Test Deletion';
+		$fp->IndexingOff = true; // do no index this
+		$fp->write();
+		$fp->IndexingOff = false;
+
+		try {
+			$fp->delete();
+		} catch (Elastica\Exception\NotFoundException $e) {
+			echo "WOOOOOOOOOOOOOOOOOOOT";
+			$this->assertEquals('', $e->getMessage());
+		}
+
+	}
+
+
+
 	/*
 	getFieldValuesAsArray - needs html
 	onBeforePublish
