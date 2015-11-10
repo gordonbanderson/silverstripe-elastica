@@ -131,10 +131,11 @@ class ElasticSearchPage extends Page {
 
 		$sortedWords = explode(',', $this->SimilarityStopWords);
 		sort($sortedWords);
+
 		$stopwordsField = StringTagField::create(
 		    'SimilarityStopWords',
 		    'Stop Words for Similar Search',
-		    explode(',', $this->SimilarityStopWords),
+		    $sortedWords,
 		    $sortedWords
 		);
 
