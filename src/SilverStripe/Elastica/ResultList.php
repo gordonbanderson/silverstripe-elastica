@@ -41,7 +41,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	private $aggregations;
 
 
-	public function __construct(ElasticaService $service, Query $query, $q, $filters) {
+	public function __construct(ElasticaService $service, Query $query, $q, $filters = array()) {
 		$this->service = $service;
 		$this->query = $query;
 		$this->originalQueryText = $q;
