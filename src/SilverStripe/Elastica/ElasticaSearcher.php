@@ -80,6 +80,8 @@ class ElasticSearcher {
 
 	private $minShouldMatch = '30%';
 
+	private $similarityStopWords = '';
+
 
 	/*
 	Show results for an empty search string
@@ -211,6 +213,10 @@ class ElasticSearcher {
 	 */
 	public function setMinShouldMatch($newMinShouldMatch) {
 		$this->minShouldMatch = $newMinShouldMatch;
+	}
+
+	public function setSimilarityStopWords($newSimilarityStopWords) {
+		$this->similarityStopWords = $newSimilarityStopWords;
 	}
 
 
@@ -368,9 +374,7 @@ class ElasticSearcher {
 			'minimum_should_match' => $this->minShouldMatch,
 
 			#FIXME configuration
-			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click', 'we', 'us',
-				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
-				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were', 'his', 'url','had','not','our','you')
+			'stop_words' => explode(',', $this->similarityStopWords)
 		);
 
 		if ($this->maxDocFreq > 0) {
