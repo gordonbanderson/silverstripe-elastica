@@ -154,7 +154,7 @@ class ElasticSearchPage extends Page {
 
 
 		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
-		$fields->addFieldToTab('Root.Search.SearchFor', new TextField('ClassesToSearch'));
+
 		$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
 			 . "SELECT DISTINCT ClassName from SiteTree "
 			 . "WHERE ClassName != 'ErrorPage'"
@@ -167,6 +167,16 @@ class ElasticSearchPage extends Page {
 			array_push($classes, $record['ClassName']);
 		}
 		$list = implode(',', $classes);
+		$classesToSearchField = StringTagField::create(
+		    'ClassesToSearch',
+		    'Choose which SilverStripe classes to search',
+		     explode(',', $list),
+		    explode(',', $this->ClassesToSearch)
+		);
+
+		$fields->addFieldToTab('Root.Search.SearchFor', $classesToSearchField);
+
+
 		$html = '<div class="field text" id="SiteTreeOnlyInfo">';
 		$html .= "<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p>";
 		$html .= '<p class="message">'.$list;
