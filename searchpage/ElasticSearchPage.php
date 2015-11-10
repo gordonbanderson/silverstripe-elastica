@@ -21,12 +21,20 @@ use \SilverStripe\Elastica\ElasticaUtil;
 
 
 class ElasticSearchPage extends Page {
-	static $defaults = array(
+	private static $defaults = array(
 		'ShowInMenus' => 0,
 		'ShowInSearch' => 0,
 		'ClassesToSearch' => '',
 		'ResultsPerPage' => 10,
-		'SiteTreeOnly' => true
+		'SiteTreeOnly' => true,
+		'MinTermFreq' => 2,
+		'MaxTermFreq' => 25,
+		'MinWordLength' => 3,
+		'MinDocFreq' => 2,
+		'MaxDocFreq' => 0,
+		'MinWordLength' => 0,
+		'MaxWordLength' => 0,
+		'MinShouldMatch' => '30%'
 	);
 
 	private static $db = array(
@@ -37,7 +45,15 @@ class ElasticSearchPage extends Page {
 		'ResultsPerPage' => 'Int',
 		'SearchHelper' => 'Varchar',
 		'SiteTreeOnly' => 'Boolean',
-		'ContentForEmptySearch' => 'HTMLText'
+		'ContentForEmptySearch' => 'HTMLText',
+		'MinTermFreq' => 'Int',
+		'MaxTermFreq' => 'Int',
+		'MinWordLength' => 'Int',
+		'MinDocFreq' => 'Int',
+		'MaxDocFreq' => 'Int',
+		'MinWordLength' => 'Int',
+		'MaxWordLength' => 'Int',
+		'MinShouldMatch' => 'Varchar'
 	);
 
 	private static $many_many = array(
@@ -67,14 +83,61 @@ class ElasticSearchPage extends Page {
 	function getCMSFields() {
 		Requirements::javascript('elastica/javascript/elasticaedit.js');
 		$fields = parent::getCMSFields();
+
+
+		$fields->addFieldToTab("Root", new TabSet('Search',
+			new Tab('SearchFor'),
+			new Tab('Identifier'),
+			new Tab('Fields'),
+			new Tab('AutoComplete'),
+			new Tab('Aggregations'),
+			new Tab('Similarity')
+		));
+
+		// ---- similarity tab ----
+		$html = '<button class="ui-button-text-alternate ui-button-text"
+		id="MoreLikeThisDefaultsButton"
+		style="display: block;float: right;">Restore Defaults</button>';
+		$defaultsButton = new LiteralField('DefaultsButton', $html);
+				$fields->addFieldToTab("Root.Search.Similarity", $defaultsButton);
+
+		$lf = new LiteralField('SimilarityNotes', _t('Elastica.SIMILARITY_NOTES',
+			'Default values are those used by Elastica'));
+		$fields->addFieldToTab("Root.Search.Similarity", $lf);
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinTermFreq',
+			'The minimum term frequency below which the terms will be ignored from the input '.
+			'document. Defaults to 2.'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxTermFreq',
+			'The maximum number of query terms that will be selected. Increasing this value gives '.
+			'greater accuracy at the expense of query execution speed. Defaults to 25.'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinWordLength',
+			'The minimum word length below which the terms will be ignored.  Defaults to 0.'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinDocFreq',
+			'The minimum document frequency below which the terms will be ignored from the input '.
+			'document. Defaults to 5.'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxDocFreq',
+			'The maximum document frequency above which the terms will be ignored from the input '.
+			'document. This could be useful in order to ignore highly frequent words such as stop '.
+			'words. Defaults to unbounded (0).'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinWordLength',
+			'The minimum word length below which the terms will be ignored. The old name min_'.
+			'word_len is deprecated. Defaults to 0.'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxWordLength',
+			'The maximum word length above which the terms will be ignored. The old name max_word_'.
+			'len is deprecated. Defaults to unbounded (0).'));
+		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinShouldMatch',
+			'This parameter controls the number of terms that must match. This can be either a '.
+			'number or a percentage.  See '.
+			'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html'));
+
 		// ---- search details tab ----
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
-		$fields->addFieldToTab('Root.SearchDetails', $identifierField);
+		$fields->addFieldToTab('Root.Search.Identifier', $identifierField);
 
 
-		$fields->addFieldToTab('Root.SearchDetails', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
-		$fields->addFieldToTab('Root.SearchDetails', new TextField('ClassesToSearch'));
+		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
+		$fields->addFieldToTab('Root.Search.SearchFor', new TextField('ClassesToSearch'));
 		$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
 			 . "SELECT DISTINCT ClassName from SiteTree "
 			 . "WHERE ClassName != 'ErrorPage'"
@@ -92,14 +155,14 @@ class ElasticSearchPage extends Page {
 		$html .= '<p class="message">'.$list;
 		$html .= "</p></div>";
 		$infoField = new LiteralField('InfoField',$html);
-		$fields->addFieldToTab('Root.SearchDetails', $infoField);
+		$fields->addFieldToTab('Root.Search.SearchFor', $infoField);
 
 		$fields->addFieldToTab('Root.Main', new HTMLEditorField('ContentForEmptySearch'));
 
 
-			$fields->addFieldToTab('Root.SearchDetails', new NumericField('ResultsPerPage',
+			$fields->addFieldToTab('Root.Search.SearchFor', new NumericField('ResultsPerPage',
 											'The number of results to return on a page'));
-		$fields->addFieldToTab('Root.SearchDetails', new TextField('SearchHelper',
+		$fields->addFieldToTab('Root.Search.Aggregations', new TextField('SearchHelper',
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
 
@@ -121,7 +184,7 @@ class ElasticSearchPage extends Page {
         //$fieldSet = new \FieldSet($df);
         //$fields->addFieldToTab('Root.SearchDetails', $fieldSet);
 
-		$fields->addFieldToTab("Root.SearchDetails",
+		$fields->addFieldToTab("Root.Search.AutoComplete",
 		  		FieldGroup::create(
 		  			$autoCompleteFieldDF,
 		 			$df
@@ -131,11 +194,11 @@ class ElasticSearchPage extends Page {
         		//$searchTabName = 'Root.'._t('SiteConfig.ELASTICA', 'Search');
 		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
 				"Select a field to edit it's properties").'</p>';
-		$fields->addFieldToTab('Root.SearchDetails', $h1=new LiteralField('SearchInfo', $html));
+		$fields->addFieldToTab('Root.Search.Fields', $h1=new LiteralField('SearchInfo', $html));
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
 			$this->ElasticaSearchableFields()->filter('Active', 1)->sort('Name')); //, 'Select Owner(s)', 'SortOrder');
 
-		$fields->addFieldToTab('Root.SearchDetails', $searchPicker);
+		$fields->addFieldToTab('Root.Search.Fields', $searchPicker);
 
 		$pickerConfig = $searchPicker->getConfig();
 
