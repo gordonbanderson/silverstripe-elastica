@@ -572,34 +572,46 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
-		// now actually perform the search using the original query
-		$paginated = $es->search($q, $fieldsToSearch);
+		$paginated = null;
+		try {
+			// now actually perform the search using the original query
+			$paginated = $es->search($q, $fieldsToSearch);
 
-		// This is the case of the original query having a better one suggested.  Do a
-		// second search for the suggested query, throwing away the original
-		if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
-			$data['SuggestedQuery'] = $es->getSuggestedQuery();
-			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
-			//Link for if the user really wants to try their original query
-			$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
-			$data['SearchInsteadForLink'] = $sifLink;
-			$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
+			// This is the case of the original query having a better one suggested.  Do a
+			// second search for the suggested query, throwing away the original
+			if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
+				$data['SuggestedQuery'] = $es->getSuggestedQuery();
+				$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
+				//Link for if the user really wants to try their original query
+				$sifLink = rtrim($this->Link(),'/').'?q='.$q.'&is=1';
+				$data['SearchInsteadForLink'] = $sifLink;
+				$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
+			}
+
+			// calculate time
+			$endTime = microtime(true);
+			$elapsed = round(100*($endTime-$startTime))/100;
+
+			// store variables for the template to use
+			$data['ElapsedTime'] = $elapsed;
+			$this->Aggregations = $es->getAggregations();
+			$data['SearchResults'] = $paginated;
+			$data['SearchPerformed'] = true;
+			$data['NumberOfResults'] = $paginated->getTotalItems();
+
+		} catch (Elastica\Exception\Connection\HttpException $e) {
+			$data['ErrorMessage'] = 'Unable to connect to search server';
+			$data['SearchPerformed'] = false;
 		}
 
-		// calculate time
-		$endTime = microtime(true);
-		$elapsed = round(100*($endTime-$startTime))/100;
-
-		// store variables for the template to use
-		$data['ElapsedTime'] = $elapsed;
-		$this->Aggregations = $es->getAggregations();
-		$data['SearchResults'] = $paginated;
-		$data['Elapsed'] = $elapsed;
-		$data['SearchPerformed'] = true;
-		$data['NumberOfResults'] = $paginated->getTotalItems();
 		$data['OriginalQuery'] = $q;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
+
+
+
+
+
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
