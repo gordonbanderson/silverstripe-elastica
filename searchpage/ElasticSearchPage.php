@@ -191,10 +191,12 @@ class ElasticSearchPage extends Page {
 			array_push($classes, $record['ClassName']);
 		}
 		$list = implode(',', $classes);
+
+		$allSearchableClasses = SearchableClass::get()->sort('Name')->map('Name')->toArray();
 		$classesToSearchField = StringTagField::create(
 		    'ClassesToSearch',
 		    'Choose which SilverStripe classes to search',
-		     explode(',', $list),
+		     $allSearchableClasses,
 		    explode(',', $this->ClassesToSearch)
 		);
 
