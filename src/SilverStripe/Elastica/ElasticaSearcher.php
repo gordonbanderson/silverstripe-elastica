@@ -66,19 +66,19 @@ class ElasticSearcher {
 
 
 	// ---- variables for more like this searching, defaults as per Elasticsearch ----
-	private static $minTermFreq = 2;
+	private $minTermFreq = 2;
 
-	private static $maxTermFreq = 25;
+	private $maxTermFreq = 25;
 
-	private static $minDocFreq = 2;
+	private $minDocFreq = 2;
 
-	private static $maxDocFreq = 0;
+	private $maxDocFreq = 0;
 
-	private static $minWordLength = 0;
+	private $minWordLength = 0;
 
-	private static $maxWordLength = 0;
+	private $maxWordLength = 0;
 
-	private static $minShouldMatch = '30%';
+	private $minShouldMatch = '30%';
 
 
 	/*
