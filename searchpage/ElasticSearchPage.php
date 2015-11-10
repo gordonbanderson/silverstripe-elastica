@@ -442,6 +442,16 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setPageLength($ep->ResultsPerPage);
 
 
+		$es->setMinTermFreq($this->MinTermFreq);
+		$es->setMaxTermFreq($this->MaxTermFreq);
+		$es->setMinDocFreq($this->MinDocFreq);
+		$es->setMaxDocFreq($this->MaxDocFreq);
+		$es->setMinWordLength($this->MinWordLength);
+		$es->setMaxWordLength($this->MaxWordLength);
+		$es->setMinShouldMatch($this->MinShouldMatch);
+
+
+
 		//May not work
 		// filters for aggregations
 		$ignore = array('url', 'start','q','is');
