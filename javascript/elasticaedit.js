@@ -30,8 +30,8 @@
 
 		$('#MoreLikeThisDefaultsButton').entwine({
 			onclick: function(e) {
-				$('#Form_EditForm_MaxTermFreq').val(25);
 				$('#Form_EditForm_MinTermFreq').val(2);
+				$('#Form_EditForm_MaxTermFreq').val(25);
 				$('#Form_EditForm_MinDocFreq').val(2);
 				$('#Form_EditForm_MaxDocFreq').val(0);
 				$('#Form_EditForm_MinWordLength').val(0);
@@ -40,6 +40,8 @@
 
 			}
 		});
+
+		//
 
 		// this is run first time only, to prime the form
 		enableOrDisableSiteTreeList();
