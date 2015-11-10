@@ -532,11 +532,7 @@ class Searchable extends \DataExtension {
 	 * Removes the record from the search index (non-SiteTree).
 	 */
 	public function onAfterDelete() {
-		if (!($this->owner instanceof \SiteTree)) {
-			$this->doDeleteDocumentIfInSearch();
-		} else {
-			$this->doDeleteDocumentIfInSearch();
-		}
+		$this->doDeleteDocumentIfInSearch();
 	}
 
 
@@ -567,8 +563,15 @@ class Searchable extends \DataExtension {
 				$this->service->remove($this->owner);
 			}
 
+			echo "doDeleteDocument T1\n";
+
+			echo "Last error\n";
+			var_dump(error_get_last());
+
 		}
-		catch(NotFoundException $e) {
+		catch(Elastica\Exception\NotFoundException $e) {
+						echo "doDeleteDocument T2\n";
+
 			trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
 		}
 
@@ -587,7 +590,6 @@ class Searchable extends \DataExtension {
 		// fallback to default method
 		if(!$fields) {
 			user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
-			die;
 		}
 
 		// get the values of these fields
@@ -611,7 +613,6 @@ class Searchable extends \DataExtension {
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) {
 							user_error('The field $searchable_fields must be set for the class '.$relClass);
-							die;
 						}
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
 
@@ -624,7 +625,6 @@ class Searchable extends \DataExtension {
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) {
 							user_error('The field $searchable_fields must be set for the class '.$relClass);
-							die;
 						}
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
 						$classname = $has_ones[$methodName];
@@ -634,7 +634,6 @@ class Searchable extends \DataExtension {
 					} else {
 						user_error('The method '.$methodName.' not found in class '.$this->owner->ClassName.
 								', please check configuration');
-						die;
 					}
 				}
 			}
