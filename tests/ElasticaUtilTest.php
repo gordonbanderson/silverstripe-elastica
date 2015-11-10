@@ -142,6 +142,14 @@ class ElasticaUtiTest extends SapphireTest {
 	}
 
 
+	public function testParseExplanationBracketsShowing() {
+		$explanation = '(Description.standard:bay Description.standard:tram Description.standard:manners) -ConstantScore(_uid:FlickrPhoto#4645)';
+		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+		$expected = array('Description.standard' => array('bay', 'tram', 'manners'));
+		$this->assertEquals($expected, $terms);
+	}
+
+
 	/**
 	 * Simulate a call to Elastica to get suggestions for a given phrase
 	 * @return [type] [description]
