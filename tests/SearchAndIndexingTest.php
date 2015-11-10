@@ -334,6 +334,35 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	}
 
 
+
+
+	public function testResultListToArray() {
+		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO')); //, 'Type' => 'string'));
+		foreach ($sfs->getIterator() as $sf) {
+			echo "T1 $sf->ClazzName $sf->Name $sf->Type\n";
+		}
+
+		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
+		foreach ($sfs->getIterator() as $sf) {
+			echo "T2 $sf->ClazzName $sf->Name $sf->Type\n";
+			$sf->ShowHighlights = true;
+			$sf->write();
+		}
+
+		$fields = array('Title' => 1, 'Description' => 1);
+		$resultList = $this->getResultsFor('New Zealand', 10, $fields);
+		echo get_class($resultList);
+
+		$toarr = $resultList->toArray();
+
+		foreach ($toarr as $item) {
+			$hl = $item->SearchHighlights;
+			echo "HL:$hl"; // MORNING FIXME
+		}
+
+
+	}
+
 	public function testResultListFirstNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
@@ -424,18 +453,16 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		*/
 
 		$this->assertEquals($resultsExpected, $results->count());
-
 		return $results->count();
 	}
 
 
-	private function getResultsFor($query, $pageLength = 10) {
+	private function getResultsFor($query, $pageLength = 10, $fields = array('Title' => 1, 'Description' => 1)) {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength($pageLength);
 		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $es->search($query, $fields)->getList();
 		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));
 		return $resultList;
