@@ -135,6 +135,7 @@ class ElasticaUtil {
 	 *     Content.standard:soldier Content.standard:brigade Content.standard:zealand
 	 *     Content.standard:new)~3)
 	 *     -ConstantScore(_uid:GutenbergBookExtract#1519)
+	 *  (Description: bay Description: mannerstram)
 	 *
 	 * @param  string $explanation explanation string for more like this terms from Elasticsearch
 	 * @return array             Array of fieldnames mapped to terms
@@ -147,8 +148,9 @@ class ElasticaUtil {
 
         if (substr($explanation, 0,2) == '((') {
         	$explanation = substr($explanation, 2, $bracketPos-2);
+        } elseif (substr($explanation, 0,1) == '(') {
+        	$explanation = substr($explanation, 1, $bracketPos-2);
         }
-
 
        	$terms = array();
 
