@@ -190,7 +190,6 @@ class ElasticaService {
 
 		$highlightFields = array();
 
-		// FIXME - maybe make these configurable in the CMS?
 		foreach ($stringFields as $name) {
 			$highlightFields[$name.'.standard'] = array(
 				'fragment_size' => $fragmentSize,
