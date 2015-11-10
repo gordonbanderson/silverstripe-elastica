@@ -65,6 +65,22 @@ class ElasticSearcher {
 	private $showResultsForEmptySearch = false;
 
 
+	// ---- variables for more like this searching, defaults as per Elasticsearch ----
+	private static $minTermFreq = 2;
+
+	private static $maxTermFreq = 25;
+
+	private static $minDocFreq = 2;
+
+	private static $maxDocFreq = 0;
+
+	private static $minWordLength = 0;
+
+	private static $maxWordLength = 0;
+
+	private static $minShouldMatch = '30%';
+
+
 	/*
 	Show results for an empty search string
 	 */
@@ -145,6 +161,58 @@ class ElasticSearcher {
 	public function getAggregations() {
 		return $this->aggregations;
 	}
+
+	/**
+	 * Set the minimum term frequency for term to be considered in input query
+	 */
+	public function setMinTermFreq($newMinTermFreq) {
+		$this->minTermFreq = $newMinTermFreq;
+	}
+
+	/**
+	 * Set the maximum term frequency for term to be considered in input query
+	 */
+	public function setMaxTermFreq($newMaxTermFreq) {
+		$this->maxTermFreq = $newMaxTermFreq;
+	}
+
+	/**
+	 * Set the minimum number of documents a term can reside in for consideration as
+	 * part of the input query
+	 */
+	public function setMinDocFreq($newMinDocFreq) {
+		$this->minDocFreq = $newMinDocFreq;
+	}
+
+	/**
+	 * Set the maximum number of documents a term can reside in for consideration as
+	 * part of the input query
+	 */
+	public function setMaxDocFreq($newMaxDocFreq) {
+		$this->maxDocFreq = $newMaxDocFreq;
+	}
+
+	/**
+	 * Set the minimum word length for a term to be considered part of the query
+	 */
+	public function setMinWordLength($newMinWordLength) {
+		$this->minWordLength = $newMinWordLength;
+	}
+
+	/**
+	 * Set the maximum word length for a term to be considered part of the query
+	 */
+	public function setMaxWordLength($newMaxWordLength) {
+		$this->maxWordLength = $newMaxWordLength;
+	}
+
+	/*
+	Number or percentage of chosen terms that match
+	 */
+	public function setMinShouldMatch($newMinShouldMatch) {
+		$this->minShouldMatch = $newMinShouldMatch;
+	}
+
 
 
 	/**
@@ -287,23 +355,27 @@ class ElasticSearcher {
 			// defaults - FIXME, make configurable
 			// see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-mlt-query.html
 			// ---- term selection params ----
-			'min_term_freq' => 2,
-			'max_query_terms' => 25,
-			'min_word_length' => 3,
-			'min_doc_freq' => 2,
+			'min_term_freq' => $this->minTermFreq,
+			'max_query_terms' => $this->maxTermFreq,
+			'min_doc_freq' => $this->minDocFreq,
 			//'max_doc_freq' =>  0, // this causes no results to be returned
-			'min_word_length' => 0, // no min
-			'min_word_length' => 0, // no min
-			'max_word_length' => 0, // unbounded
+			'min_word_length' => $this->minWordLength,
+			'max_word_length' => $this->maxWordLength,
+			'max_word_length' => $this->minWordLength,
 
 			// ---- query formation params ----
-			'minimum_should_match' => '30%', // see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
+			// see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
+			'minimum_should_match' => $this->minShouldMatch,
 
 			#FIXME configuration
 			'stop_words' => array('ca','about', 'le','du','ou','bc','archives', 'website', 'click', 'we', 'us',
 				'web','file', 'descriptive', 'taken', 'copyright', 'collection', 'from', 'image',
 				'page', 'which', 'etc', 'news', 'service', 'publisher','did','were', 'his', 'url','had','not','our','you')
 		);
+
+		if ($this->maxDocFreq > 0) {
+			$mlt['max_doc_freq'] = $this->maxDocFreq;
+		}
 
 
 
