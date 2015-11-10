@@ -32,7 +32,12 @@ class ElasticSearchPage_Validator extends RequiredFields {
 					'error'
 				);
 			} else {
-				$toSearch = explode(',', $data['ClassesToSearch']);
+				$toSearch = $data['ClassesToSearch'];
+
+				//Comes back from tag field as an array
+				if (!is_array($toSearch)) {
+					$toSearch = explode(',', $data['ClassesToSearch']);
+				}
 				foreach ($toSearch as $clazz) {
 					try {
 						$instance = Injector::inst()->create($clazz);
