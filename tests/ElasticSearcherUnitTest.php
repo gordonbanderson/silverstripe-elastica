@@ -14,6 +14,22 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		parent::tearDown();
 	}
 
+
+	public function testSuggested() {
+		$es = new ElasticSearcher();
+		$locale = \i18n::default_locale();
+		$es->setLocale($locale);
+		$es->setClasses('FlickrPhoto');
+
+		//FIXME when awake
+
+		// This doesn't work, possibly a bug $fields = array('Description.standard' => 1,'Title.standard' => 1);
+		$fields = array('Description' => 1,'Title' => 1);
+		$results = $es->search('New Zealind', $fields);
+
+		$this->assertEquals(array(), $es->getSuggestedQuery());
+	}
+
 	public function testResultsForEmptySearch() {
 		$es = new ElasticSearcher();
 
