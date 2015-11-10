@@ -78,6 +78,30 @@ class ElasticSearchPage extends Page {
   	);
 
 
+	/**
+	* When a page is created, use the index stopwords as a default for similar search
+	* FIXME - this is not working as expected
+	*/
+	public function populateDefaultsNOT() {
+		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$elasticService->setLocale($this->Locale);
+
+		//FIXME - double check what is going on here, populateDefaults being called for a
+		//new instance of ElasticSearchPage at some point?
+		try {
+			$indexSettings = $elasticService->getIndexSettingsForCurrentLocale();
+			$this->SimilarityStopWords = $indexSettings->getStopWords();
+		} catch (Exception $e) {
+			//echo "Cant populate defaults - why?";
+		}
+
+		parent::populateDefaults();
+	}
+
+
+
+
+
 	/*
 	Add a tab with details of what to search
 	 */
