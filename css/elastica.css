@@ -61,6 +61,23 @@ article form#ElasticSearchForm_SearchForm  .Actions {
 }
 
 
+div.message {
+	border-left: solid #AAA 1px;
+	border-top: solid #AAA 1px;
+	border-bottom: solid #666 1px;
+	border-right: solid #666 1px;
+	display: block;
+	clear: both;
+	padding: 0.5em;
+	font-weight: bold;
+}
+
+div.message.error {
+	background: red;
+	color: #FFF;
+}
+
+
 
 .aggregationMenu h3 {
 	padding-top: 1em;

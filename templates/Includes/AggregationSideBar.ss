@@ -11,7 +11,7 @@
 			<% end_with %>
 		</nav>
 	<% end_if %>
-
+	<% if SearchPerformed %>
 	<nav class="secondary aggregationMenu">
 		<h3>Aggregations</h3>
 		<ul class="aggregations">
@@ -36,5 +36,6 @@
 		<% end_loop %>
 		</ul>
 	</nav>
+	<% end_if %>
 </aside>
 
