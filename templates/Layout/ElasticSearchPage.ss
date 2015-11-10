@@ -7,6 +7,8 @@
 		<% include SimilarSearchDetails %>
 		$SearchForm
 
+		<% if $ErrorMessage %><div class="message error">$ErrorMessage</div> <% end_if %>
+
 		<% if $SearchPerformed %>
 		<% include ElasticResults %>
 		<% end_if %>
