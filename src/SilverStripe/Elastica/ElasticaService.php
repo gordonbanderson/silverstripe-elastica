@@ -94,6 +94,9 @@ class ElasticaService {
 
 	public function setLocale($newLocale) {
 		$this->locale = $newLocale;
+
+		echo "ES: locale = ".$this->locale;
+
 	}
 
 	private function getLocaleIndexName() {
@@ -536,18 +539,28 @@ class ElasticaService {
 
 
 	private function createIndex() {
-		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
-
 		$index = $this->getIndex();
+		$settings = $this->getIndexSettingsForCurrentLocale()->generateConfig();
+		$index->create($settings, true);
+	}
+
+
+	/**
+	 * Get the index settings for the current locale
+	 * @return IndexSettings index settings for the current locale
+	 */
+	public function getIndexSettingsForCurrentLocale() {
+		$result = null;
+		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 		if (isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
 			$settingsInstance = \Injector::inst()->create($settingsClassName);
-			$settings = $settingsInstance->generateConfig();
-			$index->create($settings, true);
+			$result = $settingsInstance->generateConfig();
 		} else {
 			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
 
 		}
+		return $result;
 	}
 
 
