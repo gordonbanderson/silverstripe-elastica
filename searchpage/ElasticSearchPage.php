@@ -53,7 +53,8 @@ class ElasticSearchPage extends Page {
 		'MaxDocFreq' => 'Int',
 		'MinWordLength' => 'Int',
 		'MaxWordLength' => 'Int',
-		'MinShouldMatch' => 'Varchar'
+		'MinShouldMatch' => 'Varchar',
+		'SimilarityStopWords' => 'Text'
 	);
 
 	private static $many_many = array(
@@ -94,12 +95,28 @@ class ElasticSearchPage extends Page {
 			new Tab('Similarity')
 		));
 
+
+
+
 		// ---- similarity tab ----
 		$html = '<button class="ui-button-text-alternate ui-button-text"
 		id="MoreLikeThisDefaultsButton"
 		style="display: block;float: right;">Restore Defaults</button>';
 		$defaultsButton = new LiteralField('DefaultsButton', $html);
 				$fields->addFieldToTab("Root.Search.Similarity", $defaultsButton);
+
+		$stopwordsField = StringTagField::create(
+		    'SimilarityStopWords',
+		    'Stop Words for Similar Search',
+		     explode(',', $this->SimilarityStopWords),
+		    explode(',', $this->SimilarityStopWords)
+		);
+
+		//	public function __construct($name, $title = '', $source = array(), $value = array()) {
+
+		$stopwordsField->setShouldLazyLoad(true); // tags should be lazy loaded
+
+		$fields->addFieldToTab("Root.Search.Similarity", $stopwordsField);
 
 		$lf = new LiteralField('SimilarityNotes', _t('Elastica.SIMILARITY_NOTES',
 			'Default values are those used by Elastica'));
@@ -160,7 +177,7 @@ class ElasticSearchPage extends Page {
 		$fields->addFieldToTab('Root.Main', new HTMLEditorField('ContentForEmptySearch'));
 
 
-			$fields->addFieldToTab('Root.Search.SearchFor', new NumericField('ResultsPerPage',
+		$fields->addFieldToTab('Root.Search.SearchFor', new NumericField('ResultsPerPage',
 											'The number of results to return on a page'));
 		$fields->addFieldToTab('Root.Search.Aggregations', new TextField('SearchHelper',
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
@@ -449,6 +466,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setMinWordLength($this->MinWordLength);
 		$es->setMaxWordLength($this->MaxWordLength);
 		$es->setMinShouldMatch($this->MinShouldMatch);
+
+		$es->setSimilarityStopWords($this->SimilarityStopWords);
 
 
 
