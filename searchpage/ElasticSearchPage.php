@@ -129,11 +129,14 @@ class ElasticSearchPage extends Page {
 		$defaultsButton = new LiteralField('DefaultsButton', $html);
 				$fields->addFieldToTab("Root.Search.Similarity", $defaultsButton);
 
+		$sortedWords = explode(',', $this->SimilarityStopWords);
+		sort($sortedWords);
+
 		$stopwordsField = StringTagField::create(
 		    'SimilarityStopWords',
 		    'Stop Words for Similar Search',
-		     explode(',', $this->SimilarityStopWords),
-		    explode(',', $this->SimilarityStopWords)
+		    $sortedWords,
+		    $sortedWords
 		);
 
 		//	public function __construct($name, $title = '', $source = array(), $value = array()) {

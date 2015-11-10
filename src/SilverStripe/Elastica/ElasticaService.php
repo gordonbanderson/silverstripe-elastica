@@ -94,9 +94,6 @@ class ElasticaService {
 
 	public function setLocale($newLocale) {
 		$this->locale = $newLocale;
-
-		echo "ES: locale = ".$this->locale;
-
 	}
 
 	private function getLocaleIndexName() {
