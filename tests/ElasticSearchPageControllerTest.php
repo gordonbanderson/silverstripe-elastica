@@ -85,6 +85,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	Test a search for an uncommon term, no pagination here
 	 */
 	public function testSearchOnePage() {
+		$this->enableHighlights();
 		$this->autoFollowRedirection = false;
 		$searchTerm = 'mineralogy';
 
@@ -109,12 +110,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertSelectorStartsWithOrEquals('strong.hl', 3, 'mineralogy');
 		$this->assertSelectorStartsWithOrEquals('strong.hl', 4, 'Mineralogy');
 		$this->assertSelectorStartsWithOrEquals('strong.hl', 5, 'mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 6, 'Mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 7, 'mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 8, 'Mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 9, 'mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 10, 'Mineralogy');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 11, 'mineralogy');
+
 
 		// Check the start text of the 3 results
 		$this->assertSelectorStartsWithOrEquals('div.searchResult h4 a', 0,
@@ -131,6 +127,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	Test a search for a common term, in order to induce pagination
 	 */
 	public function testSiteTreeSearch() {
+		$this->enableHighlights();
 		$this->autoFollowRedirection = false;
 
 		//One of the default pages
@@ -160,12 +157,9 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//the apparently erroneous addition of 1 to the required 2
 		$this->assertNumberOfNodes('div.searchResult', 3);
 
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 0, 'Contact');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 1, 'Us');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 2, 'Contact');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 3, 'Us');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 4, 'Contact');
-		$this->assertSelectorStartsWithOrEquals('strong.hl', 5, 'Us');
+		$this->assertSelectorStartsWithOrEquals('strong.hl', 0, 'Contact'); // CONTACT US
+		$this->assertSelectorStartsWithOrEquals('strong.hl', 1, 'Us'); // Contact US
+		$this->assertSelectorStartsWithOrEquals('strong.hl', 2, 'Us'); // About US
 
 	}
 
@@ -175,6 +169,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	Test a search for a common term, in order to induce pagination
 	 */
 	public function testSearchSeveralPagesPage() {
+		$this->enableHighlights();
 		$this->autoFollowRedirection = false;
 		$searchTerm = 'railroad';
 
@@ -237,5 +232,24 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj->write();
 		$searchPageObj->publish('Stage','Live');
 		$response3 = $this->get($firstPageURL);
+	}
+
+
+	private function enableHighlights() {
+		foreach (SearchableField::get()->filter('Name', 'Title') as $sf) {
+			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
+			$sf->ShowHighlights = true;
+			$sf->write();
+		}
+
+		foreach (SearchableField::get()->filter('Name', 'Content') as $sf) {
+			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
+
+			$sf->ShowHighlights = true;
+			$sf->write();
+		}
+
+		//FIXME - do this with ORM
+		//$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET "
 	}
 }
