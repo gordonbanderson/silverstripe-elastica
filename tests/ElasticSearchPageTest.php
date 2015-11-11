@@ -25,15 +25,53 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testInvalidClassName() {
+	public function testCannotWriteBlankIdentifier() {
+		$esp = new ElasticSearchPage();
+		$esp->Title = 'test';
+		try {
+			$esp->write();
+		} catch (ValidationException $e) {
+			$this->assertEquals('The identifier cannot be blank', $e->getMessage());
+		}
+	}
+
+
+	public function testCannotWriteDuplicateIdentifier() {
+		$esp = new ElasticSearchPage();
+		$esp->Title = 'test';
+		$otherIdentifier = ElasticSearchPage::get()->first()->Identifier;
+		$esp->Identifier = $otherIdentifier;
+		try {
+			$esp->write();
+		} catch (ValidationException $e) {
+			$this->assertEquals('The identifier testsearchpage already exists', $e->getMessage());
+		}
+	}
+
+
+	public function testCannotWriteInvalidClassname() {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 		$searchPage->ClassesToSearch = 'ThisClassDoesNotExist';
+		$searchPage->SiteTreeOnly = false;
 
 		try {
 			$searchPage->write();
 			$this->fail('Page should not be writeable');
 		} catch (ValidationException $e) {
 			$this->assertEquals('The class ThisClassDoesNotExist does not exist', $e->getMessage());
+		}
+	}
+
+	public function testCannotWriteNoSiteTreeOnlyNoClassNames() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->ClassesToSearch = '';
+		$searchPage->SiteTreeOnly = false;
+
+		try {
+			$searchPage->write();
+			$this->fail('Page should not be writeable');
+		} catch (ValidationException $e) {
+			$this->assertEquals('At least one searchable class must be available, or SiteTreeOnly flag set', $e->getMessage());
 		}
 	}
 
