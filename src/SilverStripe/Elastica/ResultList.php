@@ -186,14 +186,14 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						// check if currently selected
 						if (isset($this->filters[$key])) {
 
-							if ($$this->filters[$key] === (string)$value['key']) {
+							if ($this->filters[$key] === (string)$value['key']) {
 								//echo "     - Marked as selected \n";
 								$ct->IsSelected = true;
 								// mark this facet as having been selected, so optional toggling
 								// of the display of the facet can be done via the template.
 								$aggDO->IsSelected = true;
 
-								$urlParam = $key.'='.urlencode($$this->filters[$key]);
+								$urlParam = $key.'='.urlencode($this->filters[$key]);
 
 								//echo "    - URL PARAM : $urlParam \n";
 
