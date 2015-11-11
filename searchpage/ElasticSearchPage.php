@@ -336,6 +336,10 @@ class ElasticSearchPage extends Page {
 			$suffix = '_Live';
 		}
 
+		if (!$this->Identifier) {
+			$result->error('The identifier cannot be blank');
+		}
+
 		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
 		if ($existing > 0) {
