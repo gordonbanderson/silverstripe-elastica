@@ -551,8 +551,7 @@ class ElasticaService {
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 		if (isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
-			$settingsInstance = \Injector::inst()->create($settingsClassName);
-			$result = $settingsInstance->generateConfig();
+			$result = \Injector::inst()->create($settingsClassName);
 		} else {
 			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
 
