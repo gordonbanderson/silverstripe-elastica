@@ -511,7 +511,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
-		if ($this->SearchHelper) {
+		if ($ep->SearchHelper) {
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();
 		} else {
@@ -662,6 +662,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
+
 		if ($this->SearchHelper) {
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();
