@@ -14,6 +14,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$esp = new ElasticSearchPage();
 		$esp->Title = 'Search';
 		$esp->Content = 'Example search page';
+		$esp->Identifier = 'test';
 		$esp->IndexingOff = true;
 		$esp->URLSegment = 'search';
 		$esp->SiteTreeOnly = false;
