@@ -264,9 +264,14 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$form = $searchPageObj->SearchForm('My Button Override Text');
 		$actions = $form->Actions();
-		foreach ($actions as $action) {
-			echo $action->Name.' '.$action->Value;
-		}
+		$button = $actions->fieldByName('action_submit');
+		$this->assertEquals('', $button->Value());
+
+		// no override, use default
+		$form = $searchPageObj->SearchForm();
+		$actions = $form->Actions();
+		$button = $actions->fieldByName('action_submit');
+		$this->assertEquals('', $button->Value());
 	}
 
 
