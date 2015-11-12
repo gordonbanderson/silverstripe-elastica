@@ -275,6 +275,95 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	}
 
 
+	/*
+	Search for New Zealind and get search results for New Zealand.  Show option to click on
+	actual search of New Zealind
+	 */
+	public function testSuggestion() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "?q=New%20Zealind";
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
+		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
+		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg strong.hl', 0, 'Zealand');
+
+		$this->assertSelectorStartsWithOrEquals('p.searchOriginalQueryMsg', 0, 'Search instead for ');
+		$this->assertSelectorStartsWithOrEquals('p.searchOriginalQueryMsg a', 0, 'New Zealind');
+
+
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'New ');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'New Zealind');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 2, "Image taken from page 555 of 'New Zealand, its physical geography, geology and natural history, with special reference to the results of Government Expeditions in the provinces of Auckland and Nelson ... Translated from the German original ... by E. Saute");
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 3, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 4, 'Douglas DC-10-30 cn 47847 ZK-NZM Air New Zealand Feb74 [RJF]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 5, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 6, 'Gen. Pancho Villa Raid on Columbus, New Mexico, March 9th, at 4 A.M., 1916.');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 7, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 8, '[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 9, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 10, '[Texas and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 11, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 12, "Image taken from page 59 of 'Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition'");
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 13, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 14, '[Texas and New Orleans, Southern Pacific Passenger Station, Waxahachie, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 15, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 16, '[Texas and New Orleans, Southern Pacific, Tower No. 63, Mexia, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, "Image taken from page 273 of 'Old and New London, etc'");
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 20, "Image taken from page 226 of 'Berlin under the New Empire, its institutions, inhabitants, industry ... With ... engravings, etc'");
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 21, 'Similar');
+
+
+		// simulate following the link to search for 'New Zealind'
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= '?q=New Zealind&is=1';
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+
+		//Only the word New will match, Zealind does not exist.  Hence 'New York', 'New Orelans' etc
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'Gen. Pancho Villa Raid on Columbus, New Mexico, March 9th, at 4 A.M., 1916.');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 2, '[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 3, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 4, '[Texas and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 5, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 6, 'Image taken from page 59 of \'Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition\'');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 7, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 8, 'Image taken from page 108 of \'Gray Days and Gold ... New edition, revised, with illustrations\'');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 9, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 10, '[Texas and New Orleans, Southern Pacific, Switchman\'s Tower, San Antonio, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 11, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 12, '[Texas and New Orleans, Southern Pacific Railroad Station, Sinton, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 13, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 14, '[Texas and New Orleans, Southern Pacific Railroad Station, Taft, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 15, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 16, '[Texas and New Orleans, Southern Pacific Passenger Station, Waxahachie, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, '[Texas and New Orleans, Southern Pacific, Tower No. 63, Mexia, Texas]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
+
+		//no suggestions shown, the is flag prevents this
+		$this->assertExactHTMLMatchBySelector('p.showingResultsForMsg', array());
+		$this->assertExactHTMLMatchBySelector('p.searchOriginalQueryMsg', array());
+
+		// reconfirm lack of suggestions when searching for 'New Zealand' with the is flag set
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= '?q=New Zealand&is=1';
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertExactHTMLMatchBySelector('p.showingResultsForMsg', array());
+		$this->assertExactHTMLMatchBySelector('p.searchOriginalQueryMsg', array());
+	}
+/*
+<p class="showingResultsForMsg">Showing results for <a href="./?q=New Zealand">New <strong class="hl">Zealand</strong></a></p>
+<p class="searchOriginalQueryMsg">Search instead for <a href="/search-2?q=New Zealind&is=1">New Zealind</a></p>
+
+
+ */
+
 
 	public function testSearchOnePageNoAggregation() {
 		$this->enableHighlights();
