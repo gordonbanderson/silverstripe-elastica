@@ -36,26 +36,57 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//Simulate selecting Title and Description as searchable fields in the CMS interface
 		$sfs = new ArrayList();
 
+		#FIXME fixed - how to edit extra extra fields programatically
+		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
+			'Weight' => 1);
+		$esfs2 = $esp2->ElasticaSearchableFields();
+		foreach ($esfs2 as $sf) {
+			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+				$esfs2->remove($sf);
+				$esfs2->add($sf, $extraFields);
+			}
+		}
+		$esp2->write();
+
+		$esfs= $esp->ElasticaSearchableFields();
+
+		foreach ($esfs as $sf) {
+			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+				$esfs->remove($sf);
+				$esfs->add($sf, $extraFields);
+			}
+		}
+		$esp->write();
+
+
+/*
 		$espf1 = new SearchableField();
 		$espf1->ElasticPageID = $esp->ID;
 		$espf1->Active = true;
 		$espf1->Searchable = true;
+		$espf1->SimilarSearchable = true;
 		$espf1->Name = 'Title';
 		$espf1->Type = 'string';
-		$esp->ElasticaSearchableFields()->add($espf1);
+		$esp->ElasticaSearchableFields()->add($espf1, $extraFields);
+		$esp2->ElasticaSearchableFields()->add($espf1, $extraFields);
 
 		$espf2 = new SearchableField();
 		$espf2->ElasticPageID = $esp->ID;
 		$espf2->Active = true;
 		$espf2->Searchable = true;
+		$espf2->SimilarSearchable = true;
 		$espf2->Name = 'Description';
 		$espf2->Type = 'string';
 		$esp->ElasticaSearchableFields()->add($espf2);
-
+		$esp2->ElasticaSearchableFields()->add($espf2);
+*/
 		$esp->publish('Stage','Live');
 		$esp2->publish('Stage','Live');
 		$this->ElasticSearchPage = $esp;
 		$this->ElasticSearchPage2= $esp2;
+
+
+		echo "CHECK MYSQL";
 		/*
 		ElasticSearchPage:
   search:
@@ -275,6 +306,41 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	}
 
 
+
+	public function testSimilar() {
+
+
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "/similar/FlickrPhotoTO/77";
+		$response = $this->get($url);
+		print_r($response);
+		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 2, '[ and New Orleans, Southern Pacific Railroad Station, Taft, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 3, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 4, '[ and New Orleans, Southern Pacific Passenger Station, Waxahachie, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 5, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 6, '[ and New Orleans, Southern Pacific, Tower No. 63, Mexia, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 7, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 8, '[ and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 9, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 10, '[ and New Orleans, Southern Pacific Railroad Station, Stockdale, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 11, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 12, '[ and New Orleans, Southern Pacific Freight Station, Waxahachie, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 13, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 14, '[ and New Orleans, Southern Pacific, Eakin Street Yard Office, Dallas, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 15, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 16, '[ and New Orleans, Southern Pacific, Switchman\'s Tower, San Antonio, ]');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, 'Villa Deserters Conducted to 11th Inf. Headquarters.');
+		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
+
+
+	}
+
+
 	/*
 	Search for New Zealind and get search results for New Zealand.  Show option to click on
 	actual search of New Zealind
@@ -322,6 +388,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?q=New Zealind&is=1';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
+
+		print_r($response);
 
 		//Only the word New will match, Zealind does not exist.  Hence 'New York', 'New Orelans' etc
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'Gen. Pancho Villa Raid on Columbus, New Mexico, March 9th, at 4 A.M., 1916.');
