@@ -52,7 +52,7 @@ $RenderResult($Top.Link)
 
 </div>
 <% if $QueryIsEmpty %>
-$ContentForEmptySearch
+<div class="contentForEmptySearch">$ContentForEmptySearch</div>
 <% end_if %>
 </div>
 
