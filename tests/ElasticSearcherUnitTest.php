@@ -19,7 +19,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
-		$es->setClasses('FlickrPhoto');
+		$es->setClasses('FlickrPhotoTO');
 
 		//FIXME when awake
 
@@ -27,7 +27,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Description' => 1,'Title' => 1);
 		$results = $es->search('New Zealind', $fields);
 
-		$this->assertEquals(array(), $es->getSuggestedQuery());
+		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
 
 	public function testResultsForEmptySearch() {
@@ -48,7 +48,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
-		$es->setClasses('FlickrPhoto');
+		$es->setClasses('FlickrPhotoTO');
 
 		$fields = array('Description.standard' => 1,'Title.standard' => 1);
 		$results = $es->moreLikeThis($fp, $fields);
@@ -65,13 +65,25 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fieldNames = array_keys($fields);
 		sort($fieldNames);
 		sort($fieldNamesReturned);
+
+		echo "T1\n";
+		print_r($fieldNames);
+		echo "T2\n";
+		print_r($fieldNamesReturned);
+
 		$this->assertEquals($fieldNames, $fieldNamesReturned);
 
 		//FIXME - this seems anomolyous, check in more detail
-		$expected = array('new');
+		$expected = array('texas');
 		$this->assertEquals($expected, $terms['Title.standard']);
 
-		$expected = array('date','other','place','library','title','version','new', 'see', 'physical');
+		$expected = array('new', 'see','photographs', 'information','resolution', 'view', 'high',
+		'collection', 'company', 'orleans', 'pacific', 'degolyer', 'southern', 'file',
+		'everett', 'railroad', 'texas');
+
+
+
+
 		$this->assertEquals($expected, $terms['Description.standard']);
 	}
 
