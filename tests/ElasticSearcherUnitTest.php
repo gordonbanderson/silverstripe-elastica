@@ -51,7 +51,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setClasses('FlickrPhotoTO');
 
 		$fields = array('Description.standard' => 1,'Title.standard' => 1);
-		$results = $es->moreLikeThis($fp, $fields);
+		$results = $es->moreLikeThis($fp, $fields, true);
 
 		echo "RESULTS:\n";
 		foreach ($results as $result) {
@@ -59,17 +59,11 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		}
 
 		$terms = $results->getList()->MoreLikeThisTerms;
-		print_r($terms);
 
 		$fieldNamesReturned = array_keys($terms);
 		$fieldNames = array_keys($fields);
 		sort($fieldNames);
 		sort($fieldNamesReturned);
-
-		echo "T1\n";
-		print_r($fieldNames);
-		echo "T2\n";
-		print_r($fieldNamesReturned);
 
 		$this->assertEquals($fieldNames, $fieldNamesReturned);
 
@@ -77,14 +71,22 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$expected = array('texas');
 		$this->assertEquals($expected, $terms['Title.standard']);
 
-		$expected = array('new', 'see','photographs', 'information','resolution', 'view', 'high',
-		'collection', 'company', 'orleans', 'pacific', 'degolyer', 'southern', 'file',
-		'everett', 'railroad', 'texas');
+		$expected = array('new', 'see','photographs', 'information','resolution', 'company', 'view',
+			'high', 'collection', 'pacific', 'orleans', 'degolyer', 'southern', 'everett',
+			'railroad', 'texas');
+
+		$expected = array('collection', 'company', 'degolyer', 'everett', 'file', 'high',
+			'information', 'new', 'orleans', 'pacific', 'photographs', 'railroad', 'resolution',
+			'see', 'southern', 'texas', 'view');
 
 
 
+		$actual = $terms['Description.standard'];
+		sort($expected);
+		sort($actual);
 
-		$this->assertEquals($expected, $terms['Description.standard']);
+
+		$this->assertEquals($expected, $actual);
 	}
 
 }
