@@ -104,7 +104,15 @@ class SearchableFieldTest extends ElasticsearchBaseTest {
 
 
 	public function testHumanReadableSearchable() {
-		$sf = new SearchableField();
+
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+
+		//ensure valid
+		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
+			'Weight' => 1);
+		$sf = $searchPage->ElasticaSearchableFields()->first();
+
+
 		$sf->Name = 'TestField';
 		$sf->Searchable = false;
 		$this->assertEquals('No', $sf->HumanReadableSearchable());
