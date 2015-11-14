@@ -27,36 +27,60 @@ class SearchableFieldTest extends ElasticsearchBaseTest {
 
 	/* Zero weight is pointless as it means not part of the search */
 	public function testZeroWeight() {
-		$this->markTestIncomplete('Need to figure out how to test many to many extra fields');
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
-		$sf = $searchPage->ElasticaSearchableFields()->first();
-		$sf->Weight = 0;
+		$lastEdited = $searchPage->LastEdited;
+
+		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
+			'Weight' => 0);
+		$esfs = $searchPage->ElasticaSearchableFields();
+		foreach ($esfs as $sf) {
+			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+				$esfs->remove($sf);
+				$esfs->add($sf, $extraFields);
+			}
+		}
 
 		try {
 			$searchPage->write();
 			$this->fail('Searchable fail should have failed to write');
 		} catch (ValidationException $e) {
 			$this->assertInstanceOf('ValidationException', $e);
+			$expected = 'The field SearchableTestPage.Title has a zero weight. ; The field '.
+			'SiteTree.Title has a zero weight. ; The field Page.Title has a zero weight. ';
+			$this->assertEquals($expected, $e->getMessage());
 		}
-		$this->assertEquals(0, $sf->ID);
+
+		//Effectively assert that the search page has not been written by checking LastEdited
+		$this->assertEquals($lastEdited, $sf->LastEdited);
 	}
 
 
 	/* Weights must be positive */
 	public function testNegativeWeight() {
-		$this->markTestIncomplete('Need to figure out how to test many to many extra fields');
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
-		$sf = $searchPage->ElasticaSearchableFields()->first();
-		$sf->Weight = -1;
-		try {
-			$searchPage->Title="Some other title";
-			echo "Writing....";
-			$searchPage->write();
-			$this->fail('Should have failed due to negative weighting');
-		} catch (ValidationException $e) {
-			$this->assertInstanceOf('ValidationException', $e);
+		$lastEdited = $searchPage->LastEdited;
+
+		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
+			'Weight' => -1);
+		$esfs = $searchPage->ElasticaSearchableFields();
+		foreach ($esfs as $sf) {
+			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+				$esfs->remove($sf);
+				$esfs->add($sf, $extraFields);
+			}
 		}
 
+		try {
+			$searchPage->write();
+			$this->fail('Searchable fail should have failed to write');
+		} catch (ValidationException $e) {
+			$this->assertInstanceOf('ValidationException', $e);
+			$expected = 'The field SearchableTestPage.Title has a negative weight. ; The field '.
+			'SiteTree.Title has a negative weight. ; The field Page.Title has a negative weight. ';
+			$this->assertEquals($expected, $e->getMessage());
+		}
+		//Effectively assert that the search page has not been written by checking LastEdited
+		$this->assertEquals($lastEdited, $sf->LastEdited);
 	}
 
 
