@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\Elastica\ElasticaUtil;
+
 class SearchableField extends DataObject {
 	private static $db = array(
 		'Name' => 'Varchar', // the name of the field, e.g. Title
@@ -46,6 +48,12 @@ class SearchableField extends DataObject {
 	 */
 	public function canCreate($member = null) {
 		return false;
+	}
+
+
+	public function HumanReadableSearchable() {
+		echo $this->Searchable;
+		return ElasticaUtil::showBooleanHumanReadable($this->Searchable);
 	}
 
 }
