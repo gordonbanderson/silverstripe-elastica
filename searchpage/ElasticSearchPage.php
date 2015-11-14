@@ -343,6 +343,15 @@ class ElasticSearchPage extends Page {
 			}
 		}
 
+
+		foreach ($this->ElasticaSearchableFields() as $esf) {
+			if ($esf->Weight == 0) {
+				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a zero weight. ");
+			} else if ($esf->Weight < 0) {
+				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a negative weight. ");
+			}
+		}
+
 		return $result;
 	}
 
@@ -483,8 +492,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setMinWordLength($this->MinWordLength);
 		$es->setMaxWordLength($this->MaxWordLength);
 		$es->setMinShouldMatch($this->MinShouldMatch);
-
 		$es->setSimilarityStopWords($this->SimilarityStopWords);
+
 
 
 
