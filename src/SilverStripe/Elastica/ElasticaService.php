@@ -125,6 +125,13 @@ class ElasticaService {
 
 
 		$search = new Search(new Client());
+
+		if (self::$test_mode) {
+			$search->setOption('search_type',Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
+		}
+
+
+
 		$search->addIndex($this->getLocaleIndexName());
 
 		// If the query is a 'more like this' we can get the terms used for searching by performing
@@ -139,6 +146,12 @@ class ElasticaService {
 
 	        $path = str_replace('_search', '_validate/query', $path);
 	        $params = array('explain' => true, 'rewrite' => true);
+	        if (self::$test_mode) {
+	        	$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
+	        }
+
+
+//    public function request($path, $method = Request::GET, $data = array(), array $query = array())
 
 	        $response = $this->getClient()->request(
 	            $path,
@@ -173,6 +186,7 @@ class ElasticaService {
 
         $path = $search->getPath();
         $params = $search->getOptions();
+
 
 
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
@@ -222,7 +236,7 @@ class ElasticaService {
 
 
 
-		$search = new Search(new Client());
+		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
 		if ($types) {
 			foreach($types as $type) {
@@ -233,7 +247,7 @@ class ElasticaService {
 
         $path = $search->getPath();
         $params = $search->getOptions();
-		$searchResults = $search->search($query);
+		$searchResults = $search->search($query, $params);
 		if (isset($this->MoreLikeThisTerms)) {
 			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
@@ -383,7 +397,6 @@ class ElasticaService {
 			$sng = singleton($class);
 			$mapping = $sng->getElasticaMapping();
 			$name = $sng->getElasticaType();
-			echo "ES: Defining mapping for {$name}\n";
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
 		}
@@ -477,13 +490,11 @@ class ElasticaService {
 		//Count the number of documents for this locale
 		$amount = 0;
 		foreach ($classes as $class) {
-			echo "Getting class count for $class\n";
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
 
 		$this->nDocumentsToIndexForLocale = $amount;
 		$this->nDocumentsIndexed = 0;
-		echo "Indexing $amount documents for locale $this->locale\n";
 
 		$index = $this->getIndex();
 
@@ -572,8 +583,6 @@ class ElasticaService {
 			'FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
-			echo "INDEXED CLASSES: Checking $candidate\n";
-
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
@@ -599,11 +608,9 @@ class ElasticaService {
 			}
 
 			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
-				echo "INDEXED CLASSES: Adding $candidate\n";
-
 				$classes[] = $candidate;
 			} else {
-				echo "INDEXED CLASSES: Instance does not have extension Searchable\n";
+				//echo "INDEXED CLASSES: Instance does not have extension Searchable\n";
 			}
 		}
 
