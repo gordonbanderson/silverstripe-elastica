@@ -93,6 +93,7 @@ class ElasticaUtiTest extends SapphireTest {
 	 * Test parsing no terms suggested
 	 */
 	public function testParseExplanationNoTerms() {
+		#FIXME Possibly flickrphotoTO
 		$explanation = "() -ConstantScore(_uid:FlickrPhoto#7369)";
 		$expected = array();
 		$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
