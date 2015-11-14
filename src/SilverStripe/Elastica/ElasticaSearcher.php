@@ -331,9 +331,11 @@ class ElasticSearcher {
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
 	 * @param  array $fieldsToSearch  array of fieldnames to search, mapped to weighting
+	 * @param  $$testMode Use all shards, not just one, for consistent results during unit testing. See
+	 *         https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-is-broken.html#relevance-is-broken
 	 * @return resultList  List of results
 	 */
-	public function moreLikeThis($indexedItem, $fieldsToSearch) {
+	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -389,6 +391,9 @@ class ElasticSearcher {
 
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
+		if ($testMode) {
+			$elasticService->setIsInTestMode();
+		}
 
 
 		// pagination
