@@ -14,6 +14,12 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
+	public function setup() {
+		parent::setup();
+		$this->service->setIsInTestMode();
+	}
+
+
 	public function testCreateIndexInvalidLocale() {
 		// fake locale
 		$this->service->setLocale('sw_NZ');
@@ -29,19 +35,57 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testEnsureMapping() {
-		$this->service->reset();
+
+		/*
+				$index = $this->service->getIndex();
+		$this->assertTrue($index->exists());
+
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fpMappingBefore = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
+
+
+
+
+		$this->checkNumberOfIndexedDocuments(-1);
+
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fpMappingAfter = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
+
+		$this->assertEquals($fpMappingBefore, $fpMappingAfter);
+
+		 */
 
 		$index = $this->service->getIndex();
 
 
 		$mapping = $index->getMapping();
-		//print_r($mapping);
+
+		//$mapping = $mapping['FlickrPhotoTO'];
 
 		$type = $index->getType('FlickrPhotoTO');
 		$record = FlickrPhotoTO::get()->first();
-		$mapping = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
- 		//assertTrue(false, 'Figure out what this method should do');
-		//print_r($mapping);
+		$mappingBefore = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
+
+		$this->assertEquals($mapping['FlickrPhotoTO'], $mappingBefore['FlickrPhotoTO']);
+
+
+		// Delete the index
+		echo "++++++++++++++++++++++++++++++++++++ DELETING INDEX\n";
+		$task = new DeleteIndexTask($this->service);
+		$task->run(null);
+
+		$mappingAfter = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
+
+		echo "MAPPING AFTER:\n";
+		print_r($mappingAfter);
+
+		//unset($mappingBefore['IsInSiteTree']);
+
+
+
+		$this->assertEquals($mappingBefore, $mappingAfter);
+
+
 	}
 
 
@@ -222,5 +266,4 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 		//FIXME better options for testing here?
 	}
-
 }
