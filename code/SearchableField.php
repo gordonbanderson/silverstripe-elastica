@@ -9,7 +9,7 @@ class SearchableField extends DataObject {
 		'Type' => 'Varchar', // the elasticsearch indexing type,
 		'ShowHighlights' => 'Boolean', // calculate highlights in Elasticsearch
 		'Autocomplete' => 'Boolean', // Use this to check for autocomplete fields,
-		'IsSiteTree' => 'Boolean' // Set to true if this field originates from a SiteTree object
+		'IsInSiteTree' => 'Boolean' // Set to true if this field originates from a SiteTree object
 	);
 
 
