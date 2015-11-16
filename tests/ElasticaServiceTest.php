@@ -266,4 +266,11 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 		//FIXME better options for testing here?
 	}
+
+
+	public function testListIndexes() {
+		$message = 'This is a test trace';
+		$trace = $this->service->listIndexes($message);
+		$this->assertContains('elastica_ss_module_test_en_us', print_r($trace,1));
+	}
 }
