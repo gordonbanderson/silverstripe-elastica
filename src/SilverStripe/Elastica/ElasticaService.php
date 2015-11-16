@@ -332,6 +332,7 @@ class ElasticaService {
         ElasticaUtil::message("\n++++ $trace ++++\n");
         ElasticaUtil::message(print_r($op,1));
         ElasticaUtil::message("++++ /{$trace} ++++\n\n");
+        return $op;
 	}
 
 
