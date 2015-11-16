@@ -275,14 +275,15 @@ class ElasticaService {
 	 * @return \Elastica\Mapping Mapping object
 	 */
 	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
-		try {
-			$mapping = $type->getMapping();
-		}
-		catch(\Elastica\Exception\ResponseException $e) {
+		$mapping = $type->getMapping();
+		if ($mapping == array()) {
 			$this->ensureIndex();
 			$mapping = $record->getElasticaMapping();
 			$type->setMapping($mapping);
+			$mapping = $mapping->toArray();
 		}
+
+
 		return $mapping;
 	}
 
@@ -305,6 +306,7 @@ class ElasticaService {
 		} else {
 			$index = $this->getIndex();
 			$type = $index->getType($typeName);
+
 			$this->ensureMapping($type, $record);
 
 			$type->addDocument($document);
