@@ -28,11 +28,11 @@ class SearchableClassTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testIsSiteTreeHumanReadable() {
+	public function testIsInSiteTreeHumanReadable() {
 		$sc = new SearchableClass();
-		$this->assertEquals('No', $sc->InSiteTreeHumanReadable());
+		$this->assertEquals('No', $sc->IsInSiteTreeHumanReadable());
 		$sc->InSiteTree = true;
-		$this->assertEquals('Yes', $sc->InSiteTreeHumanReadable());
+		$this->assertEquals('Yes', $sc->IsInSiteTreeHumanReadable());
 	}
 
 }
