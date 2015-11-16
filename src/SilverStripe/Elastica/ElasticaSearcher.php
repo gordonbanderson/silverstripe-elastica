@@ -336,6 +336,14 @@ class ElasticSearcher {
 	 * @return resultList  List of results
 	 */
 	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
+		if ($indexedItem == null) {
+			throw new \InvalidArgumentException('Indexed item cannot be null');
+		}
+
+		if ($fieldsToSearch == null) {
+			throw new \InvalidArgumentException('Fields cannot be null');
+		}
+
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -347,6 +355,12 @@ class ElasticSearcher {
 
 		$weightedFieldsArray = array();
 		foreach ($fieldsToSearch as $field => $weighting) {
+			if (!is_string($field)) {
+				throw new \InvalidArgumentException('Fields must be of the form fieldname => weight');
+			}
+			if (!is_numeric($weighting)) {
+				throw new \InvalidArgumentException('Fields must be of the form fieldname => weight');
+			}
 			$weightedField = $field.'^'.$weighting;
 			$weightedField = str_replace('^1', '', $weightedField);
 			array_push($weightedFieldsArray, $weightedField);
