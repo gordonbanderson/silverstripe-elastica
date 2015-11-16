@@ -95,7 +95,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		// check strings
 		$shouldBeString = array('Title','Description');
 		$shouldBeInt = array('ISO','FlickrID','FocalLength35mm');
-		$shouldBeBoolean = array('IsSiteTree');
+		$shouldBeBoolean = array('IsInSiteTree');
 		$shouldBeDouble = array('Aperture');
 		$shouldBeDateTime = array('TakenAt');
 		$shouldBeDate = array('FirstViewed');
@@ -272,6 +272,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		try {
 			$fp->delete();
 		} catch (Elastica\Exception\NotFoundException $e) {
+			//This error comes out of Elastica itself
 			$this->assertEquals('Doc id 2 not found and can not be deleted', $e->getMessage());
 		}
 
@@ -377,14 +378,13 @@ class SearchableTest extends ElasticsearchBaseTest {
 
     	// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
     	$config->remove('FlickrPhotoTO', 'searchable_relationships');
-		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr2);
+		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
 	}
 
 
 	public function testFieldsToElasticaConfig() {
+		$config = Config::inst();
 		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
-		echo "Test after config tweak\n";
-		print_r($sr);
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
 		print_r($fields);
