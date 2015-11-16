@@ -107,23 +107,31 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 		if (isset($filters['ShutterSpeed'])) {
 
 			$sortable = $filters['ShutterSpeed'];
+
+			echo "SORTABLE:$sortable\n";
+
 			$sortable = explode('/', $sortable);
 			if (sizeof($sortable) == 1) {
 				$sortable = trim($sortable[0]);
 
-				if ($sortable === null) {
-					$sortable = null;
-				}
-
 				if ($sortable === '1') {
-					$sortable = '1.000000';
+					$sortable = '1.000000|1';
 				}
 
 			} else if (sizeof($sortable) == 2) {
-				$sortable = floatval($sortable[0])/intval($sortable[1]);
-				$sortable = round($sortable,6);
+				if ($sortable[0] === '' || $sortable[1] === '') {
+					$sortable = '';
+
+				} else {
+					$sortable = floatval($sortable[0])/intval($sortable[1]);
+					$sortable = round($sortable,6);
+					$sortable = $sortable . '|' . $filters['ShutterSpeed'];
+				}
+
 			}
-			$sortable = $sortable . '|' . $filters['ShutterSpeed'];
+
+			echo "MAPPED TO $sortable\n";
+
 
 			$filters['ShutterSpeed'] = $sortable;
 		}
