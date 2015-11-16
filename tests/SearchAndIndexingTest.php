@@ -338,9 +338,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListToArray() {
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO')); //, 'Type' => 'string'));
-		foreach ($sfs->getIterator() as $sf) {
-			echo "T1 $sf->ClazzName $sf->Name $sf->Type\n";
-		}
 
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
 		foreach ($sfs->getIterator() as $sf) {
