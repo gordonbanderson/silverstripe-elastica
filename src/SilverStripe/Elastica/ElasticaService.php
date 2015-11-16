@@ -282,8 +282,6 @@ class ElasticaService {
 			$type->setMapping($mapping);
 			$mapping = $mapping->toArray();
 		}
-
-
 		return $mapping;
 	}
 
@@ -413,7 +411,6 @@ class ElasticaService {
 	 */
 	protected function refreshRecords($records) {
 		foreach ($records as $record) {
-			//echo 'Indexing '.$record->ClassName.' ('.$record->ID.")\n";
 			if ($record->showRecordInSearch()) {
 				$this->index($record);
 			}
@@ -450,11 +447,6 @@ class ElasticaService {
 	}
 
 
-	protected function recordsByClassConsiderVersionedToArray($class) {
-		return $this->recordsByClassConsiderVersioned($class)->toArray();;
-	}
-
-
 	/**
 	 * Refresh the records of a given class within the search index
 	 *
@@ -465,8 +457,6 @@ class ElasticaService {
 		$batchSize = 500;
 		$pages = $nRecords/$batchSize + 1;
 		$processing = true;
-
-
 
 		for ($i=0; $i < $pages; $i++) {
 			$this->startBulkIndex();
@@ -504,7 +494,7 @@ class ElasticaService {
 		foreach ($this->getIndexedClasses() as $classname) {
 			ElasticaUtil::message("Indexing class $classname");
 
-			$inSiteTree = false;
+			$inSiteTree = $classname === 'SiteTree' ? true : false;
 			if (isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
