@@ -35,9 +35,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	}
 
-
-
-
 	public function testInvalidSearchFields() {
 		// FIXME test to check unweighted fields
 	}
