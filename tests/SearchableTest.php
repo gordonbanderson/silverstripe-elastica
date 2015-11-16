@@ -263,22 +263,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testDeleteNonExistentDoc() {
-		/*
 		$fp = new FlickrPhotoTO();
-		$fp->Title = 'Test Deletion';
-		$fp->IndexingOff = true; // do no index this
-		$fp->write();
-		$fp->IndexingOff = false;
-		$this->assertFalse($fp->IndexingOff);
-		try {
-			$fp->delete();
-			$this->fail('Deletion of non indexed DataObject should have failed');
-		} catch (Exception $e) {
-			$this->assertEquals('Doc of id 2 not found and can not be deleted', $e->getMessage());
-		}
-		*/
-
-	$fp = new FlickrPhotoTO();
 		$fp->Title = 'Test Deletion';
 		$fp->IndexingOff = true; // do no index this
 		$fp->write();
@@ -287,24 +272,11 @@ class SearchableTest extends ElasticsearchBaseTest {
 		try {
 			$fp->delete();
 		} catch (Elastica\Exception\NotFoundException $e) {
-			echo "WOOOOOOOOOOOOOOOOOOOT";
-			$this->assertEquals('', $e->getMessage());
+			$this->assertEquals('Doc id 2 not found and can not be deleted', $e->getMessage());
 		}
 
 	}
 
-
-
-	/*
-	getFieldValuesAsArray - needs html
-	onBeforePublish
-	onAfterPublish
-	doDeleteDocumentIfInSearch - search flag
-	doDeleteDocument - delete a non existent doc
-	getAllSearchableFields - this one may be tricky, needs searchable fields not set
-	fieldsToElasticaConfig - array case
-	requireDefaultRecords - recursive method issue
-	 */
 
 	public function testUnpublishPublish() {
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
