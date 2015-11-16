@@ -106,14 +106,35 @@ class ElasticsearchBaseTest extends SapphireTest {
 	Helper methods for testing CMS fields
 	 */
 	public function checkTabExists($fields, $tabName) {
+		echo "Searching for tab $tabName\n";
 		$tab = $fields->findOrMakeTab("Root.{$tabName}");
-		$this->assertEquals($tabName, $tab->getName());
-		$this->assertEquals("Root_${tabName}", $tab->id());
+		$actualTabName = $tab->getName();
+		echo "TAB NAME:$tabName -> $actualTabName\n";
+		$splits = explode('.', $tabName);
+		$size = sizeof($splits);
+		print_r($splits);
+		echo "SIZE:$size\n";
+		//$nameToCheck = array_pop($splits);
+		$nameToCheck = end($splits);
+		echo "NAME TO CHECK:$nameToCheck\n";
+		$this->assertEquals($actualTabName, $nameToCheck);
+		if ($size == 1) {
+			$this->assertEquals("Root_${tabName}", $tab->id());
+		} else {
+			$expected = "Root_{$splits[0]}_set_{$splits[1]}";
+			$this->assertEquals($expected, $tab->id());
+		}
+
 		return $tab;
 	}
 
 
 	public function checkFieldExists($tab,$fieldName) {
+		$fields = $tab->Fields();
+		echo "TAB:{$tab->Name}\n";
+		foreach ($fields as $fi) {
+			echo "NAME:".$fi->Name."\n";
+		}
 		$field = $tab->fieldByName($fieldName);
 		$this->assertTrue($field != null);
 		return $field;
