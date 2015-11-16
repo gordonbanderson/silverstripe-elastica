@@ -316,7 +316,7 @@ class Searchable extends \DataExtension {
 
 		// ADD CUSTOM FIELDS HERE THAT ARE INDEXED BY DEFAULT
 		// add a mapping to flag whether or not class is in SiteTree
-		$fields['IsSiteTree'] = array('type'=>'boolean');
+		$fields['IsInSiteTree'] = array('type'=>'boolean');
 		$fields['Link'] = array('type' => 'string', 'index' => 'not_analyzed');
 
 		$mapping->setProperties($fields);
@@ -563,15 +563,8 @@ class Searchable extends \DataExtension {
 				$this->service->remove($this->owner);
 			}
 
-			echo "doDeleteDocument T1\n";
-
-			echo "Last error\n";
-			var_dump(error_get_last());
-
 		}
 		catch(Elastica\Exception\NotFoundException $e) {
-						echo "doDeleteDocument T2\n";
-
 			trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
 		}
 
