@@ -88,7 +88,6 @@ class ElasticSearchPage extends Page {
 
 		$fields->addFieldToTab("Root", new TabSet('Search',
 			new Tab('SearchFor'),
-			new Tab('Identifier'),
 			new Tab('Fields'),
 			new Tab('AutoComplete'),
 			new Tab('Aggregations'),
@@ -151,7 +150,7 @@ class ElasticSearchPage extends Page {
 		// ---- search details tab ----
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
-		$fields->addFieldToTab('Root.Search.Identifier', $identifierField);
+		$fields->addFieldToTab('Root.Main', $identifierField);
 
 
 		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
@@ -287,8 +286,6 @@ class ElasticSearchPage extends Page {
 			'Weight' => 'Weighting'
         ));
 
-
-
 		return $fields;
 	}
 
@@ -341,6 +338,8 @@ class ElasticSearchPage extends Page {
 					}
 				}
 			}
+		} else {
+			echo '****** SITE TREE ONLY ******';
 		}
 
 
@@ -383,18 +382,22 @@ class ElasticSearchPage extends Page {
     	$delta = array_keys($esfs->map()->toArray());
 		$newSearchableFields = $sfs->exclude('ID', $delta);
 
-		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
-			error_log('NEW FIELD:'.$newSearchableField->Name);
-			$newSearchableField->Active = true;
-			$newSearchableField->Weight = 1;
+		if ($newSearchableFields->count() > 0) {
+			foreach ($newSearchableFields->getIterator() as $newSearchableField) {
+				error_log('NEW FIELD:'.$newSearchableField->Name);
+				$newSearchableField->Active = true;
+				$newSearchableField->Weight = 1;
 
-			$esfs->add($newSearchableField);
+				$esfs->add($newSearchableField);
 
-			// Note 1 used instead of true for SQLite3 testing compatibility
-			$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
-			$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
-			DB::query($sql);
+				// Note 1 used instead of true for SQLite3 testing compatibility
+				$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
+				$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
+				DB::query($sql);
+			}
 		}
+
+
 
 		// Mark all the fields for this page as inactive initially
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
