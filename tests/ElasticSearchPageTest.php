@@ -15,13 +15,38 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 		$mainTab = $this->checkTabExists($fields,'Main');
 		$this->checkFieldExists($mainTab, 'Identifier');
+		$this->checkFieldExists($mainTab, 'ContentForEmptySearch');
 
-		$searchTab = $this->checkTabExists($fields,'SearchDetails');
+		$searchTab = $this->checkTabExists($fields,'Search.SearchFor');
+		$fieldsTab = $this->checkTabExists($fields,'Search.Fields');
+		$autoCompleteTab = $this->checkTabExists($fields,'Search.AutoComplete');
+		$aggTab = $this->checkTabExists($fields,'Search.Aggregations');
+		$simTab = $this->checkTabExists($fields,'Search.Similarity');
 
 		$this->checkFieldExists($searchTab, 'InfoField');
-		$this->checkFieldExists($searchTab, 'SearchHelper');
-		$this->checkFieldExists($searchTab, 'ElasticSearchPageSearchField');
-		$this->checkFieldExists($searchTab, 'SearchFieldsMessage');
+		$this->checkFieldExists($searchTab, 'SiteTreeOnly');
+		$this->checkFieldExists($searchTab, 'ClassesToSearch');
+		$this->checkFieldExists($searchTab, 'InfoField');
+		$this->checkFieldExists($searchTab, 'SiteTreeOnly');
+		$this->checkFieldExists($searchTab, 'ResultsPerPage');
+
+		$this->checkFieldExists($aggTab, 'SearchHelper');
+
+		$this->checkFieldExists($fieldsTab, 'SearchInfo');
+		$this->checkFieldExists($fieldsTab, 'ElasticaSearchableFields');
+
+		$this->checkFieldExists($simTab, 'SimilarityNotes');
+		$this->checkFieldExists($simTab, 'MinTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MinDocFreq');
+		$this->checkFieldExists($simTab, 'MaxDocFreq');
+		$this->checkFieldExists($simTab, 'MinWordLength');
+		$this->checkFieldExists($simTab, 'MaxWordLength');
+		$this->checkFieldExists($simTab, 'MinShouldMatch');
+
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
 	}
 
 
@@ -97,6 +122,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 	public function testNonSearchableClass() {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->SiteTreeOnly = false;
 
 		// This does not implement searchable
 		$searchPage->ClassesToSearch = 'Member';
@@ -107,6 +133,12 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		} catch (ValidationException $e) {
 			$this->assertEquals('The class Member must have the Searchable extension', $e->getMessage());
 		}
+
+		$this->assertEquals(8, $searchPage->ElasticaSearchableFields()->count());
+
+		//Because the write should fail, this will still be the original value of 8
+		$this->assertEquals(8, $searchPage->ElasticaSearchableFields()->filter('Active', true)->count());
+
 	}
 
 
