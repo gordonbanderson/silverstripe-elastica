@@ -396,11 +396,20 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The method thisMethodDoesNotExist not found in class FlickrPhotoTO, please check configuration',
 				 $e->getMessage());
 		}
-		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
+
+		echo 'UPDATING TO ';
+		print_r($sr);
+
+
+    	$sr2 = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
+		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr2);
 	}
 
 
 	public function testFieldsToElasticaConfig() {
+		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
+		echo "Test after config tweak\n";
+		print_r($sr);
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
 		print_r($fields);
