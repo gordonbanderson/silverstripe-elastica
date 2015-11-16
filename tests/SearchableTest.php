@@ -401,7 +401,10 @@ class SearchableTest extends ElasticsearchBaseTest {
 		print_r($sr);
 
 
-    	$sr2 = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
+    	//$sr2 = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
+
+    	// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
+    	$config->remove('FlickrPhotoTO', 'searchable_relationships');
 		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr2);
 	}
 
@@ -415,7 +418,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		print_r($fields);
 
 	}
-
 
 
 	private function getResultsFor($query, $pageLength = 10) {
