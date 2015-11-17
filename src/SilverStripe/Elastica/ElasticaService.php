@@ -17,20 +17,24 @@ class ElasticaService {
 	 */
 	protected $buffer = array();
 
+
 	/**
 	 * @var bool controls whether indexing operations are buffered or not
 	 */
 	protected $buffered = false;
+
 
 	/**
 	 * @var \Elastica\Client Elastica Client object
 	 */
 	private $client;
 
+
 	/**
 	 * @var string index name
 	 */
 	private $indexName;
+
 
 	/**
 	 * The code of the locale being indexed or searched
@@ -38,17 +42,35 @@ class ElasticaService {
 	 */
 	private $locale;
 
+
 	/**
 	 * Mapping of DataObject ClassName and whether it is in the SiteTree or not
 	 * @var array $site_tree_classes;
 	 */
 	private static $site_tree_classes = array();
 
+
 	/**
 	 * Counter used to for testing, records indexing requests
 	 * @var integer
 	 */
 	public static $indexing_request_ctr = 0;
+
+
+	/**
+	 * Array of highlighted fields, e.g. Title, Title.standard.  If this is empty then the
+	 * ShowHighlight field of SearchableField is used to determine which fields to highlight
+	 * @var array
+	 */
+	private $highlightedFields = array();
+
+
+	/*
+	Set the highlight fields for subsequent searches
+	 */
+	public function setHighlightedFields($newHighlightedFields) {
+		$this->highlightedFields = $newHighlightedFields;
+	}
 
 
 	/*
@@ -74,14 +96,13 @@ class ElasticaService {
 	}
 
 
-
-
 	/**
 	 * @return \Elastica\Client
 	 */
 	public function getClient() {
 		return $this->client;
 	}
+
 
 	/**
 	 * @return \Elastica\Index
@@ -96,12 +117,14 @@ class ElasticaService {
 		$this->locale = $newLocale;
 	}
 
+
 	private function getLocaleIndexName() {
 		$name = $this->indexName.'-'.$this->locale;
 		$name = strtolower($name);
 		$name = str_replace('-', '_', $name);
 		return $name;
 	}
+
 
 	/**
 	 * Performs a search query and returns a result list.
@@ -150,9 +173,6 @@ class ElasticaService {
 	        	$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
 	        }
 
-
-//    public function request($path, $method = Request::GET, $data = array(), array $query = array())
-
 	        $response = $this->getClient()->request(
 	            $path,
 	            \Elastica\Request::GET,
@@ -161,21 +181,17 @@ class ElasticaService {
 	        );
 
 			$r = $response->getData();
-
 			$terms = null; // keep in scope
-
 
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
 				//echo $explanation;
 				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
-
 			}
 
 			if (isset($terms)) {
 				$this->MoreLikeThisTerms = $terms;
 			}
-
 		}
 
         if ($types) {
@@ -187,8 +203,6 @@ class ElasticaService {
         $path = $search->getPath();
         $params = $search->getOptions();
 
-
-
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
@@ -196,22 +210,27 @@ class ElasticaService {
 		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
 		$noMatchSize = $highlightsCfg['Phrase']['NoMatchSize'];
 
-
-
 		$quotedTypes = QueryGenerator::convertToQuotedCSV($types);
-		$filter = array('Type' => 'string', 'ShowHighlights' => true);
-		$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
+
+		$stringFields = $this->highlightedFields;
+
+		$usingProvidedHighlightFields = true;
+
+		if (sizeof($stringFields) == 0) {
+			$filter = array('Type' => 'string', 'ShowHighlights' => true);
+			$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
+			$usingProvidedHighlightFields = true;
+		}
+
 
 		$highlightFields = array();
-
 		foreach ($stringFields as $name) {
 			// Add the stemmed and the unstemmed for now
-			$highlightFields[$name.'.standard'] = array(
-				'fragment_size' => $fragmentSize,
-				'number_of_fragments' => $nFragments,
-				'no_match_size'=> 200
-			);
-			$highlightFields[$name] = array(
+			$fieldName = $name;
+			if (!$usingProvidedHighlightFields) {
+				$fieldName .= '.standard';
+			}
+			$highlightFields[$fieldName] = array(
 				'fragment_size' => $fragmentSize,
 				'number_of_fragments' => $nFragments,
 				'no_match_size'=> 200
@@ -601,10 +620,6 @@ class ElasticaService {
 				$classes[] = $candidate;
 			}
 		}
-
-
-		echo "GET INDEXED CLASSES, TM=".$this->test_mode.":\n";
-		print_r($classes);
 
 		return $classes;
 	}
