@@ -215,14 +215,37 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testHighlightPassingFields() {
+		$es = new ElasticSearcher();
+		$locale = \i18n::default_locale();
+		$es->setLocale($locale);
+		$es->setClasses('FlickrPhotoTO');
 
+		$es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
 
+		$fields = array('Title' => 1, 'Description' => 1);
+		$query = 'New Zealand';
+		$paginated = $es->search($query, $fields);
+		$ctr = 0;
 
+		foreach ($paginated->getList()->toArray() as $result) {
+			$ctr++;
 
-
-
-
-
+			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+				$snippet = $highlight->Snippet;
+				$snippet = strtolower($snippet);
+				$wordFound = false;
+				$lcquery = explode(' ', strtolower($query));
+				foreach ($lcquery as $part) {
+					$bracketed = '<strong class="hl">'.$part.'</strong>';
+					if (strpos($snippet, $bracketed) > 0) {
+						$wordFound = true;
+					}
+				}
+				$this->assertTrue($wordFound,'Highlight should have been found');
+			}
+		}
+	}
 
 
 
