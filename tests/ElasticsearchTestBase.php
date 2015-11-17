@@ -26,7 +26,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
-		ElasticaService::setTestMode(false);
 		parent::setUpOnce();
 	}
 
@@ -46,6 +45,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$this->service->setTestMode(true);
 
 		// A previous test may have deleted the index and then failed, so check for this
 		if (!$this->service->getIndex()->exists()) {
