@@ -158,4 +158,14 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 
 
 
+	public function testGetSetAsciiFolding() {
+		$indexSettings = new EnglishIndexSettings();
+		$indexSettings->setAsciiFolding(false);
+		$this->assertFalse($indexSettings->getAsciiFolding());
+		$indexSettings->setAsciiFolding(true);
+		$this->assertTrue($indexSettings->getAsciiFolding());
+	}
+
+
+
 }
