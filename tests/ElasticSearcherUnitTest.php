@@ -102,6 +102,20 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		}
 	}
 
+
+		public function testSimilarWeightingNotNumeric() {
+		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
+		$es = new ElasticSearcher();
+		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title.standard' => 4, 'Description.standard' => 'not numeric');
+		try {
+			$paginated = $es->moreLikeThis($fp, $fields, true);
+
+		} catch (InvalidArgumentException $e) {
+			$this->assertEquals('Fields must be of the form fieldname => weight', $e->getMessage());
+		}
+	}
+
 	/*
 	test blank fields
 	test fields with no weighting (ie not associative)
