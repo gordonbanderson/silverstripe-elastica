@@ -69,8 +69,8 @@ class ElasticaService {
 	}
 
 
-	public static function setIsInTestMode() {
-		self::$test_mode = true;
+	public static function setTestMode($newTestMode) {
+		self::$test_mode = $newTestMode;
 	}
 
 
@@ -579,10 +579,8 @@ class ElasticaService {
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
-
 			// Only allow test classes in testing mode
 			if (isset($interfaces['TestOnly'])) {
-
 				if (in_array($candidate, $whitelist)) {
 					if (!self::$test_mode) {
 						continue;
@@ -591,19 +589,10 @@ class ElasticaService {
 					// If it's not in the test whitelist we definitely do not want to know
 					continue;
 				}
-
-
-				if (!self::$test_mode) {
-					echo "INDEXED CLASSES: Skipping $candidate, Dir isTest?".\Director::isTest()."\n";
-					continue;
-				}
-
 			}
 
 			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
 				$classes[] = $candidate;
-			} else {
-				//echo "INDEXED CLASSES: Instance does not have extension Searchable\n";
 			}
 		}
 
