@@ -54,7 +54,7 @@ class ElasticaService {
 	/*
 	Enable this to allow test classes not to be ignored when indexing
 	 */
-	public static $test_mode = false;
+	public $test_mode = false;
 
 
 	/**
@@ -69,8 +69,8 @@ class ElasticaService {
 	}
 
 
-	public static function setTestMode($newTestMode) {
-		self::$test_mode = $newTestMode;
+	public function setTestMode($newTestMode) {
+		$this->test_mode = $newTestMode;
 	}
 
 
@@ -126,7 +126,7 @@ class ElasticaService {
 
 		$search = new Search(new Client());
 
-		if (self::$test_mode) {
+		if ($this->test_mode) {
 			$search->setOption('search_type',Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
 		}
 
@@ -146,7 +146,7 @@ class ElasticaService {
 
 	        $path = str_replace('_search', '_validate/query', $path);
 	        $params = array('explain' => true, 'rewrite' => true);
-	        if (self::$test_mode) {
+	        if ($this->test_mode) {
 	        	$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
 	        }
 
@@ -205,7 +205,13 @@ class ElasticaService {
 		$highlightFields = array();
 
 		foreach ($stringFields as $name) {
+			// Add the stemmed and the unstemmed for now
 			$highlightFields[$name.'.standard'] = array(
+				'fragment_size' => $fragmentSize,
+				'number_of_fragments' => $nFragments,
+				'no_match_size'=> 200
+			);
+			$highlightFields[$name] = array(
 				'fragment_size' => $fragmentSize,
 				'number_of_fragments' => $nFragments,
 				'no_match_size'=> 200
@@ -582,7 +588,7 @@ class ElasticaService {
 			// Only allow test classes in testing mode
 			if (isset($interfaces['TestOnly'])) {
 				if (in_array($candidate, $whitelist)) {
-					if (!self::$test_mode) {
+					if (!$this->test_mode) {
 						continue;
 					}
 				} else {
@@ -595,6 +601,10 @@ class ElasticaService {
 				$classes[] = $candidate;
 			}
 		}
+
+
+		echo "GET INDEXED CLASSES, TM=".$this->test_mode.":\n";
+		print_r($classes);
 
 		return $classes;
 	}
