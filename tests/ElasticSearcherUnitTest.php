@@ -21,11 +21,8 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
 
-		//FIXME when awake
-
-		// This doesn't work, possibly a bug $fields = array('Description.standard' => 1,'Title.standard' => 1);
 		$fields = array('Description' => 1,'Title' => 1);
-		$results = $es->search('New Zealind', $fields);
+		$results = $es->search('New Zealind', $fields, true);
 
 		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
@@ -173,6 +170,37 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 			$paginated = $es->moreLikeThis(null, $fields, true);
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Indexed item cannot be null', $e->getMessage());
+		}
+	}
+
+
+
+	public function testHighlights() {
+		$es = new ElasticSearcher();
+		$locale = \i18n::default_locale();
+		$es->setLocale($locale);
+		$es->setClasses('FlickrPhotoTO');
+
+		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Title');
+		$titleField = SearchableField::get()->filter($filter)->first();
+		$titleField->ShowHighlights = true;
+		$titleField->write();
+
+		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Description');
+		$nameField = SearchableField::get()->filter($filter)->first();
+		$nameField->ShowHighlights = true;
+		$nameField->write();
+
+		$fields = array('Title' => 1, 'Description' => 1);
+		$paginated = $es->search('New Zealand', $fields);
+	//	print_r($paginated->getList()->toArray()[0]);
+
+		foreach ($paginated->getList()->toArray() as $result) {
+			echo '$this->assertEquals("'.$result->Title.'", $results['.$ctr.']->Title);'."\n";
+			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+				echo $highlight."\n";
+			}
+			print_r($result->SearchHighlightsByField->Description->toArray());
 		}
 	}
 
