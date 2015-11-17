@@ -26,7 +26,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
-		ElasticaService::setIsInTestMode();
+		ElasticaService::setTestMode(false);
 		parent::setUpOnce();
 	}
 
