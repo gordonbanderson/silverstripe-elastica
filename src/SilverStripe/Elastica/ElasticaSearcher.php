@@ -406,7 +406,7 @@ class ElasticSearcher {
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
 		if ($testMode) {
-			$elasticService->setIsInTestMode();
+			$elasticService->setTestMode(true);
 		}
 
 
