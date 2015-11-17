@@ -16,7 +16,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 	public function setup() {
 		parent::setup();
-		$this->service->setIsInTestMode();
+		$this->service->setTestMode(true);
 	}
 
 
@@ -219,14 +219,26 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	which other modules are installed, hence no array comparison
 	 */
 	public function testGetIndexedClasses() {
+		$this->service->setTestMode(false);
+
+		echo "+++++++++++++++++++++++++++++++++++++++++++\n";
+		$indexedClasses = $this->service->getIndexedClasses();
+
+		// Just the non testable classes
+		$this->assertContains('Page', $indexedClasses);
+		$this->assertContains('SiteTree', $indexedClasses);
+
+
+		// Get all classes including the test ones
+		$this->service->setTestMode(true);
 		$indexedClasses = $this->service->getIndexedClasses();
 		$this->assertContains('Page', $indexedClasses);
 		$this->assertContains('SiteTree', $indexedClasses);
-		$this->assertContains('FlickrAuthorTO', $indexedClasses);
 		$this->assertContains('FlickrPhotoTO', $indexedClasses);
 		$this->assertContains('FlickrSetTO', $indexedClasses);
 		$this->assertContains('FlickrTagTO', $indexedClasses);
 		$this->assertContains('SearchableTestPage', $indexedClasses);
+
 	}
 
 
