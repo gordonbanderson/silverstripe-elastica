@@ -26,6 +26,7 @@ class RangedAggregation {
 
 	public function getFilter($chosenName) {
 		$rangeArray = $this->Range->toArray()['range']['ranges'];
+		$result = null;
 		foreach ($rangeArray as $range) {
 			if ($range['key'] === $chosenName) {
 				$from = null;
@@ -38,9 +39,11 @@ class RangedAggregation {
 				}
 				$rangeFilter = array('gte' => (string)$from, 'lt' => (string)$to);
 		        $filter = new \Elastica\Filter\Range('AspectRatio', $rangeFilter);
-		        return $filter;
+		        $result = $filter;
 			}
 		}
+
+		return $result;
 	}
 
 
