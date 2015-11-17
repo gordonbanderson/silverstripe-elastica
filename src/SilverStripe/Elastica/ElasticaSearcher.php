@@ -57,6 +57,13 @@ class ElasticSearcher {
 	 */
 	private $aggregations = null;
 
+	/**
+	 * Array of highlighted fields, e.g. Title, Title.standard.  If this is empty then the
+	 * ShowHighlight field of SearchableField is used to determine which fields to highlight
+	 * @var array
+	 */
+	private $highlightedFields = array();
+
 
 	/*
 	Allow an empty search to return either no results (default) or all results, useful for
@@ -220,6 +227,14 @@ class ElasticSearcher {
 	}
 
 
+	/*
+	Set the highlight fields for subsequent searches
+	 */
+	public function setHighlightedFields($newHighlightedFields) {
+		$this->highlightedFields = $newHighlightedFields;
+	}
+
+
 
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
@@ -257,6 +272,7 @@ class ElasticSearcher {
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
+		$elasticService->setHighlightedFields($this->highlightedFields);
 		if ($testMode) {
 			$elasticService->setTestMode(true);
 		}
