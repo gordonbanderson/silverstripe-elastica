@@ -229,7 +229,7 @@ class ElasticSearcher {
 	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
-	public function search($q, $fieldsToSearch = null) {
+	public function search($q, $fieldsToSearch = null,  $testMode = false) {
 		if ($this->locale == null) {
 			if (!class_exists('Translatable')) {
 				// if no translatable we only have the default locale
@@ -257,7 +257,9 @@ class ElasticSearcher {
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
-
+		if ($testMode) {
+			$elasticService->setTestMode(true);
+		}
 		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
