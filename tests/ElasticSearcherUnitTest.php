@@ -175,7 +175,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 
 
-	public function testHighlights() {
+	public function testHighlightsAsIfCMSEdited() {
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
@@ -192,17 +192,37 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$nameField->write();
 
 		$fields = array('Title' => 1, 'Description' => 1);
-		$paginated = $es->search('New Zealand', $fields);
-	//	print_r($paginated->getList()->toArray()[0]);
+		$query = 'New Zealand';
+		$paginated = $es->search($query, $fields);
+		$ctr = 0;
 
 		foreach ($paginated->getList()->toArray() as $result) {
-			echo '$this->assertEquals("'.$result->Title.'", $results['.$ctr.']->Title);'."\n";
+			$ctr++;
 			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
-				echo $highlight."\n";
+				$snippet = $highlight->Snippet;
+				$snippet = strtolower($snippet);
+				$wordFound = false;
+				$lcquery = explode(' ', strtolower($query));
+				foreach ($lcquery as $part) {
+					$bracketed = '<strong class="hl">'.$part.'</strong>';
+					if (strpos($snippet, $bracketed) > 0) {
+						$wordFound = true;
+					}
+				}
+				$this->assertTrue($wordFound,'Highlight should have been found');
 			}
-			print_r($result->SearchHighlightsByField->Description->toArray());
 		}
 	}
+
+
+
+
+
+
+
+
+
+
 
 
 
