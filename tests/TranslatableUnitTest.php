@@ -1,6 +1,8 @@
 <?php
 use SilverStripe\Elastica\ElasticSearcher;
 use Elastica\Type;
+use SilverStripe\Elastica\ReindexTask;
+
 class TranslatableUnitTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
@@ -146,6 +148,31 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, Texas]", $results[7]->Title);
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific, Switchman's Tower, San Antonio, Texas]", $results[8]->Title);
 		$this->assertEquals("Flash Light view in new Subterranean", $results[9]->Title);
+	}
+
+
+	/*
+	FIXME - this is not working, not sure why.  Trying to complete coverage of ReindexTask
+	 */
+	public function testBulkIndexing() {
+		//Reset the index, so that nothing has been indexed
+		$this->service->reset();
+
+		//Number of requests indexing wise made to Elasticsearch server
+		$reqs = $this->service->getIndexingRequestCtr();
+
+		$task = new ReindexTask($this->service);
+
+		// null request is fine as no parameters used
+		$task->run(null);
+
+		//Check that the number of indexing requests has increased by 2
+		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
+		//One call is made for each of Page and FlickrPhotoTO
+		$this->assertEquals(2,$deltaReqs);
+
+		// default installed pages plus 100 FlickrPhotoTOs
+		$this->checkNumberOfIndexedDocuments(103);
 	}
 
 
