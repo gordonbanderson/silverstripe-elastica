@@ -11,6 +11,8 @@ class FlickrPhotoTO extends DataObject implements TestOnly {
 
 	private static $searchable_relationships = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
 
+	private static $searchable_autocomplete = array('Title');
+
 	// this needs to be declared here and not added by add_extension, as it does not extend DataExtension
 	private static $extensions = array('FlickrPhotoTOTestIndexingExtension');
 
