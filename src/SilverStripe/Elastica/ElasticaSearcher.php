@@ -328,7 +328,6 @@ class ElasticSearcher {
 		$qg->setStart(0);
 
 		$qg->setShowResultsForEmptyQuery(false);
-
 		$query = $qg->generateElasticaAutocompleteQuery();
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
