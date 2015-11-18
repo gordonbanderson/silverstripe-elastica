@@ -213,13 +213,12 @@ class ElasticaService {
 		$quotedTypes = QueryGenerator::convertToQuotedCSV($types);
 
 		$stringFields = $this->highlightedFields;
-
 		$usingProvidedHighlightFields = true;
 
 		if (sizeof($stringFields) == 0) {
 			$filter = array('Type' => 'string', 'ShowHighlights' => true);
 			$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
-			$usingProvidedHighlightFields = true;
+			$usingProvidedHighlightFields = false;
 		}
 
 
@@ -507,6 +506,7 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
+		echo "CURRENT LOCALE:".$this->locale;
 		foreach ($classes as $class) {
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
