@@ -29,6 +29,80 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testBadFormatFields() {
+		$manyTypes = new ManyTypesPage();
+		$fields = $manyTypes->getElasticaFields();
+
+		$expected = array('type' => 'boolean');
+		$this->assertEquals($expected, $fields['BooleanField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['CurrencyField']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d');
+		$this->assertEquals($expected, $fields['DateField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['DecimalField']);
+
+		$stringFormat = array(
+			'type' => 'string',
+			'analyzer' => 'stemmed',
+			'term_vector' => 'yes',
+			'fields' => array(
+				'standard' => array(
+					'type' => 'string',
+					'analyzer' => 'unstemmed',
+					'term_vector' => 'yes'
+				),
+				'shingles' => array(
+					'type' => 'string',
+					'analyzer' => 'shingles',
+					'term_vector' => 'yes'
+				)
+			)
+		);
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['EnumField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['HTMLTextField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['HTMLVarcharField']);
+
+		$expected = array('type' => 'integer');
+		$this->assertEquals($expected, $fields['IntField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['PercentageField']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['SS_DatetimeField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['TextField']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['TimeField']);
+
+	}
+
+
+
+	public function testGetDateFields() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fields = $flickrPhoto->getElasticaFields();
+
+		print_r($fields);
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['TakenAt']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['TakenAtDT']);
+	}
+
+
 	/**
 	 * Test a valid identifier
 	 */
