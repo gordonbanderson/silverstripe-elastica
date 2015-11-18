@@ -24,7 +24,7 @@ class ElasticaAutoCompleteController extends Controller {
 		// start, and page length, i.e. pagination
 		$es->setPageLength(10);
 		$es->setClasses($classes);
-		$resultList = $es->autocomplete_search($query, array($field => 1));
+		$resultList = $es->autocomplete_search($query,$field);
 		$result = array();
 		$result['Query'] = $query;
 		$suggestions = array();
