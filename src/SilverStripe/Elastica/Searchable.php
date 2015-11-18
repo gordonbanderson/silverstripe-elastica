@@ -34,9 +34,11 @@ class Searchable extends \DataExtension {
 		'HTMLVarchar' => 'string',
 		'Int'         => 'integer',
 		'Text'        => 'string',
-		'VarChar'        => 'string',
+		'VarChar'     => 'string',
 		'Varchar'     => 'string',
 		'Year'        => 'integer',
+		'Percentage'  => 'double',
+		'Time'  => 'date',
 
 		// The 2 different date types will be stored with different formats
 		'Date'        => 'date',
@@ -139,8 +141,10 @@ class Searchable extends \DataExtension {
 		foreach ($fields as $name => $params) {
 			$type = null;
 			$spec = array();
-
 			$name = str_replace('()', '', $name);
+
+			$ak = implode(',', array_keys($db));
+			//echo "GEFT1: Checking for $name in $ak\n";
 
 			if (array_key_exists($name, $db)) {
 				$class = $db[$name];
@@ -152,19 +156,19 @@ class Searchable extends \DataExtension {
 					$class = substr($class, 0, $pos);
 				}
 
-
+				$ak = implode(',', array_keys(self::$mappings));
 				if (array_key_exists($class, self::$mappings)) {
 					//echo "GEF T4: $class exists in mappings\n";
 					$spec['type'] = self::$mappings[$class];
 					//echo "GEF T5: Date tweaking\n";
-					//echo "Name:$name, CL=$class\n";
-					//print_r($spec);
 					if ($spec['type'] === 'date') {
 						if ($class == 'Date') {
 							$spec['format'] = 'y-M-d';
 						} elseif ($class == 'SS_Datetime') {
 							$spec['format'] = 'y-M-d H:m:s';
 						} elseif ($class == 'Datetime') {
+							$spec['format'] = 'H:m:s';
+						} elseif ($class == 'Time') {
 							$spec['format'] = 'y-M-d H:m:s';
 						}
 					}
@@ -172,11 +176,8 @@ class Searchable extends \DataExtension {
 						//echo "GEF T6: Recording that field is HTML\n";
 						array_push($this->html_fields, $name);
 					}
-				} else {
-					//echo "\t** NO MAPPING ** Name:$name, CL=$class, SPEC=\n";
-					//print_r($spec);
-					throw new \Exception("An error has occurred, no mapping is available for the source field $name\n");
 				}
+				// no need for an extra case here as all SS types checked in tests
 			} else {
 				// field name is not in the db, it could be a method
 				//echo "GEF T7: Getting relationships for lists and has one\n";
@@ -283,7 +284,7 @@ class Searchable extends \DataExtension {
 
 			//echo "AFTER: ($name):\n========\n";
 			//print_r($spec);
-			//echo "/AFTER: ($name):\n========\n\n\n\n";
+			// "/AFTER: ($name):\n========\n\n\n\n";
 
 			$result[$name] = $spec;
 		}
