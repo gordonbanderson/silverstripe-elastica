@@ -212,7 +212,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 		foreach ($paginated->getList()->toArray() as $result) {
 			$ctr++;
-			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+			foreach ($result->SearchHighlightsByField->Description_standard->getIterator() as $highlight) {
 				$snippet = $highlight->Snippet;
 				$snippet = strtolower($snippet);
 				$wordFound = false;
