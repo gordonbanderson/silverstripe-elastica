@@ -26,12 +26,14 @@ class SearchIndexTask extends \BuildTask {
 		};
 
 		$locales = array();
-		if (!class_exists('Translatable')) {
-			// if no translatable we only have the default locale
-			array_push($locales, \i18n::default_locale());
-		} else {
-			foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
-				array_push($locales, $code);
+
+		if ($this->locale == null) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
+				foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
+					array_push($locales, $code);
+				}
 			}
 		}
 
