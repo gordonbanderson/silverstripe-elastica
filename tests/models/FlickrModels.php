@@ -6,7 +6,7 @@
  * @subpackage tests
  */
 class FlickrPhotoTO extends DataObject implements TestOnly {
-	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt', 'FirstViewed',
+	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt', 'TakenAtDT', 'FirstViewed',
 		'Aperture','ShutterSpeed','FocalLength35mm','ISO','AspectRatio');
 
 	private static $searchable_relationships = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
@@ -22,6 +22,8 @@ class FlickrPhotoTO extends DataObject implements TestOnly {
 		'Description' => 'HTMLText',
 		// test Date and SS_Datetime
 		'TakenAt' => 'SS_Datetime',
+		// same as above but different valid classname
+		'TakenAtDT' => 'Datetime',
 		'FirstViewed' => 'Date',
 		'Aperture' => 'Float',
 		'ShutterSpeed' => 'Varchar',
