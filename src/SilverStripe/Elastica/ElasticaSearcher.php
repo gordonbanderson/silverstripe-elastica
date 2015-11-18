@@ -246,11 +246,11 @@ class ElasticSearcher {
 	 */
 	public function search($q, $fieldsToSearch = null,  $testMode = false) {
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
@@ -309,11 +309,11 @@ class ElasticSearcher {
 	/* Perform an autocomplete search */
 	public function autocomplete_search($q, $field) {
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
@@ -321,7 +321,7 @@ class ElasticSearcher {
 		$qg->setQueryText($q);
 
 		//only one field but must be array
-		$qg->setFields(array($field));
+		$qg->setFields(array($field => 1));
 		$qg->setClasses($this->classes);
 
 		$qg->setPageLength($this->pageLength);
@@ -363,11 +363,11 @@ class ElasticSearcher {
 		}
 
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
