@@ -103,7 +103,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	}
 
 
-		public function testSimilarWeightingNotNumeric() {
+	public function testSimilarWeightingNotNumeric() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
@@ -231,10 +231,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 	public function testHighlightPassingFields() {
 		$es = new ElasticSearcher();
-		$locale = \i18n::default_locale();
-		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
-
 		$es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
 
 		$fields = array('Title' => 1, 'Description' => 1);
@@ -261,6 +258,18 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		}
 	}
 
+
+	public function testAutoCompleteGood() {
+		$es = new ElasticSearcher();
+		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title' => 1, 'Description' => 1);
+		$query = 'Lond';
+		$results = $es->autocomplete_search($query, 'Title');
+		$this->assertEquals(7, $results->getTotalItems());
+		foreach ($results->toArray() as $result) {
+			$this->assertTrue(strpos($result->Title, $query) > 0);
+		}
+	}
 
 
 	private function makeCode($paginated) {
