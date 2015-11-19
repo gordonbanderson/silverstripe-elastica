@@ -17,20 +17,24 @@ class ElasticaService {
 	 */
 	protected $buffer = array();
 
+
 	/**
 	 * @var bool controls whether indexing operations are buffered or not
 	 */
 	protected $buffered = false;
+
 
 	/**
 	 * @var \Elastica\Client Elastica Client object
 	 */
 	private $client;
 
+
 	/**
 	 * @var string index name
 	 */
 	private $indexName;
+
 
 	/**
 	 * The code of the locale being indexed or searched
@@ -38,11 +42,13 @@ class ElasticaService {
 	 */
 	private $locale;
 
+
 	/**
 	 * Mapping of DataObject ClassName and whether it is in the SiteTree or not
 	 * @var array $site_tree_classes;
 	 */
 	private static $site_tree_classes = array();
+
 
 	/**
 	 * Counter used to for testing, records indexing requests
@@ -51,10 +57,26 @@ class ElasticaService {
 	public static $indexing_request_ctr = 0;
 
 
+	/**
+	 * Array of highlighted fields, e.g. Title, Title.standard.  If this is empty then the
+	 * ShowHighlight field of SearchableField is used to determine which fields to highlight
+	 * @var array
+	 */
+	private $highlightedFields = array();
+
+
+	/*
+	Set the highlight fields for subsequent searches
+	 */
+	public function setHighlightedFields($newHighlightedFields) {
+		$this->highlightedFields = $newHighlightedFields;
+	}
+
+
 	/*
 	Enable this to allow test classes not to be ignored when indexing
 	 */
-	public static $test_mode = false;
+	public $test_mode = false;
 
 
 	/**
@@ -69,11 +91,9 @@ class ElasticaService {
 	}
 
 
-	public static function setIsInTestMode() {
-		self::$test_mode = true;
+	public function setTestMode($newTestMode) {
+		$this->test_mode = $newTestMode;
 	}
-
-
 
 
 	/**
@@ -82,6 +102,7 @@ class ElasticaService {
 	public function getClient() {
 		return $this->client;
 	}
+
 
 	/**
 	 * @return \Elastica\Index
@@ -96,12 +117,14 @@ class ElasticaService {
 		$this->locale = $newLocale;
 	}
 
+
 	private function getLocaleIndexName() {
 		$name = $this->indexName.'-'.$this->locale;
 		$name = strtolower($name);
 		$name = str_replace('-', '_', $name);
 		return $name;
 	}
+
 
 	/**
 	 * Performs a search query and returns a result list.
@@ -125,6 +148,13 @@ class ElasticaService {
 
 
 		$search = new Search(new Client());
+
+		if ($this->test_mode) {
+			$search->setOption('search_type',Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
+		}
+
+
+
 		$search->addIndex($this->getLocaleIndexName());
 
 		// If the query is a 'more like this' we can get the terms used for searching by performing
@@ -139,6 +169,9 @@ class ElasticaService {
 
 	        $path = str_replace('_search', '_validate/query', $path);
 	        $params = array('explain' => true, 'rewrite' => true);
+	        if ($this->test_mode) {
+	        	$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
+	        }
 
 	        $response = $this->getClient()->request(
 	            $path,
@@ -148,21 +181,17 @@ class ElasticaService {
 	        );
 
 			$r = $response->getData();
-
 			$terms = null; // keep in scope
-
 
 			if (isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
 				//echo $explanation;
 				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
-
 			}
 
 			if (isset($terms)) {
 				$this->MoreLikeThisTerms = $terms;
 			}
-
 		}
 
         if ($types) {
@@ -174,7 +203,6 @@ class ElasticaService {
         $path = $search->getPath();
         $params = $search->getOptions();
 
-
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
@@ -182,16 +210,26 @@ class ElasticaService {
 		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
 		$noMatchSize = $highlightsCfg['Phrase']['NoMatchSize'];
 
-
-
 		$quotedTypes = QueryGenerator::convertToQuotedCSV($types);
-		$filter = array('Type' => 'string', 'ShowHighlights' => true);
-		$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
+
+		$stringFields = $this->highlightedFields;
+		$usingProvidedHighlightFields = true;
+
+		if (sizeof($stringFields) == 0) {
+			$filter = array('Type' => 'string', 'ShowHighlights' => true);
+			$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
+			$usingProvidedHighlightFields = false;
+		}
+
 
 		$highlightFields = array();
-
 		foreach ($stringFields as $name) {
-			$highlightFields[$name.'.standard'] = array(
+			// Add the stemmed and the unstemmed for now
+			$fieldName = $name;
+			if (!$usingProvidedHighlightFields) {
+				$fieldName .= '.standard';
+			}
+			$highlightFields[$fieldName] = array(
 				'fragment_size' => $fragmentSize,
 				'number_of_fragments' => $nFragments,
 				'no_match_size'=> 200
@@ -222,7 +260,7 @@ class ElasticaService {
 
 
 
-		$search = new Search(new Client());
+		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
 		if ($types) {
 			foreach($types as $type) {
@@ -233,7 +271,7 @@ class ElasticaService {
 
         $path = $search->getPath();
         $params = $search->getOptions();
-		$searchResults = $search->search($query);
+		$searchResults = $search->search($query, $params);
 		if (isset($this->MoreLikeThisTerms)) {
 			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
@@ -261,13 +299,12 @@ class ElasticaService {
 	 * @return \Elastica\Mapping Mapping object
 	 */
 	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
-		try {
-			$mapping = $type->getMapping();
-		}
-		catch(\Elastica\Exception\ResponseException $e) {
+		$mapping = $type->getMapping();
+		if ($mapping == array()) {
 			$this->ensureIndex();
 			$mapping = $record->getElasticaMapping();
 			$type->setMapping($mapping);
+			$mapping = $mapping->toArray();
 		}
 		return $mapping;
 	}
@@ -291,6 +328,7 @@ class ElasticaService {
 		} else {
 			$index = $this->getIndex();
 			$type = $index->getType($typeName);
+
 			$this->ensureMapping($type, $record);
 
 			$type->addDocument($document);
@@ -316,6 +354,7 @@ class ElasticaService {
         ElasticaUtil::message("\n++++ $trace ++++\n");
         ElasticaUtil::message(print_r($op,1));
         ElasticaUtil::message("++++ /{$trace} ++++\n\n");
+        return $op;
 	}
 
 
@@ -383,7 +422,6 @@ class ElasticaService {
 			$sng = singleton($class);
 			$mapping = $sng->getElasticaMapping();
 			$name = $sng->getElasticaType();
-			echo "ES: Defining mapping for {$name}\n";
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
 		}
@@ -397,7 +435,6 @@ class ElasticaService {
 	 */
 	protected function refreshRecords($records) {
 		foreach ($records as $record) {
-			//echo 'Indexing '.$record->ClassName.' ('.$record->ID.")\n";
 			if ($record->showRecordInSearch()) {
 				$this->index($record);
 			}
@@ -434,11 +471,6 @@ class ElasticaService {
 	}
 
 
-	protected function recordsByClassConsiderVersionedToArray($class) {
-		return $this->recordsByClassConsiderVersioned($class)->toArray();;
-	}
-
-
 	/**
 	 * Refresh the records of a given class within the search index
 	 *
@@ -449,8 +481,6 @@ class ElasticaService {
 		$batchSize = 500;
 		$pages = $nRecords/$batchSize + 1;
 		$processing = true;
-
-
 
 		for ($i=0; $i < $pages; $i++) {
 			$this->startBulkIndex();
@@ -476,21 +506,20 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
+		echo "CURRENT LOCALE:".$this->locale;
 		foreach ($classes as $class) {
-			echo "Getting class count for $class\n";
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
 
 		$this->nDocumentsToIndexForLocale = $amount;
 		$this->nDocumentsIndexed = 0;
-		echo "Indexing $amount documents for locale $this->locale\n";
 
 		$index = $this->getIndex();
 
 		foreach ($this->getIndexedClasses() as $classname) {
 			ElasticaUtil::message("Indexing class $classname");
 
-			$inSiteTree = false;
+			$inSiteTree = $classname === 'SiteTree' ? true : false;
 			if (isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
@@ -551,8 +580,7 @@ class ElasticaService {
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 		if (isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
-			$settingsInstance = \Injector::inst()->create($settingsClassName);
-			$result = $settingsInstance->generateConfig();
+			$result = \Injector::inst()->create($settingsClassName);
 		} else {
 			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
 
@@ -573,38 +601,23 @@ class ElasticaService {
 			'FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
-			echo "INDEXED CLASSES: Checking $candidate\n";
-
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
-
 			// Only allow test classes in testing mode
 			if (isset($interfaces['TestOnly'])) {
-
 				if (in_array($candidate, $whitelist)) {
-					if (!self::$test_mode) {
+					if (!$this->test_mode) {
 						continue;
 					}
 				} else {
 					// If it's not in the test whitelist we definitely do not want to know
 					continue;
 				}
-
-
-				if (!self::$test_mode) {
-					echo "INDEXED CLASSES: Skipping $candidate, Dir isTest?".\Director::isTest()."\n";
-					continue;
-				}
-
 			}
 
 			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
-				echo "INDEXED CLASSES: Adding $candidate\n";
-
 				$classes[] = $candidate;
-			} else {
-				echo "INDEXED CLASSES: Instance does not have extension Searchable\n";
 			}
 		}
 

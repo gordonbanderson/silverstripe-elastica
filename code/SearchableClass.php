@@ -9,7 +9,7 @@ class SearchableClass extends DataObject {
 
 	private static $has_many = array('SearchableFields' => 'SearchableField');
 
-	private static $display_fields = array('Name', 'InSiteTreeHumanReadable');
+	private static $display_fields = array('Name', 'IsInSiteTreeHumanReadable');
 
 	function getCMSFields() {
 
@@ -54,7 +54,7 @@ class SearchableClass extends DataObject {
 	}
 
 
-	public function InSiteTreeHumanReadable() {
+	public function IsInSiteTreeHumanReadable() {
 		return $this->InSiteTree ? 'Yes' : 'No';
 	}
 }

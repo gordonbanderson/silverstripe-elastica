@@ -22,11 +22,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
+
 		$config = Config::inst();
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
-		ElasticaService::setIsInTestMode();
 		parent::setUpOnce();
 	}
 
@@ -46,6 +46,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$this->service->setTestMode(true);
 
 		// A previous test may have deleted the index and then failed, so check for this
 		if (!$this->service->getIndex()->exists()) {
@@ -102,18 +103,61 @@ class ElasticsearchBaseTest extends SapphireTest {
 	}
 
 
+	public function generateAssertionsFromArray($toAssert) {
+		echo '$expected = array('."\n";
+		foreach ($toAssert as $key => $value) {
+			$escValue = str_replace("'", '\\\'', $value);
+			echo "'$key' => '$escValue',\n";
+		}
+		echo ");\n";
+		echo '$this->assertEquals($expected, $somevar);'."\n";
+	}
+
+
+	public function generateAssertionsFromArray1D($toAssert) {
+		echo '$expected = array('."\n";
+		foreach ($toAssert as $key => $value) {
+			$escValue = str_replace("'", '\\\'', $value);
+			echo "'$escValue',";
+		}
+		echo ");\n";
+		echo '$this->assertEquals($expected, $somevar);'."\n";
+	}
+
+
 	/*
 	Helper methods for testing CMS fields
 	 */
 	public function checkTabExists($fields, $tabName) {
+		echo "Searching for tab $tabName\n";
 		$tab = $fields->findOrMakeTab("Root.{$tabName}");
-		$this->assertEquals($tabName, $tab->getName());
-		$this->assertEquals("Root_${tabName}", $tab->id());
+		$actualTabName = $tab->getName();
+		echo "TAB NAME:$tabName -> $actualTabName\n";
+		$splits = explode('.', $tabName);
+		$size = sizeof($splits);
+		print_r($splits);
+		echo "SIZE:$size\n";
+		//$nameToCheck = array_pop($splits);
+		$nameToCheck = end($splits);
+		echo "NAME TO CHECK:$nameToCheck\n";
+		$this->assertEquals($actualTabName, $nameToCheck);
+		if ($size == 1) {
+			$this->assertEquals("Root_${tabName}", $tab->id());
+		} else {
+			$expected = "Root_{$splits[0]}_set_{$splits[1]}";
+			$this->assertEquals($expected, $tab->id());
+		}
+
 		return $tab;
 	}
 
 
 	public function checkFieldExists($tab,$fieldName) {
+		$fields = $tab->Fields();
+		echo "TAB:{$tab->Name}\n";
+		foreach ($fields as $fi) {
+			echo "NAME:".$fi->Name."\n";
+		}
 		$field = $tab->fieldByName($fieldName);
 		$this->assertTrue($field != null);
 		return $field;

@@ -80,7 +80,7 @@ The output is verbose, this is a sample showing the mapping for a BlogEntry.
               }
             }
           },
-          "IsSiteTree" : {
+          "IsInSiteTree" : {
             "type" : "boolean"
           },
           "Link" : {

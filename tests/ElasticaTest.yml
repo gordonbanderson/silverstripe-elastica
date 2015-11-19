@@ -52,12 +52,28 @@ SearchableTestGrandFatherPage:
 
 
 
+ManyTypesPage:
+  manytypes0001:
+    Title: Many Types Page
+    Content: Many types of fields
+    BooleanField: true
+    CurrencyField: 100.25
+    DateField: 2014-04-15
+    DeciamlField: 7.897897
+    HtmlTextField: '<p>This is some <b>HTML</b>text field</p>'
+    HTMLVarcharField: '<p>This is some <b>HTML</b>varchar field</p>'
+    IntField: 677
+    PercentageField: 27
+    SS_DatetimeField: '2014-10-18 8:24:00'
+    TextField: 'This is a text field'
+    TimeField: 17:48:18
+    EnumField: wibble
 
 
 FlickrPhotoTO:
   photo0001:
-    Title: Bangkok
-    Description: Test photograph
+    Title: 'Bangkok'
+    Description: 'Test photograph'
     FlickrID: 1234567
     TakenAt: 2012-4-24 18:12:00
     FirstViewed: 2012-4-28
@@ -72,6 +88,10 @@ FlickrPhotoTO:
     OriginalWidth: 1446
     OriginalHeight: 1427
     AspectRatio: 1.013
+    TakenAt: 2011-7-4 20:36
+    TakenAtTD: 2011-7-4
+    Lat: 13.42
+    Lon: 100
 
 
 

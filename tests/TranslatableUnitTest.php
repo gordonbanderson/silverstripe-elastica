@@ -1,42 +1,68 @@
 <?php
 use SilverStripe\Elastica\ElasticSearcher;
 use Elastica\Type;
-class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
+use SilverStripe\Elastica\ReindexTask;
+
+class TranslatableUnitTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 	public static $ignoreFixtureFileFor = array('testResultsForEmptySearch');
 
-	public function setUp() {
-		parent::setUp();
+
+	public function setUpOnce() {
+		//Add translatable
+		SiteTree::add_extension('Translatable');
+		parent::setUpOnce();
 	}
 
-	public function tearDown() {
-		parent::tearDown();
-	}
 
-
-	public function testSuggested() {
+	public function testHighlightPassingFields() {
 		$es = new ElasticSearcher();
-		$locale = \i18n::default_locale();
-		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
 
-		$fields = array('Description' => 1,'Title' => 1);
-		$results = $es->search('New Zealind', $fields, true);
+		$es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
 
-		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
+		$fields = array('Title' => 1, 'Description' => 1);
+		$query = 'New Zealand';
+		$paginated = $es->search($query, $fields);
+		$ctr = 0;
+
+		foreach ($paginated->getList()->toArray() as $result) {
+			$ctr++;
+
+			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+				$snippet = $highlight->Snippet;
+				$snippet = strtolower($snippet);
+				$wordFound = false;
+				$lcquery = explode(' ', strtolower($query));
+				foreach ($lcquery as $part) {
+					$bracketed = '<strong class="hl">'.$part.'</strong>';
+					if (strpos($snippet, $bracketed) > 0) {
+						$wordFound = true;
+					}
+				}
+				$this->assertTrue($wordFound,'Highlight should have been found');
+			}
+		}
 	}
 
 
-	public function testResultsForEmptySearch() {
+	public function testAutoCompleteGood() {
 		$es = new ElasticSearcher();
-
-		$es->hideResultsForEmptySearch();
-		$this->assertFalse($es->getShowResultsForEmptySearch());
-
-		$es->showResultsForEmptySearch();
-		$this->assertTrue($es->getShowResultsForEmptySearch());
+		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title' => 1, 'Description' => 1);
+		$query = 'Lond';
+		$results = $es->autocomplete_search($query, 'Title');
+		$this->assertEquals(7, $results->getTotalItems());
+		foreach ($results->toArray() as $result) {
+			$this->assertTrue(strpos($result->Title, $query) > 0);
+		}
 	}
+
+
+
+
+// ---------------------
 
 
 	public function testMoreLikeThisSinglePhoto() {
@@ -89,32 +115,6 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 
 
-	public function testSimilarNoWeighting() {
-		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-		$es = new ElasticSearcher();
-		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title.standard', 'Description.standard');
-		try {
-			$paginated = $es->moreLikeThis($fp, $fields, true);
-
-		} catch (InvalidArgumentException $e) {
-			$this->assertEquals('Fields must be of the form fieldname => weight', $e->getMessage());
-		}
-	}
-
-
-	public function testSimilarWeightingNotNumeric() {
-		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-		$es = new ElasticSearcher();
-		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title.standard' => 4, 'Description.standard' => 'not numeric');
-		try {
-			$paginated = $es->moreLikeThis($fp, $fields, true);
-
-		} catch (InvalidArgumentException $e) {
-			$this->assertEquals('Fields must be of the form fieldname => weight', $e->getMessage());
-		}
-	}
 
 	/*
 	test blank fields
@@ -143,6 +143,31 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, Texas]", $results[7]->Title);
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific, Switchman's Tower, San Antonio, Texas]", $results[8]->Title);
 		$this->assertEquals("Flash Light view in new Subterranean", $results[9]->Title);
+	}
+
+
+	/*
+	FIXME - this is not working, not sure why.  Trying to complete coverage of ReindexTask
+	 */
+	public function testBulkIndexing() {
+		//Reset the index, so that nothing has been indexed
+		$this->service->reset();
+
+		//Number of requests indexing wise made to Elasticsearch server
+		$reqs = $this->service->getIndexingRequestCtr();
+
+		$task = new ReindexTask($this->service);
+
+		// null request is fine as no parameters used
+		$task->run(null);
+
+		//Check that the number of indexing requests has increased by 2
+		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
+		//One call is made for each of Page and FlickrPhotoTO
+		$this->assertEquals(2,$deltaReqs);
+
+		// default installed pages plus 100 FlickrPhotoTOs
+		$this->checkNumberOfIndexedDocuments(103);
 	}
 
 
@@ -189,87 +214,8 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 
 
-	public function testHighlightsAsIfCMSEdited() {
-		$es = new ElasticSearcher();
-		$locale = \i18n::default_locale();
-		$es->setLocale($locale);
-		$es->setClasses('FlickrPhotoTO');
-
-		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Title');
-		$titleField = SearchableField::get()->filter($filter)->first();
-		$titleField->ShowHighlights = true;
-		$titleField->write();
-
-		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Description');
-		$nameField = SearchableField::get()->filter($filter)->first();
-		$nameField->ShowHighlights = true;
-		$nameField->write();
-
-		$fields = array('Title' => 1, 'Description' => 1);
-		$query = 'New Zealand';
-		$paginated = $es->search($query, $fields);
-		$ctr = 0;
-
-		foreach ($paginated->getList()->toArray() as $result) {
-			$ctr++;
-			foreach ($result->SearchHighlightsByField->Description_standard->getIterator() as $highlight) {
-				$snippet = $highlight->Snippet;
-				$snippet = strtolower($snippet);
-				$wordFound = false;
-				$lcquery = explode(' ', strtolower($query));
-				foreach ($lcquery as $part) {
-					$bracketed = '<strong class="hl">'.$part.'</strong>';
-					if (strpos($snippet, $bracketed) > 0) {
-						$wordFound = true;
-					}
-				}
-				$this->assertTrue($wordFound,'Highlight should have been found');
-			}
-		}
-	}
 
 
-	public function testHighlightPassingFields() {
-		$es = new ElasticSearcher();
-		$es->setClasses('FlickrPhotoTO');
-		$es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
-
-		$fields = array('Title' => 1, 'Description' => 1);
-		$query = 'New Zealand';
-		$paginated = $es->search($query, $fields);
-		$ctr = 0;
-
-		foreach ($paginated->getList()->toArray() as $result) {
-			$ctr++;
-
-			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
-				$snippet = $highlight->Snippet;
-				$snippet = strtolower($snippet);
-				$wordFound = false;
-				$lcquery = explode(' ', strtolower($query));
-				foreach ($lcquery as $part) {
-					$bracketed = '<strong class="hl">'.$part.'</strong>';
-					if (strpos($snippet, $bracketed) > 0) {
-						$wordFound = true;
-					}
-				}
-				$this->assertTrue($wordFound,'Highlight should have been found');
-			}
-		}
-	}
-
-
-	public function testAutoCompleteGood() {
-		$es = new ElasticSearcher();
-		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title' => 1, 'Description' => 1);
-		$query = 'Lond';
-		$results = $es->autocomplete_search($query, 'Title');
-		$this->assertEquals(7, $results->getTotalItems());
-		foreach ($results->toArray() as $result) {
-			$this->assertTrue(strpos($result->Title, $query) > 0);
-		}
-	}
 
 
 	private function makeCode($paginated) {

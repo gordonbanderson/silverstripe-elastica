@@ -78,30 +78,6 @@ class ElasticSearchPage extends Page {
   	);
 
 
-	/**
-	* When a page is created, use the index stopwords as a default for similar search
-	* FIXME - this is not working as expected
-	*/
-	public function populateDefaultsNOT() {
-		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
-		$elasticService->setLocale($this->Locale);
-
-		//FIXME - double check what is going on here, populateDefaults being called for a
-		//new instance of ElasticSearchPage at some point?
-		try {
-			$indexSettings = $elasticService->getIndexSettingsForCurrentLocale();
-			$this->SimilarityStopWords = $indexSettings->getStopWords();
-		} catch (Exception $e) {
-			//echo "Cant populate defaults - why?";
-		}
-
-		parent::populateDefaults();
-	}
-
-
-
-
-
 	/*
 	Add a tab with details of what to search
 	 */
@@ -117,8 +93,6 @@ class ElasticSearchPage extends Page {
 			new Tab('Aggregations'),
 			new Tab('Similarity')
 		));
-
-
 
 
 		// ---- similarity tab ----
@@ -176,7 +150,11 @@ class ElasticSearchPage extends Page {
 		// ---- search details tab ----
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
+<<<<<<< HEAD
 		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
+=======
+		$fields->addFieldToTab('Root.Main', $identifierField);
+>>>>>>> a9d9843c2a21ef0360ac812b4943324de2fa9900
 
 
 		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
@@ -312,8 +290,6 @@ class ElasticSearchPage extends Page {
 			'Weight' => 'Weighting'
         ));
 
-
-
 		return $fields;
 	}
 
@@ -333,6 +309,10 @@ class ElasticSearchPage extends Page {
 		$suffix =  '';
 		if ($mode == 'Stage.Live') {
 			$suffix = '_Live';
+		}
+
+		if (!$this->Identifier) {
+			$result->error('The identifier cannot be blank');
 		}
 
 		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
@@ -361,6 +341,17 @@ class ElasticSearchPage extends Page {
 						$result->error('The class '.$clazz.' does not exist');
 					}
 				}
+			}
+		} else {
+			echo '****** SITE TREE ONLY ******';
+		}
+
+
+		foreach ($this->ElasticaSearchableFields() as $esf) {
+			if ($esf->Weight == 0) {
+				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a zero weight. ");
+			} else if ($esf->Weight < 0) {
+				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a negative weight. ");
 			}
 		}
 
@@ -395,18 +386,22 @@ class ElasticSearchPage extends Page {
     	$delta = array_keys($esfs->map()->toArray());
 		$newSearchableFields = $sfs->exclude('ID', $delta);
 
-		foreach ($newSearchableFields->getIterator() as $newSearchableField) {
-			error_log('NEW FIELD:'.$newSearchableField->Name);
-			$newSearchableField->Active = true;
-			$newSearchableField->Weight = 1;
+		if ($newSearchableFields->count() > 0) {
+			foreach ($newSearchableFields->getIterator() as $newSearchableField) {
+				error_log('NEW FIELD:'.$newSearchableField->Name);
+				$newSearchableField->Active = true;
+				$newSearchableField->Weight = 1;
 
-			$esfs->add($newSearchableField);
+				$esfs->add($newSearchableField);
 
-			// Note 1 used instead of true for SQLite3 testing compatibility
-			$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
-			$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
-			DB::query($sql);
+				// Note 1 used instead of true for SQLite3 testing compatibility
+				$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
+				$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
+				DB::query($sql);
+			}
 		}
+
+
 
 		// Mark all the fields for this page as inactive initially
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ";
@@ -525,8 +520,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setMinWordLength($this->MinWordLength);
 		$es->setMaxWordLength($this->MaxWordLength);
 		$es->setMinShouldMatch($this->MinShouldMatch);
-
 		$es->setSimilarityStopWords($this->SimilarityStopWords);
+
 
 
 
@@ -553,7 +548,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
-		if ($this->SearchHelper) {
+		if ($ep->SearchHelper) {
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();
 		} else {
@@ -704,6 +699,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
+
 		if ($this->SearchHelper) {
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();

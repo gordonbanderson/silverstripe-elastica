@@ -31,8 +31,9 @@ class ElasticaAutoCompleteController extends Controller {
 		if ($filter) {
 			$es->addFilter('InSiteTree', true);
 		}
-
 		$resultList = $es->autocomplete_search($query, array($field => 1));
+		$es->setClasses($classes);
+		$resultList = $es->autocomplete_search($query,$field);
 		$result = array();
 		$result['Query'] = $query;
 		$suggestions = array();

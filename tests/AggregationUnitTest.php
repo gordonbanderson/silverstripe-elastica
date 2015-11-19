@@ -938,6 +938,19 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		// Shutter speed of 1 second is a special case, only 1 case
 		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => '1'));
 		$this->assertEquals(1, $resultList->getTotalItems());
+
+		// test outlying vals and ensure they do not crash the code
+		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => ''));
+		$this->assertEquals(0, $resultList->getTotalItems());
+
+		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => '/'));
+		$this->assertEquals(0, $resultList->getTotalItems());
+
+		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => '2/'));
+		$this->assertEquals(0, $resultList->getTotalItems());
+
+		$resultList = $this->search('Image taken from page 471', $fields, array('ShutterSpeed' => '/2'));
+		$this->assertEquals(0, $resultList->getTotalItems());
 	}
 
 

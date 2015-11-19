@@ -15,25 +15,88 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 		$mainTab = $this->checkTabExists($fields,'Main');
 		$this->checkFieldExists($mainTab, 'Identifier');
+		$this->checkFieldExists($mainTab, 'ContentForEmptySearch');
 
-		$searchTab = $this->checkTabExists($fields,'SearchDetails');
+		$searchTab = $this->checkTabExists($fields,'Search.SearchFor');
+		$fieldsTab = $this->checkTabExists($fields,'Search.Fields');
+		$autoCompleteTab = $this->checkTabExists($fields,'Search.AutoComplete');
+		$aggTab = $this->checkTabExists($fields,'Search.Aggregations');
+		$simTab = $this->checkTabExists($fields,'Search.Similarity');
 
 		$this->checkFieldExists($searchTab, 'InfoField');
-		$this->checkFieldExists($searchTab, 'SearchHelper');
-		$this->checkFieldExists($searchTab, 'ElasticSearchPageSearchField');
-		$this->checkFieldExists($searchTab, 'SearchFieldsMessage');
+		$this->checkFieldExists($searchTab, 'SiteTreeOnly');
+		$this->checkFieldExists($searchTab, 'ClassesToSearch');
+		$this->checkFieldExists($searchTab, 'InfoField');
+		$this->checkFieldExists($searchTab, 'SiteTreeOnly');
+		$this->checkFieldExists($searchTab, 'ResultsPerPage');
+
+		$this->checkFieldExists($aggTab, 'SearchHelper');
+
+		$this->checkFieldExists($fieldsTab, 'SearchInfo');
+		$this->checkFieldExists($fieldsTab, 'ElasticaSearchableFields');
+
+		$this->checkFieldExists($simTab, 'SimilarityNotes');
+		$this->checkFieldExists($simTab, 'MinTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MinDocFreq');
+		$this->checkFieldExists($simTab, 'MaxDocFreq');
+		$this->checkFieldExists($simTab, 'MinWordLength');
+		$this->checkFieldExists($simTab, 'MaxWordLength');
+		$this->checkFieldExists($simTab, 'MinShouldMatch');
+
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
+		$this->checkFieldExists($simTab, 'MaxTermFreq');
 	}
 
 
-	public function testInvalidClassName() {
+	public function testCannotWriteBlankIdentifier() {
+		$esp = new ElasticSearchPage();
+		$esp->Title = 'test';
+		try {
+			$esp->write();
+		} catch (ValidationException $e) {
+			$this->assertEquals('The identifier cannot be blank', $e->getMessage());
+		}
+	}
+
+
+	public function testCannotWriteDuplicateIdentifier() {
+		$esp = new ElasticSearchPage();
+		$esp->Title = 'test';
+		$otherIdentifier = ElasticSearchPage::get()->first()->Identifier;
+		$esp->Identifier = $otherIdentifier;
+		try {
+			$esp->write();
+		} catch (ValidationException $e) {
+			$this->assertEquals('The identifier testsearchpage already exists', $e->getMessage());
+		}
+	}
+
+
+	public function testCannotWriteInvalidClassname() {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 		$searchPage->ClassesToSearch = 'ThisClassDoesNotExist';
+		$searchPage->SiteTreeOnly = false;
 
 		try {
 			$searchPage->write();
 			$this->fail('Page should not be writeable');
 		} catch (ValidationException $e) {
 			$this->assertEquals('The class ThisClassDoesNotExist does not exist', $e->getMessage());
+		}
+	}
+
+	public function testCannotWriteNoSiteTreeOnlyNoClassNames() {
+		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->ClassesToSearch = '';
+		$searchPage->SiteTreeOnly = false;
+
+		try {
+			$searchPage->write();
+			$this->fail('Page should not be writeable');
+		} catch (ValidationException $e) {
+			$this->assertEquals('At least one searchable class must be available, or SiteTreeOnly flag set', $e->getMessage());
 		}
 	}
 
@@ -59,6 +122,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 	public function testNonSearchableClass() {
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
+		$searchPage->SiteTreeOnly = false;
 
 		// This does not implement searchable
 		$searchPage->ClassesToSearch = 'Member';
@@ -69,6 +133,12 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		} catch (ValidationException $e) {
 			$this->assertEquals('The class Member must have the Searchable extension', $e->getMessage());
 		}
+
+		$this->assertEquals(8, $searchPage->ElasticaSearchableFields()->count());
+
+		//Because the write should fail, this will still be the original value of 8
+		$this->assertEquals(8, $searchPage->ElasticaSearchableFields()->filter('Active', true)->count());
+
 	}
 
 
@@ -94,7 +164,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		sort($sfs);
 		$expected = array('Aperture','AspectRatio','Description','FirstViewed','FlickrID',
 			'FlickrSetTOs','FlickrTagTOs','FocalLength35mm','ISO','Photographer','ShutterSpeed',
-			'TakenAt','Title');
+			'TakenAt', 'TakenAtDT', 'Title');
 		$this->assertEquals($expected, $sfs);
 
 
@@ -128,7 +198,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'SearchableTestPage' => array('Title','Content','Country','PageDate'),
 			'FlickrTagTO' => array('RawValue'),
 			'FlickrAuthorTO' => array('PathAlias','DisplayName','FlickrPhotoTOs'),
-			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
+			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'TakenAtDT', 'Aperture',
 				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTagTOs','FlickrSetTOs',
 				'FirstViewed','AspectRatio'),
 			'FlickrSetTO' => array('Title','FlickrID','Description')

@@ -272,7 +272,6 @@ class BaseIndexSettings {
 		//
 		//
 
-		print_r($properties);
 		return $properties;
 	}
 }

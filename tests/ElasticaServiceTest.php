@@ -14,6 +14,12 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
+	public function setup() {
+		parent::setup();
+		$this->service->setTestMode(true);
+	}
+
+
 	public function testCreateIndexInvalidLocale() {
 		// fake locale
 		$this->service->setLocale('sw_NZ');
@@ -29,19 +35,57 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testEnsureMapping() {
-		$this->service->reset();
+
+		/*
+				$index = $this->service->getIndex();
+		$this->assertTrue($index->exists());
+
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fpMappingBefore = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
+
+
+
+
+		$this->checkNumberOfIndexedDocuments(-1);
+
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fpMappingAfter = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
+
+		$this->assertEquals($fpMappingBefore, $fpMappingAfter);
+
+		 */
 
 		$index = $this->service->getIndex();
 
 
 		$mapping = $index->getMapping();
-		//print_r($mapping);
+
+		//$mapping = $mapping['FlickrPhotoTO'];
 
 		$type = $index->getType('FlickrPhotoTO');
 		$record = FlickrPhotoTO::get()->first();
-		$mapping = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
- 		//assertTrue(false, 'Figure out what this method should do');
-		//print_r($mapping);
+		$mappingBefore = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
+
+		$this->assertEquals($mapping['FlickrPhotoTO'], $mappingBefore['FlickrPhotoTO']);
+
+
+		// Delete the index
+		echo "++++++++++++++++++++++++++++++++++++ DELETING INDEX\n";
+		$task = new DeleteIndexTask($this->service);
+		$task->run(null);
+
+		$mappingAfter = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
+
+		echo "MAPPING AFTER:\n";
+		print_r($mappingAfter);
+
+		//unset($mappingBefore['IsInSiteTree']);
+
+
+
+		$this->assertEquals($mappingBefore, $mappingAfter);
+
+
 	}
 
 
@@ -175,14 +219,26 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	which other modules are installed, hence no array comparison
 	 */
 	public function testGetIndexedClasses() {
+		$this->service->setTestMode(false);
+
+		echo "+++++++++++++++++++++++++++++++++++++++++++\n";
+		$indexedClasses = $this->service->getIndexedClasses();
+
+		// Just the non testable classes
+		$this->assertContains('Page', $indexedClasses);
+		$this->assertContains('SiteTree', $indexedClasses);
+
+
+		// Get all classes including the test ones
+		$this->service->setTestMode(true);
 		$indexedClasses = $this->service->getIndexedClasses();
 		$this->assertContains('Page', $indexedClasses);
 		$this->assertContains('SiteTree', $indexedClasses);
-		$this->assertContains('FlickrAuthorTO', $indexedClasses);
 		$this->assertContains('FlickrPhotoTO', $indexedClasses);
 		$this->assertContains('FlickrSetTO', $indexedClasses);
 		$this->assertContains('FlickrTagTO', $indexedClasses);
 		$this->assertContains('SearchableTestPage', $indexedClasses);
+
 	}
 
 
@@ -223,4 +279,10 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		//FIXME better options for testing here?
 	}
 
+
+	public function testListIndexes() {
+		$message = 'This is a test trace';
+		$trace = $this->service->listIndexes($message);
+		$this->assertContains('elastica_ss_module_test_en_us', print_r($trace,1));
+	}
 }

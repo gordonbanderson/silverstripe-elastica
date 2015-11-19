@@ -29,6 +29,109 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+
+	public function testgetFieldValuesAsArrayFromFixtures() {
+		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
+		$result = $manyTypes->getFieldValuesAsArray();
+		$this->generateAssertionsFromArray($result);
+		$expected = array(
+			'BooleanField' => '1',
+			'CurrencyField' => '100.25',
+			'DateField' => '2014-04-15',
+			'DecimalField' => '0',
+			'EnumField' => '',
+			'HTMLTextField' => '',
+			'HTMLVarcharField' => 'This is some *HTML*varchar field',
+			'IntField' => '677',
+			'PercentageField' => '27',
+			'SS_DatetimeField' => '2014-10-18 08:24:00',
+			'TextField' => 'This is a text field',
+			'TimeField' => '17:48:18',
+			'Title' => 'Many Types Page',
+			'Content' => 'Many types of fields',
+		);
+		$this->assertEquals($expected, $result);
+
+	}
+
+
+
+	public function testBadFormatFields() {
+		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
+		$fields = $manyTypes->getElasticaFields();
+
+		$expected = array('type' => 'boolean');
+		$this->assertEquals($expected, $fields['BooleanField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['CurrencyField']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d');
+		$this->assertEquals($expected, $fields['DateField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['DecimalField']);
+
+		$stringFormat = array(
+			'type' => 'string',
+			'analyzer' => 'stemmed',
+			'term_vector' => 'yes',
+			'fields' => array(
+				'standard' => array(
+					'type' => 'string',
+					'analyzer' => 'unstemmed',
+					'term_vector' => 'yes'
+				),
+				'shingles' => array(
+					'type' => 'string',
+					'analyzer' => 'shingles',
+					'term_vector' => 'yes'
+				)
+			)
+		);
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['EnumField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['HTMLTextField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['HTMLVarcharField']);
+
+		$expected = array('type' => 'integer');
+		$this->assertEquals($expected, $fields['IntField']);
+
+		$expected = array('type' => 'double');
+		$this->assertEquals($expected, $fields['PercentageField']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['SS_DatetimeField']);
+
+		$expected = $stringFormat;
+		$this->assertEquals($expected, $fields['TextField']);
+
+		$expected = array('type' => 'date', 'format' => 'H:m:s');
+		$this->assertEquals($expected, $fields['TimeField']);
+	}
+
+
+
+	public function testGetDateFields() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$fields = $flickrPhoto->getElasticaFields();
+
+		print_r($fields);
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['TakenAt']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$this->assertEquals($expected, $fields['TakenAtDT']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d');
+		$this->assertEquals($expected, $fields['FirstViewed']);
+	}
+
+
 	/**
 	 * Test a valid identifier
 	 */
@@ -95,7 +198,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		// check strings
 		$shouldBeString = array('Title','Description');
 		$shouldBeInt = array('ISO','FlickrID','FocalLength35mm');
-		$shouldBeBoolean = array('IsSiteTree');
+		$shouldBeBoolean = array('IsInSiteTree');
 		$shouldBeDouble = array('Aperture');
 		$shouldBeDateTime = array('TakenAt');
 		$shouldBeDate = array('FirstViewed');
@@ -199,7 +302,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 	/*
 	Get a record as an Elastic document and check values
 	 */
-	public function testElasticaDocument() {
+	public function testGetElasticaDocument() {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$doc = $flickrPhoto->getElasticaDocument()->getData();
 
@@ -207,20 +310,21 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['Title'] = 'Bangkok' ;
 		$expected['FlickrID'] = '1234567';
 		$expected['Description'] = 'Test photograph';
-		$expected['TakenAt'] = '2012-04-24 18:12:00';
+		$expected['TakenAt'] = '2011-07-04 20:36:00';
+		$expected['TakenAtDT'] = null;
 		$expected['FirstViewed'] = '2012-04-28';
-		$expected['Aperture'] = '8';
+		$expected['Aperture'] = 8.0;
 
 		//Shutter speed is altered for aggregations
 		$expected['ShutterSpeed'] = '0.01|1/100';
-		$expected['FocalLength35mm'] = '140';
-		$expected['ISO'] = '400';
-		$expected['AspectRatio'] = '1.013';
+		$expected['FocalLength35mm'] = 140;
+		$expected['ISO'] = 400;
+		$expected['AspectRatio'] = 1.013;
 		$expected['Photographer'] = array();
 		$expected['FlickrTagTOs'] = array();
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
-		$expected['location'] = array('lat' => 0, 'lon' => 0);
+		$expected['location'] = array('lat' => 13.42, 'lon' => 100);
 
 		print_r($doc);
 
@@ -263,22 +367,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testDeleteNonExistentDoc() {
-		/*
 		$fp = new FlickrPhotoTO();
-		$fp->Title = 'Test Deletion';
-		$fp->IndexingOff = true; // do no index this
-		$fp->write();
-		$fp->IndexingOff = false;
-		$this->assertFalse($fp->IndexingOff);
-		try {
-			$fp->delete();
-			$this->fail('Deletion of non indexed DataObject should have failed');
-		} catch (Exception $e) {
-			$this->assertEquals('Doc of id 2 not found and can not be deleted', $e->getMessage());
-		}
-		*/
-
-	$fp = new FlickrPhotoTO();
 		$fp->Title = 'Test Deletion';
 		$fp->IndexingOff = true; // do no index this
 		$fp->write();
@@ -287,24 +376,12 @@ class SearchableTest extends ElasticsearchBaseTest {
 		try {
 			$fp->delete();
 		} catch (Elastica\Exception\NotFoundException $e) {
-			echo "WOOOOOOOOOOOOOOOOOOOT";
-			$this->assertEquals('', $e->getMessage());
+			//This error comes out of Elastica itself
+			$this->assertEquals('Doc id 2 not found and can not be deleted', $e->getMessage());
 		}
 
 	}
 
-
-
-	/*
-	getFieldValuesAsArray - needs html
-	onBeforePublish
-	onAfterPublish
-	doDeleteDocumentIfInSearch - search flag
-	doDeleteDocument - delete a non existent doc
-	getAllSearchableFields - this one may be tricky, needs searchable fields not set
-	fieldsToElasticaConfig - array case
-	requireDefaultRecords - recursive method issue
-	 */
 
 	public function testUnpublishPublish() {
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
@@ -318,6 +395,87 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 	}
+
+
+	/**
+	 * For a page that is already published, set the ShowInSearch flag to false,
+	 * write to stage, and then rePublish
+	 * @return [type] [description]
+	 */
+	public function testUnpublishAlreadyPublisedhHideFromSearch() {
+		$page = $this->objFromFixture('SiteTree', 'sitetree001');
+	//	$page->doUnpublish();
+
+		// By default the page is not indexed (for speed reasons)
+		// Change the title, turn on indexing and save it
+		// This will invoke a database write
+		$page->Title = "I will be indexed";
+		$page->IndexingOff = true;
+		$page->write();
+
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		// assert keys of term vectors, this will indicate page
+		// is stored in the index or not
+		$termVectors = $page->getTermVectors();
+		$expected = array(
+		'0' => 'Content',
+		'1' => 'Content.shingles',
+		'2' => 'Content.standard',
+		'3' => 'Link',
+		'4' => 'Title',
+		'5' => 'Title.autocomplete',
+		'6' => 'Title.shingles',
+		'7' => 'Title.standard',
+		);
+
+		$keys = array_keys($termVectors);
+		sort($keys);
+
+		$this->assertEquals($expected, $keys);
+
+
+//CURRENT
+		$page->ShowInSearch = false;
+		$page->write();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		$page->doPublish();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
+
+
+	/**
+	 * For a page that is not published, set the ShowInSearch flag to false,
+	 * write to stage, and then rePublish.  Same as previous test except
+	 * no need to delete from the index as it already does not exist
+	 * @return [type] [description]
+	 */
+	public function testUnpublishPublishHideFromSearch() {
+		$page = $this->objFromFixture('SiteTree', 'sitetree001');
+		$page->doUnpublish();
+
+		// By default the page is not indexed (for speed reasons)
+		// Change the title, turn on indexing and save it
+		// This will invoke a database write
+		$page->Title = "I will be indexed";
+		$page->IndexingOff = true;
+		$page->write();
+
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+		$page->ShowInSearch = false;
+		$page->write();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		$page->doPublish();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
 
 
 
@@ -396,17 +554,27 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The method thisMethodDoesNotExist not found in class FlickrPhotoTO, please check configuration',
 				 $e->getMessage());
 		}
+
+		echo 'UPDATING TO ';
+		print_r($sr);
+
+
+    	//$sr2 = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
+
+    	// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
+    	$config->remove('FlickrPhotoTO', 'searchable_relationships');
 		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
 	}
 
 
 	public function testFieldsToElasticaConfig() {
+		$config = Config::inst();
+		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
 		print_r($fields);
 
 	}
-
 
 
 	private function getResultsFor($query, $pageLength = 10) {

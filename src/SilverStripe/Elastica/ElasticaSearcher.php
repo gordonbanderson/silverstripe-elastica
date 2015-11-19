@@ -57,6 +57,13 @@ class ElasticSearcher {
 	 */
 	private $aggregations = null;
 
+	/**
+	 * Array of highlighted fields, e.g. Title, Title.standard.  If this is empty then the
+	 * ShowHighlight field of SearchableField is used to determine which fields to highlight
+	 * @var array
+	 */
+	private $highlightedFields = array();
+
 
 	/*
 	Allow an empty search to return either no results (default) or all results, useful for
@@ -220,6 +227,14 @@ class ElasticSearcher {
 	}
 
 
+	/*
+	Set the highlight fields for subsequent searches
+	 */
+	public function setHighlightedFields($newHighlightedFields) {
+		$this->highlightedFields = $newHighlightedFields;
+	}
+
+
 
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
@@ -229,13 +244,13 @@ class ElasticSearcher {
 	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
-	public function search($q, $fieldsToSearch = null) {
+	public function search($q, $fieldsToSearch = null,  $testMode = false) {
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
@@ -257,7 +272,10 @@ class ElasticSearcher {
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
-
+		$elasticService->setHighlightedFields($this->highlightedFields);
+		if ($testMode) {
+			$elasticService->setTestMode(true);
+		}
 		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
@@ -291,11 +309,11 @@ class ElasticSearcher {
 	/* Perform an autocomplete search */
 	public function autocomplete_search($q, $field) {
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
@@ -303,14 +321,13 @@ class ElasticSearcher {
 		$qg->setQueryText($q);
 
 		//only one field but must be array
-		$qg->setFields(array($field));
+		$qg->setFields(array($field => 1));
 		$qg->setClasses($this->classes);
 
 		$qg->setPageLength($this->pageLength);
 		$qg->setStart(0);
 
 		$qg->setShowResultsForEmptyQuery(false);
-
 		$query = $qg->generateElasticaAutocompleteQuery();
 
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
@@ -331,20 +348,36 @@ class ElasticSearcher {
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
 	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
 	 * @param  array $fieldsToSearch  array of fieldnames to search, mapped to weighting
+	 * @param  $$testMode Use all shards, not just one, for consistent results during unit testing. See
+	 *         https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-is-broken.html#relevance-is-broken
 	 * @return resultList  List of results
 	 */
-	public function moreLikeThis($indexedItem, $fieldsToSearch) {
+	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
+		if ($indexedItem == null) {
+			throw new \InvalidArgumentException('Indexed item cannot be null');
+		}
+
+		if ($fieldsToSearch == null) {
+			throw new \InvalidArgumentException('Fields cannot be null');
+		}
+
 		if ($this->locale == null) {
-			if (!class_exists('Translatable')) {
+			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
+				$this->locale = \Translatable::get_current_locale();
+			} else {
 				// if no translatable we only have the default locale
 				$this->locale = \i18n::default_locale();
-			} else {
-				$this->locale = \Translatable::get_current_locale();
 			}
 		}
 
 		$weightedFieldsArray = array();
 		foreach ($fieldsToSearch as $field => $weighting) {
+			if (!is_string($field)) {
+				throw new \InvalidArgumentException('Fields must be of the form fieldname => weight');
+			}
+			if (!is_numeric($weighting)) {
+				throw new \InvalidArgumentException('Fields must be of the form fieldname => weight');
+			}
 			$weightedField = $field.'^'.$weighting;
 			$weightedField = str_replace('^1', '', $weightedField);
 			array_push($weightedFieldsArray, $weightedField);
@@ -389,6 +422,9 @@ class ElasticSearcher {
 
         $elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
+		if ($testMode) {
+			$elasticService->setTestMode(true);
+		}
 
 
 		// pagination

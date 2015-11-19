@@ -18,7 +18,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
 		$config->update('Injector', 'SilverStripe\Elastica\ElasticaService', $constructor);
-		ElasticaService::setIsInTestMode();
 		parent::setUpOnce();
 	}
 
@@ -43,6 +42,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+		$this->service->setTestMode(true);
 
 		// A previous test may have deleted the index and then failed, so check for this
 		if (!$this->service->getIndex()->exists()) {
@@ -113,7 +113,8 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$ctr = 0;
 		foreach ($items as $item) {
 			$text = strip_tags($item);
-			//echo "SELECTED:\$this->assertSelectorStartsWithOrEquals('strong.hl', $ctr, '$text');\n";
+			$escaped = str_replace("'", "\'", $text);
+			echo "SELECTED:\$this->assertSelectorStartsWithOrEquals('{$selector}', $ctr, '$escaped');\n";
 			echo "ITEM:".$item."\n";
 			$ctr++;
 		}

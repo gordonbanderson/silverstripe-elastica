@@ -55,6 +55,20 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testGetQuerySuggester() {
+		$qg = new QueryGenerator();
+		$qg->setQueryText('New Zealand');
+		$expected = array('query-suggestions' => array(
+			'text' => 'New Zealand',
+			'term' => array('field' => '_all'))
+		);
+		$this->assertEquals(
+			$expected,
+			$this->invokeMethod($qg, 'getQuerySuggester', array())
+		);
+	}
+
+
 	public function testEmptyTextShowNone() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');

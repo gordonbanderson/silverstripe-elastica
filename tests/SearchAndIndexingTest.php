@@ -35,9 +35,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	}
 
-
-
-
 	public function testInvalidSearchFields() {
 		// FIXME test to check unweighted fields
 	}
@@ -95,18 +92,10 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			'ISO' => 1
 		);
 
-		foreach ($stopwords as $stopword) {
-			//FIXME - what should happen in this case?
-			//Currently it is matching and it should not
-			//$this->search($stopword, 0);
-			$this->search($stopword, 0, array('Title' => 1));
-			$this->search($stopword, 0, array('Description' => 1));
-			$this->search($stopword, 0, array('Title' => 2, 'Description' => 1));
-
-			// this tests numeric fields also
-			$this->search($stopword, 0, $allFields);
-		}
-
+		$expected = array('that','into','a','an','and','are','as','at','be','but','by','for','if',
+			'in','into','is','it','of','on','or','such','that','the','their','then','there','these',
+			'they','this','to','was','will','with');
+		$this->assertEquals($expected, $stopwords);
 	}
 
 
@@ -338,9 +327,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListToArray() {
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO')); //, 'Type' => 'string'));
-		foreach ($sfs->getIterator() as $sf) {
-			echo "T1 $sf->ClazzName $sf->Name $sf->Type\n";
-		}
 
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
 		foreach ($sfs->getIterator() as $sf) {
@@ -415,16 +401,50 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			echo $key->Name."\n";
 		}*/
 
-		//There are seven classes with Searchable extension added
-		$this->assertEquals(7, $searchableClasses->count());
+		$sortedNames = $searchableClasses->Map('Name')->toArray();
+		sort($sortedNames);
+
+		$expected = array(
+		'0' => 'FlickrAuthorTO',
+		'1' => 'FlickrPhotoTO',
+		'2' => 'FlickrSetTO',
+		'3' => 'FlickrTagTO',
+		'4' => 'Page',
+		'5' => 'SearchableTestPage',
+		'6' => 'SiteTree'
+		);
+		$this->assertEquals($expected, $sortedNames);
+
 
 
 		$searchableFields = SearchableField::get();
-		/*foreach ($searchableFields->getIterator() as $key) {
-			echo $key->Name."\n";
-		}*/
+		$expected = array(
+			'0' => 'Aperture',
+			'1' => 'AspectRatio',
+			'2' => 'Content',
+			'3' => 'Country',
+			'4' => 'Description',
+			'5' => 'DisplayName',
+			'6' => 'FirstViewed',
+			'7' => 'FlickrID',
+			'8' => 'FlickrPhotoTOs',
+			'9' => 'FlickrSetTOs',
+			'10' => 'FlickrTagTOs',
+			'11' => 'FocalLength35mm',
+			'12' => 'ISO',
+			'13' => 'PageDate',
+			'14' => 'PathAlias',
+			'15' => 'Photographer',
+			'16' => 'RawValue',
+			'17' => 'ShutterSpeed',
+			'18' => 'TakenAt',
+			'19' => 'TakenAtDT',
+			'20' => 'Title',
+		);
 
-		$this->assertEquals(28, $searchableFields->count());
+		$sortedNames = array_keys($searchableFields->Map('Name')->toArray());
+		sort($sortedNames);
+		$this->assertEquals($expected, $sortedNames);
 	}
 
 
