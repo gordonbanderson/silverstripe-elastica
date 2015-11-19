@@ -397,9 +397,12 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testUnpublishPublishHideFromSearch() {
-
-
+	/**
+	 * For a page that is already published, set the ShowInSearch flag to false,
+	 * write to stage, and then rePublish
+	 * @return [type] [description]
+	 */
+	public function testUnpublishAlreadyPublisedhHideFromSearch() {
 		$page = $this->objFromFixture('SiteTree', 'sitetree001');
 	//	$page->doUnpublish();
 
@@ -434,6 +437,36 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 //CURRENT
+		$page->ShowInSearch = false;
+		$page->write();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		$page->doPublish();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
+
+
+	/**
+	 * For a page that is not published, set the ShowInSearch flag to false,
+	 * write to stage, and then rePublish.  Same as previous test except
+	 * no need to delete from the index as it already does not exist
+	 * @return [type] [description]
+	 */
+	public function testUnpublishPublishHideFromSearch() {
+		$page = $this->objFromFixture('SiteTree', 'sitetree001');
+		$page->doUnpublish();
+
+		// By default the page is not indexed (for speed reasons)
+		// Change the title, turn on indexing and save it
+		// This will invoke a database write
+		$page->Title = "I will be indexed";
+		$page->IndexingOff = true;
+		$page->write();
+
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 		$page->ShowInSearch = false;
 		$page->write();
 
