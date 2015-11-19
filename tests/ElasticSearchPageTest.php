@@ -164,7 +164,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		sort($sfs);
 		$expected = array('Aperture','AspectRatio','Description','FirstViewed','FlickrID',
 			'FlickrSetTOs','FlickrTagTOs','FocalLength35mm','ISO','Photographer','ShutterSpeed',
-			'TakenAt','Title');
+			'TakenAt', 'TakenAtDT', 'Title');
 		$this->assertEquals($expected, $sfs);
 
 
