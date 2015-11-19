@@ -512,7 +512,6 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index (SiteTree).
 	 */
 	public function onAfterPublish() {
-		oap;
 		$this->doIndexDocument();
 	}
 
@@ -526,7 +525,6 @@ class Searchable extends \DataExtension {
 				$this->service->index($this->owner);
 			}
 		}
-
 		$command = "curl 'localhost:9200/_cat/indices?v'";
 	}
 
