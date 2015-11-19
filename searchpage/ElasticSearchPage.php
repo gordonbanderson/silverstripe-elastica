@@ -192,12 +192,6 @@ class ElasticSearchPage extends Page {
 		$fields->addFieldToTab('Root.Search.Aggregations', new TextField('SearchHelper',
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
-
-
-
-
-
-
         $ottos = AutoCompleteOption::get()->Filter('Locale', $this->Locale)->map('ID', 'Name')->
         									toArray();
         $df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
@@ -232,9 +226,7 @@ class ElasticSearchPage extends Page {
 		$pickerConfig->removeComponentsByType(new GridFieldAddNewButton());
 		$pickerConfig->removeComponentsByType(new GridFieldDeleteAction());
 		$pickerConfig->removeComponentsByType(new PickerFieldAddExistingSearchButton());
-
 		$pickerConfig->getComponentByType('GridFieldPaginator')->setItemsPerPage(100);
-
 
         $searchPicker->enableEdit();
 		$edittest = $pickerConfig->getComponentByType('GridFieldDetailForm');
@@ -248,7 +240,6 @@ class ElasticSearchPage extends Page {
 			CheckboxField::create('ShowHighlights', 'Show highlights from search in results for this field'),
 			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
 		));
-
 
 		$edittest->setItemEditFormCallback(function($form) {
 			error_log($form->ID);
@@ -479,10 +470,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$searchable = Injector::inst()->create($class);
 
-		//FIXME better ways to do this #sleepyOClock
-		if (!$searchable->hasMethod('getElasticaFields')) {
-			throw new Exception($class.' is not searchable');
-		}
+
 
 		$instance = DataObject::get_by_id($class,$instanceID);
 
