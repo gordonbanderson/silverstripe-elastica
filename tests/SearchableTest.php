@@ -398,18 +398,46 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testUnpublishPublishHideFromSearch() {
-		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
 
 		$page = $this->objFromFixture('SiteTree', 'sitetree001');
 	//	$page->doUnpublish();
+
+		// By default the page is not indexed (for speed reasons)
+		// Change the title, turn on indexing and save it
+		// This will invoke a database write
 		$page->Title = "I will be indexed";
+		$page->IndexingOff = true;
 		$page->write();
+
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		// assert keys of term vectors, this will indicate page
+		// is stored in the index or not
+		$termVectors = $page->getTermVectors();
+		$expected = array(
+		'0' => 'Content',
+		'1' => 'Content.shingles',
+		'2' => 'Content.standard',
+		'3' => 'Link',
+		'4' => 'Title',
+		'5' => 'Title.autocomplete',
+		'6' => 'Title.shingles',
+		'7' => 'Title.standard',
+		);
+
+		$keys = array_keys($termVectors);
+		sort($keys);
+
+		$this->assertEquals($expected, $keys);
+
+
 //CURRENT
 		$page->ShowInSearch = false;
 		$page->write();
 
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
