@@ -21,7 +21,7 @@ class Searchable extends \DataExtension {
 	 * Everytime progressInterval divides $index_ctr exactly display progress
 	 * @var integer
 	 */
-	private static $progressInterval = null;
+	private static $progressInterval = 0;
 
 	public static $mappings = array(
 		'Boolean'     => 'boolean',
@@ -167,13 +167,12 @@ class Searchable extends \DataExtension {
 						} elseif ($class == 'SS_Datetime') {
 							$spec['format'] = 'y-M-d H:m:s';
 						} elseif ($class == 'Datetime') {
-							$spec['format'] = 'H:m:s';
-						} elseif ($class == 'Time') {
 							$spec['format'] = 'y-M-d H:m:s';
+						} elseif ($class == 'Time') {
+							$spec['format'] = 'H:m:s';
 						}
 					}
 					if ($class === 'HTMLText' || $class === 'HTMLVarchar') {
-						//echo "GEF T6: Recording that field is HTML\n";
 						array_push($this->html_fields, $name);
 					}
 				}
@@ -232,7 +231,7 @@ class Searchable extends \DataExtension {
 					// we now change the name to the result type, not the method name
 					$name = $resultType;
 				}
-				// otherwise fall back to string
+				// otherwise fall back to string - Enum is one such category
 				else {
 					$spec["type"] = "string";
 				}
@@ -303,10 +302,11 @@ class Searchable extends \DataExtension {
 	 * @return \Elastica\Type\Mapping
 	 */
 	public function getElasticaMapping() {
-		//echo "\n\n**********************************\n\n";
 		$mapping = new Mapping();
 
 		$fields = $this->getElasticaFields(false);
+
+		echo $this->owner->ClassName.', LOCALE='.$this->owner->Locale."\n";
 
 		if ($this->owner->hasField('Locale')) {
 			$localeMapping['type'] = 'string';
@@ -346,15 +346,13 @@ class Searchable extends \DataExtension {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
 
-		if (self::$progressInterval === null) {
-			if (isset($_GET['progress'])) {
-				$progress = $_GET['progress'];
-				self::$progressInterval = (int) $progress;
-			} else {
-				// flag value to ignore display
-				self::$progressInterval = 0;
-			}
+		echo "Progress interval...".self::$progressInterval."\n";
+
+		if (isset($_GET['progress'])) {
+			$progress = $_GET['progress'];
+			self::$progressInterval = (int) $progress;
 		}
+
 		if (self::$progressInterval > 0) {
 			if (self::$index_ctr % self::$progressInterval === 0) {
 				ElasticaUtil::message("\t".$this->owner->ClassName." - Prepared ".self::$index_ctr." for indexing...");
@@ -392,6 +390,8 @@ class Searchable extends \DataExtension {
 
 		foreach ($this->getElasticaFields($recurse) as $field => $config) {
 			if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
+			T6;
+
 				// call a method to get a field value
 				if (in_array($field, $this->html_fields)) {
 					$fields[$field] = $this->owner->$field;
@@ -420,6 +420,7 @@ class Searchable extends \DataExtension {
 						// get the fields of a has_one relational object
 						if (isset($has_ones[$methodName])) {
 							if ($data->ID > 0) {
+								T7;
 								$item = $data->getFieldValuesAsArray(false);
 								array_push($relArray, $item);
 							}
@@ -428,6 +429,7 @@ class Searchable extends \DataExtension {
 						} else {
 							foreach ($data->getIterator() as $item) {
 								if ($recurse) {
+									T8;
 									// populate the subitem but do not recurse any further if more relationships
 									$itemDoc = $item->getFieldValuesAsArray(false);
 									array_push($relArray, $itemDoc);
@@ -482,7 +484,6 @@ class Searchable extends \DataExtension {
 				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 					byID($this->owner->ID);
 				if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
-					//echo "Deleting due to show in search set to false\n";
 					$this->doDeleteDocument();
 				}
 			}
@@ -494,8 +495,8 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index (non-SiteTree).
 	 */
 	public function onAfterWrite() {
-
 		$this->doIndexDocument();
+		echo "OAW: $this->owner->ClassName - $this->owner->ID - \n".$this->owner->hasExtension('SiteTreeExtension');
 /*
 		if (!($this->owner instanceof \SiteTree)) {
 			echo "SEARCHABLE: onAfterWrite T1 - INDEXING\n";
@@ -511,6 +512,7 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index (SiteTree).
 	 */
 	public function onAfterPublish() {
+		oap;
 		$this->doIndexDocument();
 	}
 
@@ -566,6 +568,7 @@ class Searchable extends \DataExtension {
 
 		}
 		catch(Elastica\Exception\NotFoundException $e) {
+			T10;
 			trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
 		}
 
@@ -691,6 +694,7 @@ class Searchable extends \DataExtension {
 
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
+				// Do nothing, it it's set check method options
 			} else if (isset($searchableField['__method'])) {
 				$name = $searchableField['__method'];
 			} else {
@@ -712,6 +716,7 @@ class Searchable extends \DataExtension {
 				if (isset($searchableField['type'])) {
 					$doSF->Type = $searchableField['type'];
 				} else if (isset($searchableField['__method'])) {
+					T11;
 					$doSF->Name = $searchableField['__method'];
 					$doSF->Type = 'relationship';
 				} else {
@@ -797,6 +802,7 @@ class Searchable extends \DataExtension {
         ));
 
 		if ($this->owner->ShowInSearch && $this->owner->isPublished()) {
+			T12;
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
