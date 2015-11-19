@@ -22,6 +22,7 @@ class ElasticsearchBaseTest extends SapphireTest {
 		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
+
 		$config = Config::inst();
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
@@ -99,6 +100,17 @@ class ElasticsearchBaseTest extends SapphireTest {
 			echo "Publishing ".$page->Title."\n";
 			$page->publish('Stage','Live');
 		}
+	}
+
+
+	public function generateAssertionsFromArray($toAssert) {
+		echo '$expected = array('."\n";
+		foreach ($toAssert as $key => $value) {
+			$escValue = str_replace("'", '\\\'', $value);
+			echo "'$key' => '$escValue',\n";
+		}
+		echo ");\n";
+		echo '$this->assertEquals($expected, $somevar);'."\n";
 	}
 
 
