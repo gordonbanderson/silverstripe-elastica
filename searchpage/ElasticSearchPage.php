@@ -150,13 +150,7 @@ class ElasticSearchPage extends Page {
 		// ---- search details tab ----
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
-<<<<<<< HEAD
 		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
-=======
-		$fields->addFieldToTab('Root.Main', $identifierField);
->>>>>>> a9d9843c2a21ef0360ac812b4943324de2fa9900
-
-
 		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
 
 		$sql = "SELECT DISTINCT ClassName from SiteTree_Live UNION "
