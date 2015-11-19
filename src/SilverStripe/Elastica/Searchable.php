@@ -788,8 +788,32 @@ class Searchable extends \DataExtension {
             'TermFreq'=> 'n times this term appears in this field'
         ));
 
-		if ($this->owner->ShowInSearch && $this->owner->isPublished()) {
-			T12;
+		$isIndexed = false;
+
+		// SIteTree object must have a live record, ShowInSearch = true
+		echo "INDEXED: Checking class $this->owner->ClassName\n";
+		if ($this->isInSiteTree($this->owner->ClassName)) {
+			echo "INDEXED T1\n";
+			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
+				byID($this->owner->ID);
+			if ($liveRecord->ShowInSearch) {
+				$isIndexed = true;
+				echo "INDEXED T2\n";
+			} else {
+				echo "INDEXED T3\n";
+				$isIndexed = false;
+			}
+		} else {
+			echo "INDEXED T4\n";
+			// In the case of a DataObject we use the ShowInSearchFlag
+			$isIndexed = true;
+		}
+
+		echo "INDEXED T5 isIndexed = $isIndexed \n";
+
+
+		if ($isIndexed) {
+
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
@@ -815,7 +839,6 @@ class Searchable extends \DataExtension {
 			        if (isset($stats['term_freq'])) {
 			        	$do->TermFreq = $stats['term_freq'];
 			        }
-
 
 			        //print_r($stats);
 			        $terms->push($do);
