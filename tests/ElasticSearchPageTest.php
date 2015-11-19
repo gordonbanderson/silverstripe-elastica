@@ -198,7 +198,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'SearchableTestPage' => array('Title','Content','Country','PageDate'),
 			'FlickrTagTO' => array('RawValue'),
 			'FlickrAuthorTO' => array('PathAlias','DisplayName','FlickrPhotoTOs'),
-			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'Aperture',
+			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'TakenAtDT', 'Aperture',
 				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTagTOs','FlickrSetTOs',
 				'FirstViewed','AspectRatio'),
 			'FlickrSetTO' => array('Title','FlickrID','Description')
