@@ -13,12 +13,10 @@ class TermVectorTest extends ElasticsearchBaseTest {
 	public function testGetVector() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0023');
 		$termVectors = $this->service->getTermVectors($fp);
-		print_r($termVectors);
-
 		$terms = array_keys($termVectors);
 		sort($terms);
 		$expected = array('Description', 'Description.shingles', 'Description.standard',
-			'ShutterSpeed', 'Title', 'Title.shingles', 'Title.standard');
+			'ShutterSpeed', 'Title', 'Title.autocomplete', 'Title.shingles', 'Title.standard');
 		$this->assertEquals($expected, $terms);
 
 		// Now check the title terms
