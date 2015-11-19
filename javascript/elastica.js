@@ -47,14 +47,21 @@
 	 */
 	$("input[data-autocomplete='true'").each(function(index, inputBox) {
 		jqInputBox = $(inputBox);
+		console.log(jqInputBox);
 		var field = jqInputBox.attr('data-autocomplete-field');
 		var classes = jqInputBox.attr('data-autocomplete-classes');
+		var sitetree = jqInputBox.attr('data-autocomplete-sitetree');
 		var autoCompleteFn = jqInputBox.attr('data-autocomplete-function');
 		var sourceLink = jqInputBox.attr('data-autocomplete-source');
 		if (field === null || field === '' || classes === null || classes === '' ||
-			autoCompleteFn === null || autoCompleteFn === '') {
+			autoCompleteFn === null || autoCompleteFn === '' ||
+			sitetree === null || sitetree ==='') {
 			alert('Autocomplete not configured correctly');
 		} else {
+			if (sitetree) {
+				classes = '';
+			}
+
 			jqInputBox.autocomplete({
 				serviceUrl: '/autocomplete/search',
 				preventBadQueries: false, // >1 char needed for results
@@ -63,7 +70,8 @@
 				deferRequestBy: 250,
 				params: {
 					'field': field,
-					'classes': classes
+					'classes': classes,
+					'filter': sitetree
 				},
 				onSelect: function(suggestion) {
 					if (autoCompleteFn == 'GOTO') {
