@@ -115,7 +115,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
-
 	public function testGetDateFields() {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getElasticaFields();
@@ -375,12 +374,15 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		try {
 			$fp->delete();
-		} catch (Elastica\Exception\NotFoundException $e) {
+			$this->fail('Exception should have been thrown when deleting non existent item');
+		} catch (Exception $e) {
 			//This error comes out of Elastica itself
-			$this->assertEquals('Doc id 2 not found and can not be deleted', $e->getMessage());
+			$this->assertEquals('Deleted document FlickrPhotoTO (2) not found in search index.',
+				$e->getMessage());
 		}
-
 	}
+
+
 
 
 	public function testUnpublishPublish() {
@@ -573,7 +575,29 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
 		print_r($fields);
+		$this->fail('FIXME - add an actual test here');
 
+	}
+
+
+	public function testUpdateCMSFields() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$flickrPhoto->IndexingOff = false;
+		$flickrPhoto->Title = 'Test title edited';
+		$flickrPhoto->write();
+		$fields = new FieldList();
+		//$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
+		//$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
+
+		// currently fails
+		$flickrPhoto->updateCMSFields($fields);
+
+		$result = array();
+		foreach ($fields as $field) {
+			echo "FIELD:".$field->getName();
+			$result[$field->getName()] = $field->Value();
+		}
+		$this->assertEquals(array(), $result);
 	}
 
 
