@@ -9,16 +9,11 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	public static $ignoreFixtureFileFor = array('testResultsForEmptySearch');
 
 
-	public function setUp() {
-		parent::setUp();
+	public function setUpOnce() {
+		//Add translatable
 		SiteTree::add_extension('Translatable');
+		parent::setUpOnce();
 	}
-
-
-	public function tearDown() {
-		parent::tearDown();
-	}
-
 
 
 	public function testHighlightPassingFields() {
