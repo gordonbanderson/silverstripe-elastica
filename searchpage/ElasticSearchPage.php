@@ -112,7 +112,6 @@ class ElasticSearchPage extends Page {
 
 		$fields->addFieldToTab("Root", new TabSet('Search',
 			new Tab('SearchFor'),
-			new Tab('Identifier'),
 			new Tab('Fields'),
 			new Tab('AutoComplete'),
 			new Tab('Aggregations'),
@@ -177,7 +176,7 @@ class ElasticSearchPage extends Page {
 		// ---- search details tab ----
 		$identifierField = new TextField('Identifier',
 			'Identifier to allow this page to be found in form templates');
-		$fields->addFieldToTab('Root.Search.Identifier', $identifierField);
+		$fields->addFieldToTab('Root.Main', $identifierField, 'Content');
 
 
 		$fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
@@ -426,13 +425,34 @@ class ElasticSearchPage extends Page {
 
 
 	/*
-	Obtain an instance of the form - this is need for rendering the search box
+	Obtain an instance of the form - this is need for rendering the search box in the header
 	*/
 	public function SearchForm($buttonTextOverride = null) {
 		$result = new ElasticSearchForm($this, 'SearchForm');
+		$fields = $result->Fields();
+		$identifierField = new HiddenField('identifier');
+		$identifierField->setValue($this->Identifier);
+		$fields->push($identifierField);
+		$q = $fields->fieldByName('q');
+
+
 		if ($buttonTextOverride) {
 			$result->setButtonText($buttonTextOverride);
 		}
+
+		/*
+		A field needs to be chosen for autocompletion, if not no autocomplete
+		 */
+		if ($this->AutoCompleteFieldID > 0) {
+			$q->setAttribute('data-autocomplete', 'true');
+			$q->setAttribute('data-autocomplete-field', 'Title');
+			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
+			$q->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
+			$q->setAttribute('data-autocomplete-source',$this->Link());
+			$q->setAttribute('data-autocomplete-function',
+			$this->AutocompleteFunction()->Slug);
+		}
+
 		return $result;
 	}
 
@@ -776,20 +796,32 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	 */
 	public function submit($data, $form) {
 		$query = $data['q'];
-
 		$url = $this->Link();
 		$url = rtrim($url, '/');
-		$link = rtrim($url, '/').'?q='.$query;
+		$link = rtrim($url, '/').'?q='.$query.'&sfid='.$data['identifier'];
 		$this->redirect($link);
 	}
 
 	/*
 	Obtain an instance of the form
 	*/
+
 	public function SearchForm() {
 		$form = new ElasticSearchForm($this, 'SearchForm');
 		$fields = $form->Fields();
+		$ep = Controller::curr()->dataRecord;
+		$identifierField = new HiddenField('identifier');
+		$identifierField->setValue($ep->Identifier);
+		$fields->push($identifierField);
 		$q = $fields->fieldByName('q');
+
+		 if (isset($_GET['q']) && isset($_GET['sfid'])) {
+			if ($_GET['sfid'] == $ep->Identifier) {
+				$q->setValue($_GET['q']);
+			}
+
+		}
+
 		if($this->action == 'similar') {
 			$q->setDisabled(true);
 			$actions = $form->Actions();
@@ -805,6 +837,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setAttribute('data-autocomplete', 'true');
 			$q->setAttribute('data-autocomplete-field', 'Title');
 			$q->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
+			$q->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
 			$q->setAttribute('data-autocomplete-source',$this->Link());
 			$q->setAttribute('data-autocomplete-function',
 				$this->AutocompleteFunction()->Slug);
