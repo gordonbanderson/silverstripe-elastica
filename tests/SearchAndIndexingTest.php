@@ -409,16 +409,50 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			echo $key->Name."\n";
 		}*/
 
-		//There are seven classes with Searchable extension added
-		$this->assertEquals(7, $searchableClasses->count());
+		$sortedNames = $searchableClasses->Map('Name')->toArray();
+		sort($sortedNames);
+
+		$expected = array(
+		'0' => 'FlickrAuthorTO',
+		'1' => 'FlickrPhotoTO',
+		'2' => 'FlickrSetTO',
+		'3' => 'FlickrTagTO',
+		'4' => 'Page',
+		'5' => 'SearchableTestPage',
+		'6' => 'SiteTree'
+		);
+		$this->assertEquals($expected, $sortedNames);
+
 
 
 		$searchableFields = SearchableField::get();
-		/*foreach ($searchableFields->getIterator() as $key) {
-			echo $key->Name."\n";
-		}*/
+		$expected = array(
+			'0' => 'Aperture',
+			'1' => 'AspectRatio',
+			'2' => 'Content',
+			'3' => 'Country',
+			'4' => 'Description',
+			'5' => 'DisplayName',
+			'6' => 'FirstViewed',
+			'7' => 'FlickrID',
+			'8' => 'FlickrPhotoTOs',
+			'9' => 'FlickrSetTOs',
+			'10' => 'FlickrTagTOs',
+			'11' => 'FocalLength35mm',
+			'12' => 'ISO',
+			'13' => 'PageDate',
+			'14' => 'PathAlias',
+			'15' => 'Photographer',
+			'16' => 'RawValue',
+			'17' => 'ShutterSpeed',
+			'18' => 'TakenAt',
+			'19' => 'TakenAtDT',
+			'20' => 'Title',
+		);
 
-		$this->assertEquals(28, $searchableFields->count());
+		$sortedNames = array_keys($searchableFields->Map('Name')->toArray());
+		sort($sortedNames);
+		$this->assertEquals($expected, $sortedNames);
 	}
 
 
