@@ -13,13 +13,8 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 
 
 	public function setUpOnce() {
-
-
-
 		//Add translatable
 		SiteTree::add_extension('Translatable');
-
-
 		parent::setUpOnce();
 	}
 
