@@ -10,11 +10,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 	protected $extraDataObjects = array(
 		'SearchableTestPage','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO','FlickrTagTO',
-		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
+		'SearchableTestFatherPage','SearchableTestGrandFatherPage','AutoCompleteOption'
 	);
 
-	public function setUpOnce() {
 
+	public function setUpOnce() {
 		// add Searchable extension where appropriate
 		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
 		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
