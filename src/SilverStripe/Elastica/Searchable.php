@@ -561,13 +561,13 @@ class Searchable extends \DataExtension {
 	protected function doDeleteDocument() {
 		try{
 			if (!$this->owner->IndexingOff) {
+				// this goes to elastica service
 				$this->service->remove($this->owner);
 			}
-
 		}
-		catch(Elastica\Exception\NotFoundException $e) {
-			T10;
-			trigger_error("Deleted document not found in search index.", E_USER_NOTICE);
+		catch(\Elastica\Exception\NotFoundException $e) {
+			trigger_error("Deleted document ".$this->owner->ClassName." (".$this->owner->ID.
+				") not found in search index.", E_USER_NOTICE);
 		}
 
 	}
@@ -686,14 +686,18 @@ class Searchable extends \DataExtension {
 			$doSC->write();
 		}
 
+		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
+
 		foreach ($searchableFields as $name => $searchableField) {
-			//echo "Checkingg searchable field $name =>\n";
-			//print_r($searchableField);
+			echo "Checkingg searchable field $name =>\n";
+			print_r($searchableField);
 
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
-				// Do nothing, it it's set check method options
+				// Do nothing, check method options
+				echo "\t**** TYPE SET ****\n";
 			} else if (isset($searchableField['__method'])) {
+				TrSDR1;
 				$name = $searchableField['__method'];
 			} else {
 				//echo "NAME->SF = ".$name."->".print_r($searchableField,1);
@@ -715,6 +719,7 @@ class Searchable extends \DataExtension {
 					$doSF->Type = $searchableField['type'];
 				} else if (isset($searchableField['__method'])) {
 					T11;
+					TrSDR1;
 					$doSF->Name = $searchableField['__method'];
 					$doSF->Type = 'relationship';
 				} else {
