@@ -92,18 +92,10 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			'ISO' => 1
 		);
 
-		foreach ($stopwords as $stopword) {
-			//FIXME - what should happen in this case?
-			//Currently it is matching and it should not
-			//$this->search($stopword, 0);
-			$this->search($stopword, 0, array('Title' => 1));
-			$this->search($stopword, 0, array('Description' => 1));
-			$this->search($stopword, 0, array('Title' => 2, 'Description' => 1));
-
-			// this tests numeric fields also
-			$this->search($stopword, 0, $allFields);
-		}
-
+		$expected = array('that','into','a','an','and','are','as','at','be','but','by','for','if',
+			'in','into','is','it','of','on','or','such','that','the','their','then','there','these',
+			'they','this','to','was','will','with');
+		$this->assertEquals($expected, $stopwords);
 	}
 
 
