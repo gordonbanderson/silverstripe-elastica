@@ -80,7 +80,8 @@ class SearchableFieldTest extends ElasticsearchBaseTest {
 			$this->assertEquals($expected, $e->getMessage());
 		}
 		//Effectively assert that the search page has not been written by checking LastEdited
-		$this->assertEquals($lastEdited, $sf->LastEdited);
+		$pageFromDB = DataObject::get_by_id('ElasticSearchPage', $searchPage->ID);
+		$this->assertEquals($lastEdited, $pageFromDB->LastEdited);
 	}
 
 
