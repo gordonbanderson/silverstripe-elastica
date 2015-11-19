@@ -29,8 +29,35 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
+
+	public function testgetFieldValuesAsArrayFromFixtures() {
+		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
+		$result = $manyTypes->getFieldValuesAsArray();
+		$this->generateAssertionsFromArray($result);
+		$expected = array(
+			'BooleanField' => '1',
+			'CurrencyField' => '100.25',
+			'DateField' => '2014-04-15',
+			'DecimalField' => '0',
+			'EnumField' => '',
+			'HTMLTextField' => '',
+			'HTMLVarcharField' => 'This is some *HTML*varchar field',
+			'IntField' => '677',
+			'PercentageField' => '27',
+			'SS_DatetimeField' => '2014-10-18 08:24:00',
+			'TextField' => 'This is a text field',
+			'TimeField' => '17:48:18',
+			'Title' => 'Many Types Page',
+			'Content' => 'Many types of fields',
+		);
+		$this->assertEquals($expected, $result);
+
+	}
+
+
+
 	public function testBadFormatFields() {
-		$manyTypes = new ManyTypesPage();
+		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
 		$fields = $manyTypes->getElasticaFields();
 
 		$expected = array('type' => 'boolean');
@@ -83,9 +110,8 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected = $stringFormat;
 		$this->assertEquals($expected, $fields['TextField']);
 
-		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
+		$expected = array('type' => 'date', 'format' => 'H:m:s');
 		$this->assertEquals($expected, $fields['TimeField']);
-
 	}
 
 
@@ -100,6 +126,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
 		$this->assertEquals($expected, $fields['TakenAtDT']);
+
+		$expected = array('type' => 'date', 'format' => 'y-M-d');
+		$this->assertEquals($expected, $fields['FirstViewed']);
 	}
 
 
@@ -273,7 +302,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 	/*
 	Get a record as an Elastic document and check values
 	 */
-	public function testElasticaDocument() {
+	public function testGetElasticaDocument() {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$doc = $flickrPhoto->getElasticaDocument()->getData();
 
@@ -281,20 +310,21 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['Title'] = 'Bangkok' ;
 		$expected['FlickrID'] = '1234567';
 		$expected['Description'] = 'Test photograph';
-		$expected['TakenAt'] = '2012-04-24 18:12:00';
+		$expected['TakenAt'] = '2011-07-04 20:36:00';
+		$expected['TakenAtDT'] = null;
 		$expected['FirstViewed'] = '2012-04-28';
-		$expected['Aperture'] = '8';
+		$expected['Aperture'] = 8.0;
 
 		//Shutter speed is altered for aggregations
 		$expected['ShutterSpeed'] = '0.01|1/100';
-		$expected['FocalLength35mm'] = '140';
-		$expected['ISO'] = '400';
-		$expected['AspectRatio'] = '1.013';
+		$expected['FocalLength35mm'] = 140;
+		$expected['ISO'] = 400;
+		$expected['AspectRatio'] = 1.013;
 		$expected['Photographer'] = array();
 		$expected['FlickrTagTOs'] = array();
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
-		$expected['location'] = array('lat' => 0, 'lon' => 0);
+		$expected['location'] = array('lat' => 13.42, 'lon' => 100);
 
 		print_r($doc);
 
@@ -365,6 +395,26 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 	}
+
+
+	public function testUnpublishPublishHideFromSearch() {
+		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+
+		$page = $this->objFromFixture('SiteTree', 'sitetree001');
+	//	$page->doUnpublish();
+		$page->Title = "I will be indexed";
+		$page->write();
+//CURRENT
+		$page->ShowInSearch = false;
+		$page->write();
+
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+
+		$page->doPublish();
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
+	}
+
 
 
 
