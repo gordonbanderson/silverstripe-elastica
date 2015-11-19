@@ -39,10 +39,6 @@ class ElasticSearchForm extends Form {
 
         $this->SubmitButton = $fa;
 
-        if (isset($_GET['q'])) {
-			$tf->setValue($_GET['q']);
-		}
-
 		if(class_exists('Translatable') && singleton('SiteTree')->hasExtension('Translatable')) {
 			$fields->push(new HiddenField('searchlocale', 'searchlocale', Translatable::get_current_locale()));
 		}
