@@ -675,6 +675,8 @@ class Searchable extends \DataExtension {
 		parent::requireDefaultRecords();
 
 		$searchableFields = $this->getElasticaFields(true,true);
+
+
 		$doSC = \SearchableClass::get()->filter(array('Name' => $this->owner->ClassName))->first();
 		if (!$doSC) {
 			$doSC = new \SearchableClass();
@@ -686,21 +688,13 @@ class Searchable extends \DataExtension {
 			$doSC->write();
 		}
 
-		echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
-
 		foreach ($searchableFields as $name => $searchableField) {
-			echo "Checkingg searchable field $name =>\n";
-			print_r($searchableField);
-
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
 				// Do nothing, check method options
-				echo "\t**** TYPE SET ****\n";
 			} else if (isset($searchableField['__method'])) {
-				TrSDR1;
-				$name = $searchableField['__method'];
+				// recursive method case, don't want this to happen
 			} else {
-				//echo "NAME->SF = ".$name."->".print_r($searchableField,1);
 				$name = $searchableField['properties']['__method'];
 			}
 
@@ -713,18 +707,9 @@ class Searchable extends \DataExtension {
 				$doSF->ClazzName = $this->owner->ClassName;
 				$doSF->Name = $name;
 
-				//echo "DOSF CN,NAME = {$doSF->ClazzName}, $name\n";
-
 				if (isset($searchableField['type'])) {
 					$doSF->Type = $searchableField['type'];
-				} else if (isset($searchableField['__method'])) {
-					T11;
-					TrSDR1;
-					$doSF->Name = $searchableField['__method'];
-					$doSF->Type = 'relationship';
-				} else {
-					//echo "\tBug zone\n";
-					//print_r($searchableField);
+				}  else {
 					$doSF->Name = $searchableField['properties']['__method'];
 					$doSF->Type = 'relationship';
 				}
@@ -733,7 +718,6 @@ class Searchable extends \DataExtension {
 				if (isset($searchableField['fields']['autocomplete'])) {
 					$doSF->Autocomplete = true;
 				}
-
 
 				$doSF->write();
 				\DB::alteration_message("Created new searchable editable field ".$name,"changed");
