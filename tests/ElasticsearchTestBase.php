@@ -114,6 +114,17 @@ class ElasticsearchBaseTest extends SapphireTest {
 	}
 
 
+	public function generateAssertionsFromArray1D($toAssert) {
+		echo '$expected = array('."\n";
+		foreach ($toAssert as $key => $value) {
+			$escValue = str_replace("'", '\\\'', $value);
+			echo "'$escValue',";
+		}
+		echo ");\n";
+		echo '$this->assertEquals($expected, $somevar);'."\n";
+	}
+
+
 	/*
 	Helper methods for testing CMS fields
 	 */
