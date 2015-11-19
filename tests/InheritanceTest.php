@@ -61,7 +61,7 @@ class InheritanceTest extends ElasticsearchBaseTest {
 
 		//Check the expected fields are indexed
 		$expected = array('Content','Content.shingles','Content.standard','FatherText','FatherText.shingles','FatherText.standard',
-			'GrandFatherText','GrandFatherText.shingles','GrandFatherText.standard','Link','Locale','Title','Title.autocomplete',
+			'GrandFatherText','GrandFatherText.shingles','GrandFatherText.standard','Link','Title','Title.autocomplete',
 			'Title.shingles','Title.standard');
 		$indexedFields = array_keys($terms);
 		sort($indexedFields);
