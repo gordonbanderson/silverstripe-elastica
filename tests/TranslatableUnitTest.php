@@ -16,6 +16,21 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	}
 
 
+	public function testElasticSearchForm() {
+		$form = new \ElasticSearchForm(new \Controller(), 'TestForm');
+		$fields = $form->Fields();
+		$result = array();
+		foreach($fields as $field) {
+			echo $field->getName();
+			$result[$field->getName()] = $field->Value();
+		}
+
+		$expected = array('q' => '', 'searchlocale' => 'en_US');
+		$this->assertEquals($expected, $result);
+
+	}
+
+
 	public function testHighlightPassingFields() {
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
