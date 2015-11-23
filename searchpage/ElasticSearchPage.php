@@ -562,7 +562,42 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-		$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
+		$errorMessage = null;
+
+		try {
+			$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
+
+			$this->Aggregations = $es->getAggregations();
+			$data['SearchResults'] = $paginated;
+			$data['SearchPerformed'] = true;
+			$data['SearchPageLink'] = $ep->Link();
+			$data['SimilarTo'] = $instance;
+			$data['NumberOfResults'] = $paginated->getTotalItems();
+
+
+			$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
+			$fieldToTerms = new ArrayList();
+			foreach (array_keys($moreLikeThisTerms) as $fieldName) {
+				$readableFieldName = str_replace('.standard', '', $fieldName);
+				$fieldTerms = new ArrayList();
+				foreach ($moreLikeThisTerms[$fieldName] as $value) {
+					$do = new DataObject();
+					$do->Term = $value;
+					$fieldTerms->push($do);
+				}
+
+				$do = new DataObject();
+				$do->FieldName = $readableFieldName;
+				$do->Terms = $fieldTerms;
+				$fieldToTerms->push($do);
+			}
+
+			$data['SimilarSearchTerms'] = $fieldToTerms;
+
+		} catch (\InvalidArgumentException $e) {
+			$errorMessage = $e->getMessage();
+		}
+
 
 		// calculate time
 		$endTime = microtime(true);
@@ -570,53 +605,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// store variables for the template to use
 		$data['ElapsedTime'] = $elapsed;
-		$this->Aggregations = $es->getAggregations();
-		$data['SearchResults'] = $paginated;
 		$data['Elapsed'] = $elapsed;
-		$data['SearchPerformed'] = true;
-		$data['SearchPageLink'] = $ep->Link();
-		$data['SimilarTo'] = $instance;
-		$data['NumberOfResults'] = $paginated->getTotalItems();
-
-
-		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
-
-		//print_r($moreLikeThisTerms);
-		//die;
-
-		$fieldToTerms = new ArrayList();
-		foreach (array_keys($moreLikeThisTerms) as $fieldName) {
-			$readableFieldName = str_replace('.standard', '', $fieldName);
-			$fieldTerms = new ArrayList();
-			foreach ($moreLikeThisTerms[$fieldName] as $value) {
-				$do = new DataObject();
-				$do->Term = $value;
-				$fieldTerms->push($do);
-			}
-
-			$do = new DataObject();
-			$do->FieldName = $readableFieldName;
-			$do->Terms = $fieldTerms;
-			$fieldToTerms->push($do);
-		}
-
-/*
-		$terms = new ArrayList();
-		foreach ($moreLikeThisTerms as $key => $term) {
-			$fieldTerms = $moreLikeThisTerms[$key];
-			foreach ($fieldTerms as $value) {
-				$do = new DataObject();
-				$do->Value = $value;
-				$terms->push($do);
-			}
-		}
-*/
-
-
-		$data['SimilarSearchTerms'] = $fieldToTerms;
-
-		//Add a 'similar' link to each of the results
-		$link = $this->Link();
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
@@ -625,6 +614,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			return $data;
 		}
 	}
+
 
 	/*
 	Display the search form. If the query parameter exists, search against Elastica
@@ -736,11 +726,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$data['OriginalQuery'] = $q;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
-
-
-
-
-
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
 		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
