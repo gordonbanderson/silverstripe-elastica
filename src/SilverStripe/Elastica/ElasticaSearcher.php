@@ -355,6 +355,10 @@ class ElasticSearcher {
 	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
 		echo "INDEXED ITEM:".$indexedItem;
 
+		if ($indexedItem == null) {
+			throw new \InvalidArgumentException('A searchable item cannot be null');
+		}
+
 		if (!$indexedItem->hasExtension('SilverStripe\Elastica\Searchable')) {
 			throw new \InvalidArgumentException('Objects of class '.$indexedItem->ClassName.' are not searchable');
 		}
