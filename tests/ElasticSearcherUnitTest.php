@@ -116,6 +116,20 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		}
 	}
 
+
+	public function testSimilarToNonSearchable() {
+		$m = Member::get()->first(); // this is not by default Searchable
+		$es = new ElasticSearcher();
+		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title.standard' => 4, 'Description.standard' => 2);
+		try {
+			$paginated = $es->moreLikeThis($m, $fields, true);
+
+		} catch (InvalidArgumentException $e) {
+			$this->assertEquals('Objects of class Member are not searchable', $e->getMessage());
+		}
+	}
+
 	/*
 	test blank fields
 	test fields with no weighting (ie not associative)
@@ -183,7 +197,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		try {
 			$paginated = $es->moreLikeThis(null, $fields, true);
 		} catch (InvalidArgumentException $e) {
-			$this->assertEquals('Indexed item cannot be null', $e->getMessage());
+			$this->assertEquals('A searchable item cannot be null', $e->getMessage());
 		}
 	}
 
