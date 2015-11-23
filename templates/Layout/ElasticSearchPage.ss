@@ -3,15 +3,17 @@
 	<article>
 		<h1>$Title</h1>
 		<div class="content">$Content</div>
+		<% if $ErrorMessage %><div class="message error">$ErrorMessage</div>
+		<% else %>
+			<% include SimilarSearchDetails %>
+			$SearchForm
 
-		<% include SimilarSearchDetails %>
-		$SearchForm
-
-		<% if $ErrorMessage %><div class="message error">$ErrorMessage</div> <% end_if %>
-
-		<% if $SearchPerformed %>
-		<% include ElasticResults %>
+			<% if $SearchPerformed %>
+			<% include ElasticResults %>
+			<% end_if %>
 		<% end_if %>
+
+
 
 	</article>
 		$CommentsForm

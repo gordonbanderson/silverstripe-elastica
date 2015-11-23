@@ -327,8 +327,6 @@ class ElasticSearchPage extends Page {
 					}
 				}
 			}
-		} else {
-			echo '****** SITE TREE ONLY ******';
 		}
 
 
@@ -468,12 +466,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$class = $this->request->param('ID');
 		$instanceID = $this->request->param('OtherID');
 
-		$searchable = Injector::inst()->create($class);
-
-
-
-		$instance = DataObject::get_by_id($class,$instanceID);
-
 		$data = array(
 			'Content' => $this->Content,
 			'Title' => $this->Title,
@@ -561,41 +553,47 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			unset($fieldsToSearch[$field]);
 		}
 
-		//$paginated = $es->moreLikeThis($instance, array($fieldsToSearch));
-		$errorMessage = null;
-
 		try {
-			$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
+			if (class_exists($class)) {
+				$instance = DataObject::get_by_id($class,$instanceID);
 
-			$this->Aggregations = $es->getAggregations();
-			$data['SearchResults'] = $paginated;
-			$data['SearchPerformed'] = true;
-			$data['SearchPageLink'] = $ep->Link();
-			$data['SimilarTo'] = $instance;
-			$data['NumberOfResults'] = $paginated->getTotalItems();
+				$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
+
+				$this->Aggregations = $es->getAggregations();
+				$data['SearchResults'] = $paginated;
+				$data['SearchPerformed'] = true;
+				$data['SearchPageLink'] = $ep->Link();
+				$data['SimilarTo'] = $instance;
+				$data['NumberOfResults'] = $paginated->getTotalItems();
 
 
-			$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
-			$fieldToTerms = new ArrayList();
-			foreach (array_keys($moreLikeThisTerms) as $fieldName) {
-				$readableFieldName = str_replace('.standard', '', $fieldName);
-				$fieldTerms = new ArrayList();
-				foreach ($moreLikeThisTerms[$fieldName] as $value) {
+				$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
+				$fieldToTerms = new ArrayList();
+				foreach (array_keys($moreLikeThisTerms) as $fieldName) {
+					$readableFieldName = str_replace('.standard', '', $fieldName);
+					$fieldTerms = new ArrayList();
+					foreach ($moreLikeThisTerms[$fieldName] as $value) {
+						$do = new DataObject();
+						$do->Term = $value;
+						$fieldTerms->push($do);
+					}
+
 					$do = new DataObject();
-					$do->Term = $value;
-					$fieldTerms->push($do);
+					$do->FieldName = $readableFieldName;
+					$do->Terms = $fieldTerms;
+					$fieldToTerms->push($do);
 				}
 
-				$do = new DataObject();
-				$do->FieldName = $readableFieldName;
-				$do->Terms = $fieldTerms;
-				$fieldToTerms->push($do);
+				$data['SimilarSearchTerms'] = $fieldToTerms;
+			} else {
+				// class does not exist
+				$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
 			}
 
-			$data['SimilarSearchTerms'] = $fieldToTerms;
 
 		} catch (\InvalidArgumentException $e) {
 			$errorMessage = $e->getMessage();
+			$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
 		}
 
 
