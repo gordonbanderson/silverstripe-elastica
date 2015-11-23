@@ -650,6 +650,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q = $_GET['q'];
 		}
 
+		$testMode = isset($_GET['TestMode']);
+
 		// filters for aggregations
 		$ignore = array('url', 'start','q','is');
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
@@ -692,7 +694,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$paginated = null;
 		try {
 			// now actually perform the search using the original query
-			$paginated = $es->search($q, $fieldsToSearch);
+			$paginated = $es->search($q, $fieldsToSearch, $testMode);
 
 			// This is the case of the original query having a better one suggested.  Do a
 			// second search for the suggested query, throwing away the original
