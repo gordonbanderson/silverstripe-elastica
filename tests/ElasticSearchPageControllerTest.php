@@ -306,10 +306,44 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	}
 
 
+	public function testSimilarNotSearchable() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "/similar/Member/1";
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
 
-	public function testSimilar() {
+		$this->assertSelectorStartsWithOrEquals('div.error', 0,
+			'Class Member is either not found or not searchable');
+
+	}
 
 
+	public function testSimilarNull() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "/similar/Member/0";
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+
+		$this->assertSelectorStartsWithOrEquals('div.error', 0,
+			'Class Member is either not found or not searchable');
+	}
+
+
+	public function testSimilarClassDoesNotExist() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "/similar/asdfsadfsfd/4";
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+
+		$this->assertSelectorStartsWithOrEquals('div.error', 0,
+			'Class asdfsadfsfd is either not found or not searchable');
+	}
+
+
+	public function testSimilarValid() {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77";
@@ -336,8 +370,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, 'Villa Deserters Conducted to 11th Inf. Headquarters.');
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
-
-
 	}
 
 
@@ -492,7 +524,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		$url = rtrim($url,'/');
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals($url.'?q=New Zealand', $response->getHeader('Location'));
+        $this->assertEquals($url.'?q=New Zealand&sfid=testwithagg', $response->getHeader('Location'));
 	}
 
 
