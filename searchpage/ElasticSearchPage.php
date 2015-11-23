@@ -594,6 +594,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} catch (\InvalidArgumentException $e) {
 			$errorMessage = $e->getMessage();
 			$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
+		} catch (Elastica\Exception\Connection\HttpException $e) {
+			$data['ErrorMessage'] = 'Unable to connect to search server';
+			$data['SearchPerformed'] = false;
 		}
 
 
