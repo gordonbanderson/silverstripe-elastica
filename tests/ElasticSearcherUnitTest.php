@@ -130,12 +130,6 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		}
 	}
 
-	/*
-	test blank fields
-	test fields with no weighting (ie not associative)
-
-	 */
-
 	public function testSimilarGood() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
