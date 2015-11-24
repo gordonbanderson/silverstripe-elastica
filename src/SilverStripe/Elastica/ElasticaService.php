@@ -117,6 +117,9 @@ class ElasticaService {
 		$this->locale = $newLocale;
 	}
 
+	public function getIndexName() {
+		return $this->indexName;
+	}
 
 	private function getLocaleIndexName() {
 		$name = $this->indexName.'-'.$this->locale;
