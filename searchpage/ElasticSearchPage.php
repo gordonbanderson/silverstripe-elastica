@@ -102,8 +102,16 @@ class ElasticSearchPage extends Page {
 		$defaultsButton = new LiteralField('DefaultsButton', $html);
 				$fields->addFieldToTab("Root.Search.Similarity", $defaultsButton);
 
-		$sortedWords = explode(',', $this->SimilarityStopWords);
-		sort($sortedWords);
+		$sortedWords = null;
+		if (is_array($this->SimilarityStopWords)) {
+			echo "T1\n";
+			$sortedWords = implode(',', $this->SimilarityStopWords);
+		} else {
+			echo "T2\n";
+			$sortedWords = $this->SimilarityStopWords;
+		}
+
+
 
 		$stopwordsField = StringTagField::create(
 		    'SimilarityStopWords',
@@ -166,12 +174,20 @@ class ElasticSearchPage extends Page {
 		}
 		$list = implode(',', $classes);
 
+		$clazzes = '';
+
+		if (is_array($this->ClassesToSearch)) {
+			$clazzes = implode(',', $this->ClassesToSearch);
+		} else {
+			$clazzes = $this->ClassesToSearch;
+		}
+
 		$allSearchableClasses = SearchableClass::get()->sort('Name')->map('Name')->toArray();
 		$classesToSearchField = StringTagField::create(
-		    'ClassesToSearch',
-		    'Choose which SilverStripe classes to search',
-		     $allSearchableClasses,
-		    explode(',', $this->ClassesToSearch)
+			'ClassesToSearch',
+			'Choose which SilverStripe classes to search',
+			$allSearchableClasses,
+			$clazzes
 		);
 
 		$fields->addFieldToTab('Root.Search.SearchFor', $classesToSearchField);
