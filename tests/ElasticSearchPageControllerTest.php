@@ -343,6 +343,18 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	}
 
 
+	public function testSimilarSearchServerDown() {
+		$client = new Elastica\Client(array('port' => 12345));
+		$indexName = $this->service->getIndexName();
+		$this->service = new SilverStripe\Elastica\ElasticaService($client, $indexName);
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "/similar/FlickrPhotoTO/77";
+		$response = $this->get($url);
+		$this->fail('Server port is not configurable');
+	}
+
+
 	public function testSimilarValid() {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
