@@ -590,14 +590,23 @@ class SearchableTest extends ElasticsearchBaseTest {
 		//$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
 
 		// currently fails
-		$flickrPhoto->updateCMSFields($fields);
+		$fields = $flickrPhoto->getCMSFields($fields);
 
-		$result = array();
-		foreach ($fields as $field) {
-			echo "FIELD:".$field->getName();
-			$result[$field->getName()] = $field->Value();
+		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
+		$tabNames = array();
+		foreach ($tabset->Tabs() as $tab) {
+			$tabFields = array();
+			foreach ($tab->FieldList() as $field) {
+				array_push($tabFields, $field->getName());
+			}
+			$expectedName = 'TermsFor'.$tab->getName();;
+			$expected = array($expectedName);
+			$this->assertEquals($expected, $tabFields);
+			array_push($tabNames, $tab->getName());
 		}
-		$this->assertEquals(array(), $result);
+		$expected = array('Description','Description_shingles','Description_standard',
+			'ShutterSpeed','Title','Title_autocomplete','Title_shingles','Title_standard');
+		$this->assertEquals($expected, $tabNames);
 	}
 
 
@@ -609,14 +618,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$page->write();
 		$page->doPublish();
 		$fields = new FieldList();
-		//$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
-		//$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
 
-		// currently fails
-		$page->updateCMSFields($fields);
 		$fields = $page->getCMSFields();
 
-		echo "FIELDS\n";
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
 		$tabNames = array();
 		foreach ($tabset->Tabs() as $tab) {
@@ -627,11 +631,8 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$expectedName = 'TermsFor'.$tab->getName();;
 			$expected = array($expectedName);
 			$this->assertEquals($expected, $tabFields);
-			echo "TAB\n";
-			//echo $field->getName().' - '.$field->Value()."\n";
 			array_push($tabNames, $tab->getName());
 		}
-		echo "/FIELDS\n";
 		$expected = array(
 			'Content','Content_standard','Link','Title','Title_autocomplete','Title_shingles',
 			'Title_standard');
