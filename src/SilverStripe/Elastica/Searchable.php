@@ -770,7 +770,6 @@ class Searchable extends \DataExtension {
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
-			$tabSet = new \TabSet('REMOVETHIS');
 
 			$tabs = array();
 
@@ -816,11 +815,6 @@ class Searchable extends \DataExtension {
 		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
 			}
 
-				$tabSet->removeByName('REMOVETHIS');
-
-
-			//$tabSet->setTabs($tabs);
-			$fields->addFieldToTab('Root.ElasticaTerms', $tabSet);
 		}
 
 	    return $fields;
