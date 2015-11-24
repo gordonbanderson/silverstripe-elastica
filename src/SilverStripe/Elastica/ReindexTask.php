@@ -32,13 +32,12 @@ class ReindexTask extends \BuildTask {
 		};
 
 		$locales = array();
-		if (!class_exists('Translatable')) {
-			// if no translatable we only have the default locale
-			array_push($locales, \i18n::default_locale());
-		} else {
+		if(class_exists('Translatable') && singleton('SiteTree')->hasExtension('Translatable')) {
 			foreach (\Translatable::get_existing_content_languages('SiteTree') as $code => $val) {
 				array_push($locales, $code);
 			}
+		} else {
+			array_push($locales, \i18n::default_locale());
 		}
 
 		// now iterate all the locales indexing each locale in turn using it's owner index settings
