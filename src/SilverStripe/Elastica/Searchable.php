@@ -752,7 +752,6 @@ class Searchable extends \DataExtension {
 
     public function updateCMSFields(\FieldList $fields) {
 		$isIndexed = false;
-
 		// SIteTree object must have a live record, ShowInSearch = true
 		if ($this->isInSiteTree($this->owner->ClassName)) {
 			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
@@ -771,7 +770,7 @@ class Searchable extends \DataExtension {
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
-			$tabSet = new \TabSet('REMOVETHIS #FIXME');
+			$tabSet = new \TabSet('REMOVETHIS');
 
 			$tabs = array();
 
@@ -816,6 +815,8 @@ class Searchable extends \DataExtension {
 		      // $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
 		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
 			}
+
+				$tabSet->removeByName('REMOVETHIS');
 
 
 			//$tabSet->setTabs($tabs);
