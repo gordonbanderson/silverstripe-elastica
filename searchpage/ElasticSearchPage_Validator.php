@@ -22,6 +22,12 @@ class ElasticSearchPage_Validator extends RequiredFields {
 		//return false;
 		//
 
+		if ($data['ClassesToSearch'] == array()) {
+			$data['ClassesToSearch'] = '';
+		}
+
+		$debug = $data['SiteTreeOnly'];
+		echo "STDATA:$debug\n";
 
 		// Check if any classes to search if site tree only is not ticked
 		if (!$data['SiteTreeOnly']) {
@@ -42,11 +48,9 @@ class ElasticSearchPage_Validator extends RequiredFields {
 					try {
 						$instance = Injector::inst()->create($clazz);
 						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
-							$this->validationError('The class '.$clazz.' must have the Searchable extension');
+							$this->validationError('ClassesToSearch', 'The class '.$clazz.' must have the Searchable extension');
 						}
 					} catch (ReflectionException $e) {
-
-
 						$this->validationError("ClassesToSearch",
 							'The class '.$clazz.' does not exist',
 							'error'
@@ -56,7 +60,7 @@ class ElasticSearchPage_Validator extends RequiredFields {
 			}
 		}
 
-
+/** looks superfluous
 		// now check classes to search actually exist, assuming in site tree not set
 		if (!$data['SiteTreeOnly']) {
 			if ($data['ClassesToSearch'] == '') {
@@ -64,10 +68,9 @@ class ElasticSearchPage_Validator extends RequiredFields {
 					'At least one searchable class must be available, or SiteTreeOnly flag set',
 					'error'
 				);
-			} else {
-
 			}
 		}
+*/
 
 		// Check the identifier is unique
 		$mode = Versioned::get_reading_mode();
@@ -76,12 +79,14 @@ class ElasticSearchPage_Validator extends RequiredFields {
 			$suffix = '_Live';
 		}
 
+		print_r($data);
+
 		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$data['ID']." AND `Identifier` = '".$data['Identifier']."'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
 		if ($existing > 0) {
 			$valid = false;
 			$this->validationError('Identifier',
-					'The identifier '.$this->Identifier.' already exists',
+					'The identifier '.$data['Identifier'].' already exists',
 					'error'
 			);
 		}
