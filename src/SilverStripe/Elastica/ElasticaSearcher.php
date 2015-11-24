@@ -363,10 +363,6 @@ class ElasticSearcher {
 			throw new \InvalidArgumentException('Objects of class '.$indexedItem->ClassName.' are not searchable');
 		}
 
-		if ($indexedItem == null) {
-			throw new \InvalidArgumentException('Indexed item cannot be null');
-		}
-
 		if ($fieldsToSearch == null) {
 			throw new \InvalidArgumentException('Fields cannot be null');
 		}
