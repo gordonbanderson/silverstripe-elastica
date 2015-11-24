@@ -223,7 +223,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		try {
 			$paginated = $es->moreLikeThis(null, $fields, true);
 		} catch (InvalidArgumentException $e) {
-			$this->assertEquals('Indexed item cannot be null', $e->getMessage());
+			$this->assertEquals('A searchable item cannot be null', $e->getMessage());
 		}
 	}
 
