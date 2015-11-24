@@ -306,8 +306,6 @@ class Searchable extends \DataExtension {
 
 		$fields = $this->getElasticaFields(false);
 
-		echo $this->owner->ClassName.', LOCALE='.$this->owner->Locale."\n";
-
 		if ($this->owner->hasField('Locale')) {
 			$localeMapping['type'] = 'string';
 			// we wish the locale to be stored as is
@@ -345,8 +343,6 @@ class Searchable extends \DataExtension {
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
-
-		echo "Progress interval...".self::$progressInterval."\n";
 
 		if (isset($_GET['progress'])) {
 			$progress = $_GET['progress'];
@@ -496,15 +492,6 @@ class Searchable extends \DataExtension {
 	 */
 	public function onAfterWrite() {
 		$this->doIndexDocument();
-		echo "OAW: $this->owner->ClassName - $this->owner->ID - \n".$this->owner->hasExtension('SiteTreeExtension');
-/*
-		if (!($this->owner instanceof \SiteTree)) {
-			echo "SEARCHABLE: onAfterWrite T1 - INDEXING\n";
-			$this->doIndexDocument();
-		} else {
-			echo "SEARCHABLE: onAfterWrite T1 - NOT INDEXING\n";
-		}
-		*/
 	}
 
 
@@ -583,9 +570,7 @@ class Searchable extends \DataExtension {
 		$fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
 
 		// fallback to default method
-		if(!$fields) {
-			user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
-		}
+		if(!$fields) user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
 
 		// get the values of these fields
 		$elasticaMapping = $this->fieldsToElasticaConfig($this->owner, $fields);
@@ -606,9 +591,7 @@ class Searchable extends \DataExtension {
 
 						$relClass = $has_lists[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) {
-							user_error('The field $searchable_fields must be set for the class '.$relClass);
-						}
+						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
 
 						// mark as a method, the resultant fields are correct
@@ -618,9 +601,7 @@ class Searchable extends \DataExtension {
 					} else if (isset($has_ones[$methodName])) {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) {
-							user_error('The field $searchable_fields must be set for the class '.$relClass);
-						}
+						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
 						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
 						$classname = $has_ones[$methodName];
 
@@ -634,11 +615,6 @@ class Searchable extends \DataExtension {
 			}
 		}
 
-
-		//echo "---- ELASTICA MAPPING {$this->owner->ClassName}----\n";
-		//print_r($elasticaMapping);
-		//
-		//
 		return $elasticaMapping;
 	}
 
@@ -692,8 +668,6 @@ class Searchable extends \DataExtension {
 			// check for existence of methods and if they exist use that as the name
 			if (isset($searchableField['type'])) {
 				// Do nothing, check method options
-			} else if (isset($searchableField['__method'])) {
-				// recursive method case, don't want this to happen
 			} else {
 				$name = $searchableField['properties']['__method'];
 			}
@@ -776,9 +750,6 @@ class Searchable extends \DataExtension {
 	}
 
 
-
-
-
     public function updateCMSFields(\FieldList $fields) {
 		$config = \GridFieldConfig_RecordViewer::create(100);
 		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
@@ -790,30 +761,23 @@ class Searchable extends \DataExtension {
 
 		$isIndexed = false;
 
+
+
 		// SIteTree object must have a live record, ShowInSearch = true
-		echo "INDEXED: Checking class $this->owner->ClassName\n";
 		if ($this->isInSiteTree($this->owner->ClassName)) {
-			echo "INDEXED T1\n";
 			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 				byID($this->owner->ID);
 			if ($liveRecord->ShowInSearch) {
 				$isIndexed = true;
-				echo "INDEXED T2\n";
 			} else {
-				echo "INDEXED T3\n";
 				$isIndexed = false;
 			}
 		} else {
-			echo "INDEXED T4\n";
 			// In the case of a DataObject we use the ShowInSearchFlag
 			$isIndexed = true;
 		}
 
-		echo "INDEXED T5 isIndexed = $isIndexed \n";
-
-
 		if ($isIndexed) {
-
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
