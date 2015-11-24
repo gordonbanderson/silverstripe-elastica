@@ -751,17 +751,7 @@ class Searchable extends \DataExtension {
 
 
     public function updateCMSFields(\FieldList $fields) {
-		$config = \GridFieldConfig_RecordViewer::create(100);
-		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-            'Term' => 'Term',
-            'TTF' => 'Total term frequency (how often a term occurs in all documents)',
-            'DocFreq' => 'n documents with this term',
-            'TermFreq'=> 'n times this term appears in this field'
-        ));
-
 		$isIndexed = false;
-
-
 
 		// SIteTree object must have a live record, ShowInSearch = true
 		if ($this->isInSiteTree($this->owner->ClassName)) {
@@ -803,20 +793,27 @@ class Searchable extends \DataExtension {
 			        if (isset($stats['term_freq'])) {
 			        	$do->TermFreq = $stats['term_freq'];
 			        }
-
-			        //print_r($stats);
 			        $terms->push($do);
 		        }
 
+		        $config = \GridFieldConfig_RecordViewer::create(100);
+				$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+		            'Term' => 'Term',
+		            'TTF' => 'Total term frequency (how often a term occurs in all documents)',
+		            'DocFreq' => 'n documents with this term',
+		            'TermFreq'=> 'n times this term appears in this field'
+		        ));
+
+		       $underscored = str_replace('.', '_', $field);
+
 		        $gridField = new \GridField(
-		            'TermsFor'.$field, // Field name
-		            $field, // Field title
+		            'TermsFor'.$underscored, // Field name
+		            $field.'TITLE'.$field, // Field title
 		            $terms,
 		            $config
 		        );
 
-		       $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
-		       $underscored = str_replace('.', '_', $field);
+		      // $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
 		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
 			}
 
