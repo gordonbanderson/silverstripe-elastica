@@ -151,7 +151,7 @@
  *
  * @package translatable
  */
-class Translatable extends DataExtension implements PermissionProvider, TestOnly {
+class Translatable extends DataExtension implements TestOnly {
 
 	const QUERY_LOCALE_FILTER_ENABLED = 'Translatable.LocaleFilterEnabled';
 
@@ -250,21 +250,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 * @return string Selected language (also saved in $current_locale).
 	 */
 	static function choose_site_locale($langsAvailable = array()) {
-		if(self::$current_locale) {
-			return self::$current_locale;
-		}
-
-		if(
-			(isset($_REQUEST['locale']) && !$langsAvailable)
-			|| (isset($_REQUEST['locale'])
-			&& in_array($_REQUEST['locale'], $langsAvailable))
-		) {
-			// get from request parameter
-			self::set_current_locale($_REQUEST['locale']);
-		} else {
-			self::set_current_locale(self::default_locale());
-		}
-
+		self::set_current_locale(self::default_locale());
 		return self::$current_locale;
 	}
 
@@ -279,28 +265,6 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		return self::$default_locale;
 	}
 
-	/**
-	 * Set default language. Please set this value *before* creating
-	 * any database records (like pages), as this locale will be attached
-	 * to all new records.
-	 *
-	 * @param $locale String
-	 */
-	static function set_default_locale($locale) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
-		$localeList = i18n::config()->all_locales;
-		if(isset($localeList[$locale])) {
-			self::$default_locale = $locale;
-		} else {
-			user_error(
-				"Translatable::set_default_locale(): '$locale' is not a valid locale.",
-				E_USER_WARNING
-			);
-		}
-	}
 
 	/**
 	 * Get the current reading language.
@@ -321,68 +285,10 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 * @param string $lang New reading language.
 	 */
 	static function set_current_locale($locale) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
 		self::$current_locale = $locale;
 	}
 
-	/**
-	 * Get a singleton instance of a class in the given language.
-	 * @param string $class The name of the class.
-	 * @param string $locale  The name of the language.
-	 * @param string $filter A filter to be inserted into the WHERE clause.
-	 * @param boolean $cache Use caching (default: false)
-	 * @param string $orderby A sort expression to be inserted into the ORDER BY clause.
-	 * @return DataObject
-	 */
-	static function get_one_by_locale($class, $locale, $filter = '', $cache = false, $orderby = "") {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
 
-		$orig = Translatable::get_current_locale();
-		Translatable::set_current_locale($locale);
-		$do = $class::get()
-			->where($filter)
-			->where(sprintf('"Locale" = \'%s\'', Convert::raw2sql($locale)))
-			->sort($orderby)
-			->First();
-		Translatable::set_current_locale($orig);
-		return $do;
-	}
-
-	/**
-	 * Get all the instances of the given class translated to the given language
-	 *
-	 * @param string $class The name of the class
-	 * @param string $locale  The name of the language
-	 * @param string $filter A filter to be inserted into the WHERE clause.
-	 * @param string $sort A sort expression to be inserted into the ORDER BY clause.
-	 * @param string $join A single join clause.  This can be used for filtering, only 1
-	 *               instance of each DataObject will be returned.
-	 * @param string $limit A limit expression to be inserted into the LIMIT clause.
-	 * @param string $containerClass The container class to return the results in.
-	 * @param string $having A filter to be inserted into the HAVING clause.
-	 * @return mixed The objects matching the conditions.
-	 */
-	static function get_by_locale($class, $locale, $filter = '', $sort = '', $join = "", $limit = "") {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
-		$oldLang = self::get_current_locale();
-		self::set_current_locale($locale);
-		$result = $class::get();
-		if($filter) $result = $result->where($filter);
-		if($sort) $result = $result->sort($sort);
-		if($join) $result = $result->leftJoin($join);
-		if($limit) $result = $result->limit($limit);
-		self::set_current_locale($oldLang);
-
-		return $result;
-	}
 
 	/**
 	 * @return bool
@@ -431,143 +337,8 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		return $enabled;
 	}
 
-	/**
-	 * Gets all translations for this specific page.
-	 * Doesn't include the language of the current record.
-	 *
-	 * @return array Numeric array of all locales, sorted alphabetically.
-	 */
-	function getTranslatedLocales() {
-		$langs = array();
-
-		$baseDataClass = ClassInfo::baseDataClass($this->owner->class); //Base Class
-		$translationGroupClass = $baseDataClass . "_translationgroups";
-		if($this->owner->hasExtension("Versioned")  && Versioned::current_stage() == "Live") {
-			$baseDataClass = $baseDataClass . "_Live";
-		}
-
-		$translationGroupID = $this->getTranslationGroup();
-		if(is_numeric($translationGroupID)) {
-			$query = new SQLQuery(
-				'DISTINCT "Locale"',
-				sprintf(
-					'"%s" LEFT JOIN "%s" ON "%s"."OriginalID" = "%s"."ID"',
-					$baseDataClass,
-					$translationGroupClass,
-					$translationGroupClass,
-					$baseDataClass
-				), // from
-				sprintf(
-					'"%s"."TranslationGroupID" = %d AND "%s"."Locale" != \'%s\'',
-					$translationGroupClass,
-					$translationGroupID,
-					$baseDataClass,
-					$this->owner->Locale
-				) // where
-			);
-			$langs = $query->execute()->column();
-		}
-		if($langs) {
-			$langCodes = array_values($langs);
-			sort($langCodes);
-			return $langCodes;
-		} else {
-			return array();
-		};
-	}
-
-	/**
-	 * Gets all locales that a member can access
-	 * as defined by {@link $allowed_locales}
-	 * and {@link canTranslate()}.
-	 * If {@link $allowed_locales} is not set and
-	 * the user has the `TRANSLATE_ALL` permission,
-	 * the method will return all available locales in the system.
-	 *
-	 * @param Member $member
-	 * @return array Map of locales
-	 */
-	function getAllowedLocalesForMember($member) {
-		$locales = self::get_allowed_locales();
-		if(!$locales) $locales = i18n::get_common_locales();
-		if($locales) foreach($locales as $k => $locale) {
-			if(!$this->canTranslate($member, $locale)) unset($locales[$k]);
-		}
-
-		return $locales;
-	}
-
-	/**
-	 * Get a list of languages in which a given element has been translated.
-	 *
-	 * @deprecated 2.4 Use {@link getTranslations()}
-	 *
-	 * @param string $class Name of the class of the element
-	 * @param int $id ID of the element
-	 * @return array List of languages
-	 */
-	static function get_langs_by_id($class, $id) {
-		$do = DataObject::get_by_id($class, $id);
-		return ($do ? $do->getTranslatedLocales() : array());
-	}
-
-	/**
-	 * Enables the multilingual feature
-	 *
-	 * @deprecated 2.4 Use SiteTree::add_extension('Translatable')
-	 */
-	static function enable() {
-		if(class_exists('SiteTree')) SiteTree::add_extension('Translatable');
-	}
-
-	/**
-	 * Disable the multilingual feature
-	 *
-	 * @deprecated 2.4 Use SiteTree::remove_extension('Translatable')
-	 */
-	static function disable() {
-		if(class_exists('SiteTree')) SiteTree::remove_extension('Translatable');
-	}
-
-	/**
-	 * Check whether multilingual support has been enabled
-	 *
-	 * @deprecated 2.4 Use SiteTree::has_extension('Translatable')
-	 * @return boolean True if enabled
-	 */
-	static function is_enabled() {
-		if(class_exists('SiteTree')){
-			return SiteTree::has_extension('Translatable');
-		}else{
-			return false;
-		}
-	}
 
 
-	/**
-	 * Construct a new Translatable object.
-	 * @var array $translatableFields The different fields of the object that can be translated.
-	 * This is currently not implemented, all fields are marked translatable (see {@link setOwner()}).
-	 */
-	function __construct($translatableFields = null) {
-		parent::__construct();
-
-		// @todo Disabled selection of translatable fields - we're setting all fields as
-		// translatable in setOwner()
-		/*
-		if(!is_array($translatableFields)) {
-			$translatableFields = func_get_args();
-		}
-		$this->translatableFields = $translatableFields;
-		*/
-
-		// workaround for extending a method on another decorator (Hierarchy):
-		// split the method into two calls, and overwrite the wrapper AllChildrenIncludingDeleted()
-		// Has to be executed even with Translatable disabled, as it overwrites the method with same name
-		// on Hierarchy class, and routes through to Hierarchy->doAllChildrenIncludingDeleted() instead.
-		// Caution: There's an additional method for augmentAllChildrenIncludingDeleted()
-
-	}
 
 	function setOwner($owner, $ownerBaseClass = null) {
 		parent::setOwner($owner, $ownerBaseClass);
@@ -585,6 +356,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		}
 	}
 
+	// FIXME - REMOVING THIS BREAKS TEST, BUT ZERO TEST COVERAGE...
 	static function get_extra_config($class, $extensionClass, $args = null) {
 		$config = array();
 		$config['defaults'] = array(
@@ -605,18 +377,6 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 */
 	protected function filtersOnLocale($query) {
 		foreach($query->getWhere() as $condition) {
-			// Compat for 3.1/3.2 where syntax
-			if(is_array($condition)) {
-				// In >=3.2 each $condition is a single length array('condition' => array('params'))
-				reset($condition);
-				$condition = key($condition);
-			}
-
-			// >=3.2 allows conditions to be expressed as evaluatable objects
-			if(interface_exists('SQLConditionGroup') && ($condition instanceof SQLConditionGroup)) {
-				$condition = $condition->conditionSQL($params);
-			}
-
 			if(preg_match('/("|\'|`)Locale("|\'|`)/', $condition)) return true;
 		}
 	}
@@ -666,12 +426,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		$dataQuery->setQueryParam(self::QUERY_LOCALE_FILTER_ENABLED, $enabled);
 	}
 
-	/**
-	 * Create <table>_translation database table to enable
-	 * tracking of "translation groups" in which each related
-	 * translation of an object acts as a sibling, rather than
-	 * a parent->child relation.
-	 */
+	 // FIXME - NO TEST COVERAGE BUT REQUIRED
 	function augmentDatabase() {
 		$baseDataClass = ClassInfo::baseDataClass($this->owner->class);
 		if($this->owner->class != $baseDataClass) return;
@@ -732,40 +487,8 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		))->column();
 		if(!$idsWithoutLocale) return;
 
-		if(class_exists('SiteTree') && $this->owner->class == 'SiteTree') {
-			foreach(array('Stage', 'Live') as $stage) {
-				foreach($idsWithoutLocale as $id) {
-					$obj = Versioned::get_one_by_stage(
-						$this->owner->class,
-						$stage,
-						sprintf('"SiteTree"."ID" = %d', $id)
-					);
-					if(!$obj || $obj->ObsoleteClassName) continue;
 
-					$obj->Locale = Translatable::default_locale();
-					$obj->writeToStage($stage);
-					$obj->addTranslationGroup($obj->ID);
-					$obj->destroy();
-					unset($obj);
-				}
-			}
-		} else {
-			foreach($idsWithoutLocale as $id) {
-				$obj = DataObject::get_by_id($this->owner->class, $id);
-				if(!$obj || $obj->ObsoleteClassName) continue;
 
-				$obj->Locale = Translatable::default_locale();
-				$obj->write();
-				$obj->addTranslationGroup($obj->ID);
-				$obj->destroy();
-				unset($obj);
-			}
-		}
-		DB::alteration_message(sprintf(
-			"Added default locale '%s' to table %s","changed",
-			Translatable::default_locale(),
-			$this->owner->class
-		));
 	}
 
 	/**
@@ -841,32 +564,11 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		);
 	}
 
-	/**
-	 * Determine if a table needs Versioned support
-	 * This is called at db/build time
-	 *
-	 * @param string $table Table name
-	 * @return boolean
-	 */
+	// FIXME - no coverage but is called
 	function isVersionedTable($table) {
 		return false;
 	}
 
-	/**
-	 * Note: The bulk of logic is in ModelAsController->getNestedController()
-	 * and ContentController->handleRequest()
-	 */
-	function contentcontrollerInit($controller) {
-		$controller->Locale = Translatable::choose_site_locale();
-	}
-
-	function modelascontrollerInit($controller) {
-		//$this->contentcontrollerInit($controller);
-	}
-
-	function initgetEditForm($controller) {
-		$this->contentcontrollerInit($controller);
-	}
 
 	/**
 	 * Recursively creates translations for parent pages in this language
@@ -979,21 +681,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 
 	}
 
-	/**
-	 * Remove the record from the translation group mapping.
-	 */
-	function onBeforeDelete() {
-		// @todo Coupling to Versioned, we need to avoid removing
-		// translation groups if records are just deleted from a stage
-		// (="unpublished"). Ideally the translation group tables would
-		// be specific to different Versioned changes, making this restriction unnecessary.
-		// This will produce orphaned translation group records for SiteTree subclasses.
-		if(!$this->owner->hasExtension('Versioned')) {
-			$this->removeTranslationGroup();
-		}
 
-		parent::onBeforeDelete();
-	}
 
 	/**
 	 * Attempt to get the page for a link in the default language that has been translated.
@@ -1029,113 +717,6 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 
 	//-----------------------------------------------------------------------------------------------//
 
-	function applyTranslatableFieldsUpdate($fields, $type) {
-		if (method_exists($this, $type)) {
-			$this->$type($fields);
-		} else {
-			throw new InvalidArgumentException("Method $type does not exist on object of type ".  get_class($this));
-		}
-	}
-
-	/**
-	 * If the record is not shown in the default language, this method
-	 * will try to autoselect a master language which is shown alongside
-	 * the normal formfields as a readonly representation.
-	 * This gives translators a powerful tool for their translation workflow
-	 * without leaving the translated page interface.
-	 * Translatable also adds a new tab "Translation" which shows existing
-	 * translations, as well as a formaction to create new translations based
-	 * on a dropdown with available languages.
-	 *
-	 * This method can be called multiple times on the same FieldList
-	 * because it checks which fields have already been added or modified.
-	 *
-	 * @todo This is specific to SiteTree and CMSMain
-	 * @todo Implement a special "translation mode" which triggers display of the
-	 * readonly fields, so you can translation INTO the "default language" while
-	 * seeing readonly fields as well.
-	 */
-	function updateCMSFields(FieldList $fields) {
-		$this->addTranslatableFields($fields);
-
-		// Show a dropdown to create a new translation.
-		// This action is possible both when showing the "default language"
-		// and a translation. Include the current locale (record might not be saved yet).
-		$alreadyTranslatedLocales = $this->getTranslatedLocales();
-		$alreadyTranslatedLocales[$this->owner->Locale] = $this->owner->Locale;
-		$alreadyTranslatedLocales = array_combine($alreadyTranslatedLocales, $alreadyTranslatedLocales);
-
-		// Check if fields exist already to avoid adding them twice on repeat invocations
-		$tab = $fields->findOrMakeTab('Root.Translations', _t('Translatable.TRANSLATIONS', 'Translations'));
-		if(!$tab->fieldByName('CreateTransHeader')) {
-			$tab->push(new HeaderField(
-				'CreateTransHeader',
-				_t('Translatable.CREATE', 'Create new translation'),
-				2
-			));
-		}
-		if(!$tab->fieldByName('NewTransLang') && !$tab->fieldByName('AllTransCreated')) {
-			$langDropdown = LanguageDropdownField::create(
-				"NewTransLang",
-				_t('Translatable.NEWLANGUAGE', 'New language'),
-				$alreadyTranslatedLocales,
-				'SiteTree',
-				'Locale-English',
-				$this->owner
-			)->addExtraClass('languageDropdown no-change-track');
-			$tab->push($langDropdown);
-			$canAddLocale = (count($langDropdown->getSource()) > 0);
-
-			if($canAddLocale) {
-				// Only add create button if new languages are available
-				$tab->push(
-					$createButton = InlineFormAction::create(
-						'createtranslation',
-						_t('Translatable.CREATEBUTTON', 'Create')
-					)->addExtraClass('createTranslationButton')
-				);
-				$createButton->includeDefaultJS(false); // not fluent API...
-			} else {
-				$tab->removeByName('NewTransLang');
-				$tab->push(new LiteralField(
-					'AllTransCreated',
-					_t('Translatable.ALLCREATED', 'All allowed translations have been created.')
-				));
-			}
-		}
-		if($alreadyTranslatedLocales) {
-			if(!$tab->fieldByName('ExistingTransHeader')) {
-				$tab->push(new HeaderField(
-					'ExistingTransHeader',
-					_t('Translatable.EXISTING', 'Existing translations'),
-					3
-				));
-				if (!$tab->fieldByName('existingtrans')) {
-					$existingTransHTML = '<ul>';
-					if ($existingTranslations = $this->getTranslations()) {
-						foreach ($existingTranslations as $existingTranslation) {
-							if ($existingTranslation && $existingTranslation->hasMethod('CMSEditLink')) {
-								$existingTransHTML .= sprintf(
-									'<li><a href="%s">%s</a></li>',
-									Controller::join_links(
-										$existingTranslation->CMSEditLink(),
-										'?Locale=' . $existingTranslation->Locale
-									),
-									i18n::get_locale_name($existingTranslation->Locale)
-								);
-							}
-						}
-					}
-					$existingTransHTML .= '</ul>';
-					$tab->push(new LiteralField('existingtrans', $existingTransHTML));
-				}
-			}
-		}
-	}
-
-	function updateSettingsFields(&$fields) {
-		$this->addTranslatableFields($fields);
-	}
 
 	public function updateRelativeLink(&$base, &$action) {
 		// Prevent home pages for non-default locales having their urlsegments
@@ -1145,110 +726,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		}
 	}
 
-	/**
-	 * This method can be called multiple times on the same FieldList
-	 * because it checks which fields have already been added or modified.
-	 */
-	protected function addTranslatableFields(&$fields) {
-		// used in LeftAndMain->init() to set language state when reading/writing record
-		$fields->push(new HiddenField("Locale", "Locale", $this->owner->Locale));
 
-		// Don't apply these modifications for normal DataObjects - they rely on CMSMain logic
-		if(!class_exists('SiteTree')) return;
-		if(!($this->owner instanceof SiteTree)) return;
-
-		// Don't allow translation of virtual pages because of data inconsistencies (see #5000)
-		if(class_exists('VirtualPage')){
-			$excludedPageTypes = array('VirtualPage');
-			foreach($excludedPageTypes as $excludedPageType) {
-				if(is_a($this->owner, $excludedPageType)) return;
-			}
-		}
-
-		// Get excluded fields from translation
-		$excludeFields = $this->owner->config()->translate_excluded_fields;
-
-		// if a language other than default language is used, we're in "translation mode",
-		// hence have to modify the original fields
-		$baseClass = $this->owner->class;
-		while( ($p = get_parent_class($baseClass)) != "DataObject") $baseClass = $p;
-
-		// try to get the record in "default language"
-		$originalRecord = $this->owner->getTranslation(Translatable::default_locale());
-		// if no translation in "default language", fall back to first translation
-		if(!$originalRecord) {
-			$translations = $this->owner->getTranslations();
-			$originalRecord = ($translations) ? $translations->First() : null;
-		}
-
-		$isTranslationMode = $this->owner->Locale != Translatable::default_locale();
-
-		if($originalRecord && $isTranslationMode) {
-			// Remove parent page dropdown
-			$fields->removeByName("ParentType");
-			$fields->removeByName("ParentID");
-
-			$translatableFieldNames = $this->getTranslatableFields();
-			$allDataFields = $fields->dataFields();
-
-			$transformation = new Translatable_Transformation($originalRecord);
-
-			// iterate through sequential list of all datafields in fieldset
-			// (fields are object references, so we can replace them with the translatable CompositeField)
-			foreach($allDataFields as $dataField) {
-				// Transformation is a visual helper for CMS authors, so ignore hidden fields
-				if($dataField instanceof HiddenField) continue;
-				// Some fields are explicitly excluded from transformation
-				if(in_array($dataField->getName(), $excludeFields)) continue;
-				// Readonly field which has been added previously
-				if(preg_match('/_original$/', $dataField->getName())) continue;
-				// Field already has been transformed
-				if(isset($allDataFields[$dataField->getName() . '_original'])) continue;
-				// CheckboxField which is already transformed
-				if(preg_match('/class=\"originalvalue\"/', $dataField->Title())) continue;
-
-				if(in_array($dataField->getName(), $translatableFieldNames)) {
-					// if the field is translatable, perform transformation
-					$fields->replaceField($dataField->getName(), $transformation->transformFormField($dataField));
-				} elseif(!$dataField->isReadonly()) {
-					// else field shouldn't be editable in translation-mode, make readonly
-					$fields->replaceField($dataField->getName(), $dataField->performReadonlyTransformation());
-				}
-			}
-
-		} elseif($this->owner->isNew()) {
-			$fields->addFieldsToTab(
-				'Root',
-				new Tab(_t('Translatable.TRANSLATIONS', 'Translations'),
-					new LiteralField('SaveBeforeCreatingTranslationNote',
-						sprintf('<p class="message">%s</p>',
-							_t('Translatable.NOTICENEWPAGE', 'Please save this page before creating a translation')
-						)
-					)
-				)
-			);
-		}
-	}
-
-	/**
-	 * Get the names of all translatable fields on this class as a numeric array.
-	 * @todo Integrate with blacklist once branches/translatable is merged back.
-	 *
-	 * @return array
-	 */
-	function getTranslatableFields() {
-		return $this->translatableFields;
-	}
-
-	/**
-	 * Return the base table - the class that directly extends DataObject.
-	 * @return string
-	 */
-	function baseTable($stage = null) {
-		$tableClasses = ClassInfo::dataClassesFor($this->owner->class);
-		$baseClass = array_shift($tableClasses);
-		return (!$stage || $stage == $this->defaultStage) ? $baseClass : $baseClass . "_$stage";
-	}
 
 	function extendWithSuffix($table) {
 		return $table;
@@ -1267,10 +745,6 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 * @return DataObjectSet
 	 */
 	function getTranslations($locale = null, $stage = null) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
 		if(!$this->owner->exists()) return new ArrayList();
 
 		// HACK need to disable language filtering in augmentSQL(),
@@ -1328,64 +802,11 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 * @return DataObject Translated object
 	 */
 	function getTranslation($locale, $stage = null) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
 		$translations = $this->getTranslations($locale, $stage);
 		return ($translations) ? $translations->First() : null;
 	}
 
-	/**
-	 * When the SiteConfig object is automatically instantiated, we should ensure that
-	 * 1. All SiteConfig objects belong to the same group
-	 * 2. Defaults are correctly initiated from the base object
-	 * 3. The creation mechanism uses the createTranslation function in order to be consistent
-	 * This function ensures that any already created "vanilla" SiteConfig object is populated
-	 * correctly with translated values.
-	 * This function DOES populate the ID field with the newly created object ID
-	 * @see SiteConfig
-	 */
-	protected function populateSiteConfigDefaults() {
 
-		// Work-around for population of defaults during database initialisation.
-		// When the database is being setup singleton('SiteConfig') is called.
-		if(!DB::getConn()->hasTable($this->owner->class)) return;
-		if(!DB::getConn()->hasField($this->owner->class, 'Locale')) return;
-		if(DB::getConn()->isSchemaUpdating()) return;
-
-		// Find the best base translation for SiteConfig
-		$enabled = Translatable::locale_filter_enabled();
-		Translatable::disable_locale_filter();
-		$existingConfig = SiteConfig::get()->filter(array(
-			'Locale' => Translatable::default_locale()
-		))->first();
-		if(!$existingConfig) $existingConfig = SiteConfig::get()->first();
-		if ($enabled) {
-			Translatable::enable_locale_filter();
-		}
-
-		// Stage this SiteConfig and copy into the current object
-		if(
-			$existingConfig
-			// Double-up of SiteConfig in the same locale can be ignored. Often caused by singleton(SiteConfig)
-			&& !$existingConfig->getTranslation(Translatable::get_current_locale())
-			// If translation is not allowed by the current user then do not
-			// allow this code to attempt any behind the scenes translation.
-			&& $existingConfig->canTranslate(null, Translatable::get_current_locale())
-		) {
-			// Create an unsaved "staging" translated object using the correct createTranslation mechanism
-			$stagingConfig = $existingConfig->createTranslation(Translatable::get_current_locale(), false);
-			$this->owner->update($stagingConfig->toMap());
-		}
-
-		// Maintain single translation group for SiteConfig
-		if($existingConfig) {
-			$this->owner->_TranslationGroupID = $existingConfig->getTranslationGroup();
-		}
-
-		$this->owner->Locale = Translatable::get_current_locale();
-	}
 
 	/**
 	 * Enables automatic population of SiteConfig fields using createTranslation if
@@ -1394,233 +815,8 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 	 */
 	public static $enable_siteconfig_generation = true;
 
-	/**
-	 * Hooks into the DataObject::populateDefaults() method
-	 */
-	public function populateDefaults() {
-		if (
-			empty($this->owner->ID)
-			&& ($this->owner instanceof SiteConfig)
-			&& self::$enable_siteconfig_generation
-		) {
-			// Use enable_siteconfig_generation to prevent infinite loop during object creation
-			self::$enable_siteconfig_generation = false;
-			$this->populateSiteConfigDefaults();
-			self::$enable_siteconfig_generation = true;
-		}
-	}
 
-	/**
-	 * Creates a new translation for the owner object of this decorator.
-	 * Checks {@link getTranslation()} to return an existing translation
-	 * instead of creating a duplicate. Writes the record to the database before
-	 * returning it. Use this method if you want the "translation group"
-	 * mechanism to work, meaning that an object knows which group of translations
-	 * it belongs to. For "original records" which are not created through this
-	 * method, the "translation group" is set in {@link onAfterWrite()}.
-	 *
-	 * @param string $locale Target locale to translate this object into
-	 * @param boolean $saveTranslation Flag indicating whether the new record
-	 * should be saved to the database.
-	 * @return DataObject The translated object
-	 */
-	function createTranslation($locale, $saveTranslation = true) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
 
-		if(!$this->owner->exists()) {
-			user_error(
-				'Translatable::createTranslation(): Please save your record before creating a translation',
-				E_USER_ERROR
-			);
-		}
-
-		// permission check
-		if(!$this->owner->canTranslate(null, $locale)) {
-			throw new Exception(sprintf(
-				'Creating a new translation in locale "%s" is not allowed for this user',
-				$locale
-			));
-			return;
-		}
-
-		$existingTranslation = $this->getTranslation($locale);
-		if($existingTranslation) return $existingTranslation;
-
-		$class = $this->owner->class;
-		$newTranslation = new $class;
-
-		// copy all fields from owner (apart from ID)
-		$newTranslation->update($this->owner->toMap());
-
-		// If the object has Hierarchy extension,
-		// check for existing translated parents and assign
-		// their ParentID (and overwrite any existing ParentID relations
-		// to parents in other language). If no parent translations exist,
-		// they are automatically created in onBeforeWrite()
-		if($newTranslation->hasField('ParentID')) {
-			$origParent = $this->owner->Parent();
-			$newTranslationParent = $origParent->getTranslation($locale);
-			if($newTranslationParent) $newTranslation->ParentID = $newTranslationParent->ID;
-		}
-
-		$newTranslation->ID = 0;
-		$newTranslation->Locale = $locale;
-		$newTranslation->Version = 0;
-
-		$originalPage = $this->getTranslation(self::default_locale());
-		if ($originalPage) {
-			$urlSegment = $originalPage->URLSegment;
-		} else {
-			$urlSegment = $newTranslation->URLSegment;
-		}
-
-		// Only make segment unique if it should be enforced
-		if(Config::inst()->get('Translatable', 'enforce_global_unique_urls')) {
-			$newTranslation->URLSegment = $urlSegment . '-' . i18n::convert_rfc1766($locale);
-		}
-
-		// hacky way to set an existing translation group in onAfterWrite()
-		$translationGroupID = $this->getTranslationGroup();
-		$newTranslation->_TranslationGroupID = $translationGroupID ? $translationGroupID : $this->owner->ID;
-		if($saveTranslation) $newTranslation->write();
-
-		// run callback on page for translation related hooks
-		$newTranslation->invokeWithExtensions('onTranslatableCreate', $saveTranslation);
-
-		return $newTranslation;
-	}
-
-	/**
-	 * Caution: Does not consider the {@link canEdit()} permissions.
-	 *
-	 * @param DataObject|int $member
-	 * @param string $locale
-	 * @return boolean
-	 */
-	function canTranslate($member = null, $locale) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
-		if(!$member || !(is_a($member, 'Member')) || is_numeric($member)) $member = Member::currentUser();
-
-		// check for locale
-		$allowedLocale = (
-			!is_array(self::get_allowed_locales())
-			|| in_array($locale, self::get_allowed_locales())
-		);
-
-		if(!$allowedLocale) return false;
-
-		// By default, anyone who can edit a page can edit the default locale
-		if($locale == self::default_locale()) return true;
-
-		// check for generic translation permission
-		if(Permission::checkMember($member, 'TRANSLATE_ALL')) return true;
-
-		// check for locale specific translate permission
-		if(!Permission::checkMember($member, 'TRANSLATE_' . $locale)) return false;
-
-		return true;
-	}
-
-	/**
-	 * @return boolean
-	 */
-	function canEdit($member) {
-		if(!$this->owner->Locale) return null;
-		return $this->owner->canTranslate($member, $this->owner->Locale) ? null : false;
-	}
-
-	/**
-	 * Returns TRUE if the current record has a translation in this language.
-	 * Use {@link getTranslation()} to get the actual translated record from
-	 * the database.
-	 *
-	 * @param string $locale
-	 * @return boolean
-	 */
-	function hasTranslation($locale) {
-		if($locale && !i18n::validate_locale($locale)) {
-			throw new InvalidArgumentException(sprintf('Invalid locale "%s"', $locale));
-		}
-
-		return (
-			$this->owner->Locale == $locale
-			|| array_search($locale, $this->getTranslatedLocales()) !== false
-		);
-	}
-
-	function AllChildrenIncludingDeleted($context = null) {
-		$children = $this->owner->doAllChildrenIncludingDeleted($context);
-
-		return $children;
-	}
-
-	/**
-	 * Returns <link rel="alternate"> markup for insertion into
-	 * a HTML4/XHTML compliant <head> section, listing all available translations
-	 * of a page.
-	 *
-	 * @see http://www.w3.org/TR/html4/struct/links.html#edef-LINK
-	 * @see http://www.w3.org/International/articles/language-tags/
-	 *
-	 * @return string HTML
-	 */
-	function MetaTags(&$tags) {
-		$template = '<link rel="alternate" type="text/html" title="%s" hreflang="%s" href="%s" />' . "\n";
-		$translations = $this->owner->getTranslations();
-		if($translations) {
-			$translations = $translations->toArray();
-			$translations[] = $this->owner;
-
-		foreach($translations as $translation) {
-			$tags .= sprintf($template,
-				Convert::raw2xml($translation->Title),
-				i18n::convert_rfc1766($translation->Locale),
-				$translation->AbsoluteLink()
-				);
-			}
-		}
-	}
-
-	function providePermissions() {
-		if(!SiteTree::has_extension('Translatable') || !class_exists('SiteTree')) return false;
-
-		$locales = self::get_allowed_locales();
-
-		// Fall back to any locales used in existing translations (see #4939)
-		if(!$locales) {
-			$locales = DB::query('SELECT "Locale" FROM "SiteTree" GROUP BY "Locale"')->column();
-		}
-
-		$permissions = array();
-		if($locales) foreach($locales as $locale) {
-			$localeName = i18n::get_locale_name($locale);
-			$permissions['TRANSLATE_' . $locale] = sprintf(
-				_t(
-					'Translatable.TRANSLATEPERMISSION',
-					'Translate %s',
-					'Translate pages into a language'
-				),
-				$localeName
-			);
-		}
-
-		$permissions['TRANSLATE_ALL'] = _t(
-			'Translatable.TRANSLATEALLPERMISSION',
-			'Translate into all available languages'
-		);
-
-		$permissions['VIEW_LANGS'] = _t(
-			'Translatable.TRANSLATEVIEWLANGS',
-			'View language dropdown'
-		);
-
-		return $permissions;
-	}
 
 	/**
 	 * Get a list of languages with at least one element translated in (including the default language)
@@ -1682,130 +878,7 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 		return self::get_homepage_link_by_locale($locale);
 	}
 
-	/**
-	 * Define all locales which in which a new translation is allowed.
-	 * Checked in {@link canTranslate()}.
-	 *
-	 * @param array List of allowed locale codes (see {@link i18n::$all_locales}).
-	 *  Example: array('de_DE','ja_JP')
-	 */
-	static function set_allowed_locales($locales) {
-		self::$allowed_locales = $locales;
-	}
 
-	/**
-	 * Get all locales which are generally permitted to be translated.
-	 * Use {@link canTranslate()} to check if a specific member has permission
-	 * to translate a record.
-	 *
-	 * @return array
-	 */
-	static function get_allowed_locales() {
-		return self::$allowed_locales;
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_homepage_urlsegment_by_locale()
-	 */
-	static function get_homepage_urlsegment_by_language($locale) {
-		return self::get_homepage_urlsegment_by_locale($locale);
-	}
-
-	/**
-	 * @deprecated 2.4 Use custom check: self::$default_locale == self::get_current_locale()
-	 */
-	static function is_default_lang() {
-		return (self::$default_locale == self::get_current_locale());
-	}
-
-	/**
-	 * @deprecated 2.4 Use set_default_locale()
-	 */
-	static function set_default_lang($lang) {
-		self::set_default_locale(i18n::get_locale_from_lang($lang));
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_default_locale()
-	 */
-	static function get_default_lang() {
-		return i18n::get_lang_from_locale(self::default_locale());
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_current_locale()
-	 */
-	static function current_lang() {
-		return i18n::get_lang_from_locale(self::get_current_locale());
-	}
-
-	/**
-	 * @deprecated 2.4 Use set_current_locale()
-	 */
-	static function set_reading_lang($lang) {
-		self::set_current_locale(i18n::get_locale_from_lang($lang));
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_reading_locale()
-	 */
-	static function get_reading_lang() {
-		return i18n::get_lang_from_locale(self::get_reading_locale());
-	}
-
-	/**
-	 * @deprecated 2.4 Use default_locale()
-	 */
-	static function default_lang() {
-		return i18n::get_lang_from_locale(self::default_locale());
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_by_locale()
-	 */
-	static function get_by_lang($class, $lang, $filter = '', $sort = '',
-		$join = "", $limit = "", $containerClass = "DataObjectSet", $having = ""
-	) {
-		return self::get_by_locale(
-			$class, i18n::get_locale_from_lang($lang), $filter,
-			$sort, $join, $limit, $containerClass, $having
-		);
-	}
-
-	/**
-	 * @deprecated 2.4 Use get_one_by_locale()
-	 */
-	static function get_one_by_lang($class, $lang, $filter = '', $cache = false, $orderby = "") {
-		return self::get_one_by_locale($class, i18n::get_locale_from_lang($lang), $filter, $cache, $orderby);
-	}
-
-	/**
-	 * Determines if the record has a locale,
-	 * and if this locale is different from the "default locale"
-	 * set in {@link Translatable::default_locale()}.
-	 * Does not look at translation groups to see if the record
-	 * is based on another record.
-	 *
-	 * @return boolean
-	 * @deprecated 2.4
-	 */
-	function isTranslation() {
-		return ($this->owner->Locale && ($this->owner->Locale != Translatable::default_locale()));
-	}
-
-	/**
-	 * @deprecated 2.4 Use choose_site_locale()
-	 */
-	static function choose_site_lang($langsAvail=null) {
-		return self::choose_site_locale($langsAvail);
-	}
-
-	/**
-	 * @deprecated 2.4 Use getTranslatedLocales()
-	 */
-	function getTranslatedLangs() {
-		return $this->getTranslatedLocales();
-	}
 
 	/**
 	 * Return a piece of text to keep DataObject cache keys appropriately specific
@@ -1847,101 +920,6 @@ class Translatable extends DataExtension implements PermissionProvider, TestOnly
 
 		// By returning TRUE or FALSE, we overrule the base SiteTree->validateURLSegment() logic
 		return !$existingPage;
-	}
-
-}
-
-/**
- * Transform a formfield to a "translatable" representation,
- * consisting of the original formfield plus a readonly-version
- * of the original value, wrapped in a CompositeField.
- *
- * @param DataObject $original Needs the original record as we populate
- *                   the readonly formfield with the original value
- *
- * @package translatable
- * @subpackage misc
- */
-class Translatable_Transformation extends FormTransformation {
-
-	/**
-	 * @var DataObject
-	 */
-	private $original = null;
-
-	function __construct(DataObject $original) {
-		$this->original = $original;
-		parent::__construct();
-	}
-
-	/**
-	 * Returns the original DataObject attached to the Transformation
-	 *
-	 * @return DataObject
-	 */
-	function getOriginal() {
-		return $this->original;
-	}
-
-	public function transformFormField(FormField $field) {
-		$newfield = $field->performReadOnlyTransformation();
-		$fn = 'transform' . $field->class;
-		return $this->hasMethod($fn) ? $this->$fn($newfield, $field) : $this->baseTransform($newfield, $field);
-	}
-
-	/**
-	 * Transform a translatable CheckboxField to show the field value from the default language
-	 * in the label.
-	 *
-	 * @param FormField $nonEditableField The readonly field to contain the original value
-	 * @param FormField $originalField The original editable field containing the translated value
-	 * @return CheckboxField The field with a modified label
-	 */
-	protected function transformCheckboxField(CheckboxField $nonEditableField, CheckboxField $originalField) {
-		$label = $originalField->Title();
-		$fieldName = $originalField->getName();
-		$value = ($this->original->$fieldName)
-			? _t('Translatable_Transform.CheckboxValueYes', 'Yes')
-			: _t('Translatable_Transform.CheckboxValueNo', 'No');
-		$originalLabel = _t(
-			'Translatable_Transform.OriginalCheckboxLabel',
-			'Original: {value}',
-			'Addition to a checkbox field label showing the original value of the translatable field.',
-			array('value'=>$value)
-		);
-		$originalField->setTitle($label . ' <span class="originalvalue">(' . $originalLabel . ')</span>');
-		return $originalField;
-	}
-
-	/**
-	 * Transform a translatable field to show the field value from the default language
-	 * DataObject below the translated field.
-	 *
-	 * This is a fallback function which handles field types that aren't transformed by
-	 * $this->transform{FieldType} functions.
-	 *
-	 * @param FormField $nonEditableField The readonly field to contain the original value
-	 * @param FormField $originalField The original editable field containing the translated value
-	 * @return \CompositeField The transformed field
-	 */
-	protected function baseTransform($nonEditableField, $originalField) {
-		$fieldname = $originalField->getName();
-
-		$nonEditableField_holder = new CompositeField($nonEditableField);
-		$nonEditableField_holder->setName($fieldname.'_holder');
-		$nonEditableField_holder->addExtraClass('originallang_holder');
-		$nonEditableField->setValue($this->original->$fieldname);
-		$nonEditableField->setName($fieldname.'_original');
-		$nonEditableField->addExtraClass('originallang');
-		$nonEditableField->setTitle(_t(
-			'Translatable_Transform.OriginalFieldLabel',
-			'Original {title}',
-			'Label for the original value of the translatable field.',
-			array('title'=>$originalField->Title())
-		));
-
-		$nonEditableField_holder->insertBefore($originalField, $fieldname.'_original');
-		return $nonEditableField_holder;
 	}
 
 }
