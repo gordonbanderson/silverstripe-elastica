@@ -712,7 +712,10 @@ class SearchableTest extends ElasticsearchBaseTest {
 			array_push($tabNames, $tab->getName());
 		}
 		$expected = array('Description','Description_shingles','Description_standard',
-			'ShutterSpeed','Title','Title_autocomplete','Title_shingles','Title_standard');
+			'ShutterSpeed',  'TestMethod', 'TestMethod_shingles', 'TestMethod_standard',
+			'TestMethodHTML', 'TestMethodHTML_shingles', 'TestMethodHTML_standard',
+			'Title','Title_autocomplete','Title_shingles','Title_standard');
+
 		$this->assertEquals($expected, $tabNames);
 	}
 
