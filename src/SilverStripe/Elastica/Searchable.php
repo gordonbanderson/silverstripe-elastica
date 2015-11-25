@@ -288,6 +288,10 @@ class Searchable extends \DataExtension {
 			$result[$name] = $spec;
 		}
 
+		if ($this->owner->hasMethod('updateElasticHTMLFields')) {
+			$this->html_fields = $this->owner->updateElasticHTMLFields($this->html_fields);
+		}
+
 
 		//echo "ALL FIELDS\n";
 		//print_r($result);
@@ -385,21 +389,21 @@ class Searchable extends \DataExtension {
 		$has_ones = $this->owner->has_one();
 
 		foreach ($this->getElasticaFields($recurse) as $field => $config) {
+			echo "Checking if callable: ".get_class($this->owner) . "::" . $field."\n";
 			if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
-			T6;
-
 				// call a method to get a field value
 				if (in_array($field, $this->html_fields)) {
+					// Parse short codes in HTML, and then convert to text
 					$fields[$field] = $this->owner->$field;
 					$html = ShortcodeParser::get_active()->parse($this->owner->$field());
 					$txt = \Convert::html2raw($html);
 					$fields[$field] = $txt;
 				} else {
+					// Plain text
 					$fields[$field] = $this->owner->$field();
 				}
 
 			} else {
-
 				if (in_array($field, $this->html_fields)) {
 					$fields[$field] = $this->owner->$field;;
 					if (gettype($this->owner->$field) !== 'NULL') {
@@ -413,12 +417,14 @@ class Searchable extends \DataExtension {
 						$data = $this->owner->$methodName();
 						$relArray = array();
 
+						echo "METHOD NAME:".$methodName;
+						echo "\nDATA:".$data->ID."\n";
+
 						// get the fields of a has_one relational object
 						if (isset($has_ones[$methodName])) {
 							if ($data->ID > 0) {
-								T7;
 								$item = $data->getFieldValuesAsArray(false);
-								array_push($relArray, $item);
+								$relArray = $item;
 							}
 
 						// get the fields for a has_many or many_many relational list
