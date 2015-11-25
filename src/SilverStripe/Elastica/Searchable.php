@@ -431,7 +431,6 @@ class Searchable extends \DataExtension {
 						} else {
 							foreach ($data->getIterator() as $item) {
 								if ($recurse) {
-									T8;
 									// populate the subitem but do not recurse any further if more relationships
 									$itemDoc = $item->getFieldValuesAsArray(false);
 									array_push($relArray, $itemDoc);
