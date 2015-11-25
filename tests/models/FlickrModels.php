@@ -7,7 +7,7 @@
  */
 class FlickrPhotoTO extends DataObject implements TestOnly {
 	private static $searchable_fields = array('Title','FlickrID','Description','TakenAt', 'TakenAtDT', 'FirstViewed',
-		'Aperture','ShutterSpeed','FocalLength35mm','ISO','AspectRatio');
+		'Aperture','ShutterSpeed','FocalLength35mm','ISO','AspectRatio', 'TestMethod', 'TestMethodHTML');
 
 	private static $searchable_relationships = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
 
@@ -50,6 +50,15 @@ class FlickrPhotoTO extends DataObject implements TestOnly {
 	static $many_many = array(
 		'FlickrTagTOs' => 'FlickrTagTO'
 	);
+
+
+	public function TestMethod() {
+		return 'this is a test method';
+	}
+
+	public function TestMethodHTML() {
+		return '<p>this is a test method that returns <b>HTML</b></p>';
+	}
 
 }
 
@@ -129,7 +138,7 @@ class FlickrPhotoTOTestIndexingExtension extends Extension implements ElasticaIn
 	/**
 	 * Add a mapping for the location of the photograph
 	 */
-	public static function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping)
+	public function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping)
     {
     	// get the properties of the individual fields as an array
     	$properties = $mapping->getProperties();
@@ -198,4 +207,11 @@ class FlickrPhotoTOTestIndexingExtension extends Extension implements ElasticaIn
 		$document->set('ShutterSpeed', $sortable);
 	    return $document;
 	}
+
+
+
+		public function updateElasticHTMLFields(array $htmlFields) {
+			array_push($htmlFields, 'TestMethodHTML');
+			return $htmlFields;
+		}
 }
