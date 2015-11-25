@@ -17,13 +17,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 			'FlickrTagTO', 'FlickrAuthorTO', 'FlickrSetTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
-		// add Searchable extension where appropriate
-		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrTagTO::add_extension('SilverStripe\Elastica\Searchable');
-		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
-		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
-
 		// load fixtures
 		parent::setUp();
 	}
@@ -324,6 +317,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['FlickrSetTOs'] = array();
 		$expected['IsInSiteTree'] = false;
 		$expected['location'] = array('lat' => 13.42, 'lon' => 100);
+		$expected['TestMethod'] = 'this is a test method';
+		$expected['TestMethodHTML'] = 'this is a test method that returns *HTML*';
+
 
 		print_r($doc);
 
@@ -485,11 +481,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getCMSFields();
 
-		$tab = $this->checkTabExists($fields,'ElasticaTerms');
-
-		//Check fields
-
-		$this->fail('Need to fix the REMOVE ME tab');
+		$tab = $this->checkTabExists($fields,'ElasticaTermsset');
 	}
 
 
@@ -574,9 +566,124 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
-		print_r($fields);
-		$this->fail('FIXME - add an actual test here');
 
+		$expected = array(
+			'Title' => array(
+				'title' => 'Title',
+				'filter' => 'PartialMatchFilter'
+			),
+			'FlickrID' => array(
+				'title' => 'Flickr ID',
+				'filter' => 'PartialMatchFilter'
+			),
+			'Description' => array(
+				'title' => 'Description',
+				'filter' => 'PartialMatchFilter'
+			),
+			'TakenAt' => array(
+				'title' => 'Taken At',
+				'filter' => 'PartialMatchFilter'
+			),
+			'TakenAtDT' => array(
+				'title' => 'Taken At DT',
+				'filter' => 'PartialMatchFilter'
+			),
+			'FirstViewed' => array(
+				'title' => 'First Viewed',
+				'filter' => 'PartialMatchFilter'
+			),
+			'Aperture' => array(
+				'title' => 'Aperture',
+				'filter' => 'PartialMatchFilter'
+			),
+			'ShutterSpeed' => array(
+				'title' => 'Shutter Speed',
+				'filter' => 'PartialMatchFilter'
+			),
+			'FocalLength35mm' => array(
+				'title' => 'Focal Length35mm',
+				'filter' => 'PartialMatchFilter'
+			),
+			'ISO' => array(
+				'title' => 'ISO',
+				'filter' => 'PartialMatchFilter'
+			),
+			'AspectRatio' => array(
+				'title' => 'Aspect Ratio',
+				'filter' => 'PartialMatchFilter'
+			),
+			'TestMethod' => array(
+				'title' => 'Test Method',
+				'filter' => 'PartialMatchFilter'
+			),
+			'TestMethodHTML' => array(
+				'title' => 'Test Method HTML',
+				'filter' => 'PartialMatchFilter'
+			),
+			'Photographer()' => array(
+				'PathAlias' => array(
+					'title' => 'Path Alias',
+					'filter' => 'PartialMatchFilter'
+				),
+				'DisplayName' => array(
+					'title' => 'Display Name',
+					'filter' => 'PartialMatchFilter'
+				)
+			),
+			'FlickrTagTOs()' => array(
+				'RawValue' => array(
+					'title' => 'Raw Value',
+					'filter' => 'PartialMatchFilter'
+				)
+			),
+			'FlickrSetTOs()' => array(
+				'Title' => array(
+					'title' => 'Title',
+					'filter' => 'PartialMatchFilter'
+				),
+				'FlickrID' => array(
+					'title' => 'Flickr ID',
+					'filter' => 'PartialMatchFilter'
+				),
+				'Description' => array(
+					'title' => 'Description',
+					'filter' => 'PartialMatchFilter'
+				)
+			)
+		);
+
+
+		$this->assertEquals($expected, $fields);
+
+
+	}
+
+
+	public function testHasOneExistsSearchableToArray() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$flickrPhoto->IndexingOff = false;
+		$flickrPhoto->Title = 'Test title edited';
+		$photographer = new FlickrAuthorTO();
+		$photographer->DisplayName = 'Fred Bloggs';
+		$photographer->PathAlias = '/fredbloggs';
+
+		$photographer->write();
+
+		$flickrPhoto->PhotographerID = $photographer->ID;;
+		$flickrPhoto->write();
+		echo 'ID='.$flickrPhoto->PhotographerID;
+		$a = $flickrPhoto->getFieldValuesAsArray();
+		$actual = $a['Photographer'];
+		$this->generateAssertionsFromArray($actual);
+		$expected = array(
+		'PathAlias' => '/fredbloggs',
+		'DisplayName' => 'Fred Bloggs',
+		'FlickrPhotoTO' => '',
+		);
+
+		$this->assertEquals($expected, $actual);
+
+		print_r($a);
 	}
 
 
