@@ -16,7 +16,10 @@ class TermVectorTest extends ElasticsearchBaseTest {
 		$terms = array_keys($termVectors);
 		sort($terms);
 		$expected = array('Description', 'Description.shingles', 'Description.standard',
-			'ShutterSpeed', 'Title', 'Title.autocomplete', 'Title.shingles', 'Title.standard');
+			'ShutterSpeed',
+			'TestMethod','TestMethod.shingles','TestMethod.standard',
+			'TestMethodHTML','TestMethodHTML.shingles','TestMethodHTML.standard',
+			'Title', 'Title.autocomplete', 'Title.shingles', 'Title.standard');
 		$this->assertEquals($expected, $terms);
 
 		// Now check the title terms
