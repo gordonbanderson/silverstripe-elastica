@@ -79,7 +79,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 // ---------------------
 
-
+	// FIXME - this test is shardy unfortunately
 	public function testMoreLikeThisSinglePhoto() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 
