@@ -164,7 +164,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		sort($sfs);
 		$expected = array('Aperture','AspectRatio','Description','FirstViewed','FlickrID',
 			'FlickrSetTOs','FlickrTagTOs','FocalLength35mm','ISO','Photographer','ShutterSpeed',
-			'TakenAt', 'TakenAtDT', 'Title');
+			'TakenAt', 'TakenAtDT', 'TestMethod', 'TestMethodHTML', 'Title');
 		$this->assertEquals($expected, $sfs);
 
 
@@ -200,13 +200,9 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'FlickrAuthorTO' => array('PathAlias','DisplayName','FlickrPhotoTOs'),
 			'FlickrPhotoTO' => array('Title','FlickrID','Description','TakenAt', 'TakenAtDT', 'Aperture',
 				'ShutterSpeed','FocalLength35mm','ISO','Photographer','FlickrTagTOs','FlickrSetTOs',
-				'FirstViewed','AspectRatio'),
+				'FirstViewed','AspectRatio', 'TestMethod', 'TestMethodHTML'),
 			'FlickrSetTO' => array('Title','FlickrID','Description')
 		);
-
-
-
-
 
 		// check the expected classes
 		$expectedClasses = array_keys($expected);
@@ -227,6 +223,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 		$fieldCtr = 0;
 		foreach ($expectedClasses as $expectedClass) {
+			$expectedFields = array();
 			$sc = SearchableClass::get()->filter('Name', $expectedClass)->first();
 			$this->assertEquals($expectedClass,$sc->Name);
 
@@ -243,7 +240,9 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 				$sf = SearchableField::get()->filter($filter)->first();
 				$this->assertEquals($expectedName, $sf->Name);
 				$fieldCtr++;
+				array_push($expectedFields, $expectedName);
 			}
+
 		}
 		$nSearchableFields = SearchableField::get()->count();
 
