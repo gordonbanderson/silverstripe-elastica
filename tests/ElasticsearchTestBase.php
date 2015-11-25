@@ -125,6 +125,38 @@ class ElasticsearchBaseTest extends SapphireTest {
 	}
 
 
+	public function generateAssertionsFromArrayRecurse($toAssert) {
+		echo '$expected = ';
+			$this->recurseArrayAssertion($toAssert,1, 'FIXME');
+		echo '$this->assertEquals($expected, $somevar);'."\n";
+	}
+
+
+	private function recurseArrayAssertion($toAssert, $depth, $parentKey) {
+		$prefix = str_repeat("\t",$depth);
+		echo "\t{$prefix}'$parentKey' => array(\n";
+		$ctr = 0;
+		$len = sizeof(array_keys($toAssert));
+		foreach ($toAssert as $key => $value) {
+			if (is_array($value)) {
+				$this->recurseArrayAssertion($value, $depth+1, $key);
+			} else {
+				$escValue = str_replace("'", '\\\'', $value);
+				$comma = ',';
+				if ($ctr == $len-1) {
+					$comma = '';
+				}
+				echo "\t\t$prefix'$key' => '$escValue'$comma\n";
+			}
+
+			$ctr++;
+
+		}
+		echo "\t$prefix),\n";
+
+	}
+
+
 	/*
 	Helper methods for testing CMS fields
 	 */
