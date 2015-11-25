@@ -673,6 +673,10 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto->write();
 		echo 'ID='.$flickrPhoto->PhotographerID;
 		$a = $flickrPhoto->getFieldValuesAsArray();
+
+		print_r($a);
+
+
 		$actual = $a['Photographer'];
 		$this->generateAssertionsFromArray($actual);
 		$expected = array(
@@ -684,6 +688,62 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$this->assertEquals($expected, $actual);
 
 		print_r($a);
+	}
+
+
+
+	public function testHasManyExistsSearchableToArray() {
+		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
+		$flickrPhoto->IndexingOff = false;
+		$flickrPhoto->Title = 'Test title edited';
+
+
+		$tag1 = new FlickrTagTO();
+		$tag1->FlickrID = '1000001';
+		$tag1->Value = 'auckland';
+		$tag1->RawValue = 'Auckland';
+		$tag1->write();
+
+
+		$tag2 = new FlickrTagTO();
+		$tag2->FlickrID = '1000002';
+		$tag2->Value = 'wellington';
+		$tag2->RawValue = 'Wellington';
+		$tag2->write();
+
+		$flickrPhoto->FlickrTagTOs()->add($tag1);
+		$flickrPhoto->FlickrTagTOs()->add($tag2);
+
+
+
+
+		$flickrPhoto->write();
+		echo 'ID='.$flickrPhoto->PhotographerID;
+		$a = $flickrPhoto->getFieldValuesAsArray();
+
+		print_r($a);
+		$actual = $a['Photographer'];
+
+
+		$this->assertEquals(array(), $actual);
+
+
+		$actual = $a['FlickrTagTOs'];
+		$this->generateAssertionsFromArrayRecurse($actual);
+
+		$expected = array(
+			'0' => array(
+				'RawValue' => 'Auckland'
+			),
+			'1' => array(
+				'RawValue' => 'Wellington'
+			)
+		);
+
+
+		$this->assertEquals($expected, $actual);
+
+
 	}
 
 
