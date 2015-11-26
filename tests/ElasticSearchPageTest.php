@@ -61,12 +61,28 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testCannotWriteDuplicateIdentifier() {
+	public function testCannotWriteDuplicateIdentifierDraft() {
 		$esp = new ElasticSearchPage();
 		$esp->Title = 'test';
 		$otherIdentifier = ElasticSearchPage::get()->first()->Identifier;
 		$esp->Identifier = $otherIdentifier;
 		try {
+			$esp->write();
+		} catch (ValidationException $e) {
+			$this->assertEquals('The identifier testsearchpage already exists', $e->getMessage());
+		}
+	}
+
+
+	public function testCannotWriteDuplicateIdentifierLive() {
+		$esp = new ElasticSearchPage();
+		$esp->Title = 'unique-id';
+		$otherIdentifier = ElasticSearchPage::get()->first()->Identifier;
+		$esp->Identifier = $otherIdentifier;
+		try {
+			$esp->write();
+			$esp->doPublish();
+			$esp->Identifier = $otherIdentifier;
 			$esp->write();
 		} catch (ValidationException $e) {
 			$this->assertEquals('The identifier testsearchpage already exists', $e->getMessage());
