@@ -41,6 +41,16 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	private $aggregations;
 
 
+	/**
+	 * Create a search and then optionally tweak it.  Actual search is only performed against
+	 * Elasticsearch when the getResults() method is called.
+	 *
+	 * @param ElasticaService $service object used to communicate with Elasticsearch
+	 * @param Query           $query   Elastica query object, created via QueryGenerator
+	 * @param string          $q       the text from the query
+	 * @param array           $filters Selected filters, used for aggregation purposes only
+	 *                                 (i.e. query already filtered prior to this)
+	 */
 	public function __construct(ElasticaService $service, Query $query, $q, $filters = array()) {
 		$this->service = $service;
 		$this->query = $query;
