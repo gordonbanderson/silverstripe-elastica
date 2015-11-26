@@ -39,11 +39,6 @@ class ElasticSearchPage_Validator extends RequiredFields {
 				);
 			} else {
 				$toSearch = $data['ClassesToSearch'];
-
-				//Comes back from tag field as an array
-				if (!is_array($toSearch)) {
-					$toSearch = explode(',', $data['ClassesToSearch']);
-				}
 				foreach ($toSearch as $clazz) {
 					try {
 						$instance = Injector::inst()->create($clazz);
@@ -60,17 +55,6 @@ class ElasticSearchPage_Validator extends RequiredFields {
 			}
 		}
 
-/** looks superfluous
-		// now check classes to search actually exist, assuming in site tree not set
-		if (!$data['SiteTreeOnly']) {
-			if ($data['ClassesToSearch'] == '') {
-				$result->validationError('ClassesToSearch',
-					'At least one searchable class must be available, or SiteTreeOnly flag set',
-					'error'
-				);
-			}
-		}
-*/
 
 		// Check the identifier is unique
 		$mode = Versioned::get_reading_mode();
@@ -78,9 +62,6 @@ class ElasticSearchPage_Validator extends RequiredFields {
 		if ($mode == 'Stage.Live') {
 			$suffix = '_Live';
 		}
-
-		print_r($data);
-
 		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$data['ID']." AND `Identifier` = '".$data['Identifier']."'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
 		if ($existing > 0) {
