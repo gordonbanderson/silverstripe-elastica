@@ -439,7 +439,9 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 			'17' => 'ShutterSpeed',
 			'18' => 'TakenAt',
 			'19' => 'TakenAtDT',
-			'20' => 'Title',
+			'20' => 'TestMethod',
+			'21' => 'TestMethodHTML',
+			'22' => 'Title'
 		);
 
 		$sortedNames = array_keys($searchableFields->Map('Name')->toArray());
