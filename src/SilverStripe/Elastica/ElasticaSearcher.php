@@ -321,8 +321,16 @@ class ElasticSearcher {
 		$qg->setQueryText($q);
 
 		//only one field but must be array
+		echo "FIELD\n";
+		print_r($field);
 		$qg->setFields(array($field => 1));
-		$qg->setClasses($this->classes);
+		if ($this->classes) {
+			$qg->setClasses($this->classes);
+		}
+
+		if ($this->filters) {
+			$qg->setSelectedFilters($this->filters);
+		}
 
 		$qg->setPageLength($this->pageLength);
 		$qg->setStart(0);
@@ -330,15 +338,19 @@ class ElasticSearcher {
 		$qg->setShowResultsForEmptyQuery(false);
 		$query = $qg->generateElasticaAutocompleteQuery();
 
+		print_r($query);
+
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
-
-		$resultList = new ResultList($elasticService, $query, $q); // no filters here
+		echo "FILTERS\n";
+		print_r($this->filters);
+		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
 		$types = $this->classes;
 		$resultList->setTypes($types);
+		// This works in that is breaks things $resultList->setTypes(array('SiteTree'));
 
 		return $resultList;
 	}
