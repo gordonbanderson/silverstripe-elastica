@@ -216,6 +216,25 @@ class QueryGenerator {
 				)
 			)
 		);
+
+		// The query clause can only have one entry, so a bit of mangling
+		if ($this->selectedFilters) {
+			$filtered = array();
+			$filtered['query'] = $data['query'];
+			unset($data['query']);
+			$filtered['filter'] = $this->selectedFilters;
+			$data['query'] = array('filtered' => $filtered);
+		}
+
+/*
+{
+    "filtered": {
+        "query":  { "match": { "email": "business opportunity" }},
+        "filter": { "term":  { "folder": "inbox" }}
+    }
+}
+*/
+		print_r($data);
 		$query = new Query($data);
 		return $query;
 	}
@@ -292,7 +311,6 @@ class QueryGenerator {
 			  $queryFilter
 			);
 			$query = new Query($filtered);
-
 		}
 
 		return $query;
