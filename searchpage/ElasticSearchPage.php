@@ -101,17 +101,7 @@ class ElasticSearchPage extends Page {
 		style="display: block;float: right;">Restore Defaults</button>';
 		$defaultsButton = new LiteralField('DefaultsButton', $html);
 				$fields->addFieldToTab("Root.Search.Similarity", $defaultsButton);
-
-		$sortedWords = null;
-		if (is_array($this->SimilarityStopWords)) {
-			echo "T1\n";
-			$sortedWords = implode(',', $this->SimilarityStopWords);
-		} else {
-			echo "T2\n";
-			$sortedWords = $this->SimilarityStopWords;
-		}
-
-
+		$sortedWords = $this->SimilarityStopWords;
 
 		$stopwordsField = StringTagField::create(
 		    'SimilarityStopWords',
@@ -175,13 +165,7 @@ class ElasticSearchPage extends Page {
 		$list = implode(',', $classes);
 
 		$clazzes = '';
-
-		if (is_array($this->ClassesToSearch)) {
-			$clazzes = implode(',', $this->ClassesToSearch);
-		} else {
-			$clazzes = $this->ClassesToSearch;
-		}
-
+		$clazzes = $this->ClassesToSearch;
 		$allSearchableClasses = SearchableClass::get()->sort('Name')->map('Name')->toArray();
 		$classesToSearchField = StringTagField::create(
 			'ClassesToSearch',
@@ -258,6 +242,7 @@ class ElasticSearchPage extends Page {
 		));
 
 		$edittest->setItemEditFormCallback(function($form) {
+			T4;
 			error_log($form->ID);
 			// Get the image field from the form fields
 			$fields = $form->Fields();
@@ -520,6 +505,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$ignore = array('url', 'start','q','is');
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
 		foreach ($this->request->getVars() as $key => $value) {
+			T6;
 			if (!in_array($key, $ignore)) {
 				$es->addFilter($key,$value);
 			}
@@ -528,6 +514,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// filter by class or site tree
 		if ($ep->SiteTreeOnly) {
+			T7;
 			$es->addFilter('IsInSiteTree', true);
 		} else {
 			$es->setClasses($ep->ClassesToSearch);
@@ -539,6 +526,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
 		if ($ep->SearchHelper) {
+			T8;
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();
 		} else {
@@ -611,6 +599,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$errorMessage = $e->getMessage();
 			$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
 		} catch (Elastica\Exception\Connection\HttpException $e) {
+			T9;
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 			$data['SearchPerformed'] = false;
 		}
@@ -746,8 +735,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['OriginalQuery'] = $q;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
 
-		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
-		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
+		if ($this->has_extension('PageControllerTemplateOverrideExtension')) {
 			return $this->useTemplateOverride($data);
 		} else {
 			return $data;
@@ -812,6 +800,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			}
 		}
 
+
+
+		echo "AUTOCOMPLETE FIELD ID:".$this->AutoCompleteFieldID."\n";
+
 		/*
 		A field needs to be chosen for autocompletion, if not no autocomplete
 		 */
@@ -822,7 +814,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$q->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
 			$q->setAttribute('data-autocomplete-source',$this->Link());
 			$q->setAttribute('data-autocomplete-function',
-				$this->AutocompleteFunction()->Slug);
+			$this->AutocompleteFunction()->Slug);
 		}
 
 		return $form;
