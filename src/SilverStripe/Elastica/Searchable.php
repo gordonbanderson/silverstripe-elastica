@@ -389,7 +389,6 @@ class Searchable extends \DataExtension {
 		$has_ones = $this->owner->has_one();
 
 		foreach ($this->getElasticaFields($recurse) as $field => $config) {
-			echo "Checking if callable: ".get_class($this->owner) . "::" . $field."\n";
 			if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
 				if (in_array($field, $this->html_fields)) {
