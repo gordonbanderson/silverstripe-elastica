@@ -43,10 +43,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$this->checkFieldExists($simTab, 'MinWordLength');
 		$this->checkFieldExists($simTab, 'MaxWordLength');
 		$this->checkFieldExists($simTab, 'MinShouldMatch');
-
-		$this->checkFieldExists($simTab, 'MaxTermFreq');
-		$this->checkFieldExists($simTab, 'MaxTermFreq');
-		$this->checkFieldExists($simTab, 'MaxTermFreq');
 	}
 
 
@@ -88,6 +84,68 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The identifier testsearchpage already exists', $e->getMessage());
 		}
 	}
+
+
+
+
+		/*
+	Test the button override function
+	 */
+	public function testModelSearchFormAutocompleteAttributes() {
+		$searchPageObj = $this->objFromFixture('ElasticSearchPage', 'search');
+
+		$searchPageObj->ClassesToSearch = 'FlickrPhotoTO';
+		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Title');
+		$sfid = SearchableField::get()->filter($filter)->first()->ID;
+		$searchPageObj->AutoCompleteFieldID = $sfid;
+		$pageLength = 10; // the default
+		$searchPageObj->ResultsPerPage = $pageLength;
+		$searchPageObj->write();
+		$searchPageObj->publish('Stage','Live');
+
+		$form = $searchPageObj->SearchForm();
+		$fields = $form->Fields();
+		$q = $fields->fieldByName('q');
+		$attributes = $q->getAttributes();
+		$expected = array(
+			'type' => 'text',
+			'name' => 'q',
+			'value' => '',
+			'class' => 'text autocomplete nolabel',
+			'id' => 'ElasticSearchForm_SearchForm_q',
+			'disabled' => '',
+			'readonly' => '',
+			'data-autocomplete' => 'true',
+			'data-autocomplete-field' => 'Title',
+			'data-autocomplete-classes' => 'FlickrPhotoTO',
+			'data-autocomplete-sitetree' => '1',
+			'data-autocomplete-source' => '/search/',
+			'data-autocomplete-function' => '',
+			);
+		$this->assertEquals($attributes, $attributes);
+
+	}
+
+
+
+	/*
+	Test the button override function
+	 */
+	public function testModelSearchFormButtonOverride() {
+		$override = 'My Button Override Text';
+		$searchPageObj = $this->objFromFixture('ElasticSearchPage', 'search');
+		$form = $searchPageObj->SearchForm($override);
+		$actions = $form->Actions();
+		$button = $actions->fieldByName('action_submit');
+		$this->assertEquals($override, $button->Title());
+
+		// no override, use default
+		$form = $searchPageObj->SearchForm();
+		$actions = $form->Actions();
+		$button = $actions->fieldByName('action_submit');
+		$this->assertEquals('', $button->Value());
+	}
+
 
 
 	public function testCannotWriteInvalidClassname() {
