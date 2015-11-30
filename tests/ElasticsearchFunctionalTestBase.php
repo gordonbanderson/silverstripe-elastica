@@ -130,6 +130,30 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	}
 
 
+	/*
+	Check all the nodes matching the selector for attribute name = expected value
+	 */
+	public function assertAttributeHasExactValue($selector, $attributeName, $expectedValue) {
+		$items = $this->cssParser()->getBySelector($selector);
+		foreach ($items as $item) {
+			$this->assertEquals($expectedValue, $item['value']);
+		}
+	}
+
+
+	public function assertAttributesHaveExactValues($selector, $expectedValues) {
+		$attributeNames = array_keys($expectedValues);
+		$items = $this->cssParser()->getBySelector($selector);
+		foreach ($items as $item) {
+			$actualValues = array();
+			foreach ($attributeNames as $attributeName) {
+				$actualValues[$attributeName] = (string)$item[$attributeName];
+			}
+			$this->assertEquals($expectedValues, $actualValues);
+		}
+	}
+
+
 	public function assertNumberOfNodes($selector, $expectedAmount) {
 		$items = $this->cssParser()->getBySelector($selector);
 		foreach ($items as $item) {
