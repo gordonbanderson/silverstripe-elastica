@@ -284,25 +284,89 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertExactHTMLMatchBySelector('div.contentForEmptySearch', array());
+	}
 
+
+
+
+	public function testQueryInSearchBoxForOneFormOnly() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "?q=Auckland&sfid=".$searchPageObj->Identifier;
+
+		echo "URL:".$url;
+		$response = $this->get($url);
+
+		print_r($response);
+
+		$this->assertEquals(200, $response->getStatusCode());
+		$this->assertAttributeHasExactValue('#ElasticSearchForm_SearchForm_q', 'q',
+			'Auckland');
 	}
 
 
 	/*
-	Test the button override function
+	Check the search form attributes for autocomplete info
 	 */
-	public function testModelSearchFormButtonOverride() {
-		$searchPageObj = $this->ElasticSearchPage2;
-		$form = $searchPageObj->SearchForm('My Button Override Text');
-		$actions = $form->Actions();
-		$button = $actions->fieldByName('action_submit');
-		$this->assertEquals('', $button->Value());
+	public function testSearchFormAutocompleteEnabled() {
+		// prepeare autocomplete field
+		$this->autoFollowRedirection = false;
 
-		// no override, use default
-		$form = $searchPageObj->SearchForm();
-		$actions = $form->Actions();
-		$button = $actions->fieldByName('action_submit');
-		$this->assertEquals('', $button->Value());
+		//Note pages need to be published, by default fixtures only reside in Stage
+		$searchPageObj = $this->ElasticSearchPage2;
+		$searchPageObj->ClassesToSearch = 'FlickrPhotoTO';
+		$filter = array('ClazzName' => 'FlickrPhotoTO', 'Name' => 'Title');
+		$sfid = SearchableField::get()->filter($filter)->first()->ID;
+		$searchPageObj->AutoCompleteFieldID = $sfid;
+		$pageLength = 10; // the default
+		$searchPageObj->ResultsPerPage = $pageLength;
+		$searchPageObj->write();
+		$searchPageObj->publish('Stage','Live');
+
+		$url = rtrim($searchPageObj->Link(), '/');
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+
+		// note, need to test with strings
+		$expected = array(
+			'data-autocomplete' => 'true',
+			'data-autocomplete-field' => 'Title',
+			'data-autocomplete-field' => 'Title',
+			'data-autocomplete-classes' => 'FlickrPhotoTO',
+			'data-autocomplete-sitetree' => '0',
+			'data-autocomplete-source' => '/search-2/'
+		);
+		$this->assertAttributesHaveExactValues('#ElasticSearchForm_SearchForm_q', $expected);
+	}
+
+
+	public function testTemplateOverrideExtension() {
+		Page_Controller::remove_extension('PageControllerTemplateOverrideExtension');
+		$searchPageObj = $this->ElasticSearchPage2;
+
+		echo "Has extension? ";
+		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
+
+		$url = rtrim($searchPageObj->Link(), '/');
+		$response = $this->get($url);
+		$this->assertEquals(0, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
+		Page_Controller::add_extension('PageControllerTemplateOverrideExtension');
+		$searchPageObj = $this->ElasticSearchPage2;
+		echo "Has extension? ";
+		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
+		$url = rtrim($searchPageObj->Link(), '/');
+		$response = $this->get($url);
+		$this->assertEquals(1, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
+
+
+		$url .= "/similar/FlickrPhotoTO/77";
+		$response = $this->get($url);
+
+		//check the template override method was called
+		$this->assertEquals(2, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
+
+		Page_Controller::remove_extension('PageControllerTemplateOverrideExtension');
+
 	}
 
 
@@ -315,7 +379,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Class Member is either not found or not searchable');
-
 	}
 
 
