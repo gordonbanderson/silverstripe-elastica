@@ -116,7 +116,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($url,'/');
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertSelectorStartsWithOrEquals('span.count', 0, '(5)');
@@ -170,7 +169,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400';
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the no facets selected case, as expected
@@ -407,14 +405,22 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 
 	public function testSimilarSearchServerDown() {
-		$client = new Elastica\Client(array('port' => 12345));
-		$indexName = $this->service->getIndexName();
-		$this->service = new SilverStripe\Elastica\ElasticaService($client, $indexName);
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url .= "/similar/FlickrPhotoTO/77";
+		$url .= "/similar/FlickrPhotoTO/77?ServerDown=1";
 		$response = $this->get($url);
-		$this->fail('Server port is not configurable');
+		$this->assertSelectorStartsWithOrEquals('div.error', 0,
+			'Unable to connect to search server');
+	}
+
+
+	public function testNormalSearchServerDown() {
+		$searchPageObj = $this->ElasticSearchPage2;
+		$url = rtrim($searchPageObj->Link(), '/');
+		$url .= "?q=Zealand&ServerDown=1";
+		$response = $this->get($url);
+		$this->assertSelectorStartsWithOrEquals('div.error', 0,
+			'Unable to connect to search server');
 	}
 
 
