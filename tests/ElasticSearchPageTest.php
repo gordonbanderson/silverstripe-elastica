@@ -43,6 +43,85 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$this->checkFieldExists($simTab, 'MinWordLength');
 		$this->checkFieldExists($simTab, 'MaxWordLength');
 		$this->checkFieldExists($simTab, 'MinShouldMatch');
+
+		$form = new Form($this, 'Form', $fields, new FieldList());
+
+		$tab = $fields->findOrMakeTab("Root.Search.Fields");
+		$fieldsTab = $tab->Fields();
+
+		foreach ($fieldsTab as $field) {
+			echo "FIELD:{$field->getName()}\n";
+		}
+
+		$pickerField = $fieldsTab->fieldByName('ElasticaSearchableFields');
+		$pickerConfig = $pickerField->getConfig();
+		$gridDetailForm = $pickerConfig->getComponentByType('GridFieldDetailForm');
+
+		echo "SEARCHABLE FIELDS\n";
+		foreach ($searchPage->ElasticaSearchableFields()->getIterator() as $sf) {
+			echo "SEARCHABLE FIELD {$sf->ClazzName},{$sf->Name}!\n";
+
+		}
+		$searchableField = $searchPage->ElasticaSearchableFields()->filter(
+			array('ClazzName' => 'SiteTree', 'Name' => 'Title')
+		)->first();
+
+		$request = new GridFieldDetailForm_ItemRequest(
+			GridField::create('ElasticaSearchableFields', 'ElasticaSearchableFields'),
+			$gridDetailForm,
+			$searchableField,
+			new Controller(),
+			'Form'
+		);
+		$form = $request->ItemEditForm();
+		$field = $form->Fields()->fieldByName('ClazzName');
+		$this->assertEquals('ClazzName', $field->getName());
+		$this->assertEquals('SiteTree', $field->Value());
+
+		$field = $form->Fields()->fieldByName('Autocomplete');
+		$this->assertEquals('Autocomplete', $field->getName());
+		$this->assertEquals(1, $field->Value());
+
+		$field = $form->Fields()->fieldByName('ManyMany[Searchable]');
+		$this->assertEquals('ManyMany[Searchable]', $field->getName());
+		$this->assertEquals(0, $field->Value());
+
+		$field = $form->Fields()->fieldByName('ManyMany[SimilarSearchable]');
+		$this->assertEquals('ManyMany[SimilarSearchable]', $field->getName());
+		$this->assertEquals(0, $field->Value());
+
+		$field = $form->Fields()->fieldByName('ManyMany[Weight]');
+		$this->assertEquals('ManyMany[Weight]', $field->getName());
+		$this->assertEquals('', $field->Value());
+
+		$field = $form->Fields()->fieldByName('ShowHighlights');
+		$this->assertEquals('ShowHighlights', $field->getName());
+		$this->assertEquals(0, $field->Value());
+
+		$field = $form->Fields()->fieldByName('ManyMany[EnableAutocomplete]');
+		$this->assertEquals('ManyMany[EnableAutocomplete]', $field->getName());
+		$this->assertEquals(0, $field->Value());
+
+		$this->assertNotNull($form->Fields()->fieldByName('SecurityID'));
+
+
+		// now choose a field without autocopmlete
+		$searchableField = $searchPage->ElasticaSearchableFields()->filter(
+			array('ClazzName' => 'SiteTree', 'Name' => 'Content')
+		)->first();
+
+		$request = new GridFieldDetailForm_ItemRequest(
+			GridField::create('ElasticaSearchableFields', 'ElasticaSearchableFields'),
+			$gridDetailForm,
+			$searchableField,
+			new Controller(),
+			'Form'
+		);
+		$form = $request->ItemEditForm();
+		$field = $form->Fields()->fieldByName('Autocomplete');
+		$this->assertEquals('Autocomplete', $field->getName());
+		$this->assertEquals(0, $field->Value());
+
 	}
 
 
