@@ -5,6 +5,8 @@ Elastica:
     - 'url'
     - 'start'
     - 'is'
+    - 'ServerDown'
+
 
     #URL variable tools, see https://docs.silverstripe.org/en/3.1/developer_guides/debugging/url_variable_tools/
     - 'flush'
@@ -19,4 +21,3 @@ Elastica:
     - 'previewwrite'
     - 'BackURL'
     - 'TestMode'
-
