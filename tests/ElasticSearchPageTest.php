@@ -118,9 +118,14 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			'Form'
 		);
 		$form = $request->ItemEditForm();
-		$field = $form->Fields()->fieldByName('Autocomplete');
-		$this->assertEquals('Autocomplete', $field->getName());
+		$field = $form->Fields()->fieldByName('ManyMany[EnableAutocomplete]');
+		$this->assertEquals('ManyMany[EnableAutocomplete]', $field->getName());
 		$this->assertEquals(0, $field->Value());
+
+		// check that the autocomplete enabling field is disabled
+		$this->assertEquals(true, $field->getAttributes()['readonly']);
+		$this->assertEquals(true, $field->getAttributes()['disabled']);
+		$this->assertEquals('Autcomplete is not available for this field', $field->Title());
 
 	}
 
