@@ -260,9 +260,6 @@ class Searchable extends \DataExtension {
 					$spec['analyzer'] = 'stemmed';
 					$spec['term_vector'] = "yes";
 				}
-			} else {
-				$message = "Field $name has no type associated with it";
-				//throw new \Exception($message);
 			}
 
 			$result[$name] = $spec;
