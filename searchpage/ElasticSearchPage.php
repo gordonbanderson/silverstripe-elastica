@@ -242,11 +242,7 @@ class ElasticSearchPage extends Page {
 		));
 
 		$edittest->setItemEditFormCallback(function($form) {
-			T4;
-			error_log($form->ID);
-			// Get the image field from the form fields
 			$fields = $form->Fields();
-
 			$fieldAutocomplete = $fields->dataFieldByName('Autocomplete');
 			$fieldEnableAutcomplete = $fields->dataFieldByName('ManyMany[EnableAutocomplete]');
 
@@ -256,7 +252,6 @@ class ElasticSearchPage extends Page {
 			$fields->dataFieldByName('Name')->setDisabled(true);
 
 			if (!$fieldAutocomplete->Value() == '1') {
-				// Set the folder name, easy!
 				$fieldEnableAutcomplete->setDisabled(true);
 				$fieldEnableAutcomplete->setTitle("Autcomplete is not available for this field");
 			}
