@@ -87,7 +87,6 @@ class ElasticaService {
 		$this->client = $client;
 		$this->indexName = $newIndexName;
 		$this->locale = \i18n::default_locale();
-
 	}
 
 
