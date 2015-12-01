@@ -81,7 +81,7 @@ class ElasticaService {
 
 	/**
 	 * @param \Elastica\Client $client
-	 * @param string $index
+	 * @param string $newIndexName Name of the new index
 	 */
 	public function __construct(Client $client, $newIndexName) {
 		$this->client = $client;
@@ -132,10 +132,10 @@ class ElasticaService {
 	 * Performs a search query and returns a result list.
 	 *
 	 * @param \Elastica\Query|string|array $query
-	 * @param array $types List of comma separated SilverStripe classes to search, or blank for all
-	 * @return ResultList
+	 * @param string|array $types List of comma separated SilverStripe classes to search, or blank for all
+	 * @return \Elastica\ResultList
 	 */
-	public function search($query, $types = '', $debugTerms = false) {
+	public function search($query, $types = '') {
 		$query = Query::create($query); // may be a string
 		if (is_string($types)) {
 			$types = explode(',', $types);
@@ -162,9 +162,7 @@ class ElasticaService {
 		// If the query is a 'more like this' we can get the terms used for searching by performing
 		// an extra query, in this case a query validation with explain and rewrite turned on
 		if ($query->MoreLikeThis) {
-			$termsQuery = clone $query;
 			$path = $search->getPath();
-	        $params = $search->getOptions();
 
 	        $termData = array();
 	        $termData['query'] = $data['query'];
