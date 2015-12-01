@@ -458,6 +458,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 
+	/*
+	Find DataObjects in Elasticsearch similar to the one selected.  Note that aggregations are not
+	taken into account, merely the text of the selected document.
+	 */
 	public function similar() {
 		//FIXME double check security, ie if escaping needed
 		$class = $this->request->param('ID');
@@ -494,39 +498,12 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es->setSimilarityStopWords($this->SimilarityStopWords);
 
 
-
-
-		//May not work
-		// filters for aggregations
-		$ignore = array('url', 'start','q','is');
-		$ignore = \Config::inst()->get('Elastica', 'BlackList');
-		foreach ($this->request->getVars() as $key => $value) {
-			T6;
-			if (!in_array($key, $ignore)) {
-				$es->addFilter($key,$value);
-			}
-		}
-
-
 		// filter by class or site tree
 		if ($ep->SiteTreeOnly) {
 			T7;
 			$es->addFilter('IsInSiteTree', true);
 		} else {
 			$es->setClasses($ep->ClassesToSearch);
-		}
-
-
-		//FIXME may not work
-		// set the optional aggregation manipulator
-		// In the event of a manipulator being present, show all the results for search
-		// Otherwise aggregations are all zero
-		if ($ep->SearchHelper) {
-			T8;
-			$es->setQueryResultManipulator($this->SearchHelper);
-			$es->showResultsForEmptySearch();
-		} else {
-			$es->hideResultsForEmptySearch();
 		}
 
 
@@ -554,6 +531,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		try {
+			// Simulate server being down for testing purposes
+	        if (isset($_GET['ServerDown'])) {
+	        	throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
+	        }
 			if (class_exists($class)) {
 				$instance = DataObject::get_by_id($class,$instanceID);
 
@@ -595,7 +576,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$errorMessage = $e->getMessage();
 			$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
 		} catch (Elastica\Exception\Connection\HttpException $e) {
-			T9;
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 			$data['SearchPerformed'] = false;
 		}
@@ -697,6 +677,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$paginated = null;
 		try {
+			// Simulate server being down for testing purposes
+	        if (isset($_GET['ServerDown'])) {
+	        	throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
+	        }
+
 			// now actually perform the search using the original query
 			$paginated = $es->search($q, $fieldsToSearch, $testMode);
 
@@ -795,10 +780,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$field->setDisabled(true);
 			}
 		}
-
-
-
-		echo "AUTOCOMPLETE FIELD ID:".$this->AutoCompleteFieldID."\n";
 
 		/*
 		A field needs to be chosen for autocompletion, if not no autocomplete
