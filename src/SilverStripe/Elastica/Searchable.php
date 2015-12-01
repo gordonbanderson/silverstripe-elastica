@@ -47,12 +47,6 @@ class Searchable extends \DataExtension {
 		'DBLocale'    => 'string'
 	);
 
-	/**
-	 * Mapping of DataObject ClassName and whether it is in the SiteTree or not
-	 * @var array $site_tree_classes;
-	 */
-	private static $site_tree_classes = array();
-
 
 	/**
 	 * @var ElasticaService associated elastica search service
@@ -139,12 +133,8 @@ class Searchable extends \DataExtension {
 		$result = array();
 
 		foreach ($fields as $name => $params) {
-			$type = null;
 			$spec = array();
 			$name = str_replace('()', '', $name);
-
-			$ak = implode(',', array_keys($db));
-			//echo "GEFT1: Checking for $name in $ak\n";
 
 			if (array_key_exists($name, $db)) {
 				$class = $db[$name];
@@ -156,7 +146,6 @@ class Searchable extends \DataExtension {
 					$class = substr($class, 0, $pos);
 				}
 
-				$ak = implode(',', array_keys(self::$mappings));
 				if (array_key_exists($class, self::$mappings)) {
 					//echo "GEF T4: $class exists in mappings\n";
 					$spec['type'] = self::$mappings[$class];
@@ -195,6 +184,7 @@ class Searchable extends \DataExtension {
 					$resultType = $has_lists[$name];
 
 					$resultTypeInstance = \Injector::inst()->create($resultType);
+					$resultTypeMapping = array();
 
 					// get the fields for the result type, but do not recurse
 					if ($recurse) {
@@ -256,8 +246,6 @@ class Searchable extends \DataExtension {
 					//Add autocomplete field if so required
 					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
 
-					//echo "MAPPING FOR {$this->owner->ClassName}, $name: AUTOCOMPLETECONFIG=".print_r($autocomplete,1)."\n";
-
 					if (isset($autocomplete) && in_array($name, $autocomplete)) {
 						$autocompleteField = array();
 						$autocompleteField['type'] = "string";
@@ -274,16 +262,8 @@ class Searchable extends \DataExtension {
 				}
 			} else {
 				$message = "Field $name has no type associated with it";
-				//echo "SPEC PRE ERROR FOR $name\n";
-				//print_r($spec);
-				//asdf;
-				//die;
-				//throw new \Exception($message);
+				throw new \Exception($message);
 			}
-
-			//echo "AFTER: ($name):\n========\n";
-			//print_r($spec);
-			// "/AFTER: ($name):\n========\n\n\n\n";
 
 			$result[$name] = $spec;
 		}
@@ -291,10 +271,6 @@ class Searchable extends \DataExtension {
 		if ($this->owner->hasMethod('updateElasticHTMLFields')) {
 			$this->html_fields = $this->owner->updateElasticHTMLFields($this->html_fields);
 		}
-
-
-		//echo "ALL FIELDS\n";
-		//print_r($result);
 
 		return $result;
 	}
@@ -309,6 +285,8 @@ class Searchable extends \DataExtension {
 		$mapping = new Mapping();
 
 		$fields = $this->getElasticaFields(false);
+
+		$localeMapping = array();
 
 		if ($this->owner->hasField('Locale')) {
 			$localeMapping['type'] = 'string';
@@ -458,7 +436,7 @@ class Searchable extends \DataExtension {
 	 * @return boolean
 	 */
 	public function showRecordInSearch() {
-		return !($this->owner->hasField('ShowInSearch') AND false == $this->owner->ShowInSearch);
+		return !($this->owner->hasField('ShowInSearch') && false == $this->owner->ShowInSearch);
 	}
 
 
@@ -467,8 +445,8 @@ class Searchable extends \DataExtension {
 	 */
 	public function onBeforeWrite() {
 		if (($this->owner instanceof \SiteTree)) {
-			if ($this->owner->hasField('ShowInSearch') AND
-				$this->owner->isChanged('ShowInSearch', 2) AND false == $this->owner->ShowInSearch) {
+			if ($this->owner->hasField('ShowInSearch') &&
+				$this->owner->isChanged('ShowInSearch', 2) && false == $this->owner->ShowInSearch) {
 				$this->doDeleteDocument();
 			}
 		}
@@ -516,7 +494,6 @@ class Searchable extends \DataExtension {
 				$this->service->index($this->owner);
 			}
 		}
-		$command = "curl 'localhost:9200/_cat/indices?v'";
 	}
 
 
@@ -628,9 +605,6 @@ class Searchable extends \DataExtension {
 	 */
 	private function fieldsToElasticaConfig($objectInContext, $fields) {
 		// Copied from DataObject::searchableFields() as there is no separate accessible method
-		//echo "---- REWRITING THESE FIELDS ----";
-		//print_r($fields);
-		// rewrite array, if it is using shorthand syntax
 		$rewrite = array();
 		foreach($fields as $name => $specOrName) {
 			$identifer = (is_int($name)) ? $specOrName : $name;
@@ -643,9 +617,6 @@ class Searchable extends \DataExtension {
 				$rewrite[$identifer]['filter'] = 'PartialMatchFilter';
 			}
 		}
-
-	   // echo "---- FIELDS REWRITTEN ---\n";
-		//print_r($rewrite);
 
 		return $rewrite;
 	}
