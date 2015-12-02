@@ -122,34 +122,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 
-		// calculate time
-		$endTime = microtime(true);
-		$elapsed = round(100 * ($endTime - $startTime)) / 100;
-
-		// store variables for the template to use
+		$elapsed = $this->calculateTime();
 		$data['ElapsedTime'] = $elapsed;
-		$data['Elapsed'] = $elapsed;
 
-		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
-		if($this->hasExtension('PageControllerTemplateOverrideExtension')) {
-			return $this->useTemplateOverride($data);
-		} else {
-			return $data;
-		}
+
+		return $this->renderResults($data);
 	}
 
-
-	/**
-	 * Set the start page from the request and results per page for a given searcher object
-	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
-	 */
-	private function setStartParamsFromRequest(&$elasticSearcher) {
-		// start, and page length, i.e. pagination
-		$startParam = $this->request->getVar('start');
-		$start = isset($startParam) ? $startParam : 0;
-		$elasticSearcher->setStart($start);
-		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
-	}
 
 
 	/*
@@ -230,12 +209,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 			}
 
-			// calculate time
-			$endTime = microtime(true);
-			$elapsed = round(100 * ($endTime - $startTime)) / 100;
-
-			// store variables for the template to use
+			$elapsed = $this->calculateTime();
 			$data['ElapsedTime'] = $elapsed;
+
 			$this->Aggregations = $es->getAggregations();
 			$data['SearchResults'] = $paginated;
 			$data['SearchPerformed'] = true;
@@ -249,11 +225,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['OriginalQuery'] = $queryText;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
 
-		if($this->has_extension('PageControllerTemplateOverrideExtension')) {
-			return $this->useTemplateOverride($data);
-		} else {
-			return $data;
-		}
+		return $this->renderResults($data);
+
 	}
 
 
@@ -372,5 +345,37 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SearchPerformed' => false
 		);
 	}
+
+
+
+	private function renderResults($data) {
+		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
+		if($this->hasExtension('PageControllerTemplateOverrideExtension')) {
+			return $this->useTemplateOverride($data);
+		} else {
+			return $data;
+		}
+	}
+
+
+	private function calculateTime() {
+		$endTime = microtime(true);
+		$elapsed = round(100 * ($endTime - $this->StartTime)) / 100;
+		return $elapsed;
+	}
+
+
+	/**
+	 * Set the start page from the request and results per page for a given searcher object
+	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
+	 */
+	private function setStartParamsFromRequest(&$elasticSearcher) {
+		// start, and page length, i.e. pagination
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
+		$elasticSearcher->setStart($start);
+		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
+	}
+
 
 }
