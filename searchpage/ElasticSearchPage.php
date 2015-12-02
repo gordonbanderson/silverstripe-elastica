@@ -62,7 +62,7 @@ class ElasticSearchPage extends Page {
 	);
 
 	private static $many_many_extraFields = array(
-    	'ElasticaSearchableFields' => array(
+		'ElasticaSearchableFields' => array(
 		'Searchable' => 'Boolean', // allows the option of turning off a single field for searching
 		'SimilarSearchable' => 'Boolean', // allows field to be used in more like this queries.
 		'Active' => 'Boolean', // preserve previous edits of weighting when classes changed
@@ -104,10 +104,10 @@ class ElasticSearchPage extends Page {
 		$sortedWords = $this->SimilarityStopWords;
 
 		$stopwordsField = StringTagField::create(
-		    'SimilarityStopWords',
-		    'Stop Words for Similar Search',
-		    $sortedWords,
-		    $sortedWords
+			'SimilarityStopWords',
+			'Stop Words for Similar Search',
+			$sortedWords,
+			$sortedWords
 		);
 
 		$stopwordsField->setShouldLazyLoad(true); // tags should be lazy loaded
@@ -118,29 +118,29 @@ class ElasticSearchPage extends Page {
 			'Default values are those used by Elastica'));
 		$fields->addFieldToTab("Root.Search.Similarity", $lf);
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinTermFreq',
-			'The minimum term frequency below which the terms will be ignored from the input '.
+			'The minimum term frequency below which the terms will be ignored from the input ' .
 			'document. Defaults to 2.'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxTermFreq',
-			'The maximum number of query terms that will be selected. Increasing this value gives '.
+			'The maximum number of query terms that will be selected. Increasing this value gives ' .
 			'greater accuracy at the expense of query execution speed. Defaults to 25.'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinWordLength',
 			'The minimum word length below which the terms will be ignored.  Defaults to 0.'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinDocFreq',
-			'The minimum document frequency below which the terms will be ignored from the input '.
+			'The minimum document frequency below which the terms will be ignored from the input ' .
 			'document. Defaults to 5.'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxDocFreq',
-			'The maximum document frequency above which the terms will be ignored from the input '.
-			'document. This could be useful in order to ignore highly frequent words such as stop '.
+			'The maximum document frequency above which the terms will be ignored from the input ' .
+			'document. This could be useful in order to ignore highly frequent words such as stop ' .
 			'words. Defaults to unbounded (0).'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinWordLength',
-			'The minimum word length below which the terms will be ignored. The old name min_'.
+			'The minimum word length below which the terms will be ignored. The old name min_' .
 			'word_len is deprecated. Defaults to 0.'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MaxWordLength',
-			'The maximum word length above which the terms will be ignored. The old name max_word_'.
+			'The maximum word length above which the terms will be ignored. The old name max_word_' .
 			'len is deprecated. Defaults to unbounded (0).'));
 		$fields->addFieldToTab("Root.Search.Similarity", new TextField('MinShouldMatch',
-			'This parameter controls the number of terms that must match. This can be either a '.
-			'number or a percentage.  See '.
+			'This parameter controls the number of terms that must match. This can be either a ' .
+			'number or a percentage.  See ' .
 			'https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html'));
 
 		// ---- search details tab ----
@@ -157,7 +157,7 @@ class ElasticSearchPage extends Page {
 
 		$classes = array();
 		$records = DB::query($sql);
-		foreach ($records as $record) {
+		foreach($records as $record) {
 			array_push($classes, $record['ClassName']);
 		}
 		$list = implode(',', $classes);
@@ -177,9 +177,9 @@ class ElasticSearchPage extends Page {
 
 		$html = '<div class="field text" id="SiteTreeOnlyInfo">';
 		$html .= "<p>Copy the following into the above field to ensure that all SiteTree classes are searched</p>";
-		$html .= '<p class="message">'.$list;
+		$html .= '<p class="message">' . $list;
 		$html .= "</p></div>";
-		$infoField = new LiteralField('InfoField',$html);
+		$infoField = new LiteralField('InfoField', $html);
 		$fields->addFieldToTab('Root.Search.SearchFor', $infoField);
 
 		$fields->addFieldToTab('Root.Main', new HTMLEditorField('ContentForEmptySearch'));
@@ -190,15 +190,15 @@ class ElasticSearchPage extends Page {
 		$fields->addFieldToTab('Root.Search.Aggregations', new TextField('SearchHelper',
 			'ClassName of object to manipulate search details and results.  Leave blank for standard search'));
 
-        $ottos = AutoCompleteOption::get()->Filter('Locale', $this->Locale)->map('ID', 'Name')->
-        									toArray();
-        $df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
-        							setSource($ottos);
-        $df->setEmptyString('-- Please select what do do after find as you type has occurred --');
+		$ottos = AutoCompleteOption::get()->Filter('Locale', $this->Locale)->map('ID', 'Name')->
+											toArray();
+		$df = DropdownField::create('AutoCompleteFunctionID', 'Autocomplete Function')->
+									setSource($ottos);
+		$df->setEmptyString('-- Please select what do do after find as you type has occurred --');
 
-        $ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete',1)->Map('ID', 'Name')->toArray();
-        $autoCompleteFieldDF = DropDownField::create('AutoCompleteFieldID', 'Field to use for autocomplete')->setSource($ottos);
-        $autoCompleteFieldDF->setEmptyString('-- Please select which field to use for autocomplete --');
+		$ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete',1)->Map('ID', 'Name')->toArray();
+		$autoCompleteFieldDF = DropDownField::create('AutoCompleteFieldID', 'Field to use for autocomplete')->setSource($ottos);
+		$autoCompleteFieldDF->setEmptyString('-- Please select which field to use for autocomplete --');
 
 		$fields->addFieldToTab("Root.Search.AutoComplete",
 		  		FieldGroup::create(
@@ -208,9 +208,9 @@ class ElasticSearchPage extends Page {
 		 );
 
 		// ---- grid of searchable fields ----
-		$html = '<p id="SearchFieldIntro">'._t('SiteConfig.ELASTICA_SEARCH_INFO',
-				"Select a field to edit it's properties").'</p>';
-		$fields->addFieldToTab('Root.Search.Fields', $h1=new LiteralField('SearchInfo', $html));
+		$html = '<p id="SearchFieldIntro">' . _t('SiteConfig.ELASTICA_SEARCH_INFO',
+				"Select a field to edit it's properties") . '</p>';
+		$fields->addFieldToTab('Root.Search.Fields', $h1 = new LiteralField('SearchInfo', $html));
 		$searchPicker = new PickerField('ElasticaSearchableFields', 'Searchable Fields',
 			$this->ElasticaSearchableFields()->filter('Active', 1)->sort('Name'));
 
@@ -223,7 +223,7 @@ class ElasticSearchPage extends Page {
 		$pickerConfig->removeComponentsByType(new PickerFieldAddExistingSearchButton());
 		$pickerConfig->getComponentByType('GridFieldPaginator')->setItemsPerPage(100);
 
-        $searchPicker->enableEdit();
+		$searchPicker->enableEdit();
 		$edittest = $pickerConfig->getComponentByType('GridFieldDetailForm');
 		$edittest->setFields(FieldList::create(
 			TextField::create('Name', 'Field Name'),
@@ -246,7 +246,7 @@ class ElasticSearchPage extends Page {
 			$fields->dataFieldByName('Name')->setReadOnly(true);
 			$fields->dataFieldByName('Name')->setDisabled(true);
 
-			if (!$fieldAutocomplete->Value() == '1') {
+			if(!$fieldAutocomplete->Value() == '1') {
 				$fieldEnableAutcomplete->setDisabled(true);
 				$fieldEnableAutcomplete->setReadOnly(true);
 				$fieldEnableAutcomplete->setTitle("Autcomplete is not available for this field");
@@ -257,23 +257,23 @@ class ElasticSearchPage extends Page {
 
 		// What do display on the grid of searchable fields
 		$dataColumns = $pickerConfig->getComponentByType('GridFieldDataColumns');
-        $dataColumns->setDisplayFields(array(
+		$dataColumns->setDisplayFields(array(
 			'Name' => 'Name',
-        	'ClazzName' => 'Class',
+			'ClazzName' => 'Class',
 			'Type' => 'Type',
 			'Searchable' => 'Use for Search?',
 			'SimilarSearchable' => 'Use for Similar Search?',
 			'ShowHighlights' => 'Show Search Highlights',
 			'Weight' => 'Weighting'
-        ));
+		));
 
 		return $fields;
 	}
 
 
 	public function getCMSValidator() {
-        return new ElasticSearchPage_Validator();
-    }
+		return new ElasticSearchPage_Validator();
+	}
 
 
 	/**
@@ -283,49 +283,49 @@ class ElasticSearchPage extends Page {
 	public function validate() {
 		$result = parent::validate();
 		$mode = Versioned::get_reading_mode();
-		$suffix =  '';
-		if ($mode == 'Stage.Live') {
+		$suffix = '';
+		if($mode == 'Stage.Live') {
 			$suffix = '_Live';
 		}
 
-		if (!$this->Identifier) {
+		if(!$this->Identifier) {
 			$result->error('The identifier cannot be blank');
 		}
 
-		$where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
+		$where = 'ElasticSearchPage' . $suffix . '.ID != ' . $this->ID . " AND `Identifier` = '{$this->Identifier}'";
 		$existing = ElasticSearchPage::get()->where($where)->count();
-		if ($existing > 0) {
-			$result->error('The identifier '.$this->Identifier.' already exists');
+		if($existing > 0) {
+			$result->error('The identifier ' . $this->Identifier . ' already exists');
 		}
 
 
-		error_log('CTS:'.$this->ClassesToSearch);
+		error_log('CTS:' . $this->ClassesToSearch);
 
 		// now check classes to search actually exist, assuming in site tree not set
-		error_log('STO:'.$this->SiteTreeOnly);
-		if (!$this->SiteTreeOnly) {
-			if ($this->ClassesToSearch == '') {
+		error_log('STO:' . $this->SiteTreeOnly);
+		if(!$this->SiteTreeOnly) {
+			if($this->ClassesToSearch == '') {
 				$result->error('At least one searchable class must be available, or SiteTreeOnly flag set');
 			} else {
 				$toSearch = explode(',', $this->ClassesToSearch);
-				foreach ($toSearch as $clazz) {
+				foreach($toSearch as $clazz) {
 					try {
 						$instance = Injector::inst()->create($clazz);
-						if (!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
-							$result->error('The class '.$clazz.' must have the Searchable extension');
+						if(!$instance->hasExtension('SilverStripe\Elastica\Searchable')) {
+							$result->error('The class ' . $clazz . ' must have the Searchable extension');
 						}
 					} catch (ReflectionException $e) {
-						$result->error('The class '.$clazz.' does not exist');
+						$result->error('The class ' . $clazz . ' does not exist');
 					}
 				}
 			}
 		}
 
 
-		foreach ($this->ElasticaSearchableFields() as $esf) {
-			if ($esf->Weight == 0) {
+		foreach($this->ElasticaSearchableFields() as $esf) {
+			if($esf->Weight == 0) {
 				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a zero weight. ");
-			} else if ($esf->Weight < 0) {
+			} else if($esf->Weight < 0) {
 				$result->error("The field {$esf->ClazzName}.{$esf->Name} has a negative weight. ");
 			}
 		}
@@ -341,7 +341,7 @@ class ElasticSearchPage extends Page {
 
 		#FIXME -  SiteTree only
 		$relevantClasses = $this->ClassesToSearch; // due to validation this will be valid
-		if ($this->SiteTreeOnly) {
+		if($this->SiteTreeOnly) {
 			$relevantClasses = SearchableClass::get()->filter('InSiteTree', true)->Map('Name')->toArray();
 
 		}
@@ -358,12 +358,12 @@ class ElasticSearchPage extends Page {
 		$esfs = $this->ElasticaSearchableFields();
 
 		// Remove existing searchable fields for this page from the list of all available
-    	$delta = array_keys($esfs->map()->toArray());
+		$delta = array_keys($esfs->map()->toArray());
 		$newSearchableFields = $sfs->exclude('ID', $delta);
 
-		if ($newSearchableFields->count() > 0) {
-			foreach ($newSearchableFields->getIterator() as $newSearchableField) {
-				error_log('NEW FIELD:'.$newSearchableField->Name);
+		if($newSearchableFields->count() > 0) {
+			foreach($newSearchableFields->getIterator() as $newSearchableField) {
+				error_log('NEW FIELD:' . $newSearchableField->Name);
 				$newSearchableField->Active = true;
 				$newSearchableField->Weight = 1;
 
@@ -371,7 +371,7 @@ class ElasticSearchPage extends Page {
 
 				// Note 1 used instead of true for SQLite3 testing compatibility
 				$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET ";
-				$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
+				$sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = ' . $this->ID;
 				DB::query($sql);
 			}
 		}
@@ -406,19 +406,19 @@ class ElasticSearchPage extends Page {
 		$qField = $fields->fieldByName('q');
 
 
-		if ($buttonTextOverride) {
+		if($buttonTextOverride) {
 			$result->setButtonText($buttonTextOverride);
 		}
 
 		/*
 		A field needs to be chosen for autocompletion, if not no autocomplete
 		 */
-		if ($this->AutoCompleteFieldID > 0) {
+		if($this->AutoCompleteFieldID > 0) {
 			$qField->setAttribute('data-autocomplete', 'true');
 			$qField->setAttribute('data-autocomplete-field', 'Title');
 			$qField->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
 			$qField->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
-			$qField->setAttribute('data-autocomplete-source',$this->Link());
+			$qField->setAttribute('data-autocomplete-source', $this->Link());
 			$qField->setAttribute('data-autocomplete-function',
 			$this->AutocompleteFunction()->Slug);
 		}
