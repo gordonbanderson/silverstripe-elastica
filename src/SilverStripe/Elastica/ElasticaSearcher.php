@@ -157,7 +157,7 @@ class ElasticSearcher {
 	/**
 	 * Add a filter to the current query in the form of a key/value pair
 	 * @param string $field the name of the indexed field to filter on
-	 * @param string $value the value of the indexed field to filter on
+	 * @param string|boolean|integer $value the value of the indexed field to filter on
 	 */
 	public function addFilter($field, $value) {
 		$this->filters[$field] = $value;
@@ -358,7 +358,7 @@ class ElasticSearcher {
 
 	/**
 	 * Perform a 'More Like This' search, aka relevance feedback, using the provided indexed DataObject
-	 * @param  DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
+	 * @param  \DataObject $indexedItem A DataObject that has been indexed in Elasticsearch
 	 * @param  array $fieldsToSearch  array of fieldnames to search, mapped to weighting
 	 * @param  $$testMode Use all shards, not just one, for consistent results during unit testing. See
 	 *         https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-is-broken.html#relevance-is-broken
