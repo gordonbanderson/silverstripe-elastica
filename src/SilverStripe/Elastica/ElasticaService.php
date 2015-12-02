@@ -121,7 +121,7 @@ class ElasticaService {
 	}
 
 	private function getLocaleIndexName() {
-		$name = $this->indexName.'-'.$this->locale;
+		$name = $this->indexName . '-' . $this->locale;
 		$name = strtolower($name);
 		$name = str_replace('-', '_', $name);
 		return $name;
@@ -137,12 +137,12 @@ class ElasticaService {
 	 */
 	public function search($query, $types = '') {
 		$query = Query::create($query); // may be a string
-		if (is_string($types)) {
+		if(is_string($types)) {
 			$types = explode(',', $types);
 		}
 
 		$data = $query->toArray();
-		if (isset($data['query']['more_like_this'])) {
+		if(isset($data['query']['more_like_this'])) {
 			$query->MoreLikeThis = true;
 		} else {
 			$query->MoreLikeThis = false;
@@ -151,8 +151,8 @@ class ElasticaService {
 
 		$search = new Search(new Client());
 
-		if ($this->test_mode) {
-			$search->setOption('search_type',Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
+		if($this->test_mode) {
+			$search->setOption('search_type', Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
 		}
 
 
@@ -161,7 +161,7 @@ class ElasticaService {
 
 		// If the query is a 'more like this' we can get the terms used for searching by performing
 		// an extra query, in this case a query validation with explain and rewrite turned on
-		if ($query->MoreLikeThis) {
+		if($query->MoreLikeThis) {
 			$path = $search->getPath();
 
 			$termData = array();
@@ -169,7 +169,7 @@ class ElasticaService {
 
 			$path = str_replace('_search', '_validate/query', $path);
 			$params = array('explain' => true, 'rewrite' => true);
-			if ($this->test_mode) {
+			if($this->test_mode) {
 				$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
 			}
 
@@ -183,18 +183,18 @@ class ElasticaService {
 			$r = $response->getData();
 			$terms = null; // keep in scope
 
-			if (isset($r['explanations'])) {
+			if(isset($r['explanations'])) {
 				$explanation = $r['explanations'][0]['explanation'];
 				//echo $explanation;
 				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
 			}
 
-			if (isset($terms)) {
+			if(isset($terms)) {
 				$this->MoreLikeThisTerms = $terms;
 			}
 		}
 
-		if (!$empty($types)) {
+		if(!$empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
@@ -215,7 +215,7 @@ class ElasticaService {
 		$stringFields = $this->highlightedFields;
 		$usingProvidedHighlightFields = true;
 
-		if (sizeof($stringFields) == 0) {
+		if(sizeof($stringFields) == 0) {
 			$filter = array('Type' => 'string', 'ShowHighlights' => true);
 			$stringFields = \SearchableField::get()->filter($filter)->map('Name')->toArray();
 			$usingProvidedHighlightFields = false;
@@ -223,10 +223,10 @@ class ElasticaService {
 
 
 		$highlightFields = array();
-		foreach ($stringFields as $name) {
+		foreach($stringFields as $name) {
 			// Add the stemmed and the unstemmed for now
 			$fieldName = $name;
-			if (!$usingProvidedHighlightFields) {
+			if(!$usingProvidedHighlightFields) {
 				$fieldName .= '.standard';
 			}
 			$highlightFields[$fieldName] = array(
@@ -242,9 +242,9 @@ class ElasticaService {
 			'fields' => $highlightFields
 		);
 
-		if ($query->MoreLikeThis) {
+		if($query->MoreLikeThis) {
 			$termsMatchingQuery = array();
-			foreach ($this->MoreLikeThisTerms as $field => $terms) {
+			foreach($this->MoreLikeThisTerms as $field => $terms) {
 				$termQuery = array('multi_match' => array(
 					'query' => implode(' ', $terms),
 					'type' => 'most_fields',
@@ -262,7 +262,7 @@ class ElasticaService {
 
 		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
-		if (!$empty($types)) {
+		if(!$empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
@@ -272,7 +272,7 @@ class ElasticaService {
 		$path = $search->getPath();
 		$params = $search->getOptions();
 		$searchResults = $search->search($query, $params);
-		if (isset($this->MoreLikeThisTerms)) {
+		if(isset($this->MoreLikeThisTerms)) {
 			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
 
@@ -285,7 +285,7 @@ class ElasticaService {
 	 */
 	protected function ensureIndex() {
 		$index = $this->getIndex();
-		if (!$index->exists()) {
+		if(!$index->exists()) {
 			$this->createIndex();
 		}
 	}
@@ -300,7 +300,7 @@ class ElasticaService {
 	 */
 	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
 		$mapping = $type->getMapping();
-		if ($mapping == array()) {
+		if($mapping == array()) {
 			$this->ensureIndex();
 			$mapping = $record->getElasticaMapping();
 			$type->setMapping($mapping);
@@ -319,8 +319,8 @@ class ElasticaService {
 		$document = $record->getElasticaDocument();
 		$typeName = $record->getElasticaType();
 
-		if ($this->buffered) {
-			if (array_key_exists($typeName, $this->buffer)) {
+		if($this->buffered) {
+			if(array_key_exists($typeName, $this->buffer)) {
 				$this->buffer[$typeName][] = $document;
 			} else {
 				$this->buffer[$typeName] = array($document);
@@ -350,9 +350,9 @@ class ElasticaService {
 
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
-		exec($command,$op);
+		exec($command, $op);
 		ElasticaUtil::message("\n++++ $trace ++++\n");
-		ElasticaUtil::message(print_r($op,1));
+		ElasticaUtil::message(print_r($op, 1));
 		ElasticaUtil::message("++++ /{$trace} ++++\n\n");
 		return $op;
 	}
@@ -363,24 +363,24 @@ class ElasticaService {
 	 */
 	public function endBulkIndex() {
 		$index = $this->getIndex();
-		foreach ($this->buffer as $type => $documents) {
+		foreach($this->buffer as $type => $documents) {
 			$amount = 0;
 
-			foreach (array_keys($this->buffer) as $key) {
+			foreach(array_keys($this->buffer) as $key) {
 				$amount += sizeof($this->buffer[$key]);
 			}
 			$index->getType($type)->addDocuments($documents);
 			$index->refresh();
 
 			ElasticaUtil::message("\tAdding $amount documents to the index\n");
-			if (isset($this->StartTime)) {
+			if(isset($this->StartTime)) {
 				$elapsed = microtime(true) - $this->StartTime;
-				$timePerDoc = ($elapsed)/($this->nDocumentsIndexed);
+				$timePerDoc = ($elapsed) / ($this->nDocumentsIndexed);
 				$documentsRemaining = $this->nDocumentsToIndexForLocale - $this->nDocumentsIndexed;
-				$eta = ($documentsRemaining)*$timePerDoc;
-				$hours = (int)($eta/3600);
-				$minutes = (int)(($eta-$hours*3600)/60);
-				$seconds = (int)(0.5+$eta-$minutes*60-$hours*3600);
+				$eta = ($documentsRemaining) * $timePerDoc;
+				$hours = (int)($eta / 3600);
+				$minutes = (int)(($eta - $hours * 3600) / 60);
+				$seconds = (int)(0.5 + $eta - $minutes * 60 - $hours * 3600);
 				$etaHR = "{$hours}h {$minutes}m {$seconds}s";
 				ElasticaUtil::message("ETA to completion of indexing $this->locale ($documentsRemaining documents): $etaHR");
 			}
@@ -412,12 +412,12 @@ class ElasticaService {
 		$index = $this->getIndex();
 
 		# Recreate the index
-		if ($index->exists()) {
+		if($index->exists()) {
 			$index->delete();
 		}
 		$this->createIndex();
 
-		foreach ($this->getIndexedClasses() as $class) {
+		foreach($this->getIndexedClasses() as $class) {
 			/** @var $sng Searchable */
 			$sng = singleton($class);
 			$mapping = $sng->getElasticaMapping();
@@ -434,8 +434,8 @@ class ElasticaService {
 	 * @param \DataList $records
 	 */
 	protected function refreshRecords($records) {
-		foreach ($records as $record) {
-			if ($record->showRecordInSearch()) {
+		foreach($records as $record) {
+			if($record->showRecordInSearch()) {
 				$this->index($record);
 			}
 		}
@@ -451,17 +451,17 @@ class ElasticaService {
 	 * @return \DataObject[] $records
 	 */
 	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
-		$offset = $page*$pageSize;
+		$offset = $page * $pageSize;
 
-		if ($class::has_extension("Versioned")) {
-			if ($pageSize >0) {
+		if($class::has_extension("Versioned")) {
+			if($pageSize > 0) {
 				$records = \Versioned::get_by_stage($class, 'Live')->limit($pageSize, $offset);
 			} else {
 				$records = \Versioned::get_by_stage($class, 'Live');
 			}
 		} else {
-			if ($pageSize >0) {
-				$records = $class::get()->limit($pageSize,$offset);
+			if($pageSize > 0) {
+				$records = $class::get()->limit($pageSize, $offset);
 			} else {
 				$records = $class::get();
 			}
@@ -479,12 +479,12 @@ class ElasticaService {
 	protected function refreshClass($class) {
 		$nRecords = $this->recordsByClassConsiderVersioned($class)->count();
 		$batchSize = 500;
-		$pages = $nRecords/$batchSize + 1;
+		$pages = $nRecords / $batchSize + 1;
 		$processing = true;
 
-		for ($i=0; $i < $pages; $i++) {
+		for($i = 0; $i < $pages; $i++) {
 			$this->startBulkIndex();
-			$pagedRecords = $this->recordsByClassConsiderVersioned($class,$batchSize, $i);
+			$pagedRecords = $this->recordsByClassConsiderVersioned($class, $batchSize, $i);
 			$this->nDocumentsIndexed += $pagedRecords->count();
 			$batch = $pagedRecords->toArray();
 			$this->refreshRecords($batch);
@@ -506,8 +506,8 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
-		echo "CURRENT LOCALE:".$this->locale;
-		foreach ($classes as $class) {
+		echo "CURRENT LOCALE:" . $this->locale;
+		foreach($classes as $class) {
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
 
@@ -516,17 +516,17 @@ class ElasticaService {
 
 		$index = $this->getIndex();
 
-		foreach ($this->getIndexedClasses() as $classname) {
+		foreach($this->getIndexedClasses() as $classname) {
 			ElasticaUtil::message("Indexing class $classname");
 
 			$inSiteTree = $classname === 'SiteTree' ? true : false;
-			if (isset(self::$site_tree_classes[$classname])) {
+			if(isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
 				$class = new \ReflectionClass($classname);
-				while ($class = $class->getParentClass()) {
+				while($class = $class->getParentClass()) {
 					$parentClass = $class->getName();
-					if ($parentClass == 'SiteTree') {
+					if($parentClass == 'SiteTree') {
 						$inSiteTree = true;
 						break;
 					}
@@ -537,9 +537,9 @@ class ElasticaService {
 			//$this->refreshClass($classname);
 
 
-			if ($inSiteTree) {
+			if($inSiteTree) {
 				// this prevents the same item being indexed twice due to class inheritance
-				if ($classname === 'SiteTree') {
+				if($classname === 'SiteTree') {
 					$this->refreshClass($classname);
 				}
 			// Data objects
@@ -578,11 +578,11 @@ class ElasticaService {
 	public function getIndexSettingsForCurrentLocale() {
 		$result = null;
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
-		if (isset($indexSettings[$this->locale])) {
+		if(isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
 			$result = \Injector::inst()->create($settingsClassName);
 		} else {
-			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
+			throw new \Exception('ERROR: No index settings are provided for locale ' . $this->locale . "\n");
 
 		}
 		return $result;
@@ -598,16 +598,16 @@ class ElasticaService {
 		$classes = array();
 
 		$whitelist = array('SearchableTestPage', 'SearchableTestFatherPage', 'SearchableTestGrandFatherPage',
-			'FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
+			'FlickrPhotoTO', 'FlickrTagTO', 'FlickrPhotoTO', 'FlickrAuthorTO', 'FlickrSetTO');
 
-		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
+		foreach(\ClassInfo::subclassesFor('DataObject') as $candidate) {
 			$instance = singleton($candidate);
 
 			$interfaces = class_implements($candidate);
 			// Only allow test classes in testing mode
-			if (isset($interfaces['TestOnly'])) {
-				if (in_array($candidate, $whitelist)) {
-					if (!$this->test_mode) {
+			if(isset($interfaces['TestOnly'])) {
+				if(in_array($candidate, $whitelist)) {
+					if(!$this->test_mode) {
 						continue;
 					}
 				} else {
@@ -616,7 +616,7 @@ class ElasticaService {
 				}
 			}
 
-			if ($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
+			if($instance->hasExtension('SilverStripe\\Elastica\\Searchable')) {
 				$classes[] = $candidate;
 			}
 		}
@@ -652,16 +652,16 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 
 		$fields = array_keys($fieldMappings);
 		$allFields = array();
-		foreach ($fields as $field) {
+		foreach($fields as $field) {
 			array_push($allFields, $field);
 
 			$mapping = $fieldMappings[$field];
 
 
-			if (isset($mapping['fields'])) {
+			if(isset($mapping['fields'])) {
 				$subFields = array_keys($mapping['fields']);
-				foreach ($subFields as $subField) {
-					$name = $field.'.'.$subField;
+				foreach($subFields as $subField) {
+					$name = $field . '.' . $subField;
 					array_push($allFields, $name);
 				}
 			}
@@ -681,7 +681,7 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 		);
 
 		//FlickrPhoto/3829/_termvector
-		$path = $this->getIndex()->getName().'/'.$searchable->ClassName.'/'.$searchable->ID.'/_termvector';
+		$path = $this->getIndex()->getName() . '/' . $searchable->ClassName . '/' . $searchable->ID . '/_termvector';
 		$response = $this->getClient()->request(
 				$path,
 				\Elastica\Request::GET,
