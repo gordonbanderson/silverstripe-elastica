@@ -127,7 +127,6 @@ class Searchable extends \DataExtension {
 	 * @return array
 	 */
 	public function getElasticaFields($storeMethodName = false, $recurse = true) {
-		//echo "\n\n---- GETTING ELASTICSEARCH FIELDS FOR {$this->owner->ClassName} ----\n";
 		$db = $this->owner->db();
 		$fields = $this->getAllSearchableFields();
 		$result = array();
@@ -139,17 +138,13 @@ class Searchable extends \DataExtension {
 			if (array_key_exists($name, $db)) {
 				$class = $db[$name];
 
-				//echo "GEF T2: in db \n";
-
 				if (($pos = strpos($class, '('))) {
 					// Valid in the case of Varchar(255)
 					$class = substr($class, 0, $pos);
 				}
 
 				if (array_key_exists($class, self::$mappings)) {
-					//echo "GEF T4: $class exists in mappings\n";
 					$spec['type'] = self::$mappings[$class];
-					//echo "GEF T5: Date tweaking\n";
 					if ($spec['type'] === 'date') {
 						if ($class == 'Date') {
 							$spec['format'] = 'y-M-d';
@@ -168,12 +163,8 @@ class Searchable extends \DataExtension {
 				// no need for an extra case here as all SS types checked in tests
 			} else {
 				// field name is not in the db, it could be a method
-				//echo "GEF T7: Getting relationships for lists and has one\n";
 				$has_lists = $this->getListRelationshipMethods();
 				$has_ones = $this->owner->has_one();
-
-				//echo "GEF T8: Checking for $name in \n";
-				//print_r($has_lists);
 
 				// check has_many and many_many relations
 				if (isset($has_lists[$name])) {
@@ -230,7 +221,6 @@ class Searchable extends \DataExtension {
 			// in the case of a relationship type will not be set
 			if (isset($spec['type'])) {
 				if ($spec['type'] == 'string') {
-					//echo "$name\n";
 					$unstemmed = array();
 					$unstemmed['type'] = "string";
 					$unstemmed['analyzer'] = "unstemmed";
@@ -303,9 +293,6 @@ class Searchable extends \DataExtension {
 		//Initially added for suggestions compatibility, in that searching
 		//_all field picks up all possible suggestions
 		$mapping->enableAllField();
-
-		//echo "\n\n--------\n".$this->owner->ClassName.'\n';
-		//print_r($fields);
 
 		if ($this->owner->hasMethod('updateElasticsearchMapping')) {
 			$mapping = $this->owner->updateElasticsearchMapping($mapping);
@@ -390,9 +377,6 @@ class Searchable extends \DataExtension {
 						$methodName = $config['properties']['__method'];
 						$data = $this->owner->$methodName();
 						$relArray = array();
-
-						echo "METHOD NAME:".$methodName;
-						echo "\nDATA:".$data->ID."\n";
 
 						// get the fields of a has_one relational object
 						if (isset($has_ones[$methodName])) {
