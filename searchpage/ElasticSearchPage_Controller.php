@@ -366,9 +366,4 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$elapsed = round(100 * ($endTime - $this->StartTime)) / 100;
 		return $elapsed;
 	}
-
-
-
-
-
 }
