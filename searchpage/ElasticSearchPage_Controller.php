@@ -40,7 +40,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es = new ElasticSearcher();
 
 		// start, and page length, i.e. pagination
-		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
 		$es->setStart($start);
 		$es->setPageLength($ep->ResultsPerPage);
 
@@ -186,7 +187,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$testMode = isset($_GET['TestMode']);
 
 		// filters for aggregations
-		$ignore = array('url', 'start', 'q', 'is');
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
 		foreach($this->request->getVars() as $key => $value) {
 			if(!in_array($key, $ignore)) {
@@ -290,8 +290,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 	/**
 	 * Process submission of the search form, redirecting to a URL that will render search results
-	 * @param  [type] $data form data
-	 * @param  [type] $form form
+	 * @param  array $data form data
+	 * @param  Form $form form
 	 */
 	public function submit($data, $form) {
 		$queryText = $data['q'];
