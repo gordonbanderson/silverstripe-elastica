@@ -514,8 +514,7 @@ class Searchable extends \DataExtension {
 				// this goes to elastica service
 				$this->service->remove($this->owner);
 			}
-		}
-		catch (\Elastica\Exception\NotFoundException $e) {
+		} catch (\Elastica\Exception\NotFoundException $e) {
 			trigger_error("Deleted document " . $this->owner->ClassName . " (" . $this->owner->ID .
 				") not found in search index.", E_USER_NOTICE);
 		}
@@ -533,7 +532,9 @@ class Searchable extends \DataExtension {
 		$fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
 
 		// fallback to default method
-		if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $this->owner->ClassName);
+		if(!$fields) {
+			user_error('The field $searchable_fields must be set for the class ' . $this->owner->ClassName);
+		}
 
 		// get the values of these fields
 		$elasticaMapping = $this->fieldsToElasticaConfig($fields);
@@ -554,7 +555,9 @@ class Searchable extends \DataExtension {
 
 						$relClass = $has_lists[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $relClass);
+						if(!$fields) {
+							user_error('The field $searchable_fields must be set for the class ' . $relClass);
+						}
 						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
@@ -562,7 +565,9 @@ class Searchable extends \DataExtension {
 					} else if(isset($has_ones[$methodName])) {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $relClass);
+						if(!$fields) {
+							user_error('The field $searchable_fields must be set for the class ' . $relClass);
+						}
 						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
