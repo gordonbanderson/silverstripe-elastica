@@ -11,7 +11,8 @@ class SearchableClass extends DataObject {
 
 	private static $display_fields = array('Name', 'IsInSiteTreeHumanReadable');
 
-	function getCMSFields() {
+
+	public function getCMSFields() {
 
 		$fields = new FieldList();
 
