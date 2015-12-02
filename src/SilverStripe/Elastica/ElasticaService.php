@@ -121,7 +121,7 @@ class ElasticaService {
 	}
 
 	private function getLocaleIndexName() {
-		$name = $this->indexName.'-'.$this->locale;
+		$name = $this->indexName . '-' . $this->locale;
 		$name = strtolower($name);
 		$name = str_replace('-', '_', $name);
 		return $name;
@@ -152,7 +152,7 @@ class ElasticaService {
 		$search = new Search(new Client());
 
 		if ($this->test_mode) {
-			$search->setOption('search_type',Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
+			$search->setOption('search_type', Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
 		}
 
 
@@ -195,7 +195,7 @@ class ElasticaService {
 		}
 
 		if (!$empty($types)) {
-			foreach($types as $type) {
+			foreach ($types as $type) {
 				$search->addType($type);
 			}
 		}
@@ -263,7 +263,7 @@ class ElasticaService {
 		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
 		if (!$empty($types)) {
-			foreach($types as $type) {
+			foreach ($types as $type) {
 				$search->addType($type);
 			}
 		}
@@ -350,9 +350,9 @@ class ElasticaService {
 
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
-		exec($command,$op);
+		exec($command, $op);
 		ElasticaUtil::message("\n++++ $trace ++++\n");
-		ElasticaUtil::message(print_r($op,1));
+		ElasticaUtil::message(print_r($op, 1));
 		ElasticaUtil::message("++++ /{$trace} ++++\n\n");
 		return $op;
 	}
@@ -375,12 +375,12 @@ class ElasticaService {
 			ElasticaUtil::message("\tAdding $amount documents to the index\n");
 			if (isset($this->StartTime)) {
 				$elapsed = microtime(true) - $this->StartTime;
-				$timePerDoc = ($elapsed)/($this->nDocumentsIndexed);
+				$timePerDoc = ($elapsed) / ($this->nDocumentsIndexed);
 				$documentsRemaining = $this->nDocumentsToIndexForLocale - $this->nDocumentsIndexed;
-				$eta = ($documentsRemaining)*$timePerDoc;
-				$hours = (int)($eta/3600);
-				$minutes = (int)(($eta-$hours*3600)/60);
-				$seconds = (int)(0.5+$eta-$minutes*60-$hours*3600);
+				$eta = ($documentsRemaining) * $timePerDoc;
+				$hours = (int)($eta / 3600);
+				$minutes = (int)(($eta - $hours * 3600) / 60);
+				$seconds = (int)(0.5 + $eta - $minutes * 60 - $hours * 3600);
 				$etaHR = "{$hours}h {$minutes}m {$seconds}s";
 				ElasticaUtil::message("ETA to completion of indexing $this->locale ($documentsRemaining documents): $etaHR");
 			}
@@ -451,17 +451,17 @@ class ElasticaService {
 	 * @return \DataObject[] $records
 	 */
 	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
-		$offset = $page*$pageSize;
+		$offset = $page * $pageSize;
 
 		if ($class::has_extension("Versioned")) {
-			if ($pageSize >0) {
+			if ($pageSize > 0) {
 				$records = \Versioned::get_by_stage($class, 'Live')->limit($pageSize, $offset);
 			} else {
 				$records = \Versioned::get_by_stage($class, 'Live');
 			}
 		} else {
-			if ($pageSize >0) {
-				$records = $class::get()->limit($pageSize,$offset);
+			if ($pageSize > 0) {
+				$records = $class::get()->limit($pageSize, $offset);
 			} else {
 				$records = $class::get();
 			}
@@ -479,12 +479,12 @@ class ElasticaService {
 	protected function refreshClass($class) {
 		$nRecords = $this->recordsByClassConsiderVersioned($class)->count();
 		$batchSize = 500;
-		$pages = $nRecords/$batchSize + 1;
+		$pages = $nRecords / $batchSize + 1;
 		$processing = true;
 
-		for ($i=0; $i < $pages; $i++) {
+		for ($i = 0; $i < $pages; $i++) {
 			$this->startBulkIndex();
-			$pagedRecords = $this->recordsByClassConsiderVersioned($class,$batchSize, $i);
+			$pagedRecords = $this->recordsByClassConsiderVersioned($class, $batchSize, $i);
 			$this->nDocumentsIndexed += $pagedRecords->count();
 			$batch = $pagedRecords->toArray();
 			$this->refreshRecords($batch);
@@ -506,7 +506,7 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
-		echo "CURRENT LOCALE:".$this->locale;
+		echo "CURRENT LOCALE:" . $this->locale;
 		foreach ($classes as $class) {
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
@@ -582,7 +582,7 @@ class ElasticaService {
 			$settingsClassName = $indexSettings[$this->locale];
 			$result = \Injector::inst()->create($settingsClassName);
 		} else {
-			throw new \Exception('ERROR: No index settings are provided for locale '.$this->locale."\n");
+			throw new \Exception('ERROR: No index settings are provided for locale ' . $this->locale . "\n");
 
 		}
 		return $result;
@@ -598,7 +598,7 @@ class ElasticaService {
 		$classes = array();
 
 		$whitelist = array('SearchableTestPage', 'SearchableTestFatherPage', 'SearchableTestGrandFatherPage',
-			'FlickrPhotoTO','FlickrTagTO','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO');
+			'FlickrPhotoTO', 'FlickrTagTO', 'FlickrPhotoTO', 'FlickrAuthorTO', 'FlickrSetTO');
 
 		foreach (\ClassInfo::subclassesFor('DataObject') as $candidate) {
 			$instance = singleton($candidate);
@@ -661,7 +661,7 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 			if (isset($mapping['fields'])) {
 				$subFields = array_keys($mapping['fields']);
 				foreach ($subFields as $subField) {
-					$name = $field.'.'.$subField;
+					$name = $field . '.' . $subField;
 					array_push($allFields, $name);
 				}
 			}
@@ -681,7 +681,7 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 		);
 
 		//FlickrPhoto/3829/_termvector
-		$path = $this->getIndex()->getName().'/'.$searchable->ClassName.'/'.$searchable->ID.'/_termvector';
+		$path = $this->getIndex()->getName() . '/' . $searchable->ClassName . '/' . $searchable->ID . '/_termvector';
 		$response = $this->getClient()->request(
 				$path,
 				\Elastica\Request::GET,
