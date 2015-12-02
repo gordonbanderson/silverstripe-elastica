@@ -303,10 +303,10 @@ class Searchable extends \DataExtension {
 
 
 	/**
-	* Get an elasticsearch document
-	*
-	* @return \Elastica\Document
-	*/
+	 * Get an elasticsearch document
+	 *
+	 * @return \Elastica\Document
+	 */
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
@@ -702,7 +702,7 @@ class Searchable extends \DataExtension {
 	}
 
 
-    public function updateCMSFields(\FieldList $fields) {
+	public function updateCMSFields(\FieldList $fields) {
 		$isIndexed = false;
 		// SIteTree object must have a live record, ShowInSearch = true
 		if ($this->isInSiteTree($this->owner->ClassName)) {
@@ -727,45 +727,45 @@ class Searchable extends \DataExtension {
 				$terms = new \ArrayList();
 
 				foreach (array_keys($termVectors[$field]['terms']) as $term) {
-		        	$do = new \DataObject();
-			        $do->Term = $term;
-			        $stats = $termVectors[$field]['terms'][$term];
-			        if (isset($stats['ttf'])) {
-			        	$do->TTF = $stats['ttf'];
-			        }
+					$do = new \DataObject();
+					$do->Term = $term;
+					$stats = $termVectors[$field]['terms'][$term];
+					if (isset($stats['ttf'])) {
+						$do->TTF = $stats['ttf'];
+					}
 
-			        if (isset($stats['doc_freq'])) {
-			        	$do->DocFreq = $stats['doc_freq'];
-			        }
+					if (isset($stats['doc_freq'])) {
+						$do->DocFreq = $stats['doc_freq'];
+					}
 
-			        if (isset($stats['term_freq'])) {
-			        	$do->TermFreq = $stats['term_freq'];
-			        }
-			        $terms->push($do);
-		        }
+					if (isset($stats['term_freq'])) {
+						$do->TermFreq = $stats['term_freq'];
+					}
+					$terms->push($do);
+				}
 
-		        $config = \GridFieldConfig_RecordViewer::create(100);
+				$config = \GridFieldConfig_RecordViewer::create(100);
 				$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
-		            'Term' => 'Term',
-		            'TTF' => 'Total term frequency (how often a term occurs in all documents)',
-		            'DocFreq' => 'n documents with this term',
-		            'TermFreq'=> 'n times this term appears in this field'
-		        ));
+					'Term' => 'Term',
+					'TTF' => 'Total term frequency (how often a term occurs in all documents)',
+					'DocFreq' => 'n documents with this term',
+					'TermFreq'=> 'n times this term appears in this field'
+				));
 
-		       $underscored = str_replace('.', '_', $field);
+			   $underscored = str_replace('.', '_', $field);
 
-		        $gridField = new \GridField(
-		            'TermsFor'.$underscored, // Field name
-		            $field.'TITLE'.$field, // Field title
-		            $terms,
-		            $config
-		        );
-		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
+				$gridField = new \GridField(
+					'TermsFor'.$underscored, // Field name
+					$field.'TITLE'.$field, // Field title
+					$terms,
+					$config
+				);
+			   $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
 			}
 
 		}
 
-	    return $fields;
+		return $fields;
 	}
 
 
