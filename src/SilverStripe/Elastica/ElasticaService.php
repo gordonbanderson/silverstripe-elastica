@@ -438,7 +438,7 @@ class ElasticaService {
 	 * @param string $class Class Name
 	 * @param  int $pageSize Optional page size, only a max of this number of records returned
 	 * @param  int $page Page number to return
-	 * @return array $records
+	 * @return \DataList $records
 	 */
 	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
 		$offset = $page * $pageSize;
