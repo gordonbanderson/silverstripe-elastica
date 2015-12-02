@@ -14,7 +14,7 @@ class RangedAggregation {
 		$this->Title = $title;
 		$this->Range = new \Elastica\Aggregation\Range($title);
 		$this->Range->setField($field);
-		self::$ranged_aggregations[$title] = $this; ;
+		self::$ranged_aggregations[$title] = $this;
 	}
 
 
