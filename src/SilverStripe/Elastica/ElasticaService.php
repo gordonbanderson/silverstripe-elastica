@@ -65,6 +65,13 @@ class ElasticaService {
 	private $highlightedFields = array();
 
 
+	/**
+	 * The number of documents to index currently for this locale
+	 * @var integer The number of documents left to index
+	 */
+	private $nDocumentsToIndexForLocale = 0;
+
+
 	/*
 	Set the highlight fields for subsequent searches
 	 */
@@ -494,8 +501,6 @@ class ElasticaService {
 		$this->nDocumentsToIndexForLocale = $amount;
 		$this->nDocumentsIndexed = 0;
 
-		$index = $this->getIndex();
-
 		foreach($this->getIndexedClasses() as $classname) {
 			ElasticaUtil::message("Indexing class $classname");
 
@@ -557,7 +562,8 @@ class ElasticaService {
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 		if(isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
-			$result = \Injector::inst()->create($settingsClassName);
+			\Injector::inst()->create($settingsClassName);
+			$this->fail('Test should have failed, no index settings provided for locale');
 		} else {
 			throw new \Exception('ERROR: No index settings are provided for locale ' . $this->locale . "\n");
 
@@ -604,29 +610,22 @@ class ElasticaService {
 
 	/**
 	 * Get the number of indexing requests made.  Used for testing bulk indexing
-	 * @return [type] [description]
+	 * @return integer indexing request counter
 	 */
 	public function getIndexingRequestCtr() {
 		return self::$indexing_request_ctr;
 	}
 
 
-/*
-curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvector?pretty' -d '{
-  "fields" : ["Title", "Title.standard","Description","Description.standard"],
-  "offsets" : true,
-  "payloads" : true,
-  "positions" : true,
-  "term_statistics" : true,
-  "field_statistics" : true
- */
-
+	/**
+	 * Get the term vectors in the index for the provided  Searchable is_object
+	 * @param  Searchable $searchable An object that implements Searchable
+	 * @return array             array of field name to terms indexed
+	 */
 	public function getTermVectors($searchable) {
 		$params = array();
 
 		$fieldMappings = $searchable->getElasticaMapping()->getProperties();
-
-
 		$fields = array_keys($fieldMappings);
 		$allFields = array();
 		foreach($fields as $field) {
@@ -643,11 +642,7 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 				}
 			}
 		}
-
-
 		sort($allFields);
-
-
 		$data = array(
 			'fields' => $allFields,
 			'offsets' => true,
@@ -657,7 +652,6 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 			'field_statistics' => true
 		);
 
-		//FlickrPhoto/3829/_termvector
 		$path = $this->getIndex()->getName() . '/' . $searchable->ClassName . '/' . $searchable->ID . '/_termvector';
 		$response = $this->getClient()->request(
 				$path,
@@ -666,9 +660,7 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 				$params
 		);
 
-
 		$data = $response->getData();
 		return $data['term_vectors'];
 	}
-
 }
