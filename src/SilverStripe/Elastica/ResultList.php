@@ -47,14 +47,14 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	 *
 	 * @param ElasticaService $service object used to communicate with Elasticsearch
 	 * @param Query           $query   Elastica query object, created via QueryGenerator
-	 * @param string          $q       the text from the query
+	 * @param string          $queryText       the text from the query
 	 * @param array           $filters Selected filters, used for aggregation purposes only
 	 *                                 (i.e. query already filtered prior to this)
 	 */
-	public function __construct(ElasticaService $service, Query $query, $q, $filters = array()) {
+	public function __construct(ElasticaService $service, Query $query, $queryText, $filters = array()) {
 		$this->service = $service;
 		$this->query = $query;
-		$this->originalQueryText = $q;
+		$this->originalQueryText = $queryText;
 		$this->filters = $filters;
 	}
 
@@ -138,21 +138,21 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$aggsTemplate = new \ArrayList();
 
 			// Convert the buckets into a form suitable for SilverStripe templates
-			$q = $this->originalQueryText;
+			$queryText = $this->originalQueryText;
 
 			// if not search term remove it and aggregate with a blank query
-			if ($q == '' && sizeof($aggs) > 0) {
+			if ($qqueryText== '' && sizeof($aggs) > 0) {
 				$params = $this->query->getParams();
 				unset($params['query']);
 				$this->query->setParams($params);
-				$q = '';
+				$queryText = '';
 			}
 
 			// get the base URL for the current facets selected
 			$baseURL = \Controller::curr()->Link().'?';
 			$prefixAmp = false;
-			if ($q !== '') {
-				$baseURL .= 'q='.urlencode($q);
+			if ($queryText !== '') {
+				$baseURL .= 'q='.urlencode($queryText);
 				$prefixAmp = true;
 			}
 
@@ -260,7 +260,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 	}
 
 	public function getIterator() {
-		//return new \ArrayIterator($this->toArray());
 		return $this->toArrayList()->getIterator();
 	}
 
