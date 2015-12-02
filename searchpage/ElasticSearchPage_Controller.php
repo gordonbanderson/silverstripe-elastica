@@ -1,5 +1,20 @@
 <?php
 
+use Elastica\Document;
+use Elastica\Query;
+use \SilverStripe\Elastica\ResultList;
+use Elastica\Query\QueryString;
+use Elastica\Aggregation\Filter;
+use Elastica\Filter\Term;
+use Elastica\Filter\BoolAnd;
+use Elastica\Aggregation\Terms;
+use Elastica\Query\Filtered;
+use Elastica\Query\Range;
+use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\Searchable;
+use \SilverStripe\Elastica\QueryGenerator;
+use \SilverStripe\Elastica\ElasticaUtil;
+
 class ElasticSearchPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array('SearchForm', 'submit', 'index', 'similar');
