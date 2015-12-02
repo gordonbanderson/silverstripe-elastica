@@ -20,7 +20,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Description' => 1,'Title' => 1);
+		$fields = array('Description' => 1, 'Title' => 1);
 		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
 
@@ -45,7 +45,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
 
-		$fields = array('Description.standard' => 1,'Title.standard' => 1);
+		$fields = array('Description.standard' => 1, 'Title.standard' => 1);
 		$results = $es->moreLikeThis($fp, $fields, true);
 
 		echo "RESULTS:\n";
@@ -130,7 +130,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
 		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
+			echo $result->ID . ' : ' . $result->Title . "\n";
 		}
 		$this->assertEquals(32, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
@@ -156,7 +156,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
 		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
+			echo $result->ID . ' : ' . $result->Title . "\n";
 		}
 		$this->assertEquals(14, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
@@ -219,12 +219,12 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 				$wordFound = false;
 				$lcquery = explode(' ', strtolower($query));
 				foreach ($lcquery as $part) {
-					$bracketed = '<strong class="hl">'.$part.'</strong>';
+					$bracketed = '<strong class="hl">' . $part . '</strong>';
 					if (strpos($snippet, $bracketed) > 0) {
 						$wordFound = true;
 					}
 				}
-				$this->assertTrue($wordFound,'Highlight should have been found');
+				$this->assertTrue($wordFound, 'Highlight should have been found');
 			}
 		}
 	}
@@ -249,12 +249,12 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 				$wordFound = false;
 				$lcquery = explode(' ', strtolower($query));
 				foreach ($lcquery as $part) {
-					$bracketed = '<strong class="hl">'.$part.'</strong>';
+					$bracketed = '<strong class="hl">' . $part . '</strong>';
 					if (strpos($snippet, $bracketed) > 0) {
 						$wordFound = true;
 					}
 				}
-				$this->assertTrue($wordFound,'Highlight should have been found');
+				$this->assertTrue($wordFound, 'Highlight should have been found');
 			}
 		}
 	}
@@ -276,9 +276,9 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	private function makeCode($paginated) {
 		$results = $paginated->getList()->toArray();
 		$ctr = 0;
-		echo '$result = $paginated->getList()->toArray();'."\n";
+		echo '$result = $paginated->getList()->toArray();' . "\n";
 		foreach ($results as $result) {
-			echo '$this->assertEquals("'.$result->Title.'", $results['.$ctr.']->Title);'."\n";
+			echo '$this->assertEquals("' . $result->Title . '", $results[' . $ctr . ']->Title);' . "\n";
 			$ctr++;
 		}
 	}
