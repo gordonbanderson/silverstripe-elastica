@@ -8,63 +8,7 @@ use SilverStripe\Elastica\QueryGenerator;
  * @package elastica
  */
 class AggregationUnitTest extends ElasticsearchBaseTest {
-	//public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
-
-
-/*
-
-//Test code generator
-
-
-		$aggCtr = 0;
-		foreach ($aggregations as $agg) {
-			echo "\n";
-			echo "//Asserting name of aggregate as {$agg->Name}\n";
-			echo '$agg = $aggregations['.$aggCtr."];\n";
-			echo '$this->assertEquals("'.$agg->Name."\", '{$agg->Name}');\n"; //FIXME
-			echo '$buckets = $agg->Buckets->toArray();'."\n";
-			$aggCtr++;
-			$bucketCtr = 0;
-			foreach ($agg->Buckets->toArray() as $bucket) {
-				echo "\n//Asserting aggregate of {$agg->Name}, {$bucket->Key} has count {$bucket->DocumentCount}\n";
-				echo '$this->assertEquals("'.$bucket->Key.'", $buckets['.$bucketCtr."]->Key);\n";
-				echo '$this->assertEquals('.$bucket->DocumentCount.', $buckets['.$bucketCtr."]->DocumentCount);\n";
-
-				$bucketCtr++;
-			}
-		}
-
-
-		$aggCtr = 0;
-		foreach ($aggregations as $agg) {
-			echo "\n";
-			echo "//Asserting name of aggregate as {$agg->Name}\n";
-			echo '$agg = $aggregations['.$aggCtr."];\n";
-			echo '$this->assertEquals("'.$agg->Name."\", '{$agg->Name}');\n";
-			echo '$buckets = $agg->Buckets->toArray();'."\n";
-			$aggCtr++;
-			$bucketCtr = 0;
-			echo '$bucketSum = 0;'."\n";
-			foreach ($agg->Buckets->toArray() as $bucket) {
-				echo "\n//Asserting aggregate of {$agg->Name}, {$bucket->Key} has count {$bucket->DocumentCount}\n";
-				echo '$this->assertEquals("'.$bucket->Key.'", $buckets['.$bucketCtr."]->Key);\n";
-				echo '$this->assertEquals('.$bucket->DocumentCount.', $buckets['.$bucketCtr."]->DocumentCount);\n";
-				echo '$bucketSum += $buckets['.$bucketCtr.']->DocumentCount;'."\n";
-				$bucketCtr++;
-			}
-			echo '$this->assertEquals(100, $bucketSum);'."\n";
-		}
-
-
- */
-
-
-
-
-	public function testGetResults() {
-		// several checks needed  here including aggregations
-	}
 
 
 	public function testAllFieldsQuery() {
@@ -260,12 +204,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		$sort = array('TakenAt' => 'desc');
 		$this->assertEquals($sort, $query['sort']);
-
-		$q = new \stdClass();
-		print_r($resultList->getQuery());
-
 		$this->assertFalse(isset($query['query']));
-		// WAS $this->assertEquals($q, $query['query']['match_all']);
 
 		$aggs = array();
 		$aggs['Aperture'] = array();
@@ -276,7 +215,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//check aggregations
 		$aggregations = $resultList->getAggregations();
-		$aggCtr = 0;
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
 		$this->assertEquals("ISO", $agg->Name);
@@ -957,9 +895,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 	private function checkDrillingDownHasHappened($filteredAggregations, $originalAggregations) {
 		$aggCtr = 0;
 
-		$names = array();
 		foreach ($filteredAggregations as $filteredAgg) {
-
 			$origAgg = $originalAggregations[$aggCtr];
 			$bucketCtr = 0;
 			$origBuckets = $origAgg->Buckets->toArray();
@@ -985,9 +921,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 			}
 
 			$aggCtr++;
-
-
-
 		}
 	}
 
