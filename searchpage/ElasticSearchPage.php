@@ -410,19 +410,7 @@ class ElasticSearchPage extends Page {
 			$result->setButtonText($buttonTextOverride);
 		}
 
-		/*
-		A field needs to be chosen for autocompletion, if not no autocomplete
-		 */
-		if($this->AutoCompleteFieldID > 0) {
-			$qField->setAttribute('data-autocomplete', 'true');
-			$qField->setAttribute('data-autocomplete-field', 'Title');
-			$qField->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
-			$qField->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
-			$qField->setAttribute('data-autocomplete-source', $this->Link());
-			$qField->setAttribute('data-autocomplete-function',
-			$this->AutocompleteFunction()->Slug);
-		}
-
+		ElasticaUtil::addAutocompleteToQueryField($qField);
 		return $result;
 	}
 
