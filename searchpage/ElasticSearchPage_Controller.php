@@ -28,7 +28,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		Requirements::css("elastica/css/elastica.css");
 
 		$this->SearchPage = Controller::curr()->dataRecord;
-
 	}
 
 
@@ -45,6 +44,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data = $this->initialiseDataArray();
 
 		$es = $this->primeElasticSearcherFromRequest();
+
 		$this->setMoreLikeThisParamsFromRequest($es);
 		$es->setPageLength($this->SearchPage->ResultsPerPage);
 
@@ -139,6 +139,17 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
+	/**
+	 * Set the start page from the request and results per page for a given searcher object
+	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
+	 */
+	private function setStartParamsFromRequest(&$elasticSearcher) {
+		// start, and page length, i.e. pagination
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
+		$elasticSearcher->setStart($start);
+		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
+	}
 
 
 	/*
@@ -149,7 +160,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data = $this->initialiseDataArray();
 		$es = $this->primeElasticSearcherFromRequest();
 		$es->setPageLength($this->SearchPage->ResultsPerPage);
-
 
 		// Do not show suggestions if this flag is set
 		$ignoreSuggestions = null !== $this->request->getVar('is');
@@ -278,12 +288,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$elasticaSearchPage = Controller::curr()->dataRecord;
 		$identifierField = new HiddenField('identifier');
 		$identifierField->setValue($elasticaSearchPage->Identifier);
+
 		$fields->push($identifierField);
 		$queryField = $fields->fieldByName('q');
 
 		 if($this->isParamSet('q') && $this->isParamSet('sfid')) {
 		 	$sfid = $this->request->getVar('sfid');
 			if($sfid == $elasticaSearchPage->Identifier) {
+
 				$queryText = $this->request->getVar('q');
 				$queryField->setValue($queryText);
 			}
