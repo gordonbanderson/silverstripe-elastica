@@ -120,7 +120,7 @@ class QueryGenerator {
 	 * without selected filters.  Extracting this logic into a separate class makes testing much
 	 * faster and can be used for testing new cases
 	 *
-	 * @return [type]            [description]
+	 * @return \Elastica\Query           Query object suitable for searching using the Elastica library
 	 */
 	public function generateElasticaQuery() {
 		$queryTextExists = ($this->queryText != '');
@@ -129,7 +129,6 @@ class QueryGenerator {
 		if ($this->selectedFilters == null) {
 			$this->selectedFilters = array();
 		}
-		$hasSelectedFilters = sizeof($this->selectedFilters) > 0;
 
 		$this->manipulatorInstance = null;
 		if ($this->manipulator) {
@@ -148,6 +147,8 @@ class QueryGenerator {
 		}
 
 		$query = $this->addFilters($textQuery);
+
+		//This ensures that the original query text is available to search helpers
 		$query->OriginalQueryText = $this->queryText;
 
 		//This needs to be query object of some form
@@ -179,29 +180,9 @@ class QueryGenerator {
 	}
 
 
-	/*
-	curl -XPOST "http://localhost:9200/elasticademo_en_us/FlickrPhoto/_search?pretty" -d'
-{
-   "size": 10,
-   "query": {
-      "match": {
-         "Title.autcomplete": {
-            "query": "will",
-            "operator": "and"
-         }
-      }
-   },
-    "highlight" : {
-        "fields" : {
-            "Title.autcomplete" : {}
-        }
-    }
-}'
-
-
-
-
-
+	/**
+	 * Generate a query for autocomplete
+	 * @return \Elastica\Query Autocompletion query for use with Elastica library
 	 */
 	public function generateElasticaAutocompleteQuery() {
 		$field = array_keys($this->fields)[0];
@@ -218,7 +199,7 @@ class QueryGenerator {
 		);
 
 		// The query clause can only have one entry, so a bit of mangling
-		if ($this->selectedFilters) {
+		if (!empty($this->selectedFilters)) {
 			$filtered = array();
 			$filtered['query'] = $data['query'];
 			unset($data['query']);
@@ -234,7 +215,6 @@ class QueryGenerator {
     }
 }
 */
-		print_r($data);
 		$query = new Query($data);
 		return $query;
 	}
@@ -337,14 +317,6 @@ class QueryGenerator {
 	    }
 	}
 	'
-
-	In the case of an empty string change the query to a wildcard of '*'.
-
-	FIXME: Ideally remove the query entirely, cannot immediately see how to do it in Elastica
-	This works at curl level:
-
-	curl -XGET 'http://localhost:9200/elastica_ss_module_test_en_us/_search?pretty'
-
 	 */
 	private function simpleTextQuery() {
 		// this will search all fields
@@ -374,7 +346,6 @@ class QueryGenerator {
 				//WIP
 				$textQuery = new MatchAll();
 			}
-			// else {otherwise leave blank, which will then make use of the sort order}
 		}
 
 		// If there is text, search for it regardless
@@ -384,8 +355,6 @@ class QueryGenerator {
 
 		if ($textQuery instanceof MultiMatch) {
 			$elasticaFields = $this->convertWeightedFieldsForElastica($this->fields);
-	        //$textQuery->setFields(array('Title^4','Content','Content.*'));
-	        //$fieldsCSV = implode(',', $fieldsToSearch);
 	        $textQuery->setFields($elasticaFields);
 	        $textQuery->setType('most_fields');
 
