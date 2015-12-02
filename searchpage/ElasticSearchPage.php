@@ -298,11 +298,7 @@ class ElasticSearchPage extends Page {
 			$result->error('The identifier ' . $this->Identifier . ' already exists');
 		}
 
-
-		error_log('CTS:' . $this->ClassesToSearch);
-
 		// now check classes to search actually exist, assuming in site tree not set
-		error_log('STO:' . $this->SiteTreeOnly);
 		if(!$this->SiteTreeOnly) {
 			if($this->ClassesToSearch == '') {
 				$result->error('At least one searchable class must be available, or SiteTreeOnly flag set');
@@ -363,7 +359,6 @@ class ElasticSearchPage extends Page {
 
 		if($newSearchableFields->count() > 0) {
 			foreach($newSearchableFields->getIterator() as $newSearchableField) {
-				error_log('NEW FIELD:' . $newSearchableField->Name);
 				$newSearchableField->Active = true;
 				$newSearchableField->Weight = 1;
 
@@ -410,13 +405,15 @@ class ElasticSearchPage extends Page {
 			$result->setButtonText($buttonTextOverride);
 		}
 
-		ElasticaUtil::addAutocompleteToQueryField(
-			$qField,
-			$this->ClassesToSearch,
-			$this->SiteTreeOnly,
-			$this->Link(),
-			$this->AutocompleteFunction()->Slug
-		);
+		if($this->AutoCompleteFieldID > 0) {
+			ElasticaUtil::addAutocompleteToQueryField(
+				$qField,
+				$this->ClassesToSearch,
+				$this->SiteTreeOnly,
+				$this->Link(),
+				$this->AutocompleteFunction()->Slug
+			);
+		}
 		return $result;
 	}
 
