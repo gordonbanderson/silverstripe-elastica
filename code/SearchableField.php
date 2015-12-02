@@ -22,7 +22,7 @@ class SearchableField extends DataObject {
 	private static $display_fields = array('Name');
 
 
-	function getCMSFields() {
+	public function getCMSFields() {
 		$fields = new FieldList();
 		$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
 		$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
