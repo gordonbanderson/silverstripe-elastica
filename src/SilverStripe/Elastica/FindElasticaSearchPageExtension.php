@@ -4,8 +4,10 @@ class FindElasticaSearchPageExtension extends Extension {
 
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
+	private $_CachedLastEdited = null;
 
-	function SearchPageURI($identifier) {
+
+	public function SearchPageURI($identifier) {
 		$result = '';
 
 		$searchPage = $this->getSearchPage($identifier);
@@ -17,7 +19,7 @@ class FindElasticaSearchPageExtension extends Extension {
 	}
 
 
-	function SearchPageForm($identifier, $buttonTextOverride = null) {
+	public function SearchPageForm($identifier, $buttonTextOverride = null) {
 		$result = null;
 
 		$searchPage = $this->getSearchPage($identifier);
