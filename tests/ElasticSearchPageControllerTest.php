@@ -33,10 +33,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$esp2->ContentForEmptySearch = 'Content for empty search';
 		$esp2->write();
 
-		//Simulate selecting Title and Description as searchable fields in the CMS interface
-		$sfs = new ArrayList();
-
-		#FIXME fixed - how to edit extra extra fields programatically
+		#NOTE: how to edit extra extra fields programatically
 		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
 			'Weight' => 1);
 		$esfs2 = $esp2->ElasticaSearchableFields();
@@ -57,48 +54,10 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 			}
 		}
 		$esp->write();
-
-
-/*
-		$espf1 = new SearchableField();
-		$espf1->ElasticPageID = $esp->ID;
-		$espf1->Active = true;
-		$espf1->Searchable = true;
-		$espf1->SimilarSearchable = true;
-		$espf1->Name = 'Title';
-		$espf1->Type = 'string';
-		$esp->ElasticaSearchableFields()->add($espf1, $extraFields);
-		$esp2->ElasticaSearchableFields()->add($espf1, $extraFields);
-
-		$espf2 = new SearchableField();
-		$espf2->ElasticPageID = $esp->ID;
-		$espf2->Active = true;
-		$espf2->Searchable = true;
-		$espf2->SimilarSearchable = true;
-		$espf2->Name = 'Description';
-		$espf2->Type = 'string';
-		$esp->ElasticaSearchableFields()->add($espf2);
-		$esp2->ElasticaSearchableFields()->add($espf2);
-*/
 		$esp->publish('Stage','Live');
 		$esp2->publish('Stage','Live');
 		$this->ElasticSearchPage = $esp;
 		$this->ElasticSearchPage2= $esp2;
-
-
-		echo "CHECK MYSQL";
-		/*
-		ElasticSearchPage:
-  search:
-    Title: Search
-    Content: Example Search Page
-    ClassesToSearch: ''
-    ResultsPerPage: 4
-    SiteTreeOnly: true
-    Identifier: testsearchpage
-    IndexingOff: true
-    URLSegment: search
-		 */
 	}
 
 
@@ -396,9 +355,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/asdfsadfsfd/4";
-		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Class asdfsadfsfd is either not found or not searchable');
 	}
@@ -408,7 +365,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77?ServerDown=1";
-		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -418,7 +374,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Zealand&ServerDown=1";
-		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -428,8 +383,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77";
-		$response = $this->get($url);
-		print_r($response);
+
 		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
