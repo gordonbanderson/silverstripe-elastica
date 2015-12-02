@@ -975,7 +975,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(10);
-		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
 		$es->setQueryResultManipulator('FlickrPhotoTOElasticaSearchHelper');
 

@@ -430,10 +430,8 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength(100);
-		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
 		$results = $es->search($query, $fields);
-
 		$this->assertEquals($resultsExpected, $results->count());
 		return $results->count();
 	}
@@ -448,6 +446,4 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));
 		return $resultList;
 	}
-
-
 }
