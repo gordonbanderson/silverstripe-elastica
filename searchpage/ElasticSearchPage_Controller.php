@@ -55,17 +55,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es = new ElasticSearcher();
 
 		$this->setStartParamsFromRequest($es);
-
-
-		$es->setMinTermFreq($this->MinTermFreq);
-		$es->setMaxTermFreq($this->MaxTermFreq);
-		$es->setMinDocFreq($this->MinDocFreq);
-		$es->setMaxDocFreq($this->MaxDocFreq);
-		$es->setMinWordLength($this->MinWordLength);
-		$es->setMaxWordLength($this->MaxWordLength);
-		$es->setMinShouldMatch($this->MinShouldMatch);
-		$es->setSimilarityStopWords($this->SimilarityStopWords);
-
+		$this->setMoreLikeThisParamsFromRequest($es);
+		$es->setPageLength($ep->ResultsPerPage);
 
 		// filter by class or site tree
 		if($ep->SiteTreeOnly) {
@@ -74,7 +65,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} else {
 			$es->setClasses($ep->ClassesToSearch);
 		}
-
 
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
@@ -159,17 +149,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
-	/**
-	 * Set the start page from the request and results per page for a given searcher object
-	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
-	 */
-	private function setStartParamsFromRequest(&$elasticSearcher) {
-		// start, and page length, i.e. pagination
-		$startParam = $this->request->getVar('start');
-		$start = isset($startParam) ? $startParam : 0;
-		$elasticSearcher->setStart($start);
-		$elasticSearcher->setPageLength($ep->ResultsPerPage);
-	}
 
 
 	/*
@@ -193,6 +172,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es = new ElasticSearcher();
 
 		$this->setStartParamsFromRequest($es);
+		$es->setPageLength($ep->ResultsPerPage);
+
 
 		// Do not show suggestions if this flag is set
 		$ignoreSuggestions = null !== $this->request->getVar('is');
@@ -364,6 +345,35 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	 */
 	private function isParamSet($paramName) {
 		return !empty($this->request->getVar($paramName));
+	}
+
+
+
+	/**
+	 * Set the start page from the request and results per page for a given searcher object
+	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
+	 */
+	private function setStartParamsFromRequest(&$elasticSearcher) {
+		// start, and page length, i.e. pagination
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
+		$elasticSearcher->setStart($start);
+	}
+
+
+	/**
+	 * Set the admin configured similarity parameters
+	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticaSearcher object
+	 */
+	private function setMoreLikeThisParamsFromRequest(&$elasticSearcher) {
+		$elasticSearcher->setMinTermFreq($this->MinTermFreq);
+		$elasticSearcher->setMaxTermFreq($this->MaxTermFreq);
+		$elasticSearcher->setMinDocFreq($this->MinDocFreq);
+		$elasticSearcher->setMaxDocFreq($this->MaxDocFreq);
+		$elasticSearcher->setMinWordLength($this->MinWordLength);
+		$elasticSearcher->setMaxWordLength($this->MaxWordLength);
+		$elasticSearcher->setMinShouldMatch($this->MinShouldMatch);
+		$elasticSearcher->setSimilarityStopWords($this->SimilarityStopWords);
 	}
 
 }
