@@ -54,11 +54,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
 
-		// start, and page length, i.e. pagination
-		$startParam = $this->request->getVar('start');
-		$start = isset($startParam) ? $startParam : 0;
-		$es->setStart($start);
-		$es->setPageLength($ep->ResultsPerPage);
+		$this->setStartParamsFromRequest($es);
 
 
 		$es->setMinTermFreq($this->MinTermFreq);
@@ -163,6 +159,19 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
+	/**
+	 * Set the start page from the request and results per page for a given searcher object
+	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
+	 */
+	private function setStartParamsFromRequest(&$elasticSearcher) {
+		// start, and page length, i.e. pagination
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
+		$elasticSearcher->setStart($start);
+		$elasticSearcher->setPageLength($ep->ResultsPerPage);
+	}
+
+
 	/*
 	Display the search form. If the query parameter exists, search against Elastica
 	and render results accordingly.
@@ -183,12 +192,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
 
-		// start, and page length, i.e. pagination
-		$startParam = $this->request->getVar('start');
-		$start = isset($startParam) ? $startParam : 0;
-		$es->setStart($start);
-		$es->setPageLength($ep->ResultsPerPage);
-
+		$this->setStartParamsFromRequest($es);
 
 		// Do not show suggestions if this flag is set
 		$ignoreSuggestions = null !== $this->request->getVar('is');
