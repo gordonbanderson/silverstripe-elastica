@@ -355,14 +355,14 @@ class QueryGenerator {
 
 		if ($textQuery instanceof MultiMatch) {
 			$elasticaFields = $this->convertWeightedFieldsForElastica($this->fields);
-	        $textQuery->setFields($elasticaFields);
-	        $textQuery->setType('most_fields');
+			$textQuery->setFields($elasticaFields);
+			$textQuery->setType('most_fields');
 
-	        //Setting the lenient flag means that numeric fields can be searched for text values
-	        $textQuery->setParam('lenient', true);
+			//Setting the lenient flag means that numeric fields can be searched for text values
+			$textQuery->setParam('lenient', true);
 		}
 
-        return $textQuery;
+		return $textQuery;
 	}
 
 
