@@ -74,24 +74,8 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Search for stop words and assert that they are not found
 	 */
 	public function testConfiguredStopWords() {
-		//Commenting::set_config_value('CommentableItem','require_moderation', true);
 		$englishIndex = new EnglishIndexSettings();
 		$stopwords = $englishIndex->getStopwords();
-		//print_r($stopwords);
-		//
-		// FIXME lenient flag needs added
-		$allFields = array(
-			'Title' => 1,
-			'FlickrID' => 1,
-			'Description' => 1,
-			'TakenAt' => 1,
-			'FirstViewed' => 1,
-			'Aperture' => 1,
-			'ShutterSpeed' => 1,
-			'FocalLength35mm' => 1,
-			'ISO' => 1
-		);
-
 		$expected = array('that','into','a','an','and','are','as','at','be','but','by','for','if',
 			'in','into','is','it','of','on','or','such','that','the','their','then','there','these',
 			'they','this','to','was','will','with');
@@ -216,7 +200,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	 */
 	public function testToArrayFunction() {
 		$resultList = $this->getResultsFor('New Zealand',1);
-		$expected = array();
 		$result = $resultList->toArray();
 
 		$this->assertEquals(1,sizeof($result));
@@ -232,7 +215,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	 */
 	public function testToNestedArrayFunction() {
 		$resultList = $this->getResultsFor('New Zealand',4);
-		$expected = array();
 		$result = $resultList->toNestedArray();
 
 		$this->assertEquals(4,sizeof($result));
@@ -326,8 +308,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 
 	public function testResultListToArray() {
-		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO')); //, 'Type' => 'string'));
-
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
 		foreach ($sfs->getIterator() as $sf) {
 			echo "T2 $sf->ClazzName $sf->Name $sf->Type\n";
@@ -352,8 +332,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListFirstNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhotoTO();
-			$resultList->first(4,$fp);
+			$resultList->first();
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
 			$this->assertEquals('Not implemented', $e->getMessage());
@@ -364,8 +343,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListLastNotImplemented() {
 		try {
 			$resultList = $this->getResultsFor('New Zealand',10);
-			$fp = new FlickrPhotoTO();
-			$resultList->last(4,$fp);
+			$resultList->last();
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
 			$this->assertEquals('Not implemented', $e->getMessage());
@@ -397,10 +375,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testPriming() {
 		$searchableClasses = SearchableClass::get();
-		/*foreach ($searchableClasses->getIterator() as $key) {
-			echo $key->Name."\n";
-		}*/
-
 		$sortedNames = $searchableClasses->Map('Name')->toArray();
 		sort($sortedNames);
 
@@ -414,8 +388,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		'6' => 'SiteTree'
 		);
 		$this->assertEquals($expected, $sortedNames);
-
-
 
 		$searchableFields = SearchableField::get();
 		$expected = array(
@@ -461,18 +433,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
 		$results = $es->search($query, $fields);
-		$ctr = 0;
-		/*echo "{$results->count()} items found searching for '$query'\n\n";
-		foreach ($results as $result) {
-			$ctr++;
-			echo("($ctr) ".$result->Title."\n");
-			if ($result->SearchHighlightsByField->Content) {
-				foreach ($result->SearchHighlightsByField->Content as $highlight) {
-					echo("- ".$highlight->Snippet);
-				}
-			}
-		}
-		*/
 
 		$this->assertEquals($resultsExpected, $results->count());
 		return $results->count();
@@ -483,7 +443,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength($pageLength);
-		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
 		$resultList = $es->search($query, $fields)->getList();
 		$this->assertEquals('SilverStripe\Elastica\ResultList', get_class($resultList));
