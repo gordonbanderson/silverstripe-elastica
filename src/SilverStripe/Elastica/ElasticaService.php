@@ -288,10 +288,10 @@ class ElasticaService {
 	 * Ensure that there is a mapping present
 	 *
 	 * @param \Elastica\Type Type object
-	 * @param \DataObject Data record
+	 * @param SilverStripe\Elastica\Searchable DataObject that implements Searchable
 	 * @return \Elastica\Mapping Mapping object
 	 */
-	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
+	protected function ensureMapping(\Elastica\Type $type, SilverStripe\Elastica\Searchable $record) {
 		$mapping = $type->getMapping();
 		if($mapping == array()) {
 			$this->ensureIndex();
@@ -336,7 +336,6 @@ class ElasticaService {
 	 * indexed immediately.
 	 */
 	public function startBulkIndex() {
-		$index = $this->getIndex();
 		$this->buffered = true;
 	}
 
@@ -439,7 +438,7 @@ class ElasticaService {
 	 * @param string $class Class Name
 	 * @param  int $pageSize Optional page size, only a max of this number of records returned
 	 * @param  int $page Page number to return
-	 * @return \DataObject[] $records
+	 * @return array $records
 	 */
 	protected function recordsByClassConsiderVersioned($class, $pageSize = 0, $page = 0) {
 		$offset = $page * $pageSize;
