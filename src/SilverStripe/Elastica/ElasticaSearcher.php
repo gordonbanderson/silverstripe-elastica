@@ -230,6 +230,10 @@ class ElasticSearcher {
 	/*
 	Set the highlight fields for subsequent searches
 	 */
+
+	/**
+	 * @param string[] $newHighlightedFields
+	 */
 	public function setHighlightedFields($newHighlightedFields) {
 		$this->highlightedFields = $newHighlightedFields;
 	}
@@ -242,7 +246,7 @@ class ElasticSearcher {
 	 * @param  string $queryText query string, e.g. 'New Zealand'
 	 * @param array $fieldsToSearch Mapping of name to an array of mapping Weight and Elastic mapping,
 	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
-	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
+	 * @return \PaginatedList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
 	public function search($queryText, $fieldsToSearch = null,  $testMode = false) {
 		if ($this->locale == null) {
@@ -307,6 +311,10 @@ class ElasticSearcher {
 
 
 	/* Perform an autocomplete search */
+
+	/**
+	 * @param string $queryText
+	 */
 	public function autocomplete_search($queryText, $field) {
 		if ($this->locale == null) {
 			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
@@ -362,7 +370,7 @@ class ElasticSearcher {
 	 * @param  array $fieldsToSearch  array of fieldnames to search, mapped to weighting
 	 * @param  $$testMode Use all shards, not just one, for consistent results during unit testing. See
 	 *         https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-is-broken.html#relevance-is-broken
-	 * @return resultList  List of results
+	 * @return \PaginatedList  List of results
 	 */
 	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
 		echo "INDEXED ITEM:".$indexedItem;
@@ -469,6 +477,9 @@ class ElasticSearcher {
 		return $result;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getSuggestedQuery() {
 		return $this->SuggestedQuery;
 	}
