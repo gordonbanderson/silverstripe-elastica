@@ -37,6 +37,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
+	/**
+	 * @param string $queryText
+	 */
 	private function getDefaultSuggest($queryText) {
 		return array(
 				'query-phrase-suggestions' => array(

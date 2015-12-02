@@ -2,7 +2,7 @@
 
 class ElasticSearchPage_Controller extends Page_Controller {
 
-	private static $allowed_actions = array('SearchForm', 'submit','index','similar');
+	private static $allowed_actions = array('SearchForm', 'submit', 'index', 'similar');
 
 	public function init() {
 		parent::init();
@@ -10,7 +10,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		Requirements::javascript(THIRDPARTY_DIR . '/jquery/jquery.js');
 		Requirements::javascript("elastica/javascript/jquery.autocomplete.js");
 		Requirements::javascript("elastica/javascript/elastica.js");
-        Requirements::css("elastica/css/elastica.css");
+		Requirements::css("elastica/css/elastica.css");
 	}
 
 
@@ -56,7 +56,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 		// filter by class or site tree
-		if ($ep->SiteTreeOnly) {
+		if($ep->SiteTreeOnly) {
 			T7; //FIXME test missing
 			$es->addFilter('IsInSiteTree', true);
 		} else {
@@ -84,9 +84,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		try {
 			// Simulate server being down for testing purposes
-	        if (isset($_GET['ServerDown'])) {
-	        	throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
-	        }
+			if (isset($_GET['ServerDown'])) {
+				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
+			}
 			if (class_exists($class)) {
 				$instance = \DataObject::get_by_id($class,$instanceID);
 
@@ -102,10 +102,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 				$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
 				$fieldToTerms = new ArrayList();
-				foreach (array_keys($moreLikeThisTerms) as $fieldName) {
+				foreach(array_keys($moreLikeThisTerms) as $fieldName) {
 					$readableFieldName = str_replace('.standard', '', $fieldName);
 					$fieldTerms = new ArrayList();
-					foreach ($moreLikeThisTerms[$fieldName] as $value) {
+					foreach($moreLikeThisTerms[$fieldName] as $value) {
 						$do = new DataObject();
 						$do->Term = $value;
 						$fieldTerms->push($do);
@@ -132,14 +132,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// calculate time
 		$endTime = microtime(true);
-		$elapsed = round(100*($endTime-$startTime))/100;
+		$elapsed = round(100 * ($endTime - $startTime)) / 100;
 
 		// store variables for the template to use
 		$data['ElapsedTime'] = $elapsed;
 		$data['Elapsed'] = $elapsed;
 
 		// allow the optional use of overriding the search result page, e.g. for photos, maps or facets
-		if ($this->hasExtension('PageControllerTemplateOverrideExtension')) {
+		if($this->hasExtension('PageControllerTemplateOverrideExtension')) {
 			return $this->useTemplateOverride($data);
 		} else {
 			return $data;
@@ -179,23 +179,23 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// query string
 		$queryText = '';
-		if (isset($_GET['q'])) {
+		if(isset($_GET['q'])) {
 			$queryText = $_GET['q'];
 		}
 
 		$testMode = isset($_GET['TestMode']);
 
 		// filters for aggregations
-		$ignore = array('url', 'start','q','is');
+		$ignore = array('url', 'start', 'q', 'is');
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
-		foreach ($this->request->getVars() as $key => $value) {
-			if (!in_array($key, $ignore)) {
-				$es->addFilter($key,$value);
+		foreach($this->request->getVars() as $key => $value) {
+			if(!in_array($key, $ignore)) {
+				$es->addFilter($key, $value);
 			}
 		}
 
 		// filter by class or site tree
-		if ($ep->SiteTreeOnly) {
+		if($ep->SiteTreeOnly) {
 			$es->addFilter('IsInSiteTree', true);
 		} else {
 			$es->setClasses($ep->ClassesToSearch);
@@ -204,7 +204,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
 		// Otherwise aggregations are all zero
-		if ($this->SearchHelper) {
+		if($this->SearchHelper) {
 			$es->setQueryResultManipulator($this->SearchHelper);
 			$es->showResultsForEmptySearch();
 		} else {
@@ -226,20 +226,20 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$paginated = null;
 		try {
 			// Simulate server being down for testing purposes
-	        if (isset($_GET['ServerDown'])) {
-	        	throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
-	        }
+			if (isset($_GET['ServerDown'])) {
+				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
+			}
 
 			// now actually perform the search using the original query
 			$paginated = $es->search($queryText, $fieldsToSearch, $testMode);
 
 			// This is the case of the original query having a better one suggested.  Do a
 			// second search for the suggested query, throwing away the original
-			if ($es->hasSuggestedQuery() && !$ignoreSuggestions) {
+			if($es->hasSuggestedQuery() && !$ignoreSuggestions) {
 				$data['SuggestedQuery'] = $es->getSuggestedQuery();
 				$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
 				//Link for if the user really wants to try their original query
-				$sifLink = rtrim($this->Link(),'/').'?q='.$queryText.'&is=1';
+				$sifLink = rtrim($this->Link(), '/') . '?q=' . $queryText . '&is=1';
 				$data['SearchInsteadForLink'] = $sifLink;
 				$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
@@ -247,7 +247,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 			// calculate time
 			$endTime = microtime(true);
-			$elapsed = round(100*($endTime-$startTime))/100;
+			$elapsed = round(100 * ($endTime - $startTime)) / 100;
 
 			// store variables for the template to use
 			$data['ElapsedTime'] = $elapsed;
@@ -264,7 +264,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['OriginalQuery'] = $queryText;
 		$data['IgnoreSuggestions'] = $ignoreSuggestions;
 
-		if ($this->has_extension('PageControllerTemplateOverrideExtension')) {
+		if($this->has_extension('PageControllerTemplateOverrideExtension')) {
 			return $this->useTemplateOverride($data);
 		} else {
 			return $data;
@@ -278,9 +278,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	 */
 	public function QueryIsEmpty() {
 		$result = !isset($_GET['q']);
-		if (isset($_GET['q']))	{
+		if(isset($_GET['q'])) {
 			$queryText = $_GET['q'];
-			if ($queryText == '') {
+			if($queryText == '') {
 				$result = true;
 			}
 		}
@@ -297,7 +297,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$queryText = $data['q'];
 		$url = $this->Link();
 		$url = rtrim($url, '/');
-		$link = rtrim($url, '/').'?q='.$queryText.'&sfid='.$data['identifier'];
+		$link = rtrim($url, '/') . '?q=' . $queryText . '&sfid=' . $data['identifier'];
 		$this->redirect($link);
 	}
 
@@ -314,8 +314,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$fields->push($identifierField);
 		$queryField = $fields->fieldByName('q');
 
-		 if (isset($_GET['q']) && isset($_GET['sfid'])) {
-			if ($_GET['sfid'] == $ep->Identifier) {
+		 if(isset($_GET['q']) && isset($_GET['sfid'])) {
+			if($_GET['sfid'] == $ep->Identifier) {
 				$queryField->setValue($_GET['q']);
 			}
 
@@ -324,7 +324,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		if($this->action == 'similar') {
 			$queryField->setDisabled(true);
 			$actions = $form->Actions();
-			foreach ($actions as $field) {
+			foreach($actions as $field) {
 				$field->setDisabled(true);
 			}
 		}
@@ -332,12 +332,12 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		/*
 		A field needs to be chosen for autocompletion, if not no autocomplete
 		 */
-		if ($this->AutoCompleteFieldID > 0) {
+		if($this->AutoCompleteFieldID > 0) {
 			$queryField->setAttribute('data-autocomplete', 'true');
 			$queryField->setAttribute('data-autocomplete-field', 'Title');
 			$queryField->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
 			$queryField->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
-			$queryField->setAttribute('data-autocomplete-source',$this->Link());
+			$queryField->setAttribute('data-autocomplete-source', $this->Link());
 			$queryField->setAttribute('data-autocomplete-function',
 			$this->AutocompleteFunction()->Slug);
 		}
