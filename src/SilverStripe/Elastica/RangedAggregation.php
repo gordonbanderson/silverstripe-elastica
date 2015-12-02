@@ -14,7 +14,7 @@ class RangedAggregation {
 		$this->Title = $title;
 		$this->Range = new \Elastica\Aggregation\Range($title);
 		$this->Range->setField($field);
-		self::$ranged_aggregations[$title] = $this;;
+		self::$ranged_aggregations[$title] = $this; ;
 	}
 
 
@@ -24,7 +24,7 @@ class RangedAggregation {
 	 * @param string $name
 	 */
 	public function addRange($from, $to, $name) {
-		$this->Range->addRange($from,$to,$name);
+		$this->Range->addRange($from, $to, $name);
 	}
 
 
@@ -36,14 +36,14 @@ class RangedAggregation {
 	public function getFilter($chosenName) {
 		$rangeArray = $this->Range->toArray()['range']['ranges'];
 		$result = null;
-		foreach ($rangeArray as $range) {
-			if ($range['key'] === $chosenName) {
+		foreach($rangeArray as $range) {
+			if($range['key'] === $chosenName) {
 				$from = null;
 				$to = null;
-				if (isset($range['from'])) {
+				if(isset($range['from'])) {
 					$from = $range['from'];
 				}
-				if (isset($range['to'])) {
+				if(isset($range['to'])) {
 					$to = $range['to'];
 				}
 				$rangeFilter = array('gte' => (string)$from, 'lt' => (string)$to);
