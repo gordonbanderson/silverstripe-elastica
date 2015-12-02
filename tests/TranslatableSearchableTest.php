@@ -33,11 +33,9 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 
 	public function testgetFieldValuesAsArrayWithLocale() {
 		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
-		//$manyTypes->Locale = 'en_US';
 		$result = $manyTypes->getFieldValuesAsArray();
 		$this->generateAssertionsFromArray($result);
 
-		// FIXME - check, should Locale show here or not?
 		$expected = array(
 			'BooleanField' => '1',
 			'CurrencyField' => '100.25',
@@ -64,8 +62,6 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	 */
 	public function testMappingWithLocale() {
 		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
-		//$manyTypes->Locale = 'en_US';
-		$result = $manyTypes->getFieldValuesAsArray();
 		$mapping = $manyTypes->getElasticaMapping();
 
 		// Only check mapping of locale as that is what has changed
@@ -82,7 +78,6 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	public function testGetElasticaDocumentWithLocale() {
 		// Need to get something from the SiteTree
 		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
-		//$manyTypes->Locale = 'en_US';
 		$result = $manyTypes->getFieldValuesAsArray();
 		$doc = $manyTypes->getElasticaDocument()->getData();
 
@@ -105,10 +100,6 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 			'Link' => 'http://moduletest.silverstripe/many-types-page/',
 			'Locale' => 'en_US',
 		);
-		$this->assertEquals($expected, $doc);
-
-
-		//FIXME locale needed?
 		$this->assertEquals($expected, $doc);
 	}
 
