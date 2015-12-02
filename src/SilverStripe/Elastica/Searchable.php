@@ -131,32 +131,32 @@ class Searchable extends \DataExtension {
 		$fields = $this->getAllSearchableFields();
 		$result = array();
 
-		foreach ($fields as $name => $params) {
+		foreach($fields as $name => $params) {
 			$spec = array();
 			$name = str_replace('()', '', $name);
 
-			if (array_key_exists($name, $db)) {
+			if(array_key_exists($name, $db)) {
 				$class = $db[$name];
 
-				if (($pos = strpos($class, '('))) {
+				if(($pos = strpos($class, '('))) {
 					// Valid in the case of Varchar(255)
 					$class = substr($class, 0, $pos);
 				}
 
-				if (array_key_exists($class, self::$mappings)) {
+				if(array_key_exists($class, self::$mappings)) {
 					$spec['type'] = self::$mappings[$class];
-					if ($spec['type'] === 'date') {
-						if ($class == 'Date') {
+					if($spec['type'] === 'date') {
+						if($class == 'Date') {
 							$spec['format'] = 'y-M-d';
-						} elseif ($class == 'SS_Datetime') {
+						} elseif($class == 'SS_Datetime') {
 							$spec['format'] = 'y-M-d H:m:s';
-						} elseif ($class == 'Datetime') {
+						} elseif($class == 'Datetime') {
 							$spec['format'] = 'y-M-d H:m:s';
-						} elseif ($class == 'Time') {
+						} elseif($class == 'Time') {
 							$spec['format'] = 'H:m:s';
 						}
 					}
-					if ($class === 'HTMLText' || $class === 'HTMLVarchar') {
+					if($class === 'HTMLText' || $class === 'HTMLVarchar') {
 						array_push($this->html_fields, $name);
 					}
 				}
@@ -167,7 +167,7 @@ class Searchable extends \DataExtension {
 				$has_ones = $this->owner->has_one();
 
 				// check has_many and many_many relations
-				if (isset($has_lists[$name])) {
+				if(isset($has_lists[$name])) {
 					// FIX ME how to do nested mapping
 					// See https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-array-type.html
 
@@ -178,13 +178,13 @@ class Searchable extends \DataExtension {
 					$resultTypeMapping = array();
 
 					// get the fields for the result type, but do not recurse
-					if ($recurse) {
+					if($recurse) {
 						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
 					}
 
 					$resultTypeMapping['ID'] = array('type' => 'integer');
 
-					if ($storeMethodName) {
+					if($storeMethodName) {
 						$resultTypeMapping['__method'] = $name;
 					}
 
@@ -193,20 +193,20 @@ class Searchable extends \DataExtension {
 
 					// we now change the name to the result type, not the method name
 					$name = $resultType;
-				} else if (isset($has_ones[$name])) {
+				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
 					$resultTypeInstance = \Injector::inst()->create($resultType);
 
 					$resultTypeMapping = array();
 
 					// get the fields for the result type, but do not recurse
-					if ($recurse) {
+					if($recurse) {
 						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
 					}
 
 					$resultTypeMapping['ID'] = array('type' => 'integer');
 
-					if ($storeMethodName) {
+					if($storeMethodName) {
 						$resultTypeMapping['__method'] = $name;
 					}
 					$spec = array('properties' => $resultTypeMapping);
@@ -220,8 +220,8 @@ class Searchable extends \DataExtension {
 			}
 
 			// in the case of a relationship type will not be set
-			if (isset($spec['type'])) {
-				if ($spec['type'] == 'string') {
+			if(isset($spec['type'])) {
+				if($spec['type'] == 'string') {
 					$unstemmed = array();
 					$unstemmed['type'] = "string";
 					$unstemmed['analyzer'] = "unstemmed";
@@ -237,7 +237,7 @@ class Searchable extends \DataExtension {
 					//Add autocomplete field if so required
 					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
 
-					if (isset($autocomplete) && in_array($name, $autocomplete)) {
+					if(isset($autocomplete) && in_array($name, $autocomplete)) {
 						$autocompleteField = array();
 						$autocompleteField['type'] = "string";
 						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
@@ -256,7 +256,7 @@ class Searchable extends \DataExtension {
 			$result[$name] = $spec;
 		}
 
-		if ($this->owner->hasMethod('updateElasticHTMLFields')) {
+		if($this->owner->hasMethod('updateElasticHTMLFields')) {
 			$this->html_fields = $this->owner->updateElasticHTMLFields($this->html_fields);
 		}
 
@@ -276,7 +276,7 @@ class Searchable extends \DataExtension {
 
 		$localeMapping = array();
 
-		if ($this->owner->hasField('Locale')) {
+		if($this->owner->hasField('Locale')) {
 			$localeMapping['type'] = 'string';
 			// we wish the locale to be stored as is
 			$localeMapping['index'] = 'not_analyzed';
@@ -295,7 +295,7 @@ class Searchable extends \DataExtension {
 		//_all field picks up all possible suggestions
 		$mapping->enableAllField();
 
-		if ($this->owner->hasMethod('updateElasticsearchMapping')) {
+		if($this->owner->hasMethod('updateElasticsearchMapping')) {
 			$mapping = $this->owner->updateElasticsearchMapping($mapping);
 		}
 		return $mapping;
@@ -311,20 +311,20 @@ class Searchable extends \DataExtension {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
 
-		if (isset($_GET['progress'])) {
+		if(isset($_GET['progress'])) {
 			$progress = $_GET['progress'];
-			self::$progressInterval = (int) $progress;
+			self::$progressInterval = (int)$progress;
 		}
 
-		if (self::$progressInterval > 0) {
-			if (self::$index_ctr % self::$progressInterval === 0) {
-				ElasticaUtil::message("\t".$this->owner->ClassName." - Prepared ".self::$index_ctr." for indexing...");
+		if(self::$progressInterval > 0) {
+			if(self::$index_ctr % self::$progressInterval === 0) {
+				ElasticaUtil::message("\t" . $this->owner->ClassName . " - Prepared " . self::$index_ctr . " for indexing...");
 			}
 		}
 
 		// Optionally update the document
 		$document = new Document($this->owner->ID, $fields);
-		if ($this->owner->hasMethod('updateElasticsearchDocument')) {
+		if($this->owner->hasMethod('updateElasticsearchDocument')) {
 			$document = $this->owner->updateElasticsearchDocument($document);
 		}
 
@@ -335,11 +335,11 @@ class Searchable extends \DataExtension {
 
 		$document->set('IsInSiteTree', $inSiteTree);
 
-		if ($inSiteTree) {
+		if($inSiteTree) {
 			$document->set('Link', $this->owner->AbsoluteLink());
 		}
 
-		if (isset($this->owner->Locale)) {
+		if(isset($this->owner->Locale)) {
 			$document->set('Locale', $this->owner->Locale);
 		}
 
@@ -351,10 +351,10 @@ class Searchable extends \DataExtension {
 		$fields = array();
 		$has_ones = $this->owner->has_one();
 
-		foreach ($this->getElasticaFields($recurse) as $field => $config) {
-			if (null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
+		foreach($this->getElasticaFields($recurse) as $field => $config) {
+			if(null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
-				if (in_array($field, $this->html_fields)) {
+				if(in_array($field, $this->html_fields)) {
 					// Parse short codes in HTML, and then convert to text
 					$fields[$field] = $this->owner->$field;
 					$html = ShortcodeParser::get_active()->parse($this->owner->$field());
@@ -366,30 +366,30 @@ class Searchable extends \DataExtension {
 				}
 
 			} else {
-				if (in_array($field, $this->html_fields)) {
+				if(in_array($field, $this->html_fields)) {
 					$fields[$field] = $this->owner->$field;
-					if (gettype($this->owner->$field) !== 'NULL') {
+					if(gettype($this->owner->$field) !== 'NULL') {
 						$html = ShortcodeParser::get_active()->parse($this->owner->$field);
 						$txt = \Convert::html2raw($html);
 						$fields[$field] = $txt;
 					}
 				} else {
-					if (isset($config['properties']['__method'])) {
+					if(isset($config['properties']['__method'])) {
 						$methodName = $config['properties']['__method'];
 						$data = $this->owner->$methodName();
 						$relArray = array();
 
 						// get the fields of a has_one relational object
-						if (isset($has_ones[$methodName])) {
-							if ($data->ID > 0) {
+						if(isset($has_ones[$methodName])) {
+							if($data->ID > 0) {
 								$item = $data->getFieldValuesAsArray(false);
 								$relArray = $item;
 							}
 
 						// get the fields for a has_many or many_many relational list
 						} else {
-							foreach ($data->getIterator() as $item) {
-								if ($recurse) {
+							foreach($data->getIterator() as $item) {
+								if($recurse) {
 									// populate the subitem but do not recurse any further if more relationships
 									$itemDoc = $item->getFieldValuesAsArray(false);
 									array_push($relArray, $itemDoc);
@@ -426,8 +426,8 @@ class Searchable extends \DataExtension {
 	 * Delete the record from the search index if ShowInSearch is deactivated (non-SiteTree).
 	 */
 	public function onBeforeWrite() {
-		if (($this->owner instanceof \SiteTree)) {
-			if ($this->owner->hasField('ShowInSearch') &&
+		if(($this->owner instanceof \SiteTree)) {
+			if($this->owner->hasField('ShowInSearch') &&
 				$this->owner->isChanged('ShowInSearch', 2) && false == $this->owner->ShowInSearch) {
 				$this->doDeleteDocument();
 			}
@@ -439,11 +439,11 @@ class Searchable extends \DataExtension {
 	 * Delete the record from the search index if ShowInSearch is deactivated (SiteTree).
 	 */
 	public function onBeforePublish() {
-		if (false == $this->owner->ShowInSearch) {
-			if ($this->owner->isPublished()) {
+		if(false == $this->owner->ShowInSearch) {
+			if($this->owner->isPublished()) {
 				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 					byID($this->owner->ID);
-				if ($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
+				if($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
 					$this->doDeleteDocument();
 				}
 			}
@@ -471,8 +471,8 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index.
 	 */
 	protected function doIndexDocument() {
-		if ($this->showRecordInSearch()) {
-			if (!$this->owner->IndexingOff) {
+		if($this->showRecordInSearch()) {
+			if(!$this->owner->IndexingOff) {
 				$this->service->index($this->owner);
 			}
 		}
@@ -499,7 +499,7 @@ class Searchable extends \DataExtension {
 	 * Removes the record from the search index if the "ShowInSearch" attribute is set to true.
 	 */
 	protected function doDeleteDocumentIfInSearch() {
-		if ($this->showRecordInSearch()) {
+		if($this->showRecordInSearch()) {
 			$this->doDeleteDocument();
 		}
 	}
@@ -509,14 +509,14 @@ class Searchable extends \DataExtension {
 	 * Removes the record from the search index.
 	 */
 	protected function doDeleteDocument() {
-		try{
-			if (!$this->owner->IndexingOff) {
+		try {
+			if(!$this->owner->IndexingOff) {
 				// this goes to elastica service
 				$this->service->remove($this->owner);
 			}
 		}
-		catch(\Elastica\Exception\NotFoundException $e) {
-			trigger_error("Deleted document ".$this->owner->ClassName." (".$this->owner->ID.
+		catch (\Elastica\Exception\NotFoundException $e) {
+			trigger_error("Deleted document " . $this->owner->ClassName . " (" . $this->owner->ID .
 				") not found in search index.", E_USER_NOTICE);
 		}
 
@@ -533,42 +533,42 @@ class Searchable extends \DataExtension {
 		$fields = \Config::inst()->get(get_class($this->owner), 'searchable_fields');
 
 		// fallback to default method
-		if(!$fields) user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
+		if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $this->owner->ClassName);
 
 		// get the values of these fields
 		$elasticaMapping = $this->fieldsToElasticaConfig($fields);
 
-		if ($recurse) {
+		if($recurse) {
 			// now for the associated methods and their results
 			$methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_relationships');
 			$has_ones = $this->owner->has_one();
 			$has_lists = $this->getListRelationshipMethods();
 
-			if (isset($methodDescs) && is_array($methodDescs)) {
-				foreach ($methodDescs as $methodDesc) {
+			if(isset($methodDescs) && is_array($methodDescs)) {
+				foreach($methodDescs as $methodDesc) {
 					// split before the brackets which can optionally list which fields to index
 					$splits = explode('(', $methodDesc);
 					$methodName = $splits[0];
 
-					if (isset($has_lists[$methodName])) {
+					if(isset($has_lists[$methodName])) {
 
 						$relClass = $has_lists[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
+						if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $relClass);
 						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
-						$elasticaMapping[$methodName.'()'] = $rewrite;
-					} else if (isset($has_ones[$methodName])) {
+						$elasticaMapping[$methodName . '()'] = $rewrite;
+					} else if(isset($has_ones[$methodName])) {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
-						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
+						if(!$fields) user_error('The field $searchable_fields must be set for the class ' . $relClass);
 						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
-						$elasticaMapping[$methodName.'()'] = $rewrite;
+						$elasticaMapping[$methodName . '()'] = $rewrite;
 					} else {
-						user_error('The method '.$methodName.' not found in class '.$this->owner->ClassName.
+						user_error('The method ' . $methodName . ' not found in class ' . $this->owner->ClassName .
 								', please check configuration');
 					}
 				}
@@ -604,11 +604,11 @@ class Searchable extends \DataExtension {
 	public function requireDefaultRecords() {
 		parent::requireDefaultRecords();
 
-		$searchableFields = $this->getElasticaFields(true,true);
+		$searchableFields = $this->getElasticaFields(true, true);
 
 
 		$doSC = \SearchableClass::get()->filter(array('Name' => $this->owner->ClassName))->first();
-		if (!$doSC) {
+		if(!$doSC) {
 			$doSC = new \SearchableClass();
 			$doSC->Name = $this->owner->ClassName;
 
@@ -618,9 +618,9 @@ class Searchable extends \DataExtension {
 			$doSC->write();
 		}
 
-		foreach ($searchableFields as $name => $searchableField) {
+		foreach($searchableFields as $name => $searchableField) {
 			// check for existence of methods and if they exist use that as the name
-			if (!isset($searchableField['type'])) {
+			if(!isset($searchableField['type'])) {
 				$name = $searchableField['properties']['__method'];
 			}
 
@@ -628,25 +628,25 @@ class Searchable extends \DataExtension {
 			$doSF = \SearchableField::get()->filter($filter)->first();
 
 
-			if (!$doSF) {
+			if(!$doSF) {
 				$doSF = new \SearchableField();
 				$doSF->ClazzName = $this->owner->ClassName;
 				$doSF->Name = $name;
 
-				if (isset($searchableField['type'])) {
+				if(isset($searchableField['type'])) {
 					$doSF->Type = $searchableField['type'];
-				}  else {
+				} else {
 					$doSF->Name = $searchableField['properties']['__method'];
 					$doSF->Type = 'relationship';
 				}
 				$doSF->SearchableClassID = $doSC->ID;
 
-				if (isset($searchableField['fields']['autocomplete'])) {
+				if(isset($searchableField['fields']['autocomplete'])) {
 					$doSF->Autocomplete = true;
 				}
 
 				$doSF->write();
-				\DB::alteration_message("Created new searchable editable field ".$name,"changed");
+				\DB::alteration_message("Created new searchable editable field " . $name, "changed");
 			}
 
 			// FIXME deal with deletions
@@ -660,7 +660,7 @@ class Searchable extends \DataExtension {
 
 		// array of method name to retuned object ClassName for relationships returning lists
 		$has_lists = $has_manys;
-		foreach (array_keys($many_manys) as $key) {
+		foreach(array_keys($many_manys) as $key) {
 			$has_lists[$key] = $many_manys[$key];
 		}
 
@@ -671,11 +671,11 @@ class Searchable extends \DataExtension {
 	private function isInSiteTree($classname) {
 		$inSiteTree = $classname === 'SiteTree' ? true : false;
 
-		if (!$inSiteTree) {
+		if(!$inSiteTree) {
 			$class = new \ReflectionClass($this->owner->ClassName);
-			while ($class = $class->getParentClass()) {
+			while($class = $class->getParentClass()) {
 				$parentClass = $class->getName();
-				if ($parentClass == 'SiteTree') {
+				if($parentClass == 'SiteTree') {
 					$inSiteTree = true;
 					break;
 				}
@@ -691,7 +691,7 @@ class Searchable extends \DataExtension {
 	 */
 	public function RenderResult($linkToContainer = '') {
 		$vars = new \ArrayData(array('SearchResult' => $this->owner, 'ContainerLink' => $linkToContainer));
-		$possibleTemplates = array($this->owner->ClassName.'ElasticSearchResult', 'ElasticSearchResult');
+		$possibleTemplates = array($this->owner->ClassName . 'ElasticSearchResult', 'ElasticSearchResult');
 		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}
 
@@ -705,10 +705,10 @@ class Searchable extends \DataExtension {
 	public function updateCMSFields(\FieldList $fields) {
 		$isIndexed = false;
 		// SIteTree object must have a live record, ShowInSearch = true
-		if ($this->isInSiteTree($this->owner->ClassName)) {
+		if($this->isInSiteTree($this->owner->ClassName)) {
 			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 				byID($this->owner->ID);
-			if ($liveRecord->ShowInSearch) {
+			if($liveRecord->ShowInSearch) {
 				$isIndexed = true;
 			} else {
 				$isIndexed = false;
@@ -718,27 +718,27 @@ class Searchable extends \DataExtension {
 			$isIndexed = true;
 		}
 
-		if ($isIndexed) {
+		if($isIndexed) {
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
 
-			foreach ($termFields as $field) {
+			foreach($termFields as $field) {
 				$terms = new \ArrayList();
 
-				foreach (array_keys($termVectors[$field]['terms']) as $term) {
+				foreach(array_keys($termVectors[$field]['terms']) as $term) {
 					$do = new \DataObject();
 					$do->Term = $term;
 					$stats = $termVectors[$field]['terms'][$term];
-					if (isset($stats['ttf'])) {
+					if(isset($stats['ttf'])) {
 						$do->TTF = $stats['ttf'];
 					}
 
-					if (isset($stats['doc_freq'])) {
+					if(isset($stats['doc_freq'])) {
 						$do->DocFreq = $stats['doc_freq'];
 					}
 
-					if (isset($stats['term_freq'])) {
+					if(isset($stats['term_freq'])) {
 						$do->TermFreq = $stats['term_freq'];
 					}
 					$terms->push($do);
@@ -755,12 +755,12 @@ class Searchable extends \DataExtension {
 			   $underscored = str_replace('.', '_', $field);
 
 				$gridField = new \GridField(
-					'TermsFor'.$underscored, // Field name
-					$field.'TITLE'.$field, // Field title
+					'TermsFor' . $underscored, // Field name
+					$field . 'TITLE' . $field, // Field title
 					$terms,
 					$config
 				);
-			   $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
+			   $fields->addFieldToTab('Root.ElasticaTerms.' . $underscored, $gridField);
 			}
 
 		}
