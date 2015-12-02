@@ -334,7 +334,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$queryField->setDisabled(true);
 			$actions = $form->Actions();
 
-			if (!empty($actions)) {
+			if(!empty($actions)) {
 				foreach($actions as $field) {
 					$field->setDisabled(true);
 				}
