@@ -169,7 +169,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$size = sizeof($splits);
 		print_r($splits);
 		echo "SIZE:$size\n";
-		//$nameToCheck = array_pop($splits);
 		$nameToCheck = end($splits);
 		echo "NAME TO CHECK:$nameToCheck\n";
 		$this->assertEquals($actualTabName, $nameToCheck);
