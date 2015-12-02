@@ -368,6 +368,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	/**
 	 * Set the start page from the request and results per page for a given searcher object
 	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
+	 * @param ElasticSearcher $elasticSearcher
 	 */
 	private function setStartParamsFromRequest(&$elasticSearcher) {
 		// start, and page length, i.e. pagination
