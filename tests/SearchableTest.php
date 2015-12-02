@@ -321,8 +321,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testElasticaResult() {
-		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
-
 		$resultList = $this->getResultsFor('Bangkok');
 
 		// there is only one result.  Note lack of a 'first' method
@@ -391,11 +389,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 	/**
 	 * For a page that is already published, set the ShowInSearch flag to false,
 	 * write to stage, and then rePublish
-	 * @return [type] [description]
 	 */
 	public function testUnpublishAlreadyPublisedhHideFromSearch() {
 		$page = $this->objFromFixture('SiteTree', 'sitetree001');
-	//	$page->doUnpublish();
 
 		// By default the page is not indexed (for speed reasons)
 		// Change the title, turn on indexing and save it
@@ -415,7 +411,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		'1' => 'Content.shingles',
 		'2' => 'Content.standard',
 		'3' => 'Link',
-		'4' => 'Title',
+				'4' => 'Title',
 		'5' => 'Title.autocomplete',
 		'6' => 'Title.shingles',
 		'7' => 'Title.standard',
@@ -474,7 +470,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getCMSFields();
 
-		$tab = $this->checkTabExists($fields,'ElasticaTermsset');
+		$this->checkTabExists($fields,'ElasticaTermsset');
 	}
 
 
@@ -484,7 +480,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$config->remove('FlickrPhotoTO', 'searchable_fields');
 		$fp = Injector::inst()->create('FlickrPhotoTO');
 		try {
-			$fields = $fp->getAllSearchableFields();
+			$fp->getAllSearchableFields();
 			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
 		} catch (Exception $e) {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrPhotoTO', $e->getMessage());
@@ -500,7 +496,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$config->remove('FlickrTagTO', 'searchable_fields');
 		$fp = Injector::inst()->create('FlickrPhotoTO');
 		try {
-			$fields = $fp->getAllSearchableFields();
+			$fp->getAllSearchableFields();
 			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
 		} catch (Exception $e) {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrTagTO', $e->getMessage());
@@ -517,7 +513,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$config->remove('FlickrAuthorTO', 'searchable_fields');
 		$fp = Injector::inst()->create('FlickrPhotoTO');
 		try {
-			$fields = $fp->getAllSearchableFields();
+			$fp->getAllSearchableFields();
 			$this->fail("getAllSearchableFields should have failed as static var searchable_fields not configured");
 		} catch (Exception $e) {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrAuthorTO', $e->getMessage());
@@ -535,18 +531,12 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$config->update('FlickrPhotoTO', 'searchable_relationships',array('thisMethodDoesNotExist'));
 		$fp = Injector::inst()->create('FlickrPhotoTO');
 		try {
-			$fields = $fp->getAllSearchableFields();
+			$fp->getAllSearchableFields();
 			$this->fail("getAllSearchableFields should have failed searchable relationship does not exist");
 		} catch (Exception $e) {
 			$this->assertEquals('The method thisMethodDoesNotExist not found in class FlickrPhotoTO, please check configuration',
 				 $e->getMessage());
 		}
-
-		echo 'UPDATING TO ';
-		print_r($sr);
-
-
-    	//$sr2 = array('Photographer', 'FlickrTagTOs', 'FlickrSetTOs');
 
     	// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
     	$config->remove('FlickrPhotoTO', 'searchable_relationships');
@@ -555,8 +545,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testFieldsToElasticaConfig() {
-		$config = Config::inst();
-		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getAllSearchableFields();
 
@@ -645,10 +633,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 			)
 		);
 
-
 		$this->assertEquals($expected, $fields);
-
-
 	}
 
 
@@ -665,22 +650,17 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto->PhotographerID = $photographer->ID;;
 		$flickrPhoto->write();
 		echo 'ID='.$flickrPhoto->PhotographerID;
-		$a = $flickrPhoto->getFieldValuesAsArray();
+		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
 
-		print_r($a);
-
-
-		$actual = $a['Photographer'];
+		$actual = $fieldValuesArray['Photographer'];
 		$this->generateAssertionsFromArray($actual);
 		$expected = array(
-		'PathAlias' => '/fredbloggs',
-		'DisplayName' => 'Fred Bloggs',
-		'FlickrPhotoTO' => '',
+			'PathAlias' => '/fredbloggs',
+			'DisplayName' => 'Fred Bloggs',
+			'FlickrPhotoTO' => '',
 		);
 
 		$this->assertEquals($expected, $actual);
-
-		print_r($a);
 	}
 
 
@@ -689,8 +669,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$flickrPhoto->IndexingOff = false;
 		$flickrPhoto->Title = 'Test title edited';
-
-
 		$tag1 = new FlickrTagTO();
 		$tag1->FlickrID = '1000001';
 		$tag1->Value = 'auckland';
@@ -712,16 +690,12 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$flickrPhoto->write();
 		echo 'ID='.$flickrPhoto->PhotographerID;
-		$a = $flickrPhoto->getFieldValuesAsArray();
-
-		print_r($a);
-		$actual = $a['Photographer'];
-
-
+		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
+		$actual = $fieldValuesArray['Photographer'];
 		$this->assertEquals(array(), $actual);
 
 
-		$actual = $a['FlickrTagTOs'];
+		$actual = $fieldValuesArray['FlickrTagTOs'];
 		$this->generateAssertionsFromArrayRecurse($actual);
 
 		$expected = array(
@@ -735,8 +709,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 		$this->assertEquals($expected, $actual);
-
-
 	}
 
 
@@ -746,11 +718,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto->Title = 'Test title edited';
 		$flickrPhoto->write();
 		$fields = new FieldList();
-		//$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
-		//$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
-
-		// currently fails
-		$fields = $flickrPhoto->getCMSFields($fields);
+		$fields = $flickrPhoto->getCMSFields();
 
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
 		$tabNames = array();
