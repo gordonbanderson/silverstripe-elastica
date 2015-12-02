@@ -197,8 +197,9 @@ class Searchable extends \DataExtension {
 					$resultType = $has_ones[$name];
 					$resultTypeInstance = \Injector::inst()->create($resultType);
 
+					$resultTypeMapping = array();
+
 					// get the fields for the result type, but do not recurse
-					// // FIXME avoid recursing
 					if ($recurse) {
 						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
 					}
@@ -535,7 +536,7 @@ class Searchable extends \DataExtension {
 		if(!$fields) user_error('The field $searchable_fields must be set for the class '.$this->owner->ClassName);
 
 		// get the values of these fields
-		$elasticaMapping = $this->fieldsToElasticaConfig($this->owner, $fields);
+		$elasticaMapping = $this->fieldsToElasticaConfig($fields);
 
 		if ($recurse) {
 			// now for the associated methods and their results
@@ -543,7 +544,7 @@ class Searchable extends \DataExtension {
 			$has_ones = $this->owner->has_one();
 			$has_lists = $this->getListRelationshipMethods();
 
-			if (isset($methodDescs)) {
+			if (isset($methodDescs) && is_array($methodDescs)) {
 				foreach ($methodDescs as $methodDesc) {
 					// split before the brackets which can optionally list which fields to index
 					$splits = explode('(', $methodDesc);
@@ -554,18 +555,15 @@ class Searchable extends \DataExtension {
 						$relClass = $has_lists[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
-						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
+						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName.'()'] = $rewrite;
-
-
 					} else if (isset($has_ones[$methodName])) {
 						$relClass = $has_ones[$methodName];
 						$fields = \Config::inst()->get($relClass, 'searchable_fields');
 						if(!$fields) user_error('The field $searchable_fields must be set for the class '.$relClass);
-						$rewrite = $this->fieldsToElasticaConfig($relClass, $fields);
-						$classname = $has_ones[$methodName];
+						$rewrite = $this->fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName.'()'] = $rewrite;
@@ -584,7 +582,7 @@ class Searchable extends \DataExtension {
 	/*
 	Evaluate each field, e.g. 'Title', 'Member.Name'
 	 */
-	private function fieldsToElasticaConfig($objectInContext, $fields) {
+	private function fieldsToElasticaConfig($fields) {
 		// Copied from DataObject::searchableFields() as there is no separate accessible method
 		$rewrite = array();
 		foreach($fields as $name => $specOrName) {
@@ -622,9 +620,7 @@ class Searchable extends \DataExtension {
 
 		foreach ($searchableFields as $name => $searchableField) {
 			// check for existence of methods and if they exist use that as the name
-			if (isset($searchableField['type'])) {
-				// Do nothing, check method options
-			} else {
+			if (!isset($searchableField['type'])) {
 				$name = $searchableField['properties']['__method'];
 			}
 
@@ -726,8 +722,6 @@ class Searchable extends \DataExtension {
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
 			sort($termFields);
-
-			$tabs = array();
 
 			foreach ($termFields as $field) {
 				$terms = new \ArrayList();
