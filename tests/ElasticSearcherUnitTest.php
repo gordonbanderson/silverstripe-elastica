@@ -20,10 +20,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
-
 		$fields = array('Description' => 1,'Title' => 1);
-		$results = $es->search('New Zealind', $fields, true);
-
 		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
 
@@ -69,10 +66,6 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$expected = array('texas');
 		$this->assertEquals($expected, $terms['Title.standard']);
 
-		$expected = array('new', 'see','photographs', 'information','resolution', 'company', 'view',
-			'high', 'collection', 'pacific', 'orleans', 'degolyer', 'southern', 'everett',
-			'railroad', 'texas');
-
 		$expected = array('collection', 'company', 'degolyer', 'everett', 'file', 'high',
 			'information', 'new', 'orleans', 'pacific', 'photographs', 'railroad', 'resolution',
 			'see', 'southern', 'texas', 'view');
@@ -96,7 +89,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard', 'Description.standard');
 		try {
 			$paginated = $es->moreLikeThis($fp, $fields, true);
-
+			$this->fail('Query has no weight and thus should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Fields must be of the form fieldname => weight', $e->getMessage());
 		}
@@ -110,7 +103,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 4, 'Description.standard' => 'not numeric');
 		try {
 			$paginated = $es->moreLikeThis($fp, $fields, true);
-
+			$this->fail('Query has non numeric weight and thus should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Fields must be of the form fieldname => weight', $e->getMessage());
 		}
@@ -124,7 +117,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 4, 'Description.standard' => 2);
 		try {
 			$paginated = $es->moreLikeThis($m, $fields, true);
-
+			$this->fail('Querying for a non searchable object, thus should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Objects of class Member are not searchable', $e->getMessage());
 		}
