@@ -85,11 +85,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
 
 				$this->Aggregations = $es->getAggregations();
-				$data['SearchResults'] = $paginated;
-				$data['SearchPerformed'] = true;
-				$data['SearchPageLink'] = $this->SearchPage->Link();
+				$this->successfulSearch($data);
 				$data['SimilarTo'] = $instance;
-				$data['NumberOfResults'] = $paginated->getTotalItems();
 
 
 				$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
@@ -213,9 +210,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ElapsedTime'] = $elapsed;
 
 			$this->Aggregations = $es->getAggregations();
-			$data['SearchResults'] = $paginated;
-			$data['SearchPerformed'] = true;
-			$data['NumberOfResults'] = $paginated->getTotalItems();
+			$this->successfulSearch($data);
 
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
@@ -229,6 +224,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 	}
 
+
+	private function successfulSearch(&$data) {
+		$data['SearchResults'] = $paginated;
+		$data['SearchPerformed'] = true;
+		$data['NumberOfResults'] = $paginated->getTotalItems();
+		$data['SearchPageLink'] = $this->SearchPage->Link();
+	}
 
 
 	/*
@@ -251,6 +253,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$link = rtrim($url, '/') . '?q=' . $queryText . '&sfid=' . $data['identifier'];
 		$this->redirect($link);
 	}
+
 
 	/*
 	Obtain an instance of the form
@@ -365,17 +368,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
-	/**
-	 * Set the start page from the request and results per page for a given searcher object
-	 * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticSearcher object
-	 */
-	private function setStartParamsFromRequest(&$elasticSearcher) {
-		// start, and page length, i.e. pagination
-		$startParam = $this->request->getVar('start');
-		$start = isset($startParam) ? $startParam : 0;
-		$elasticSearcher->setStart($start);
-		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
-	}
+
 
 
 }
