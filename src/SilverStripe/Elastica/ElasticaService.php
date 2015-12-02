@@ -291,7 +291,7 @@ class ElasticaService {
 	 * @param SilverStripe\Elastica\Searchable DataObject that implements Searchable
 	 * @return \Elastica\Mapping Mapping object
 	 */
-	protected function ensureMapping(\Elastica\Type $type, SilverStripe\Elastica\Searchable $record) {
+	protected function ensureMapping(\Elastica\Type $type, \DataObject $record) {
 		$mapping = $type->getMapping();
 		if($mapping == array()) {
 			$this->ensureIndex();
@@ -561,8 +561,7 @@ class ElasticaService {
 		$indexSettings = \Config::inst()->get('Elastica', 'indexsettings');
 		if(isset($indexSettings[$this->locale])) {
 			$settingsClassName = $indexSettings[$this->locale];
-			\Injector::inst()->create($settingsClassName);
-			$this->fail('Test should have failed, no index settings provided for locale');
+			$result = \Injector::inst()->create($settingsClassName);
 		} else {
 			throw new \Exception('ERROR: No index settings are provided for locale ' . $this->locale . "\n");
 
