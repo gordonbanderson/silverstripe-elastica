@@ -220,17 +220,7 @@ class QueryGenerator {
 	}
 
 
-	private function getQuerySuggester() {
-		$suggester = array();
-		$suggester['text'] = $this->queryText;
 
-		//With _all field enable in the mapping, Searchable.php class, we can use _all field to
-		//suggest against all fields.  It is not possible to pass an array here
-		$suggester['term'] = array('field' => '_all');
-		$querySuggester = array('query-suggestions' => $suggester);
-
-		return $querySuggester;
-	}
 
 
 	/**
@@ -434,11 +424,8 @@ class QueryGenerator {
 		error_log("RESULT:$result for key $key \n");
 		if (!$result) {
 			$relevantClasses = array();
-			if (!$csvClasses) {
-
+			if (empty($csvClasses)) {
 				$sql = "SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name";
-								error_log('T1 - sql = '.$sql);
-
 				$records = \DB::query($sql);
 				foreach ($records as $record) {
 					array_push($relevantClasses, $record['Name']);
@@ -460,9 +447,6 @@ class QueryGenerator {
 						$sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
 					}
 				}
-
-				error_log('T2 - sql = '.$sql);
-
 
 				$records = \DB::query($sql);
 				foreach ($records as $record) {
@@ -499,8 +483,8 @@ class QueryGenerator {
 	/**
 	 * Convert either a CSV string or an array to a CSV single quoted string, suitable for use in
 	 * an SQL IN clause
-	 * @param  [type] $csvOrArray [description]
-	 * @return [type]             [description]
+	 * @param  string|array $csvOrArray A string separated by commas or an array
+	 * @return string             string or array as a CSV, but values quoted with single quotes
 	 */
 	public static function convertToQuotedCSV($csvOrArray) {
 		$asArray = $csvOrArray;
@@ -510,7 +494,6 @@ class QueryGenerator {
 			} else {
 				$asArray = explode(',', $csvOrArray);
 			}
-
 		}
 		$quoted = array();
 		foreach ($asArray as $value) {
