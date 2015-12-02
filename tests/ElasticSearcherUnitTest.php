@@ -20,6 +20,8 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
 		$es->setClasses('FlickrPhotoTO');
+		$fields = array('Title' => 1, 'Description' => 1);
+		$results = $es->search('New Zealind', $fields, true);
 		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
 
