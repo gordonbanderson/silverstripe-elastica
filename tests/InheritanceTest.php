@@ -40,12 +40,6 @@ class InheritanceTest extends ElasticsearchBaseTest {
 		$fields = $page->getElasticaFields();
 		$this->assertTrue(isset($fields['Title']['fields']['autocomplete']));
 
-		$expected = array('first');
-		$terms = $page->getTermVectors();
-		//$this->assertEquals($expected, array_keys($terms['Title.standard']['terms']));
-		// ---- Test a page of parent parent class ----
-
-
 		echo "\n\n\n\n\n\n\n\n+++++++++++++++++ GRANDFATHER PAGE +++++++++++++++++\n\n\n\n";
 
 		$page = $this->objFromFixture('SearchableTestGrandFatherPage', 'grandfather0001');
