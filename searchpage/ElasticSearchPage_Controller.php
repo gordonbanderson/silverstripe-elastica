@@ -333,9 +333,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		if($this->action == 'similar') {
 			$queryField->setDisabled(true);
 			$actions = $form->Actions();
-			foreach($actions as $field) {
-				$field->setDisabled(true);
+
+			if (!empty($actions)) {
+				foreach($actions as $field) {
+					$field->setDisabled(true);
+				}
 			}
+
 		}
 
 		/*
