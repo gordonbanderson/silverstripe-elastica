@@ -108,7 +108,7 @@ class ElasticSearcher {
 
 	/**
 	 * Accessor the variable to determine whether or not to show results for an empty search
-	 * @return [type] [description]
+	 * @return boolean true to show results for empty search, otherwise false
 	 */
 	public function getShowResultsForEmptySearch() {
 		return $this->showResultsForEmptySearch;
@@ -239,12 +239,12 @@ class ElasticSearcher {
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
-	 * @param  string $q query string, e.g. 'New Zealand'
+	 * @param  string $queryText query string, e.g. 'New Zealand'
 	 * @param array $fieldsToSearch Mapping of name to an array of mapping Weight and Elastic mapping,
 	 *                              e.g. array('Title' => array('Weight' => 2, 'Type' => 'string'))
 	 * @return ArrayList    SilverStripe DataObjects returned from the search against ElasticSearch
 	 */
-	public function search($q, $fieldsToSearch = null,  $testMode = false) {
+	public function search($queryText, $fieldsToSearch = null,  $testMode = false) {
 		if ($this->locale == null) {
 			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
 				$this->locale = \Translatable::get_current_locale();
@@ -255,7 +255,7 @@ class ElasticSearcher {
 		}
 
 		$qg = new QueryGenerator();
-		$qg->setQueryText($q);
+		$qg->setQueryText($queryText);
 
 		$qg->setFields($fieldsToSearch);
 		$qg->setSelectedFilters($this->filters);
@@ -276,7 +276,7 @@ class ElasticSearcher {
 		if ($testMode) {
 			$elasticService->setTestMode(true);
 		}
-		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
+		$resultList = new ResultList($elasticService, $query, $queryText, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
@@ -307,7 +307,7 @@ class ElasticSearcher {
 
 
 	/* Perform an autocomplete search */
-	public function autocomplete_search($q, $field) {
+	public function autocomplete_search($queryText, $field) {
 		if ($this->locale == null) {
 			if (class_exists('Translatable') && \SiteTree::has_extension('Translatable')) {
 				$this->locale = \Translatable::get_current_locale();
@@ -318,7 +318,7 @@ class ElasticSearcher {
 		}
 
 		$qg = new QueryGenerator();
-		$qg->setQueryText($q);
+		$qg->setQueryText($queryText);
 
 		//only one field but must be array
 		echo "FIELD\n";
@@ -328,7 +328,7 @@ class ElasticSearcher {
 			$qg->setClasses($this->classes);
 		}
 
-		if ($this->filters) {
+		if (!empty($this->filters)) {
 			$qg->setSelectedFilters($this->filters);
 		}
 
@@ -344,7 +344,7 @@ class ElasticSearcher {
 		$elasticService->setLocale($this->locale);
 		echo "FILTERS\n";
 		print_r($this->filters);
-		$resultList = new ResultList($elasticService, $query, $q, $this->filters);
+		$resultList = new ResultList($elasticService, $query, $queryText, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
 		// elasticsearch uses the notion of a 'type', and here this maps to a SilverStripe class
