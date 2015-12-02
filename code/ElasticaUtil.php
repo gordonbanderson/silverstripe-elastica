@@ -177,4 +177,20 @@ class ElasticaUtil {
 
         return $terms;
 	}
+
+	/**
+	 * Add attributes necessary for jQuery to execute autocomplete
+	 * @param FormField &$queryField field used to type a search query
+	 */
+	public static function addAutocompleteToQueryField(&$queryField) {
+		if($this->AutoCompleteFieldID > 0) {
+			$queryField->setAttribute('data-autocomplete', 'true');
+			$queryField->setAttribute('data-autocomplete-field', 'Title');
+			$queryField->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
+			$queryField->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
+			$queryField->setAttribute('data-autocomplete-source', $this->Link());
+			$queryField->setAttribute('data-autocomplete-function',
+										$this->AutocompleteFunction()->Slug);
+		}
+	}
 }
