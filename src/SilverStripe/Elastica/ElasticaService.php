@@ -148,7 +148,6 @@ class ElasticaService {
 			$query->MoreLikeThis = false;
 		}
 
-
 		$search = new Search(new Client());
 
 		if($this->test_mode) {
@@ -180,12 +179,11 @@ class ElasticaService {
 				$params
 			);
 
-			$r = $response->getData();
+			$rData = $response->getData();
 			$terms = null; // keep in scope
 
-			if(isset($r['explanations'])) {
-				$explanation = $r['explanations'][0]['explanation'];
-				//echo $explanation;
+			if(isset($rData['explanations'])) {
+				$explanation = $rData['explanations'][0]['explanation'];
 				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
 			}
 
@@ -194,23 +192,17 @@ class ElasticaService {
 			}
 		}
 
-		if(!$empty($types)) {
+		if(!empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
 		}
-
-		$path = $search->getPath();
-		$params = $search->getOptions();
 
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
 		$fragmentSize = $highlightsCfg['Phrase']['FragmentSize'];
 		$nFragments = $highlightsCfg['Phrase']['NumberOfFragments'];
-		$noMatchSize = $highlightsCfg['Phrase']['NoMatchSize'];
-
-		$quotedTypes = QueryGenerator::convertToQuotedCSV($types);
 
 		$stringFields = $this->highlightedFields;
 		$usingProvidedHighlightFields = true;
@@ -257,19 +249,13 @@ class ElasticaService {
 		}
 
 		$query->setHighlight($highlights);
-
-
-
-		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
-		if(!$empty($types)) {
+		if(!empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
 		}
 
-
-		$path = $search->getPath();
 		$params = $search->getOptions();
 		$searchResults = $search->search($query, $params);
 		if(isset($this->MoreLikeThisTerms)) {
@@ -418,10 +404,8 @@ class ElasticaService {
 		$this->createIndex();
 
 		foreach($this->getIndexedClasses() as $class) {
-			/** @var $sng Searchable */
 			$sng = singleton($class);
 			$mapping = $sng->getElasticaMapping();
-			$name = $sng->getElasticaType();
 			$mapping->setType($index->getType($sng->getElasticaType()));
 			$mapping->send();
 		}
@@ -480,7 +464,6 @@ class ElasticaService {
 		$nRecords = $this->recordsByClassConsiderVersioned($class)->count();
 		$batchSize = 500;
 		$pages = $nRecords / $batchSize + 1;
-		$processing = true;
 
 		for($i = 0; $i < $pages; $i++) {
 			$this->startBulkIndex();
@@ -488,11 +471,8 @@ class ElasticaService {
 			$this->nDocumentsIndexed += $pagedRecords->count();
 			$batch = $pagedRecords->toArray();
 			$this->refreshRecords($batch);
-//			ElasticaUtil::message("Indxed $this->nDocumentsIndexed\n");
 			$this->endBulkIndex();
 		}
-
-
 	}
 
 
@@ -533,9 +513,6 @@ class ElasticaService {
 				}
 				self::$site_tree_classes[$classname] = $inSiteTree;
 			}
-
-			//$this->refreshClass($classname);
-
 
 			if($inSiteTree) {
 				// this prevents the same item being indexed twice due to class inheritance
