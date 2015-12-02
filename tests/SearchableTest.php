@@ -153,12 +153,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 			'term_vector' => 'yes'
 		);
 
-		/*
-		'standard' => array(
-					array('type' => 'string', 'analyzer' => 'standard')
-				)
-		 */
-
 		$this->assertEquals($expectedRelStringArray,
 			$properties['FlickrAuthorTO']['properties']['DisplayName']
 		);
@@ -176,7 +170,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		);
 
 		// check constructed field, location
-
 		$locationProperties = $properties['location'];
 		$this->assertEquals('geo_point', $locationProperties['type']);
 		$this->assertEquals('compressed', $locationProperties['fielddata']['format']);
