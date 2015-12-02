@@ -12,14 +12,14 @@ use Elastica\Filter\GeoDistance;
  */
 class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
-    /**
-     * @var \Elastica\Index
-     */
-    private $service;
+	/**
+	 * @var \Elastica\Index
+	 */
+	private $service;
 
-    /**
-     * @var \Elastica\Query
-     */
+	/**
+	 * @var \Elastica\Query
+	 */
 	private $query;
 
 	/**
@@ -310,51 +310,51 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			// Safeguards against indexed items which might no longer be in the DB
 			if(array_key_exists($item->getId(), $retrieved[$item->getType()])) {
 
-                $data_object = $retrieved[$item->getType()][$item->getId()];
-                $data_object->setElasticaResult($item);
-                $highlights = $item->getHighlights();
+				$data_object = $retrieved[$item->getType()][$item->getId()];
+				$data_object->setElasticaResult($item);
+				$highlights = $item->getHighlights();
 
-                //$snippets will contain the highlights shown in the body of the search result
-                //$namedSnippets will be used to add highlights to the Link and Title
-                $snippets = new \ArrayList();
-                $namedSnippets = new \ArrayList();
+				//$snippets will contain the highlights shown in the body of the search result
+				//$namedSnippets will be used to add highlights to the Link and Title
+				$snippets = new \ArrayList();
+				$namedSnippets = new \ArrayList();
 
-                foreach(array_keys($highlights) as $fieldName) {
-                	$fieldSnippets = new \ArrayList();
+				foreach(array_keys($highlights) as $fieldName) {
+					$fieldSnippets = new \ArrayList();
 
-                	foreach($highlights[$fieldName] as $snippet) {
-                		$do = new \DataObject();
-                		$do->Snippet = $snippet;
+					foreach($highlights[$fieldName] as $snippet) {
+						$do = new \DataObject();
+						$do->Snippet = $snippet;
 
-                		// skip title and link in the summary of highlights
-                		if(!in_array($fieldName, $ignore)) {
-                			$snippets->push($do);
-                		}
+						// skip title and link in the summary of highlights
+						if(!in_array($fieldName, $ignore)) {
+							$snippets->push($do);
+						}
 
-                		$fieldSnippets->push($do);
-                	}
+						$fieldSnippets->push($do);
+					}
 
-                	if($fieldSnippets->count() > 0) {
-                		//Fields may have a dot in their name, e.g. Title.standard - take this into account
-                		//As dots are an issue with template syntax, store as Title_standard
-                		$splits = explode('.', $fieldName);
-                		if(sizeof($splits) == 1) {
-                			$namedSnippets->$fieldName = $fieldSnippets;
-                		} else {
-                			// The Title.standard case, for example
-                			$splits = explode('.', $fieldName);
-                			$compositeFielddName = $splits[0] . '_' . $splits[1];
-                			$namedSnippets->$compositeFielddName = $fieldSnippets;
-                		}
+					if($fieldSnippets->count() > 0) {
+						//Fields may have a dot in their name, e.g. Title.standard - take this into account
+						//As dots are an issue with template syntax, store as Title_standard
+						$splits = explode('.', $fieldName);
+						if(sizeof($splits) == 1) {
+							$namedSnippets->$fieldName = $fieldSnippets;
+						} else {
+							// The Title.standard case, for example
+							$splits = explode('.', $fieldName);
+							$compositeFielddName = $splits[0] . '_' . $splits[1];
+							$namedSnippets->$compositeFielddName = $fieldSnippets;
+						}
 
-                	}
-
-
-                }
+					}
 
 
-                $data_object->SearchHighlights = $snippets;
-                $data_object->SearchHighlightsByField = $namedSnippets;
+				}
+
+
+				$data_object->SearchHighlights = $snippets;
+				$data_object->SearchHighlightsByField = $namedSnippets;
 
 				$result[] = $data_object;
 
