@@ -194,7 +194,7 @@ class ElasticaService {
 			}
 		}
 
-        if ($types) {
+        if (!$empty($types)) {
         	foreach($types as $type) {
         		$search->addType($type);
         	}
@@ -262,7 +262,7 @@ class ElasticaService {
 
 		//$search = new Search(new Client());
 		$search->addIndex($this->getLocaleIndexName());
-		if ($types) {
+		if (!$empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
