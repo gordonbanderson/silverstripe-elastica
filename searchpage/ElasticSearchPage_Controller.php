@@ -342,13 +342,15 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		}
 
-		ElasticaUtil::addAutocompleteToQueryField(
-			$queryField,
-			$this->ClassesToSearch,
-			$this->SiteTreeOnly,
-			$this->Link(),
-			$this->AutocompleteFunction()->Slug
-		);
+		if($this->AutoCompleteFieldID > 0) {
+			ElasticaUtil::addAutocompleteToQueryField(
+				$queryField,
+				$this->ClassesToSearch,
+				$this->SiteTreeOnly,
+				$this->Link(),
+				$this->AutocompleteFunction()->Slug
+			);
+		}
 		return $form;
 	}
 
