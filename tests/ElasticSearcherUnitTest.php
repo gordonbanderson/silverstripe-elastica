@@ -22,6 +22,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 1, 'Description' => 1);
 		$results = $es->search('New Zealind', $fields, true);
+		$this->assertEquals(100, $results->getTotalItems());
 		$this->assertEquals('New Zealand', $es->getSuggestedQuery());
 	}
 
