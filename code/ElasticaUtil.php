@@ -188,7 +188,7 @@ class ElasticaUtil {
 			$queryField->setAttribute('data-autocomplete-field', 'Title');
 			$queryField->setAttribute('data-autocomplete-classes', $classesToSearch);
 			$queryField->setAttribute('data-autocomplete-sitetree', $siteTreeOnly);
-			$queryField->setAttribute('data-autocomplete-source', $link;
+			$queryField->setAttribute('data-autocomplete-source', $link);
 			$queryField->setAttribute('data-autocomplete-function', $slug);
 		}
 	}
