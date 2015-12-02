@@ -410,7 +410,13 @@ class ElasticSearchPage extends Page {
 			$result->setButtonText($buttonTextOverride);
 		}
 
-		ElasticaUtil::addAutocompleteToQueryField($qField);
+		ElasticaUtil::addAutocompleteToQueryField(
+			$qField,
+			$this->ClassesToSearch,
+			$this->SiteTreeOnly,
+			$this->Link(),
+			$this->AutocompleteFunction()->Slug
+		);
 		return $result;
 	}
 
