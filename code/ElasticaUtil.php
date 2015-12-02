@@ -48,7 +48,6 @@ class ElasticaUtil {
 		$options = $alternativeQuerySuggestions[0]['options'];
 
 		$resultArray = null;
-
 		if (sizeof($options) > 0) {
 			//take the first suggestion
 			$suggestedPhrase = $options[0]['text'];
@@ -183,13 +182,11 @@ class ElasticaUtil {
 	 * @param FormField &$queryField field used to type a search query
 	 */
 	public static function addAutocompleteToQueryField(&$queryField, $classesToSearch, $siteTreeOnly, $link, $slug) {
-		if($this->AutoCompleteFieldID > 0) {
 			$queryField->setAttribute('data-autocomplete', 'true');
 			$queryField->setAttribute('data-autocomplete-field', 'Title');
 			$queryField->setAttribute('data-autocomplete-classes', $classesToSearch);
 			$queryField->setAttribute('data-autocomplete-sitetree', $siteTreeOnly);
 			$queryField->setAttribute('data-autocomplete-source', $link);
 			$queryField->setAttribute('data-autocomplete-function', $slug);
-		}
 	}
 }
