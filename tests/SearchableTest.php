@@ -439,7 +439,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 	 * For a page that is not published, set the ShowInSearch flag to false,
 	 * write to stage, and then rePublish.  Same as previous test except
 	 * no need to delete from the index as it already does not exist
-	 * @return [type] [description]
 	 */
 	public function testUnpublishPublishHideFromSearch() {
 		$page = $this->objFromFixture('SiteTree', 'sitetree001');
