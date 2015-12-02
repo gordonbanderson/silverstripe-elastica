@@ -359,6 +359,9 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
+	/**
+	 * @param string $paramName
+	 */
 	private function isParamSet($paramName) {
 		return !empty($this->request->getVar($paramName));
 	}
