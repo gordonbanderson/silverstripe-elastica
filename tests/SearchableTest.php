@@ -716,7 +716,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto->IndexingOff = false;
 		$flickrPhoto->Title = 'Test title edited';
 		$flickrPhoto->write();
-		$fields = new FieldList();
 		$fields = $flickrPhoto->getCMSFields();
 
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
@@ -747,8 +746,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$page->Title = 'Test title edited';
 		$page->write();
 		$page->doPublish();
-		$fields = new FieldList();
-
 		$fields = $page->getCMSFields();
 
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
@@ -776,7 +773,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$es->setStart(0);
 		$es->setPageLength($pageLength);
-		//$es->addFilter('IsInSiteTree', false);
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $es->search($query, $fields)->getList();
