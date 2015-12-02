@@ -760,8 +760,6 @@ class Searchable extends \DataExtension {
 		            $terms,
 		            $config
 		        );
-
-		      // $tab = new \Tab($field, new \TextField('Test'.$field, 'Testing'));
 		       $fields->addFieldToTab('Root.ElasticaTerms.'.$underscored, $gridField);
 			}
 
