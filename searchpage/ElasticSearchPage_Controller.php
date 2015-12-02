@@ -26,6 +26,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		Requirements::javascript("elastica/javascript/jquery.autocomplete.js");
 		Requirements::javascript("elastica/javascript/elastica.js");
 		Requirements::css("elastica/css/elastica.css");
+
+		$this->SearchPage = Controller::curr()->dataRecord;
 	}
 
 
@@ -48,8 +50,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		// record the time
 		$startTime = microtime(true);
 
-		//instance of ElasticPage associated with this controller
-		$ep = Controller::curr()->dataRecord;
 
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
@@ -68,11 +68,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 		// filter by class or site tree
-		if($ep->SiteTreeOnly) {
+		if($this->SearchPage->SiteTreeOnly) {
 			T7; //FIXME test missing
 			$es->addFilter('IsInSiteTree', true);
 		} else {
-			$es->setClasses($ep->ClassesToSearch);
+			$es->setClasses($this->SearchPage->ClassesToSearch);
 		}
 
 
@@ -107,7 +107,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$this->Aggregations = $es->getAggregations();
 				$data['SearchResults'] = $paginated;
 				$data['SearchPerformed'] = true;
-				$data['SearchPageLink'] = $ep->Link();
+				$data['SearchPageLink'] = $this->SearchPage->Link();
 				$data['SimilarTo'] = $instance;
 				$data['NumberOfResults'] = $paginated->getTotalItems();
 
@@ -168,7 +168,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$startParam = $this->request->getVar('start');
 		$start = isset($startParam) ? $startParam : 0;
 		$elasticSearcher->setStart($start);
-		$elasticSearcher->setPageLength($ep->ResultsPerPage);
+		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
 	}
 
 
@@ -185,9 +185,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		// record the time
 		$startTime = microtime(true);
-
-		//instance of ElasticPage associated with this controller
-		$ep = Controller::curr()->dataRecord;
 
 		// use an Elastic Searcher, which needs primed from URL params
 		$es = new ElasticSearcher();
@@ -213,10 +210,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		// filter by class or site tree
-		if($ep->SiteTreeOnly) {
+		if($this->SearchPage->SiteTreeOnly) {
 			$es->addFilter('IsInSiteTree', true);
 		} else {
-			$es->setClasses($ep->ClassesToSearch);
+			$es->setClasses($this->SearchPage->ClassesToSearch);
 		}
 
 		// set the optional aggregation manipulator
@@ -319,15 +316,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	public function SearchForm() {
 		$form = new ElasticSearchForm($this, 'SearchForm');
 		$fields = $form->Fields();
-		$ep = Controller::curr()->dataRecord;
 		$identifierField = new HiddenField('identifier');
-		$identifierField->setValue($ep->Identifier);
+		$identifierField->setValue($this->SearchPage->Identifier);
 		$fields->push($identifierField);
 		$queryField = $fields->fieldByName('q');
 
 		 if($this->isParamSet('q') && $this->isParamSet('sfid')) {
 		 	$sfid = $this->request->getVar('sfid');
-			if($sfid == $ep->Identifier) {
+			if($sfid == $this->SearchPage->Identifier) {
 				$queryText = $this->request->getVar('q');
 				$queryField->setValue($queryText);
 			}
