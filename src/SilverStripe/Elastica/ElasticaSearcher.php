@@ -423,7 +423,6 @@ class ElasticSearcher {
 			'min_term_freq' => $this->minTermFreq,
 			'max_query_terms' => $this->maxTermFreq,
 			'min_doc_freq' => $this->minDocFreq,
-			//'max_doc_freq' =>  0, // this causes no results to be returned
 			'min_word_length' => $this->minWordLength,
 			'max_word_length' => $this->maxWordLength,
 			'max_word_length' => $this->minWordLength,
@@ -454,7 +453,7 @@ class ElasticSearcher {
 
 
 		// pagination
-		$query->setLimit($this->pageLength);
+		$query->setSize($this->pageLength);
 		$query->setFrom($this->start);
 
 		$resultList = new ResultList($elasticService, $query, null);
