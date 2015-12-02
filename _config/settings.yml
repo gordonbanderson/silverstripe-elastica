@@ -6,6 +6,7 @@ Elastica:
     - 'start'
     - 'is'
     - 'ServerDown'
+    - 'sfid'
 
 
     #URL variable tools, see https://docs.silverstripe.org/en/3.1/developer_guides/debugging/url_variable_tools/
