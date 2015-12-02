@@ -141,7 +141,7 @@ class ElasticaService {
 			$types = explode(',', $types);
 		}
 
-        $data = $query->toArray();
+		$data = $query->toArray();
 		if (isset($data['query']['more_like_this'])) {
 			$query->MoreLikeThis = true;
 		} else {
@@ -164,21 +164,21 @@ class ElasticaService {
 		if ($query->MoreLikeThis) {
 			$path = $search->getPath();
 
-	        $termData = array();
-	        $termData['query'] = $data['query'];
+			$termData = array();
+			$termData['query'] = $data['query'];
 
-	        $path = str_replace('_search', '_validate/query', $path);
-	        $params = array('explain' => true, 'rewrite' => true);
-	        if ($this->test_mode) {
-	        	$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
-	        }
+			$path = str_replace('_search', '_validate/query', $path);
+			$params = array('explain' => true, 'rewrite' => true);
+			if ($this->test_mode) {
+				$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
+			}
 
-	        $response = $this->getClient()->request(
-	            $path,
-	            \Elastica\Request::GET,
-	            $termData,
-	            $params
-	        );
+			$response = $this->getClient()->request(
+				$path,
+				\Elastica\Request::GET,
+				$termData,
+				$params
+			);
 
 			$r = $response->getData();
 			$terms = null; // keep in scope
@@ -194,14 +194,14 @@ class ElasticaService {
 			}
 		}
 
-        if (!$empty($types)) {
-        	foreach($types as $type) {
-        		$search->addType($type);
-        	}
-        }
+		if (!$empty($types)) {
+			foreach($types as $type) {
+				$search->addType($type);
+			}
+		}
 
-        $path = $search->getPath();
-        $params = $search->getOptions();
+		$path = $search->getPath();
+		$params = $search->getOptions();
 
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
@@ -269,14 +269,14 @@ class ElasticaService {
 		}
 
 
-        $path = $search->getPath();
-        $params = $search->getOptions();
+		$path = $search->getPath();
+		$params = $search->getOptions();
 		$searchResults = $search->search($query, $params);
 		if (isset($this->MoreLikeThisTerms)) {
 			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
 		}
 
-        return $searchResults;
+		return $searchResults;
 	}
 
 
@@ -350,11 +350,11 @@ class ElasticaService {
 
 	public function listIndexes($trace) {
 		$command = "curl 'localhost:9200/_cat/indices?v'";
-        exec($command,$op);
-        ElasticaUtil::message("\n++++ $trace ++++\n");
-        ElasticaUtil::message(print_r($op,1));
-        ElasticaUtil::message("++++ /{$trace} ++++\n\n");
-        return $op;
+		exec($command,$op);
+		ElasticaUtil::message("\n++++ $trace ++++\n");
+		ElasticaUtil::message(print_r($op,1));
+		ElasticaUtil::message("++++ /{$trace} ++++\n\n");
+		return $op;
 	}
 
 
@@ -525,11 +525,11 @@ class ElasticaService {
 			} else {
 				$class = new \ReflectionClass($classname);
 				while ($class = $class->getParentClass()) {
-				    $parentClass = $class->getName();
-				    if ($parentClass == 'SiteTree') {
-				    	$inSiteTree = true;
-				    	break;
-				    }
+					$parentClass = $class->getName();
+					if ($parentClass == 'SiteTree') {
+						$inSiteTree = true;
+						break;
+					}
 				}
 				self::$site_tree_classes[$classname] = $inSiteTree;
 			}
@@ -683,15 +683,15 @@ curl -XGET 'http://localhost:9200/elasticademo_en_us/FlickrPhoto/3829/_termvecto
 		//FlickrPhoto/3829/_termvector
 		$path = $this->getIndex()->getName().'/'.$searchable->ClassName.'/'.$searchable->ID.'/_termvector';
 		$response = $this->getClient()->request(
-	            $path,
-	            \Elastica\Request::GET,
-	            $data,
-	            $params
-	    );
+				$path,
+				\Elastica\Request::GET,
+				$data,
+				$params
+		);
 
 
-	    $data = $response->getData();
-	    return $data['term_vectors'];
+		$data = $response->getData();
+		return $data['term_vectors'];
 	}
 
 }
