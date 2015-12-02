@@ -85,7 +85,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
 
 				$this->Aggregations = $es->getAggregations();
-				$this->successfulSearch($data);
+				$this->successfulSearch($data, $paginated);
 				$data['SimilarTo'] = $instance;
 
 
@@ -210,7 +210,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ElapsedTime'] = $elapsed;
 
 			$this->Aggregations = $es->getAggregations();
-			$this->successfulSearch($data);
+			$this->successfulSearch($data, $paginated);
 
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
@@ -225,7 +225,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
-	private function successfulSearch(&$data) {
+	private function successfulSearch(&$data, $paginated) {
 		$data['SearchResults'] = $paginated;
 		$data['SearchPerformed'] = true;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
