@@ -7,7 +7,6 @@ use \SilverStripe\Elastica\QueryGenerator;
  * @package elastica
  */
 class QueryGeneratorTest extends ElasticsearchBaseTest {
-	//public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
@@ -38,7 +37,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
-	private function getDefaultSuggest($q) {
+	private function getDefaultSuggest($queryText) {
 		return array(
 				'query-phrase-suggestions' => array(
 					'phrase' => array(
@@ -49,7 +48,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 							'post_tag' => '</strong>'
 						)
 					),
-					'text' => $q
+					'text' => $queryText
 				)
 		);
 	}
@@ -94,8 +93,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$qg->setFields(null);
 		$qg->setSelectedFilters(null);
 		$qg->setShowResultsForEmptyQuery(true);
-
-		$qs = array('query_string' => array('query' => '*', 'lenient' => true));
 
 		//In order to show all results an empty query works,
 		//e.g. curl -XGET 'http://localhost:9200/elastica_ss_module_test_en_us/_search?pretty'
@@ -709,7 +706,7 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 	/**
 	 * Get the basic aggregates that should be returned for the augmenter being tested
-	 * @return [type] [description]
+	 * @return array array of aggregations.  Tweak these in tests and assert as required.
 	 */
 	private function baseAggs() {
 		$result = array();
