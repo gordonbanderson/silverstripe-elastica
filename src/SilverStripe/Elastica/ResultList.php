@@ -141,7 +141,7 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			$queryText = $this->originalQueryText;
 
 			// if not search term remove it and aggregate with a blank query
-			if($qqueryText == '' && sizeof($aggs) > 0) {
+			if($queryText == '' && sizeof($aggs) > 0) {
 				$params = $this->query->getParams();
 				unset($params['query']);
 				$this->query->setParams($params);
