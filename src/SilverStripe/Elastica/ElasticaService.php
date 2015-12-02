@@ -419,9 +419,9 @@ class ElasticaService {
 
 
 	/**
-	 * Refresh a list of records in the index
+	 * Refresh an array of records in the index
 	 *
-	 * @param \DataList $records
+	 * @param array $records
 	 */
 	protected function refreshRecords($records) {
 		foreach($records as $record) {
