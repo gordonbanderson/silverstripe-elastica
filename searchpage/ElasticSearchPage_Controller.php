@@ -100,7 +100,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		try {
 			// Simulate server being down for testing purposes
-			if(isset($_GET['ServerDown'])) {
+			if($this->request->getVar('ServerDown')) {
 				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
 			}
 			if(class_exists($class)) {
@@ -184,22 +184,21 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es = new ElasticSearcher();
 
 		// start, and page length, i.e. pagination
-		$start = isset($_GET['start']) ? (int)$_GET['start'] : 0;
+		$startParam = $this->request->getVar('start');
+		$start = isset($startParam) ? $startParam : 0;
 		$es->setStart($start);
 		$es->setPageLength($ep->ResultsPerPage);
 
 
 		// Do not show suggestions if this flag is set
-		$ignoreSuggestions = isset($_GET['is']);
+		$ignoreSuggestions = isset($this->request->getVar('is'));
 
 
 		// query string
-		$queryText = '';
-		if(isset($_GET['q'])) {
-			$queryText = $_GET['q'];
-		}
+		$queryTextParam = $this->request->getVar('q');
+		$queryText = isset($queryTextParam) ? $queryTextParam : '';
 
-		$testMode = isset($_GET['TestMode']);
+		$testMode = isset($this->request->getVar('TestMode'));
 
 		// filters for aggregations
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
@@ -241,7 +240,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$paginated = null;
 		try {
 			// Simulate server being down for testing purposes
-			if(isset($_GET['ServerDown'])) {
+			if(isset($this->request->getVar('ServerDown')) {
 				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
 			}
 
@@ -292,14 +291,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	Return true if the query is not empty
 	 */
 	public function QueryIsEmpty() {
-		$result = !isset($_GET['q']);
-		if(isset($_GET['q'])) {
-			$queryText = $_GET['q'];
-			if($queryText == '') {
-				$result = true;
-			}
-		}
-		return $result;
+		return empty($this->request->getVar('q'));
 	}
 
 
