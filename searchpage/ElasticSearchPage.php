@@ -196,7 +196,7 @@ class ElasticSearchPage extends Page {
 									setSource($ottos);
 		$df->setEmptyString('-- Please select what do do after find as you type has occurred --');
 
-		$ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete',1)->Map('ID', 'Name')->toArray();
+		$ottos = $this->ElasticaSearchableFields()->filter('EnableAutocomplete', 1)->Map('ID', 'Name')->toArray();
 		$autoCompleteFieldDF = DropDownField::create('AutoCompleteFieldID', 'Field to use for autocomplete')->setSource($ottos);
 		$autoCompleteFieldDF->setEmptyString('-- Please select which field to use for autocomplete --');
 

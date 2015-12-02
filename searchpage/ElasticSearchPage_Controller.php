@@ -72,23 +72,23 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SimilarSearchable' => true
 		));
 
-		foreach ($editedSearchFields->getIterator() as $searchField) {
+		foreach($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
 		// Use the standard field for more like this, ie not stemmed
-		foreach ($fieldsToSearch as $field => $value) {
-			$fieldsToSearch[$field.'.standard'] = $value;
+		foreach($fieldsToSearch as $field => $value) {
+			$fieldsToSearch[$field . '.standard'] = $value;
 			unset($fieldsToSearch[$field]);
 		}
 
 		try {
 			// Simulate server being down for testing purposes
-			if (isset($_GET['ServerDown'])) {
+			if(isset($_GET['ServerDown'])) {
 				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
 			}
-			if (class_exists($class)) {
-				$instance = \DataObject::get_by_id($class,$instanceID);
+			if(class_exists($class)) {
+				$instance = \DataObject::get_by_id($class, $instanceID);
 
 				$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
 
@@ -219,14 +219,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'Searchable' => true
 		));
 
-		foreach ($editedSearchFields->getIterator() as $searchField) {
+		foreach($editedSearchFields->getIterator() as $searchField) {
 			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
 		}
 
 		$paginated = null;
 		try {
 			// Simulate server being down for testing purposes
-			if (isset($_GET['ServerDown'])) {
+			if(isset($_GET['ServerDown'])) {
 				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
 			}
 
