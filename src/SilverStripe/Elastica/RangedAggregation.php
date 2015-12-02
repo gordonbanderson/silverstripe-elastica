@@ -6,6 +6,10 @@ class RangedAggregation {
 	private static $ranged_aggregations = array();
 
 
+	/**
+	 * @param string $title
+	 * @param string $field
+	 */
 	public function __construct($title, $field) {
 		$this->Title = $title;
 		$this->Range = new \Elastica\Aggregation\Range($title);
@@ -14,6 +18,11 @@ class RangedAggregation {
 	}
 
 
+	/**
+	 * @param double $from
+	 * @param double $to
+	 * @param string $name
+	 */
 	public function addRange($from, $to, $name) {
 		$this->Range->addRange($from,$to,$name);
 	}
