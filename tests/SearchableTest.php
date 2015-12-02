@@ -540,7 +540,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
 		$config->remove('FlickrPhotoTO', 'searchable_relationships');
-		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
+		$config->update('FlickrPhotoTO', 'searchable_relationships', $sr);
 	}
 
 
