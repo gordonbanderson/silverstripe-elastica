@@ -108,7 +108,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 				$this->MoreLikeThisTerms = $ers->MoreLikeThisTerms;
 			}
 
-			//query-term-suggestions is arbitrary name used
 			if (isset($ers->getSuggests()['query-phrase-suggestions'])) {
 				$suggest = $ers->getSuggests()['query-phrase-suggestions'];
 				$suggestedPhraseAndHL = ElasticaUtil::getPhraseSuggestion($suggest);
