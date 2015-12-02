@@ -43,16 +43,16 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$stopwords = "a,the,then,this";
 		$englishIndex = new EnglishIndexSettings();
 		$englishIndex->setStopwords($stopwords);
-		$expected = array('a','the','then','this');
+		$expected = array('a', 'the', 'then', 'this');
 		$this->assertEquals($expected, $englishIndex->getStopwords());
 	}
 
 
 	public function testSetStopwordsConfigurationArray() {
-		$stopwords = array('a','the','then','this');
+		$stopwords = array('a', 'the', 'then', 'this');
 		$englishIndex = new EnglishIndexSettings();
 		$englishIndex->setStopwords($stopwords);
-		$expected = array('a','the','then','this');
+		$expected = array('a', 'the', 'then', 'this');
 		$this->assertEquals($expected, $englishIndex->getStopwords());
 	}
 
@@ -76,9 +76,9 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testConfiguredStopWords() {
 		$englishIndex = new EnglishIndexSettings();
 		$stopwords = $englishIndex->getStopwords();
-		$expected = array('that','into','a','an','and','are','as','at','be','but','by','for','if',
-			'in','into','is','it','of','on','or','such','that','the','their','then','there','these',
-			'they','this','to','was','will','with');
+		$expected = array('that', 'into', 'a', 'an', 'and', 'are', 'as', 'at', 'be', 'but', 'by', 'for', 'if',
+			'in', 'into', 'is', 'it', 'of', 'on', 'or', 'such', 'that', 'the', 'their', 'then', 'there', 'these',
+			'they', 'this', 'to', 'was', 'will', 'with');
 		$this->assertEquals($expected, $stopwords);
 	}
 
@@ -90,11 +90,11 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 
 	public function testResultListGetMap() {
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		//default is ID -> Title, useful for dropdowns
 		$mapping = $resultList->map();
 		$ctr = 0;
-		foreach ($resultList->getIterator() as $item) {
+		foreach($resultList->getIterator() as $item) {
 			$mappedTitle = $mapping[$item->ID];
 			$this->assertEquals($item->Title, $mappedTitle);
 			$ctr++;
@@ -103,22 +103,22 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 
 	public function testResultListColumn() {
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		$ids = $resultList->column();
 
 		$expected = array();
-		foreach ($resultList as $item) {
+		foreach($resultList as $item) {
 			array_push($expected, $item->ID);
 		}
 
-		$this->assertEquals($expected,$ids);
+		$this->assertEquals($expected, $ids);
 
 		$expected = array();
-		foreach ($resultList as $item) {
+		foreach($resultList as $item) {
 			array_push($expected, $item->Title);
 		}
 		$titles = $resultList->column('Title');
-		$this->assertEquals($expected,$titles);
+		$this->assertEquals($expected, $titles);
 	}
 
 
@@ -126,7 +126,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 		$callback = function($fp) {
 		    $this->assertTrue(true, 'Callback reached');
 		};
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		$resultList->each($callback);
 	}
 
@@ -136,22 +136,22 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	that all of the fixtures should have 'New Zealand' in them.  Test page length from 1 to 100
 	 */
 	public function testResultListPageLength() {
-		for ($i=1; $i <= 100 ; $i++) {
-			$resultList = $this->getResultsFor('New Zealand',$i);
+		for($i = 1; $i <= 100; $i++) {
+			$resultList = $this->getResultsFor('New Zealand', $i);
 			$this->assertEquals($i, $resultList->count());
 		}
 	}
 
 
 	public function testResultListIndex() {
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		$index = $resultList->getService()->getIndex();
 		$this->assertEquals('elastica_ss_module_test_en_us', $index->getName());
 	}
 
 
 	public function testResultListGetQuery() {
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		$query = $resultList->getQuery()->toArray();
 
 		$expected = array();
@@ -176,7 +176,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Check that the time for the search was more than zero
 	 */
 	public function testResultListGetTotalTime() {
-		$resultList = $this->getResultsFor('New Zealand',10);
+		$resultList = $this->getResultsFor('New Zealand', 10);
 		$time = $resultList->getTotalTime();
 		$this->assertGreaterThan(0, $time);
 	}
@@ -186,12 +186,12 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Test the result list iterator function
 	 */
 	public function testResultListGetIterator() {
-		$resultList = $this->getResultsFor('New Zealand',100);
+		$resultList = $this->getResultsFor('New Zealand', 100);
 		$ctr = 0;
-		foreach ($resultList->getIterator() as $result) {
+		foreach($resultList->getIterator() as $result) {
 			$ctr++;
 		}
-		$this->assertEquals(100,$ctr);
+		$this->assertEquals(100, $ctr);
 	}
 
 
@@ -199,14 +199,14 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Check some basic properties of the array returned for a result
 	 */
 	public function testToArrayFunction() {
-		$resultList = $this->getResultsFor('New Zealand',1);
+		$resultList = $this->getResultsFor('New Zealand', 1);
 		$result = $resultList->toArray();
 
-		$this->assertEquals(1,sizeof($result));
+		$this->assertEquals(1, sizeof($result));
 		$fp = $result[0];
 		$this->assertEquals('FlickrPhotoTO', $fp->ClassName);
 		$this->assertEquals(2147483647, $fp->FlickrID);
-		$this->assertTrue(preg_match('/New Zealand/',$fp->Title) == 1);
+		$this->assertTrue(preg_match('/New Zealand/', $fp->Title) == 1);
 	}
 
 
@@ -214,20 +214,20 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Check some basic properties of the array returned for a result
 	 */
 	public function testToNestedArrayFunction() {
-		$resultList = $this->getResultsFor('New Zealand',4);
+		$resultList = $this->getResultsFor('New Zealand', 4);
 		$result = $resultList->toNestedArray();
 
-		$this->assertEquals(4,sizeof($result));
+		$this->assertEquals(4, sizeof($result));
 		$fp = $result[0];
 		$this->assertEquals('FlickrPhotoTO', $fp['ClassName']);
 		$this->assertEquals(2147483647, $fp['FlickrID']);
-		$this->assertTrue(preg_match('/New Zealand/',$fp['Title']) == 1);
+		$this->assertTrue(preg_match('/New Zealand/', $fp['Title']) == 1);
 	}
 
 
 	public function testResultListOffsetExistsNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$resultList->offsetExists(10);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -238,7 +238,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListOffsetGetNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$resultList->offsetGet(10);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -249,8 +249,8 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListOffsetSetNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
-			$resultList->offsetSet(10,null);
+			$resultList = $this->getResultsFor('New Zealand', 10);
+			$resultList->offsetSet(10, null);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
 			$this->assertEquals('Not implemented', $e->getMessage());
@@ -260,7 +260,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListOffsetUnsetNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$resultList->offsetUnset(10);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -271,7 +271,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListAddNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$fp = new FlickrPhotoTO();
 			$resultList->add($fp);
 			$this->assertFalse(true, "This line should not have been reached");
@@ -283,7 +283,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListRemoveNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$fp = new FlickrPhotoTO();
 			$resultList->remove($fp);
 			$this->assertFalse(true, "This line should not have been reached");
@@ -295,9 +295,9 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListFindNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$fp = new FlickrPhotoTO();
-			$resultList->find(4,$fp);
+			$resultList->find(4, $fp);
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
 			$this->assertEquals('Not implemented', $e->getMessage());
@@ -309,7 +309,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListToArray() {
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
-		foreach ($sfs->getIterator() as $sf) {
+		foreach($sfs->getIterator() as $sf) {
 			echo "T2 $sf->ClazzName $sf->Name $sf->Type\n";
 			$sf->ShowHighlights = true;
 			$sf->write();
@@ -321,7 +321,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 		$toarr = $resultList->toArray();
 
-		foreach ($toarr as $item) {
+		foreach($toarr as $item) {
 			$hl = $item->SearchHighlights;
 			echo "HL:$hl"; // MORNING FIXME
 		}
@@ -331,7 +331,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListFirstNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$resultList->first();
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
@@ -342,7 +342,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 
 	public function testResultListLastNotImplemented() {
 		try {
-			$resultList = $this->getResultsFor('New Zealand',10);
+			$resultList = $this->getResultsFor('New Zealand', 10);
 			$resultList->last();
 			$this->assertFalse(true, "This line should not have been reached");
 		} catch (Exception $e) {
