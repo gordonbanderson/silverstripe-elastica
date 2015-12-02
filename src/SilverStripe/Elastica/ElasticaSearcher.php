@@ -72,6 +72,9 @@ class ElasticSearcher {
 	private $showResultsForEmptySearch = false;
 
 
+	private $SuggestedQuery = null;
+
+
 	// ---- variables for more like this searching, defaults as per Elasticsearch ----
 	private $minTermFreq = 2;
 
