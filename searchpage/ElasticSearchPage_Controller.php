@@ -341,20 +341,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			}
 
 		}
-
-		/*
-		A field needs to be chosen for autocompletion, if not no autocomplete
-		 */
-		if($this->AutoCompleteFieldID > 0) {
-			$queryField->setAttribute('data-autocomplete', 'true');
-			$queryField->setAttribute('data-autocomplete-field', 'Title');
-			$queryField->setAttribute('data-autocomplete-classes', $this->ClassesToSearch);
-			$queryField->setAttribute('data-autocomplete-sitetree', $this->SiteTreeOnly);
-			$queryField->setAttribute('data-autocomplete-source', $this->Link());
-			$queryField->setAttribute('data-autocomplete-function',
-			$this->AutocompleteFunction()->Slug);
-		}
-
+		ElasticaUtil::addAutocompleteToQueryField($queryField);
 		return $form;
 	}
 
