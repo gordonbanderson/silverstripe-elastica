@@ -191,14 +191,14 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 
 		// Do not show suggestions if this flag is set
-		$ignoreSuggestions = isset($this->request->getVar('is'));
+		$ignoreSuggestions = null !== $this->request->getVar('is');
 
 
 		// query string
 		$queryTextParam = $this->request->getVar('q');
-		$queryText = isset($queryTextParam) ? $queryTextParam : '';
+		$queryText = !empty($queryTextParam) ? $queryTextParam : '';
 
-		$testMode = isset($this->request->getVar('TestMode'));
+		$testMode = !empty($this->request->getVar('TestMode'));
 
 		// filters for aggregations
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
@@ -240,7 +240,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$paginated = null;
 		try {
 			// Simulate server being down for testing purposes
-			if(isset($this->request->getVar('ServerDown')) {
+			if(!empty($this->request->getVar('ServerDown'))) {
 				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
 			}
 
@@ -321,9 +321,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$fields->push($identifierField);
 		$queryField = $fields->fieldByName('q');
 
-		 if(isset($_GET['q']) && isset($_GET['sfid'])) {
-			if($_GET['sfid'] == $ep->Identifier) {
-				$queryField->setValue($_GET['q']);
+		 if($this->isParamSet('q') && $this->isParamSet('sfid')) {
+		 	$sfid = $this->request->getVar('sfid');
+			if($sfid == $ep->Identifier) {
+				$queryText = $this->request->getVar('q');
+				$queryField->setValue($queryText);
 			}
 
 		}
@@ -350,6 +352,11 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		}
 
 		return $form;
+	}
+
+
+	private function isParamSet($paramName) {
+		return !empty($this->request->getVar($paramName));
 	}
 
 }
