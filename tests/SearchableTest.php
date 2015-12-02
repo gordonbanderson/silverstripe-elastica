@@ -13,7 +13,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+		$classes = array('SearchableTestPage', 'SiteTree', 'Page', 'FlickrPhotoTO', 'FlickrSetTO',
 			'FlickrTagTO', 'FlickrAuthorTO', 'FlickrSetTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
@@ -181,20 +181,20 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 		// check strings
-		$shouldBeString = array('Title','Description');
-		$shouldBeInt = array('ISO','FlickrID','FocalLength35mm');
+		$shouldBeString = array('Title', 'Description');
+		$shouldBeInt = array('ISO', 'FlickrID', 'FocalLength35mm');
 		$shouldBeBoolean = array('IsInSiteTree');
 		$shouldBeDouble = array('Aperture');
 		$shouldBeDateTime = array('TakenAt');
 		$shouldBeDate = array('FirstViewed');
 
 		// tokens are strings that have analyzer 'not_analyzed', namely the string is indexed as is
-		$shouldBeTokens = array('ShutterSpeed','Link');
+		$shouldBeTokens = array('ShutterSpeed', 'Link');
 
 
 		// check strings
 		$expectedStandardArray = array('type' => 'string', 'analyzer' => 'unstemmed', 'term_vector' => 'yes');
-		foreach ($shouldBeString as $fieldName) {
+		foreach($shouldBeString as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 
 			$type = $fieldProperties['type'];
@@ -206,60 +206,60 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 			// check for unstemmed analaysis
 
-			$this->assertEquals($expectedStandardArray,$fieldProperties['fields']['standard']);
+			$this->assertEquals($expectedStandardArray, $fieldProperties['fields']['standard']);
 
 			// check for only 3 entries
 			$this->assertEquals(4, sizeof(array_keys($fieldProperties)));
 		}
 
 		// check ints
-		foreach ($shouldBeInt as $fieldName) {
+		foreach($shouldBeInt as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals(1, sizeof(array_keys($fieldProperties)));
-			$this->assertEquals('integer',$type);
+			$this->assertEquals('integer', $type);
 		}
 
 
 		// check doubles
-		foreach ($shouldBeDouble as $fieldName) {
+		foreach($shouldBeDouble as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals(1, sizeof(array_keys($fieldProperties)));
-			$this->assertEquals('double',$type);
+			$this->assertEquals('double', $type);
 		}
 
 		// check boolean
-		foreach ($shouldBeBoolean as $fieldName) {
+		foreach($shouldBeBoolean as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals(1, sizeof(array_keys($fieldProperties)));
-			$this->assertEquals('boolean',$type);
+			$this->assertEquals('boolean', $type);
 		}
 
 
-		foreach ($shouldBeDate as $fieldName) {
+		foreach($shouldBeDate as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals(2, sizeof(array_keys($fieldProperties)));
-			$this->assertEquals('date',$type);
+			$this->assertEquals('date', $type);
 			$this->assertEquals('y-M-d', $fieldProperties['format']);
 		}
 
 
 
 		// check date time, stored in Elasticsearch as a date with a different format than above
-		foreach ($shouldBeDateTime as $fieldName) {
+		foreach($shouldBeDateTime as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals(2, sizeof(array_keys($fieldProperties)));
-			$this->assertEquals('date',$type);
+			$this->assertEquals('date', $type);
 			$this->assertEquals('y-M-d H:m:s', $fieldProperties['format']);
 		}
 
 		//check shutter speed is tokenized, ie not analyzed - for aggregation purposes
 		//
-		foreach ($shouldBeTokens as $fieldName) {
+		foreach($shouldBeTokens as $fieldName) {
 			$fieldProperties = $properties[$fieldName];
 			$type = $fieldProperties['type'];
 			$this->assertEquals('string', $type);
@@ -292,7 +292,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$doc = $flickrPhoto->getElasticaDocument()->getData();
 
 		$expected = array();
-		$expected['Title'] = 'Bangkok' ;
+		$expected['Title'] = 'Bangkok';
 		$expected['FlickrID'] = '1234567';
 		$expected['Description'] = 'Test photograph';
 		$expected['TakenAt'] = '2011-07-04 20:36:00';
@@ -324,7 +324,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$resultList = $this->getResultsFor('Bangkok');
 
 		// there is only one result.  Note lack of a 'first' method
-		foreach ($resultList->getIterator() as $fp) {
+		foreach($resultList->getIterator() as $fp) {
 			//This is an Elastica\Result object
 			$elasticaResult = $fp->getElasticaResult();
 
@@ -379,7 +379,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$page = $this->objFromFixture('SiteTree', 'sitetree001');
 		$page->doUnpublish();
 
-		$this->checkNumberOfIndexedDocuments($nDocsAtStart-1);
+		$this->checkNumberOfIndexedDocuments($nDocsAtStart - 1);
 
 		$page->doPublish();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
@@ -469,7 +469,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getCMSFields();
 
-		$this->checkTabExists($fields,'ElasticaTermsset');
+		$this->checkTabExists($fields, 'ElasticaTermsset');
 	}
 
 
@@ -485,7 +485,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrPhotoTO', $e->getMessage());
 		}
 
-		$config->update('FlickrPhotoTO' ,'searchable_fields', $sf);
+		$config->update('FlickrPhotoTO', 'searchable_fields', $sf);
 	}
 
 
@@ -501,7 +501,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrTagTO', $e->getMessage());
 		}
 
-		$config->update('FlickrTagTO' ,'searchable_fields', $sf);
+		$config->update('FlickrTagTO', 'searchable_fields', $sf);
 
 	}
 
@@ -518,7 +518,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 			$this->assertEquals('The field $searchable_fields must be set for the class FlickrAuthorTO', $e->getMessage());
 		}
 
-		$config->update('FlickrAuthorTO' ,'searchable_fields', $sf);
+		$config->update('FlickrAuthorTO', 'searchable_fields', $sf);
 
 	}
 
@@ -527,7 +527,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$config = Config::inst();
 		$sr = $config->get('FlickrPhotoTO', 'searchable_relationships');
 		$config->remove('FlickrPhotoTO', 'searchable_relationships');
-		$config->update('FlickrPhotoTO', 'searchable_relationships',array('thisMethodDoesNotExist'));
+		$config->update('FlickrPhotoTO', 'searchable_relationships', array('thisMethodDoesNotExist'));
 		$fp = Injector::inst()->create('FlickrPhotoTO');
 		try {
 			$fp->getAllSearchableFields();
@@ -537,8 +537,8 @@ class SearchableTest extends ElasticsearchBaseTest {
 				 $e->getMessage());
 		}
 
-    	// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
-    	$config->remove('FlickrPhotoTO', 'searchable_relationships');
+		// MUST REMOVE FIRST.  Otherwise append and the erroroneus value above still exists
+		$config->remove('FlickrPhotoTO', 'searchable_relationships');
 		$config->update('FlickrPhotoTO' ,'searchable_relationships', $sr);
 	}
 
@@ -646,9 +646,9 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$photographer->write();
 
-		$flickrPhoto->PhotographerID = $photographer->ID;;
+		$flickrPhoto->PhotographerID = $photographer->ID; ;
 		$flickrPhoto->write();
-		echo 'ID='.$flickrPhoto->PhotographerID;
+		echo 'ID=' . $flickrPhoto->PhotographerID;
 		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
 
 		$actual = $fieldValuesArray['Photographer'];
@@ -688,7 +688,7 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 		$flickrPhoto->write();
-		echo 'ID='.$flickrPhoto->PhotographerID;
+		echo 'ID=' . $flickrPhoto->PhotographerID;
 		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
 		$actual = $fieldValuesArray['Photographer'];
 		$this->assertEquals(array(), $actual);
@@ -721,20 +721,20 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
 		$tabNames = array();
-		foreach ($tabset->Tabs() as $tab) {
+		foreach($tabset->Tabs() as $tab) {
 			$tabFields = array();
-			foreach ($tab->FieldList() as $field) {
+			foreach($tab->FieldList() as $field) {
 				array_push($tabFields, $field->getName());
 			}
-			$expectedName = 'TermsFor'.$tab->getName();;
+			$expectedName = 'TermsFor' . $tab->getName(); ;
 			$expected = array($expectedName);
 			$this->assertEquals($expected, $tabFields);
 			array_push($tabNames, $tab->getName());
 		}
-		$expected = array('Description','Description_shingles','Description_standard',
-			'ShutterSpeed',  'TestMethod', 'TestMethod_shingles', 'TestMethod_standard',
+		$expected = array('Description', 'Description_shingles', 'Description_standard',
+			'ShutterSpeed', 'TestMethod', 'TestMethod_shingles', 'TestMethod_standard',
 			'TestMethodHTML', 'TestMethodHTML_shingles', 'TestMethodHTML_standard',
-			'Title','Title_autocomplete','Title_shingles','Title_standard');
+			'Title', 'Title_autocomplete', 'Title_shingles', 'Title_standard');
 
 		$this->assertEquals($expected, $tabNames);
 	}
@@ -753,18 +753,18 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$tabset = $fields->findOrMakeTab('Root.ElasticaTerms');
 		$tabNames = array();
-		foreach ($tabset->Tabs() as $tab) {
+		foreach($tabset->Tabs() as $tab) {
 			$tabFields = array();
-			foreach ($tab->FieldList() as $field) {
+			foreach($tab->FieldList() as $field) {
 				array_push($tabFields, $field->getName());
 			}
-			$expectedName = 'TermsFor'.$tab->getName();;
+			$expectedName = 'TermsFor' . $tab->getName(); ;
 			$expected = array($expectedName);
 			$this->assertEquals($expected, $tabFields);
 			array_push($tabNames, $tab->getName());
 		}
 		$expected = array(
-			'Content','Content_standard','Link','Title','Title_autocomplete','Title_shingles',
+			'Content', 'Content_standard', 'Link', 'Title', 'Title_autocomplete', 'Title_shingles',
 			'Title_standard');
 		$this->generateAssertionsFromArray1D($tabNames);
 		$this->assertEquals($expected, $tabNames);
