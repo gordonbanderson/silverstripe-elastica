@@ -57,20 +57,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 	}
 
 
-	public function testGetQuerySuggester() {
-		$qg = new QueryGenerator();
-		$qg->setQueryText('New Zealand');
-		$expected = array('query-suggestions' => array(
-			'text' => 'New Zealand',
-			'term' => array('field' => '_all'))
-		);
-		$this->assertEquals(
-			$expected,
-			$this->getQuerySuggester($qg)
-		);
-	}
-
-
 	public function testEmptyTextShowNone() {
 		$qg = new QueryGenerator();
 		$qg->setQueryText('');
@@ -704,24 +690,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$this->assertEquals(true, $qg->getShowResultsForEmptyQuery());
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
-
-
-	/**
-	 * 	Get an array to be used as a query for Elastica
-	 * @return array Building bricks for a query suggester
-	 */
-	private function getQuerySuggester() {
-		$suggester = array();
-		$suggester['text'] = $this->queryText;
-
-		//With _all field enable in the mapping, Searchable.php class, we can use _all field to
-		//suggest against all fields.  It is not possible to pass an array here
-		$suggester['term'] = array('field' => '_all');
-		$querySuggester = array('query-suggestions' => $suggester);
-
-		return $querySuggester;
-	}
-
 
 
 	/**
