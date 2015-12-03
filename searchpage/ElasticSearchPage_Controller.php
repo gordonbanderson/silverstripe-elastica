@@ -44,12 +44,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$es = $this->primeElasticSearcherFromRequest();
 		$data = $this->initialiseDataArray();
 		$this->setMoreLikeThisParamsFromRequest($es);
-
 		$this->addSiteTreeFilterIfRequired($es);
-
 		$this->getSelectedSearchFields();
-
-
 
 		try {
 			$this->checkForSimulatedServerDown();
@@ -91,11 +87,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 		}
 
-
-		$elapsed = $this->calculateTime();
-		$data['ElapsedTime'] = $elapsed;
-
-
+		$data['ElapsedTime'] = $this->calculateTime();
 		return $this->renderResults($data);
 	}
 
@@ -112,39 +104,36 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$this->addSiteTreeFilterIfRequired($es);
 		$this->getSelectedSearchFields();
 
-
 		$paginated = null;
 		try {
 			$this->checkForSimulatedServerDown();
 
 			// now actually perform the search using the original query
 			$paginated = $es->search($this->QueryText, $this->FieldsToSearch,$this->TestMode);
+			$this->dealWithSuggestedQuery($es, $data, $paginated);
 
-			// This is the case of the original query having a better one suggested.  Do a
-			// second search for the suggested query, throwing away the original
-			if($es->hasSuggestedQuery() && !$this->IgnoreSuggestions) {
-				$data['SuggestedQuery'] = $es->getSuggestedQuery();
-				$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
-				//Link for if the user really wants to try their original query
-				$sifLink = rtrim($this->Link(), '/') . '?q=' . $this->QueryText . '&is=1';
-				$data['SearchInsteadForLink'] = $sifLink;
-				$paginated = $es->search($es->getSuggestedQuery(), $this->FieldsToSearch);
-			}
-
-			$elapsed = $this->calculateTime();
-			$data['ElapsedTime'] = $elapsed;
-
+			$data['ElapsedTime'] = $this->calculateTime();
 			$this->Aggregations = $es->getAggregations();
 			$this->successfulSearch($data, $paginated);
-
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 		}
 
-
-
 		return $this->renderResults($data);
+	}
 
+
+	private function dealWithSuggestedQuery(&$es, &$data, &$paginated) {
+		// This is the case of the original query having a better one suggested.  Do a
+		// second search for the suggested query, throwing away the original
+		if($es->hasSuggestedQuery() && !$this->IgnoreSuggestions) {
+			$data['SuggestedQuery'] = $es->getSuggestedQuery();
+			$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
+			//Link for if the user really wants to try their original query
+			$sifLink = rtrim($this->Link(), '/') . '?q=' . $this->QueryText . '&is=1';
+			$data['SearchInsteadForLink'] = $sifLink;
+			$paginated = $es->search($es->getSuggestedQuery(), $this->FieldsToSearch);
+		}
 	}
 
 
