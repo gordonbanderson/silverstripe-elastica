@@ -137,5 +137,41 @@ class SearchableHelper {
 	}
 
 
+	public static function storeMethodValue($instance, $field, &$fields, $html_fields) {
+		if(in_array($field, $fields)) {
+			// Parse short codes in HTML, and then convert to text
+			$fields[$field] = $this->owner->$field;
+			$html = ShortcodeParser::get_active()->parse($this->owner->$field());
+			$txt = \Convert::html2raw($html);
+			$fields[$field] = $txt;
+		} else {
+			// Plain text
+			$fields[$field] = $instance->$field();
+		}
+	}
+
+
+	/*
+	Evaluate each field, e.g. 'Title', 'Member.Name'
+	 */
+	public static function fieldsToElasticaConfig($fields) {
+		// Copied from DataObject::searchableFields() as there is no separate accessible method
+		$rewrite = array();
+		foreach($fields as $name => $specOrName) {
+			$identifer = (is_int($name)) ? $specOrName : $name;
+			$rewrite[$identifer] = array();
+			if(!isset($rewrite[$identifer]['title'])) {
+				$rewrite[$identifer]['title'] = (isset($labels[$identifer]))
+					? $labels[$identifer] : \FormField::name_to_label($identifer);
+			}
+			if(!isset($rewrite[$identifer]['filter'])) {
+				$rewrite[$identifer]['filter'] = 'PartialMatchFilter';
+			}
+		}
+
+		return $rewrite;
+	}
+
+
 
 }

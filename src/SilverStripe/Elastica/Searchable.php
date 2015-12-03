@@ -39,7 +39,6 @@ class Searchable extends \DataExtension {
 		'Year'        => 'integer',
 		'Percentage'  => 'double',
 		'Time'  => 'date',
-
 		// The 2 different date types will be stored with different formats
 		'Date'        => 'date',
 		'SS_Datetime' => 'date',
@@ -159,7 +158,6 @@ class Searchable extends \DataExtension {
 			}
 
 			SearchableHelper::addIndexedFields($name, $spec, $this->owner->ClassName);
-
 			$result[$name] = $spec;
 		}
 
@@ -258,21 +256,13 @@ class Searchable extends \DataExtension {
 
 	public function getFieldValuesAsArray($recurse = true) {
 		$fields = array();
-		$has_ones = $this->owner->has_one();
 
 		foreach($this->getElasticaFields($recurse) as $field => $config) {
+
+			//This is the case of calling a method to get a value, the field does not exist in the DB
 			if(null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
-				if(in_array($field, $this->html_fields)) {
-					// Parse short codes in HTML, and then convert to text
-					$fields[$field] = $this->owner->$field;
-					$html = ShortcodeParser::get_active()->parse($this->owner->$field());
-					$txt = \Convert::html2raw($html);
-					$fields[$field] = $txt;
-				} else {
-					// Plain text
-					$fields[$field] = $this->owner->$field();
-				}
+				SearchableHelper::storeMethodValue($this->owner, $field, $fields, $this->html_fields);
 
 			} else {
 				if(in_array($field, $this->html_fields)) {
@@ -288,6 +278,7 @@ class Searchable extends \DataExtension {
 						$data = $this->owner->$methodName();
 						$relArray = array();
 
+						$has_ones = $this->owner->has_one();
 						// get the fields of a has_one relational object
 						if(isset($has_ones[$methodName])) {
 							if($data->ID > 0) {
@@ -446,7 +437,7 @@ class Searchable extends \DataExtension {
 		}
 
 		// get the values of these fields
-		$elasticaMapping = $this->fieldsToElasticaConfig($fields);
+		$elasticaMapping = SearchableHelper::fieldsToElasticaConfig($fields);
 
 		if($recurse) {
 			// now for the associated methods and their results
@@ -467,7 +458,7 @@ class Searchable extends \DataExtension {
 						if(!$fields) {
 							user_error('The field $searchable_fields must be set for the class ' . $relClass);
 						}
-						$rewrite = $this->fieldsToElasticaConfig($fields);
+						$rewrite = SearchableHelper::fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName . '()'] = $rewrite;
@@ -477,7 +468,7 @@ class Searchable extends \DataExtension {
 						if(!$fields) {
 							user_error('The field $searchable_fields must be set for the class ' . $relClass);
 						}
-						$rewrite = $this->fieldsToElasticaConfig($fields);
+						$rewrite = SearchableHelper::fieldsToElasticaConfig($fields);
 
 						// mark as a method, the resultant fields are correct
 						$elasticaMapping[$methodName . '()'] = $rewrite;
@@ -493,26 +484,6 @@ class Searchable extends \DataExtension {
 	}
 
 
-	/*
-	Evaluate each field, e.g. 'Title', 'Member.Name'
-	 */
-	private function fieldsToElasticaConfig($fields) {
-		// Copied from DataObject::searchableFields() as there is no separate accessible method
-		$rewrite = array();
-		foreach($fields as $name => $specOrName) {
-			$identifer = (is_int($name)) ? $specOrName : $name;
-			$rewrite[$identifer] = array();
-			if(!isset($rewrite[$identifer]['title'])) {
-				$rewrite[$identifer]['title'] = (isset($labels[$identifer]))
-					? $labels[$identifer] : \FormField::name_to_label($identifer);
-			}
-			if(!isset($rewrite[$identifer]['filter'])) {
-				$rewrite[$identifer]['filter'] = 'PartialMatchFilter';
-			}
-		}
-
-		return $rewrite;
-	}
 
 
 	public function requireDefaultRecords() {
