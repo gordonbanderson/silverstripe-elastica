@@ -125,29 +125,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	public function index() {
 		$data = $this->initialiseDataArray();
 		$es = $this->primeElasticSearcherFromRequest();
+		$this->dealWithAggregation($es);
+		$this->addSiteTreeFilterIfRequired($es);
 
-		// Do not show suggestions if this flag is set
-		$ignoreSuggestions = null !== $this->request->getVar('is');
 
-
-		// query string
-		$queryTextParam = $this->request->getVar('q');
-		$queryText = !empty($queryTextParam) ? $queryTextParam : '';
 
 		$testMode = !empty($this->request->getVar('TestMode'));
 
-		$this->addAggregationFilters($es);
-		$this->addSiteTreeFilterIfRequired($es);
-
-		// set the optional aggregation manipulator
-		// In the event of a manipulator being present, show all the results for search
-		// Otherwise aggregations are all zero
-		if($this->SearchHelper) {
-			$es->setQueryResultManipulator($this->SearchHelper);
-			$es->showResultsForEmptySearch();
-		} else {
-			$es->hideResultsForEmptySearch();
-		}
 
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
@@ -169,15 +153,15 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			}
 
 			// now actually perform the search using the original query
-			$paginated = $es->search($queryText, $fieldsToSearch, $testMode);
+			$paginated = $es->search($this->QueryText, $fieldsToSearch, $testMode);
 
 			// This is the case of the original query having a better one suggested.  Do a
 			// second search for the suggested query, throwing away the original
-			if($es->hasSuggestedQuery() && !$ignoreSuggestions) {
+			if($es->hasSuggestedQuery() && !$this->IgnoreSuggestions) {
 				$data['SuggestedQuery'] = $es->getSuggestedQuery();
 				$data['SuggestedQueryHighlighted'] = $es->getSuggestedQueryHighlighted();
 				//Link for if the user really wants to try their original query
-				$sifLink = rtrim($this->Link(), '/') . '?q=' . $queryText . '&is=1';
+				$sifLink = rtrim($this->Link(), '/') . '?q=' . $this->QueryText . '&is=1';
 				$data['SearchInsteadForLink'] = $sifLink;
 				$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
 
@@ -193,8 +177,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 		}
 
-		$data['OriginalQuery'] = $queryText;
-		$data['IgnoreSuggestions'] = $ignoreSuggestions;
+		$data['OriginalQuery'] = $this->QueryText;
+		$data['IgnoreSuggestions'] = $this->IgnoreSuggestions;
 
 		return $this->renderResults($data);
 
@@ -297,6 +281,15 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$elasticSearcher->setStart($start);
 		$this->StartTime = microtime(true);
 		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
+
+		// Do not show suggestions if this flag is set
+		$this->IgnoreSuggestions = null !== $this->request->getVar('is');
+
+		// query string
+		$queryTextParam = $this->request->getVar('q');
+		$queryText = !empty($queryTextParam) ? $queryTextParam : '';
+		$this->QueryText = $queryText;
+
 		return $elasticSearcher;
 	}
 
@@ -317,12 +310,22 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
-	private function addAggregationFilters(&$es) {
+	private function dealWithAggregation(&$es) {
 		$ignore = \Config::inst()->get('Elastica', 'BlackList');
 		foreach($this->request->getVars() as $key => $value) {
 			if(!in_array($key, $ignore)) {
 				$es->addFilter($key, $value);
 			}
+		}
+
+		// set the optional aggregation manipulator
+		// In the event of a manipulator being present, show all the results for search
+		// Otherwise aggregations are all zero
+		if($this->SearchHelper) {
+			$es->setQueryResultManipulator($this->SearchHelper);
+			$es->showResultsForEmptySearch();
+		} else {
+			$es->hideResultsForEmptySearch();
 		}
 	}
 
