@@ -42,19 +42,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$instanceID = $this->request->param('OtherID');
 
 		$data = $this->initialiseDataArray();
-
 		$es = $this->primeElasticSearcherFromRequest();
-
 		$this->setMoreLikeThisParamsFromRequest($es);
-		$es->setPageLength($this->SearchPage->ResultsPerPage);
 
-		// filter by class or site tree
-		if($this->SearchPage->SiteTreeOnly) {
-			T7; //FIXME test missing
-			$es->addFilter('IsInSiteTree', true);
-		} else {
-			$es->setClasses($this->SearchPage->ClassesToSearch);
-		}
+		$this->addSiteTreeFilterIfRequired($es);
 
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
@@ -115,7 +106,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
-			$data['SearchPerformed'] = false;
 		}
 
 
@@ -135,7 +125,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	public function index() {
 		$data = $this->initialiseDataArray();
 		$es = $this->primeElasticSearcherFromRequest();
-		$es->setPageLength($this->SearchPage->ResultsPerPage);
 
 		// Do not show suggestions if this flag is set
 		$ignoreSuggestions = null !== $this->request->getVar('is');
@@ -147,20 +136,8 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		$testMode = !empty($this->request->getVar('TestMode'));
 
-		// filters for aggregations
-		$ignore = \Config::inst()->get('Elastica', 'BlackList');
-		foreach($this->request->getVars() as $key => $value) {
-			if(!in_array($key, $ignore)) {
-				$es->addFilter($key, $value);
-			}
-		}
-
-		// filter by class or site tree
-		if($this->SearchPage->SiteTreeOnly) {
-			$es->addFilter('IsInSiteTree', true);
-		} else {
-			$es->setClasses($this->SearchPage->ClassesToSearch);
-		}
+		$this->addAggregationFilters($es);
+		$this->addSiteTreeFilterIfRequired($es);
 
 		// set the optional aggregation manipulator
 		// In the event of a manipulator being present, show all the results for search
@@ -214,7 +191,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
-			$data['SearchPerformed'] = false;
 		}
 
 		$data['OriginalQuery'] = $queryText;
@@ -281,7 +257,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		if($this->action == 'similar') {
 			$queryField->setDisabled(true);
 			$actions = $form->Actions();
-
 			if(!empty($actions)) {
 				foreach($actions as $field) {
 					$field->setDisabled(true);
@@ -321,6 +296,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$start = isset($startParam) ? $startParam : 0;
 		$elasticSearcher->setStart($start);
 		$this->StartTime = microtime(true);
+		$elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
 		return $elasticSearcher;
 	}
 
@@ -341,6 +317,26 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
+	private function addAggregationFilters(&$es) {
+		$ignore = \Config::inst()->get('Elastica', 'BlackList');
+		foreach($this->request->getVars() as $key => $value) {
+			if(!in_array($key, $ignore)) {
+				$es->addFilter($key, $value);
+			}
+		}
+	}
+
+
+	private function addSiteTreeFilterIfRequired(&$es) {
+		// filter by class or site tree
+		if($this->SearchPage->SiteTreeOnly) {
+			$es->addFilter('IsInSiteTree', true);
+		} else {
+			$es->setClasses($this->SearchPage->ClassesToSearch);
+		}
+	}
+
+
 	private function initialiseDataArray() {
 		return array(
 			'Content' => $this->Content,
@@ -348,7 +344,6 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			'SearchPerformed' => false
 		);
 	}
-
 
 
 	private function renderResults($data) {
