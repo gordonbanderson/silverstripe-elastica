@@ -45,38 +45,19 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data = $this->initialiseDataArray();
 		$this->setMoreLikeThisParamsFromRequest($es);
 		$this->addSiteTreeFilterIfRequired($es);
-		$this->getSelectedSearchFields();
+		$this->getSelectedSearchFields('SimilarSearchable');
 
 		try {
 			$this->checkForSimulatedServerDown();
 			if(class_exists($class)) {
 				$instance = \DataObject::get_by_id($class, $instanceID);
-
+				print_r($this->FieldsToSearch);
 				$paginated = $es->moreLikeThis($instance, $this->FieldsToSearch);
-
 				$this->Aggregations = $es->getAggregations();
 				$this->successfulSearch($data, $paginated);
 				$data['SimilarTo'] = $instance;
+				$this->getSimilarTerms($data, $paginated);
 
-
-				$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
-				$fieldToTerms = new ArrayList();
-				foreach(array_keys($moreLikeThisTerms) as $fieldName) {
-					$readableFieldName = str_replace('.standard', '', $fieldName);
-					$fieldTerms = new ArrayList();
-					foreach($moreLikeThisTerms[$fieldName] as $value) {
-						$do = new DataObject();
-						$do->Term = $value;
-						$fieldTerms->push($do);
-					}
-
-					$do = new DataObject();
-					$do->FieldName = $readableFieldName;
-					$do->Terms = $fieldTerms;
-					$fieldToTerms->push($do);
-				}
-
-				$data['SimilarSearchTerms'] = $fieldToTerms;
 			} else {
 				// class does not exist
 				$data['ErrorMessage'] = "Class $class is either not found or not searchable\n";
@@ -86,12 +67,30 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		} catch (Elastica\Exception\Connection\HttpException $e) {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 		}
-
-		$data['ElapsedTime'] = $this->calculateTime();
 		return $this->renderResults($data);
 	}
 
 
+	private function getSimilarTerms(&$data, &$paginated) {
+		$moreLikeThisTerms = $paginated->getList()->MoreLikeThisTerms;
+		$fieldToTerms = new ArrayList();
+		foreach(array_keys($moreLikeThisTerms) as $fieldName) {
+			$readableFieldName = str_replace('.standard', '', $fieldName);
+			$fieldTerms = new ArrayList();
+			foreach($moreLikeThisTerms[$fieldName] as $value) {
+				$do = new DataObject();
+				$do->Term = $value;
+				$fieldTerms->push($do);
+			}
+
+			$do = new DataObject();
+			$do->FieldName = $readableFieldName;
+			$do->Terms = $fieldTerms;
+			$fieldToTerms->push($do);
+		}
+
+		$data['SimilarSearchTerms'] = $fieldToTerms;
+	}
 
 	/*
 	Display the search form. If the query parameter exists, search against Elastica
@@ -110,9 +109,10 @@ class ElasticSearchPage_Controller extends Page_Controller {
 
 			// now actually perform the search using the original query
 			$paginated = $es->search($this->QueryText, $this->FieldsToSearch,$this->TestMode);
+
+			// Deal with a possible suggested query
 			$this->dealWithSuggestedQuery($es, $data, $paginated);
 
-			$data['ElapsedTime'] = $this->calculateTime();
 			$this->Aggregations = $es->getAggregations();
 			$this->successfulSearch($data, $paginated);
 		} catch (Elastica\Exception\Connection\HttpException $e) {
@@ -142,6 +142,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$data['SearchPerformed'] = true;
 		$data['NumberOfResults'] = $paginated->getTotalItems();
 		$data['SearchPageLink'] = $this->SearchPage->Link();
+		$data['ElapsedTime'] = $this->calculateTime();
 	}
 
 
@@ -293,13 +294,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
-	private function getSelectedSearchFields() {
+	private function getSelectedSearchFields($selectionField = 'Searchable') {
 		// get the edited fields to search from the database for this search page
 		// Convert this into a name => weighting array
 		$fieldsToSearch = array();
 		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
 			'Active' => true,
-			'Searchable' => true
+			$selectionField => true
 		));
 
 		foreach($editedSearchFields->getIterator() as $searchField) {
