@@ -243,21 +243,34 @@ class Searchable extends \DataExtension {
 		if(array_key_exists($class, self::$mappings)) {
 			$spec['type'] = self::$mappings[$class];
 			if($spec['type'] === 'date') {
-				if($class == 'Date') {
-					$spec['format'] = 'y-M-d';
-				} elseif($class == 'SS_Datetime') {
-					$spec['format'] = 'y-M-d H:m:s';
-				} elseif($class == 'Datetime') {
-					$spec['format'] = 'y-M-d H:m:s';
-				} elseif($class == 'Time') {
-					$spec['format'] = 'H:m:s';
-				}
+				$spec['format'] = $this->getFormatForDate($class);
 			}
+
 			if($class === 'HTMLText' || $class === 'HTMLVarchar') {
 				array_push($this->html_fields, $name);
 			}
 		}
-		// no need for an extra case here as all SS types checked in tests
+	}
+
+
+	private function getFormatForDate($class) {
+		$format = 'y-M-d'; // default
+		switch ($class) {
+			case 'Date':
+				$format = 'y-M-d';
+				break;
+			case 'SS_Datetime':
+				$format = 'y-M-d H:m:s';
+				break;
+			case 'Datetime':
+				$format = 'y-M-d H:m:s';
+				break;
+			case 'Time':
+				$format = 'H:m:s';
+				break;
+		}
+
+		return $format;
 	}
 
 
