@@ -10,3 +10,5 @@ checks:
 
 filter:
     paths: [src/*, tests/*,code/*,searchpage/*,javascript/*,css/*]
+    excluded_paths:
+      - "tests/mock/"
