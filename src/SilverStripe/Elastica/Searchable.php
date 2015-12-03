@@ -209,6 +209,11 @@ class Searchable extends \DataExtension {
 	}
 
 
+	/**
+	 * @param string $name
+	 * @param boolean $storeMethodName
+	 * @param boolean $recurse
+	 */
 	private function assignSpecForHasOne($name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
 
@@ -230,6 +235,11 @@ class Searchable extends \DataExtension {
 	}
 
 
+	/**
+	 * @param string $name
+	 * @param boolean $storeMethodName
+	 * @param boolean $recurse
+	 */
 	private function assignSpecForManyRelationship($name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
 		$resultTypeMapping = array();
@@ -253,6 +263,9 @@ class Searchable extends \DataExtension {
 	}
 
 
+	/**
+	 * @param string $name
+	 */
 	private function assignSpecForStandardFieldType($name, $class, &$spec) {
 		if(($pos = strpos($class, '('))) {
 			// Valid in the case of Varchar(255)
