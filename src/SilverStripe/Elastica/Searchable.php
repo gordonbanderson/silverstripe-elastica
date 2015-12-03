@@ -262,7 +262,7 @@ class Searchable extends \DataExtension {
 			//This is the case of calling a method to get a value, the field does not exist in the DB
 			if(null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
-				SearchableHelper::storeMethodValue($this->owner, $field, $fields, $this->html_fields);
+				SearchableHelper::storeMethodTextValue($this->owner, $field, $fields, $this->html_fields);
 
 			} else {
 				if(in_array($field, $this->html_fields)) {
