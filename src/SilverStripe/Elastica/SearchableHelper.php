@@ -137,7 +137,7 @@ class SearchableHelper {
 	}
 
 
-	public static function storeMethodValue($instance, $field, &$fields, $html_fields) {
+	public static function storeMethodTextValue($instance, $field, &$fields, $html_fields) {
 		if(in_array($field, $fields)) {
 			// Parse short codes in HTML, and then convert to text
 			$fields[$field] = $this->owner->$field;
