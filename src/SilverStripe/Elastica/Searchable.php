@@ -263,44 +263,11 @@ class Searchable extends \DataExtension {
 			if(null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
 				SearchableHelper::storeMethodTextValue($this->owner, $field, $fields, $this->html_fields);
-
 			} else {
 				if(in_array($field, $this->html_fields)) {
-					$fields[$field] = $this->owner->$field;
-					if(gettype($this->owner->$field) !== 'NULL') {
-						$html = ShortcodeParser::get_active()->parse($this->owner->$field);
-						$txt = \Convert::html2raw($html);
-						$fields[$field] = $txt;
-					}
+					SearchableHelper::storeFieldHTMLValue($this->owner, $field, $fields);
 				} else {
-					if(isset($config['properties']['__method'])) {
-						$methodName = $config['properties']['__method'];
-						$data = $this->owner->$methodName();
-						$relArray = array();
-
-						$has_ones = $this->owner->has_one();
-						// get the fields of a has_one relational object
-						if(isset($has_ones[$methodName])) {
-							if($data->ID > 0) {
-								$item = $data->getFieldValuesAsArray(false);
-								$relArray = $item;
-							}
-
-						// get the fields for a has_many or many_many relational list
-						} else {
-							foreach($data->getIterator() as $item) {
-								if($recurse) {
-									// populate the subitem but do not recurse any further if more relationships
-									$itemDoc = $item->getFieldValuesAsArray(false);
-									array_push($relArray, $itemDoc);
-								}
-							}
-						}
-						// save the relation as an array (for now)
-						$fields[$methodName] = $relArray;
-					} else {
-						$fields[$field] = $this->owner->$field;
-					}
+					SearchableHelper::storeRelationshipValue($this->owner, $field, $fields, $config, $recurse);
 
 				}
 
