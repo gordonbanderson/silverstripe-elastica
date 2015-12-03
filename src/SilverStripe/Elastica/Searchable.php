@@ -137,30 +137,7 @@ class Searchable extends \DataExtension {
 
 			if(array_key_exists($name, $db)) {
 				$class = $db[$name];
-
-				if(($pos = strpos($class, '('))) {
-					// Valid in the case of Varchar(255)
-					$class = substr($class, 0, $pos);
-				}
-
-				if(array_key_exists($class, self::$mappings)) {
-					$spec['type'] = self::$mappings[$class];
-					if($spec['type'] === 'date') {
-						if($class == 'Date') {
-							$spec['format'] = 'y-M-d';
-						} elseif($class == 'SS_Datetime') {
-							$spec['format'] = 'y-M-d H:m:s';
-						} elseif($class == 'Datetime') {
-							$spec['format'] = 'y-M-d H:m:s';
-						} elseif($class == 'Time') {
-							$spec['format'] = 'H:m:s';
-						}
-					}
-					if($class === 'HTMLText' || $class === 'HTMLVarchar') {
-						array_push($this->html_fields, $name);
-					}
-				}
-				// no need for an extra case here as all SS types checked in tests
+				$this->assignSpecForStandardFieldType($class, $spec);
 			} else {
 				// field name is not in the db, it could be a method
 				$has_lists = $this->getListRelationshipMethods();
@@ -168,50 +145,12 @@ class Searchable extends \DataExtension {
 
 				// check has_many and many_many relations
 				if(isset($has_lists[$name])) {
-					// FIX ME how to do nested mapping
-					// See https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-array-type.html
-
 					// the classes returned by the list method
 					$resultType = $has_lists[$name];
-
-					$resultTypeInstance = \Injector::inst()->create($resultType);
-					$resultTypeMapping = array();
-
-					// get the fields for the result type, but do not recurse
-					if($recurse) {
-						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
-					}
-
-					$resultTypeMapping['ID'] = array('type' => 'integer');
-
-					if($storeMethodName) {
-						$resultTypeMapping['__method'] = $name;
-					}
-
-					$spec = array('properties' => $resultTypeMapping);
-
-
-					// we now change the name to the result type, not the method name
-					$name = $resultType;
+					$this->assignSpecForManyRelationship($resultType, $spec);
 				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
-					$resultTypeInstance = \Injector::inst()->create($resultType);
-
-					$resultTypeMapping = array();
-
-					// get the fields for the result type, but do not recurse
-					if($recurse) {
-						$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
-					}
-
-					$resultTypeMapping['ID'] = array('type' => 'integer');
-
-					if($storeMethodName) {
-						$resultTypeMapping['__method'] = $name;
-					}
-					$spec = array('properties' => $resultTypeMapping);
-					// we now change the name to the result type, not the method name
-					$name = $resultType;
+					HERE
 				}
 				// otherwise fall back to string - Enum is one such category
 				else {
@@ -264,6 +203,76 @@ class Searchable extends \DataExtension {
 	}
 
 
+	private function assignSpecForHasOne($resultType, &$spec) {
+		$resultTypeInstance = \Injector::inst()->create($resultType);
+
+		$resultTypeMapping = array();
+
+		// get the fields for the result type, but do not recurse
+		if($recurse) {
+			$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
+		}
+
+		$resultTypeMapping['ID'] = array('type' => 'integer');
+
+		if($storeMethodName) {
+			$resultTypeMapping['__method'] = $name;
+		}
+		$spec = array('properties' => $resultTypeMapping);
+		// we now change the name to the result type, not the method name
+		$name = $resultType;
+	}
+
+	private function assignSpecForManyRelationship($resultType, &$spec) {
+		$resultTypeInstance = \Injector::inst()->create($resultType);
+		$resultTypeMapping = array();
+
+		// get the fields for the result type, but do not recurse
+		if($recurse) {
+			$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
+		}
+
+		$resultTypeMapping['ID'] = array('type' => 'integer');
+
+		if($storeMethodName) {
+			$resultTypeMapping['__method'] = $name;
+		}
+
+		$spec = array('properties' => $resultTypeMapping);
+
+
+		// we now change the name to the result type, not the method name
+		$name = $resultType;
+	}
+
+
+	private function assignSpecForStandardFieldType($class, &$spec) {
+		if(($pos = strpos($class, '('))) {
+			// Valid in the case of Varchar(255)
+			$class = substr($class, 0, $pos);
+		}
+
+		if(array_key_exists($class, self::$mappings)) {
+			$spec['type'] = self::$mappings[$class];
+			if($spec['type'] === 'date') {
+				if($class == 'Date') {
+					$spec['format'] = 'y-M-d';
+				} elseif($class == 'SS_Datetime') {
+					$spec['format'] = 'y-M-d H:m:s';
+				} elseif($class == 'Datetime') {
+					$spec['format'] = 'y-M-d H:m:s';
+				} elseif($class == 'Time') {
+					$spec['format'] = 'H:m:s';
+				}
+			}
+			if($class === 'HTMLText' || $class === 'HTMLVarchar') {
+				array_push($this->html_fields, $name);
+			}
+		}
+		// no need for an extra case here as all SS types checked in tests
+	}
+
+
 	/**
 	 * Get the elasticsearch mapping for the current document/type
 	 *
@@ -310,9 +319,8 @@ class Searchable extends \DataExtension {
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
-
-		if(isset($_GET['progress'])) {
-			$progress = $_GET['progress'];
+		$progress = Controller::curr()->getVar('progress');
+		if(!empty($progress)) {
 			self::$progressInterval = (int)$progress;
 		}
 
@@ -674,8 +682,7 @@ class Searchable extends \DataExtension {
 
 
 	private function isInSiteTree($classname) {
-		$inSiteTree = $classname === 'SiteTree' ? true : false;
-
+		$inSiteTree = ($classname === 'SiteTree' ? true : false);
 		if(!$inSiteTree) {
 			$class = new \ReflectionClass($this->owner->ClassName);
 			while($class = $class->getParentClass()) {
@@ -686,7 +693,6 @@ class Searchable extends \DataExtension {
 				}
 			}
 		}
-
 		return $inSiteTree;
 	}
 
