@@ -507,14 +507,7 @@ class ElasticaService {
 			if(isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
-				$class = new \ReflectionClass($classname);
-				while($class = $class->getParentClass()) {
-					$parentClass = $class->getName();
-					if($parentClass == 'SiteTree') {
-						$inSiteTree = true;
-						break;
-					}
-				}
+				$inSiteTree = SearchableHelper::isInSiteTree($classname);
 				self::$site_tree_classes[$classname] = $inSiteTree;
 			}
 
