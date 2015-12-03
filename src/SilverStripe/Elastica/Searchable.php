@@ -210,11 +210,11 @@ class Searchable extends \DataExtension {
 
 
 	/**
-	 * @param string $name
+	 * @param string &$name
 	 * @param boolean $storeMethodName
 	 * @param boolean $recurse
 	 */
-	private function assignSpecForRelationship($name, $resultType, &$spec, $storeMethodName, $recurse) {
+	private function assignSpecForRelationship(&$name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
 		$resultTypeMapping = array();
 		// get the fields for the result type, but do not recurse
