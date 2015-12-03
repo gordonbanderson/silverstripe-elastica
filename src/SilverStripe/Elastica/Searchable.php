@@ -251,14 +251,9 @@ class Searchable extends \DataExtension {
 	}
 
 
-
-
-
 	public function getFieldValuesAsArray($recurse = true) {
 		$fields = array();
-
 		foreach($this->getElasticaFields($recurse) as $field => $config) {
-
 			//This is the case of calling a method to get a value, the field does not exist in the DB
 			if(null === $this->owner->$field && is_callable(get_class($this->owner) . "::" . $field)) {
 				// call a method to get a field value
@@ -268,12 +263,9 @@ class Searchable extends \DataExtension {
 					SearchableHelper::storeFieldHTMLValue($this->owner, $field, $fields);
 				} else {
 					SearchableHelper::storeRelationshipValue($this->owner, $field, $fields, $config, $recurse);
-
 				}
-
 			}
 		}
-
 		return $fields;
 	}
 
@@ -293,11 +285,13 @@ class Searchable extends \DataExtension {
 	 * Delete the record from the search index if ShowInSearch is deactivated (non-SiteTree).
 	 */
 	public function onBeforeWrite() {
-		if(($this->owner instanceof \SiteTree)) {
-			if($this->owner->hasField('ShowInSearch') &&
-				$this->owner->isChanged('ShowInSearch', 2) && false == $this->owner->ShowInSearch) {
-				$this->doDeleteDocument();
-			}
+		if(
+			$this->owner instanceof \SiteTree &&
+			$this->owner->hasField('ShowInSearch') &&
+			$this->owner->isChanged('ShowInSearch', 2) &&
+			false == $this->owner->ShowInSearch
+		) {
+			$this->doDeleteDocument();
 		}
 	}
 
@@ -306,13 +300,11 @@ class Searchable extends \DataExtension {
 	 * Delete the record from the search index if ShowInSearch is deactivated (SiteTree).
 	 */
 	public function onBeforePublish() {
-		if(false == $this->owner->ShowInSearch) {
-			if($this->owner->isPublished()) {
-				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
-					byID($this->owner->ID);
-				if($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
-					$this->doDeleteDocument();
-				}
+		if(false == $this->owner->ShowInSearch && $this->owner->isPublished()) {
+			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
+				byID($this->owner->ID);
+			if($liveRecord->ShowInSearch != $this->owner->ShowInSearch) {
+				$this->doDeleteDocument();
 			}
 		}
 	}
@@ -338,10 +330,8 @@ class Searchable extends \DataExtension {
 	 * Updates the record in the search index.
 	 */
 	protected function doIndexDocument() {
-		if($this->showRecordInSearch()) {
-			if(!$this->owner->IndexingOff) {
-				$this->service->index($this->owner);
-			}
+		if($this->showRecordInSearch() && !$this->owner->IndexingOff) {
+			$this->service->index($this->owner);
 		}
 	}
 
@@ -385,7 +375,6 @@ class Searchable extends \DataExtension {
 			trigger_error("Deleted document " . $this->owner->ClassName . " (" . $this->owner->ID .
 				") not found in search index.", E_USER_NOTICE);
 		}
-
 	}
 
 
@@ -455,51 +444,22 @@ class Searchable extends \DataExtension {
 
 	public function requireDefaultRecords() {
 		parent::requireDefaultRecords();
-
 		$searchableFields = $this->getElasticaFields(true, true);
-
-
-		$doSC = \SearchableClass::get()->filter(array('Name' => $this->owner->ClassName))->first();
-		if(!$doSC) {
-			$doSC = new \SearchableClass();
-			$doSC->Name = $this->owner->ClassName;
-
-			$inSiteTree = SearchableHelper::isInSiteTree($this->owner->ClassName);
-			$doSC->InSiteTree = $inSiteTree;
-
-			$doSC->write();
-		}
+		$doSC = SearchableHelper::findOrCreateSearchableClass($this->owner->ClassName);
 
 		foreach($searchableFields as $name => $searchableField) {
 			// check for existence of methods and if they exist use that as the name
+			$name = '';
 			if(!isset($searchableField['type'])) {
 				$name = $searchableField['properties']['__method'];
 			}
 
-			$filter = array('ClazzName' => $this->owner->ClassName, 'Name' => $name);
-			$doSF = \SearchableField::get()->filter($filter)->first();
-
-
-			if(!$doSF) {
-				$doSF = new \SearchableField();
-				$doSF->ClazzName = $this->owner->ClassName;
-				$doSF->Name = $name;
-
-				if(isset($searchableField['type'])) {
-					$doSF->Type = $searchableField['type'];
-				} else {
-					$doSF->Name = $searchableField['properties']['__method'];
-					$doSF->Type = 'relationship';
-				}
-				$doSF->SearchableClassID = $doSC->ID;
-
-				if(isset($searchableField['fields']['autocomplete'])) {
-					$doSF->Autocomplete = true;
-				}
-
-				$doSF->write();
-				\DB::alteration_message("Created new searchable editable field " . $name, "changed");
-			}
+			SearchableHelper::findOrCreateSearchableField(
+				$this->owner->ClassName,
+				$name,
+				$searchableField,
+				$doSC
+			);
 
 			// FIXME deal with deletions
 		}
@@ -514,7 +474,6 @@ class Searchable extends \DataExtension {
 		$possibleTemplates = array($this->owner->ClassName . 'ElasticSearchResult', 'ElasticSearchResult');
 		return $this->owner->customise($vars)->renderWith($possibleTemplates);
 	}
-
 
 
 	public function getTermVectors() {

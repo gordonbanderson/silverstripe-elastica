@@ -193,6 +193,47 @@ class SearchableHelper {
 	}
 
 
+	public static function findOrCreateSearchableClass($classname) {
+		$doSC = \SearchableClass::get()->filter(array('Name' => $classname))->first();
+		if(!$doSC) {
+			$doSC = new \SearchableClass();
+			$doSC->Name = $classname;
+			$inSiteTree = SearchableHelper::isInSiteTree($classname);
+			$doSC->InSiteTree = $inSiteTree;
+			$doSC->write();
+		}
+		return $doSC;
+	}
+
+
+	public static function findOrCreateSearchableField($className, $fieldName, $searchableField, $searchableClass) {
+		$filter = array('ClazzName' => $className, 'Name' => $fieldName);
+		$doSF = \SearchableField::get()->filter($filter)->first();
+
+
+		if(!$doSF) {
+			$doSF = new \SearchableField();
+			$doSF->ClazzName = $className;
+			$doSF->Name = $fieldName;
+
+			if(isset($searchableField['type'])) {
+				$doSF->Type = $searchableField['type'];
+			} else {
+				$doSF->Name = $searchableField['properties']['__method'];
+				$doSF->Type = 'relationship';
+			}
+			$doSF->SearchableClassID = $searchableClass->ID;
+
+			if(isset($searchableField['fields']['autocomplete'])) {
+				$doSF->Autocomplete = true;
+			}
+
+			$doSF->write();
+			\DB::alteration_message("Created new searchable editable field " . $fieldName, "changed");
+		}
+	}
+
+
 	/*
 	Evaluate each field, e.g. 'Title', 'Member.Name'
 	 */
