@@ -41,39 +41,22 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$class = $this->request->param('ID');
 		$instanceID = $this->request->param('OtherID');
 
-		$data = $this->initialiseDataArray();
 		$es = $this->primeElasticSearcherFromRequest();
+		$data = $this->initialiseDataArray();
 		$this->setMoreLikeThisParamsFromRequest($es);
 
 		$this->addSiteTreeFilterIfRequired($es);
 
-		// get the edited fields to search from the database for this search page
-		// Convert this into a name => weighting array
-		$fieldsToSearch = array();
-		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
-			'Active' => true,
-			'SimilarSearchable' => true
-		));
+		$this->getSelectedSearchFields();
 
-		foreach($editedSearchFields->getIterator() as $searchField) {
-			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
-		}
 
-		// Use the standard field for more like this, ie not stemmed
-		foreach($fieldsToSearch as $field => $value) {
-			$fieldsToSearch[$field . '.standard'] = $value;
-			unset($fieldsToSearch[$field]);
-		}
 
 		try {
-			// Simulate server being down for testing purposes
-			if($this->request->getVar('ServerDown')) {
-				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
-			}
+			$this->checkForSimulatedServerDown();
 			if(class_exists($class)) {
 				$instance = \DataObject::get_by_id($class, $instanceID);
 
-				$paginated = $es->moreLikeThis($instance, $fieldsToSearch);
+				$paginated = $es->moreLikeThis($instance, $this->FieldsToSearch);
 
 				$this->Aggregations = $es->getAggregations();
 				$this->successfulSearch($data, $paginated);
@@ -123,37 +106,19 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	and render results accordingly.
 	 */
 	public function index() {
-		$data = $this->initialiseDataArray();
 		$es = $this->primeElasticSearcherFromRequest();
+		$data = $this->initialiseDataArray();
 		$this->dealWithAggregation($es);
 		$this->addSiteTreeFilterIfRequired($es);
+		$this->getSelectedSearchFields();
 
-
-
-		$testMode = !empty($this->request->getVar('TestMode'));
-
-
-		// get the edited fields to search from the database for this search page
-		// Convert this into a name => weighting array
-		$fieldsToSearch = array();
-		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
-			'Active' => true,
-			'Searchable' => true
-		));
-
-		foreach($editedSearchFields->getIterator() as $searchField) {
-			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
-		}
 
 		$paginated = null;
 		try {
-			// Simulate server being down for testing purposes
-			if(!empty($this->request->getVar('ServerDown'))) {
-				throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
-			}
+			$this->checkForSimulatedServerDown();
 
 			// now actually perform the search using the original query
-			$paginated = $es->search($this->QueryText, $fieldsToSearch, $testMode);
+			$paginated = $es->search($this->QueryText, $this->FieldsToSearch,$this->TestMode);
 
 			// This is the case of the original query having a better one suggested.  Do a
 			// second search for the suggested query, throwing away the original
@@ -163,8 +128,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 				//Link for if the user really wants to try their original query
 				$sifLink = rtrim($this->Link(), '/') . '?q=' . $this->QueryText . '&is=1';
 				$data['SearchInsteadForLink'] = $sifLink;
-				$paginated = $es->search($es->getSuggestedQuery(), $fieldsToSearch);
-
+				$paginated = $es->search($es->getSuggestedQuery(), $this->FieldsToSearch);
 			}
 
 			$elapsed = $this->calculateTime();
@@ -177,8 +141,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 			$data['ErrorMessage'] = 'Unable to connect to search server';
 		}
 
-		$data['OriginalQuery'] = $this->QueryText;
-		$data['IgnoreSuggestions'] = $this->IgnoreSuggestions;
+
 
 		return $this->renderResults($data);
 
@@ -290,6 +253,7 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$queryText = !empty($queryTextParam) ? $queryTextParam : '';
 		$this->QueryText = $queryText;
 
+		$this->TestMode = !empty($this->request->getVar('TestMode'));
 		return $elasticSearcher;
 	}
 
@@ -340,11 +304,39 @@ class ElasticSearchPage_Controller extends Page_Controller {
 	}
 
 
+	private function getSelectedSearchFields() {
+		// get the edited fields to search from the database for this search page
+		// Convert this into a name => weighting array
+		$fieldsToSearch = array();
+		$editedSearchFields = $this->ElasticaSearchableFields()->filter(array(
+			'Active' => true,
+			'Searchable' => true
+		));
+
+		foreach($editedSearchFields->getIterator() as $searchField) {
+			$fieldsToSearch[$searchField->Name] = $searchField->Weight;
+		}
+
+		// For a 'more like this' search, use the original unstemmed words
+		// This means using the .standard named field of text
+		if ($this->action == 'similar') {
+			// Use the standard field for more like this, ie not stemmed
+			foreach($fieldsToSearch as $field => $value) {
+				$fieldsToSearch[$field . '.standard'] = $value;
+				unset($fieldsToSearch[$field]);
+			}
+		}
+		$this->FieldsToSearch = $fieldsToSearch;
+	}
+
+
 	private function initialiseDataArray() {
 		return array(
 			'Content' => $this->Content,
 			'Title' => $this->Title,
-			'SearchPerformed' => false
+			'SearchPerformed' => false,
+			'OriginalQuery' => $this->QueryText,
+			'IgnoreSuggestions' => $this->IgnoreSuggestions
 		);
 	}
 
@@ -363,5 +355,13 @@ class ElasticSearchPage_Controller extends Page_Controller {
 		$endTime = microtime(true);
 		$elapsed = round(100 * ($endTime - $this->StartTime)) / 100;
 		return $elapsed;
+	}
+
+
+	private function checkForSimulatedServerDown() {
+		// Simulate server being down for testing purposes
+		if(!empty($this->request->getVar('ServerDown'))) {
+			throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
+		}
 	}
 }
