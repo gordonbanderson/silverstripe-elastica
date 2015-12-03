@@ -137,7 +137,7 @@ class Searchable extends \DataExtension {
 
 			if(array_key_exists($name, $db)) {
 				$class = $db[$name];
-				$this->assignSpecForStandardFieldType($name, $class, $spec);
+				SearchableHelper::assignSpecForStandardFieldType($name, $class, $spec, $this->html_fields, self::$mappings);
 			} else {
 				// field name is not in the db, it could be a method
 				$has_lists = $this->getListRelationshipMethods();
@@ -147,10 +147,10 @@ class Searchable extends \DataExtension {
 				if(isset($has_lists[$name])) {
 					// the classes returned by the list method
 					$resultType = $has_lists[$name];
-					$this->assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
+					SearchableHelper::assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
 				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
-					$this->assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
+					SearchableHelper::assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
 				}
 				// otherwise fall back to string - Enum is one such category
 				else {
@@ -158,7 +158,7 @@ class Searchable extends \DataExtension {
 				}
 			}
 
-			$this->addIndexedFields($name, $spec);
+			SearchableHelper::addIndexedFields($name, $spec, $this->owner->ClassName);
 
 			$result[$name] = $spec;
 		}
@@ -170,108 +170,6 @@ class Searchable extends \DataExtension {
 		return $result;
 	}
 
-
-
-	private function addIndexedFields($name, &$spec) {
-		// in the case of a relationship type will not be set
-		if(isset($spec['type'])) {
-			if($spec['type'] == 'string') {
-				$unstemmed = array();
-				$unstemmed['type'] = "string";
-				$unstemmed['analyzer'] = "unstemmed";
-				$unstemmed['term_vector'] = "yes";
-				$extraFields = array('standard' => $unstemmed);
-
-				$shingles = array();
-				$shingles['type'] = "string";
-				$shingles['analyzer'] = "shingles";
-				$shingles['term_vector'] = "yes";
-				$extraFields['shingles'] = $shingles;
-
-				//Add autocomplete field if so required
-				$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
-
-				if(isset($autocomplete) && in_array($name, $autocomplete)) {
-					$autocompleteField = array();
-					$autocompleteField['type'] = "string";
-					$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
-					$autocompleteField['search_analyzer'] = "autocomplete_search_analyzer";
-					$autocompleteField['term_vector'] = "yes";
-					$extraFields['autocomplete'] = $autocompleteField;
-				}
-
-				$spec['fields'] = $extraFields;
-				// FIXME - make index/locale specific, get from settings
-				$spec['analyzer'] = 'stemmed';
-				$spec['term_vector'] = "yes";
-			}
-		}
-	}
-
-
-	/**
-	 * @param string &$name
-	 * @param boolean $storeMethodName
-	 * @param boolean $recurse
-	 */
-	private function assignSpecForRelationship(&$name, $resultType, &$spec, $storeMethodName, $recurse) {
-		$resultTypeInstance = \Injector::inst()->create($resultType);
-		$resultTypeMapping = array();
-		// get the fields for the result type, but do not recurse
-		if($recurse) {
-			$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
-		}
-		$resultTypeMapping['ID'] = array('type' => 'integer');
-		if($storeMethodName) {
-			$resultTypeMapping['__method'] = $name;
-		}
-		$spec = array('properties' => $resultTypeMapping);
-		// we now change the name to the result type, not the method name
-		$name = $resultType;
-	}
-
-
-	/**
-	 * @param string $name
-	 */
-	private function assignSpecForStandardFieldType($name, $class, &$spec) {
-		if(($pos = strpos($class, '('))) {
-			// Valid in the case of Varchar(255)
-			$class = substr($class, 0, $pos);
-		}
-
-		if(array_key_exists($class, self::$mappings)) {
-			$spec['type'] = self::$mappings[$class];
-			if($spec['type'] === 'date') {
-				$spec['format'] = $this->getFormatForDate($class);
-			}
-
-			if($class === 'HTMLText' || $class === 'HTMLVarchar') {
-				array_push($this->html_fields, $name);
-			}
-		}
-	}
-
-
-	private function getFormatForDate($class) {
-		$format = 'y-M-d'; // default
-		switch ($class) {
-			case 'Date':
-				$format = 'y-M-d';
-				break;
-			case 'SS_Datetime':
-				$format = 'y-M-d H:m:s';
-				break;
-			case 'Datetime':
-				$format = 'y-M-d H:m:s';
-				break;
-			case 'Time':
-				$format = 'H:m:s';
-				break;
-		}
-
-		return $format;
-	}
 
 
 	/**
