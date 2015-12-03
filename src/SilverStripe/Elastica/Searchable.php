@@ -140,7 +140,7 @@ class Searchable extends \DataExtension {
 				SearchableHelper::assignSpecForStandardFieldType($name, $class, $spec, $this->html_fields, self::$mappings);
 			} else {
 				// field name is not in the db, it could be a method
-				$has_lists = $this->getListRelationshipMethods();
+				$has_lists = SearchableHelper::getListRelationshipMethods($this->owner);
 				$has_ones = $this->owner->has_one();
 
 				// check has_many and many_many relations
@@ -238,10 +238,9 @@ class Searchable extends \DataExtension {
 		// Check if the current classname is part of the site tree or not
 		// Results are cached to save reprocessing the same
 		$classname = $this->owner->ClassName;
-		$inSiteTree = $this->isInSiteTree($classname);
+		$inSiteTree = SearchableHelper::isInSiteTree($classname);
 
 		$document->set('IsInSiteTree', $inSiteTree);
-
 		if($inSiteTree) {
 			$document->set('Link', $this->owner->AbsoluteLink());
 		}
@@ -252,6 +251,9 @@ class Searchable extends \DataExtension {
 
 		return $document;
 	}
+
+
+
 
 
 	public function getFieldValuesAsArray($recurse = true) {
@@ -450,7 +452,7 @@ class Searchable extends \DataExtension {
 			// now for the associated methods and their results
 			$methodDescs = \Config::inst()->get(get_class($this->owner), 'searchable_relationships');
 			$has_ones = $this->owner->has_one();
-			$has_lists = $this->getListRelationshipMethods();
+			$has_lists = SearchableHelper::getListRelationshipMethods($this->owner);
 
 			if(isset($methodDescs) && is_array($methodDescs)) {
 				foreach($methodDescs as $methodDesc) {
@@ -524,7 +526,7 @@ class Searchable extends \DataExtension {
 			$doSC = new \SearchableClass();
 			$doSC->Name = $this->owner->ClassName;
 
-			$inSiteTree = $this->isInSiteTree($this->owner->ClassName);
+			$inSiteTree = SearchableHelper::isInSiteTree($this->owner->ClassName);
 			$doSC->InSiteTree = $inSiteTree;
 
 			$doSC->write();
@@ -566,36 +568,6 @@ class Searchable extends \DataExtension {
 	}
 
 
-	private function getListRelationshipMethods() {
-		$has_manys = $this->owner->has_many();
-		$many_manys = $this->owner->many_many();
-
-		// array of method name to retuned object ClassName for relationships returning lists
-		$has_lists = $has_manys;
-		foreach(array_keys($many_manys) as $key) {
-			$has_lists[$key] = $many_manys[$key];
-		}
-
-		return $has_lists;
-	}
-
-
-	private function isInSiteTree($classname) {
-		$inSiteTree = ($classname === 'SiteTree' ? true : false);
-		if(!$inSiteTree) {
-			$class = new \ReflectionClass($this->owner->ClassName);
-			while($class = $class->getParentClass()) {
-				$parentClass = $class->getName();
-				if($parentClass == 'SiteTree') {
-					$inSiteTree = true;
-					break;
-				}
-			}
-		}
-		return $inSiteTree;
-	}
-
-
 	/*
 	Allow the option of overriding the default template with one of <ClassName>ElasticSearchResult
 	 */
@@ -615,7 +587,7 @@ class Searchable extends \DataExtension {
 	public function updateCMSFields(\FieldList $fields) {
 		$isIndexed = false;
 		// SIteTree object must have a live record, ShowInSearch = true
-		if($this->isInSiteTree($this->owner->ClassName)) {
+		if(SearchableHelper::isInSiteTree($this->owner->ClassName)) {
 			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 				byID($this->owner->ID);
 			if($liveRecord->ShowInSearch) {

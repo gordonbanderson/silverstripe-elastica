@@ -106,4 +106,36 @@ class SearchableHelper {
 	}
 
 
+
+	public static function getListRelationshipMethods($instance) {
+		$has_manys = $instance->has_many();
+		$many_manys = $instance->many_many();
+
+		// array of method name to retuned object ClassName for relationships returning lists
+		$has_lists = $has_manys;
+		foreach(array_keys($many_manys) as $key) {
+			$has_lists[$key] = $many_manys[$key];
+		}
+
+		return $has_lists;
+	}
+
+
+	public static function isInSiteTree($classname) {
+		$inSiteTree = ($classname === 'SiteTree' ? true : false);
+		if(!$inSiteTree) {
+			$class = new \ReflectionClass($classname);
+			while($class = $class->getParentClass()) {
+				$parentClass = $class->getName();
+				if($parentClass == 'SiteTree') {
+					$inSiteTree = true;
+					break;
+				}
+			}
+		}
+		return $inSiteTree;
+	}
+
+
+
 }
