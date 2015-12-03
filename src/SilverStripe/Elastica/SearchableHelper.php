@@ -151,6 +151,48 @@ class SearchableHelper {
 	}
 
 
+	public static function storeFieldHTMLValue($instance, $field, &$fields) {
+		$fields[$field] = $instance->$field;
+		if(gettype($instance->$field) !== 'NULL') {
+			$html = \ShortcodeParser::get_active()->parse($instance->$field);
+			$txt = \Convert::html2raw($html);
+			$fields[$field] = $txt;
+		}
+	}
+
+
+	public static function storeRelationshipValue($instance, $field, &$fields, $config, $recurse) {
+		if(isset($config['properties']['__method'])) {
+			$methodName = $config['properties']['__method'];
+			$data = $instance->$methodName();
+			$relArray = array();
+
+			$has_ones = $instance->has_one();
+			// get the fields of a has_one relational object
+			if(isset($has_ones[$methodName])) {
+				if($data->ID > 0) {
+					$item = $data->getFieldValuesAsArray(false);
+					$relArray = $item;
+				}
+
+			// get the fields for a has_many or many_many relational list
+			} else {
+				foreach($data->getIterator() as $item) {
+					if($recurse) {
+						// populate the subitem but do not recurse any further if more relationships
+						$itemDoc = $item->getFieldValuesAsArray(false);
+						array_push($relArray, $itemDoc);
+					}
+				}
+			}
+			// save the relation as an array (for now)
+			$fields[$methodName] = $relArray;
+		} else {
+			$fields[$field] = $instance->$field;
+		}
+	}
+
+
 	/*
 	Evaluate each field, e.g. 'Title', 'Member.Name'
 	 */
