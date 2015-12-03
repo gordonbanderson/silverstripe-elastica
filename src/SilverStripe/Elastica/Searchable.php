@@ -137,7 +137,7 @@ class Searchable extends \DataExtension {
 
 			if(array_key_exists($name, $db)) {
 				$class = $db[$name];
-				$this->assignSpecForStandardFieldType($class, $spec);
+				$this->assignSpecForStandardFieldType($name, $class, $spec);
 			} else {
 				// field name is not in the db, it could be a method
 				$has_lists = $this->getListRelationshipMethods();
@@ -147,10 +147,10 @@ class Searchable extends \DataExtension {
 				if(isset($has_lists[$name])) {
 					// the classes returned by the list method
 					$resultType = $has_lists[$name];
-					$this->assignSpecForManyRelationship($resultType, $spec);
+					$this->assignSpecForManyRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
 				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
-					$this->assignSpecForHasOne($resultType, $spec);
+					$this->assignSpecForHasOne($name, $resultType, $spec, $storeMethodName, $recurse);
 				}
 				// otherwise fall back to string - Enum is one such category
 				else {
@@ -203,7 +203,7 @@ class Searchable extends \DataExtension {
 	}
 
 
-	private function assignSpecForHasOne($resultType, &$spec) {
+	private function assignSpecForHasOne($name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
 
 		$resultTypeMapping = array();
@@ -223,7 +223,8 @@ class Searchable extends \DataExtension {
 		$name = $resultType;
 	}
 
-	private function assignSpecForManyRelationship($resultType, &$spec) {
+
+	private function assignSpecForManyRelationship($name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
 		$resultTypeMapping = array();
 
@@ -246,7 +247,7 @@ class Searchable extends \DataExtension {
 	}
 
 
-	private function assignSpecForStandardFieldType($class, &$spec) {
+	private function assignSpecForStandardFieldType($name, $class, &$spec) {
 		if(($pos = strpos($class, '('))) {
 			// Valid in the case of Varchar(255)
 			$class = substr($class, 0, $pos);
@@ -319,7 +320,7 @@ class Searchable extends \DataExtension {
 	public function getElasticaDocument() {
 		self::$index_ctr++;
 		$fields = $this->getFieldValuesAsArray();
-		$progress = Controller::curr()->getVar('progress');
+		$progress = \Controller::curr()->request->getVar('progress');
 		if(!empty($progress)) {
 			self::$progressInterval = (int)$progress;
 		}
