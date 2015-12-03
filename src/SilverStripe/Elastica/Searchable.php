@@ -150,7 +150,7 @@ class Searchable extends \DataExtension {
 					$this->assignSpecForManyRelationship($resultType, $spec);
 				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
-					HERE
+					$this->assignSpecForHasOne($resultType, $spec);
 				}
 				// otherwise fall back to string - Enum is one such category
 				else {
