@@ -158,7 +158,22 @@ class Searchable extends \DataExtension {
 				}
 			}
 
-			// in the case of a relationship type will not be set
+			$this->addIndexedFields($name, $spec);
+
+			$result[$name] = $spec;
+		}
+
+		if($this->owner->hasMethod('updateElasticHTMLFields')) {
+			$this->html_fields = $this->owner->updateElasticHTMLFields($this->html_fields);
+		}
+
+		return $result;
+	}
+
+
+
+	private function addIndexedFields($name, &$spec) {
+		// in the case of a relationship type will not be set
 			if(isset($spec['type'])) {
 				if($spec['type'] == 'string') {
 					$unstemmed = array();
@@ -191,15 +206,6 @@ class Searchable extends \DataExtension {
 					$spec['term_vector'] = "yes";
 				}
 			}
-
-			$result[$name] = $spec;
-		}
-
-		if($this->owner->hasMethod('updateElasticHTMLFields')) {
-			$this->html_fields = $this->owner->updateElasticHTMLFields($this->html_fields);
-		}
-
-		return $result;
 	}
 
 
