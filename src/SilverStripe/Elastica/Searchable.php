@@ -147,10 +147,10 @@ class Searchable extends \DataExtension {
 				if(isset($has_lists[$name])) {
 					// the classes returned by the list method
 					$resultType = $has_lists[$name];
-					$this->assignSpecForManyRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
+					$this->assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
 				} else if(isset($has_ones[$name])) {
 					$resultType = $has_ones[$name];
-					$this->assignSpecForHasOne($name, $resultType, $spec, $storeMethodName, $recurse);
+					$this->assignSpecForRelationship($name, $resultType, $spec, $storeMethodName, $recurse);
 				}
 				// otherwise fall back to string - Enum is one such category
 				else {
@@ -174,38 +174,38 @@ class Searchable extends \DataExtension {
 
 	private function addIndexedFields($name, &$spec) {
 		// in the case of a relationship type will not be set
-			if(isset($spec['type'])) {
-				if($spec['type'] == 'string') {
-					$unstemmed = array();
-					$unstemmed['type'] = "string";
-					$unstemmed['analyzer'] = "unstemmed";
-					$unstemmed['term_vector'] = "yes";
-					$extraFields = array('standard' => $unstemmed);
+		if(isset($spec['type'])) {
+			if($spec['type'] == 'string') {
+				$unstemmed = array();
+				$unstemmed['type'] = "string";
+				$unstemmed['analyzer'] = "unstemmed";
+				$unstemmed['term_vector'] = "yes";
+				$extraFields = array('standard' => $unstemmed);
 
-					$shingles = array();
-					$shingles['type'] = "string";
-					$shingles['analyzer'] = "shingles";
-					$shingles['term_vector'] = "yes";
-					$extraFields['shingles'] = $shingles;
+				$shingles = array();
+				$shingles['type'] = "string";
+				$shingles['analyzer'] = "shingles";
+				$shingles['term_vector'] = "yes";
+				$extraFields['shingles'] = $shingles;
 
-					//Add autocomplete field if so required
-					$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
+				//Add autocomplete field if so required
+				$autocomplete = \Config::inst()->get($this->owner->ClassName, 'searchable_autocomplete');
 
-					if(isset($autocomplete) && in_array($name, $autocomplete)) {
-						$autocompleteField = array();
-						$autocompleteField['type'] = "string";
-						$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
-						$autocompleteField['search_analyzer'] = "autocomplete_search_analyzer";
-						$autocompleteField['term_vector'] = "yes";
-						$extraFields['autocomplete'] = $autocompleteField;
-					}
-
-					$spec['fields'] = $extraFields;
-					// FIXME - make index/locale specific, get from settings
-					$spec['analyzer'] = 'stemmed';
-					$spec['term_vector'] = "yes";
+				if(isset($autocomplete) && in_array($name, $autocomplete)) {
+					$autocompleteField = array();
+					$autocompleteField['type'] = "string";
+					$autocompleteField['index_analyzer'] = "autocomplete_index_analyzer";
+					$autocompleteField['search_analyzer'] = "autocomplete_search_analyzer";
+					$autocompleteField['term_vector'] = "yes";
+					$extraFields['autocomplete'] = $autocompleteField;
 				}
+
+				$spec['fields'] = $extraFields;
+				// FIXME - make index/locale specific, get from settings
+				$spec['analyzer'] = 'stemmed';
+				$spec['term_vector'] = "yes";
 			}
+		}
 	}
 
 
@@ -214,50 +214,18 @@ class Searchable extends \DataExtension {
 	 * @param boolean $storeMethodName
 	 * @param boolean $recurse
 	 */
-	private function assignSpecForHasOne($name, $resultType, &$spec, $storeMethodName, $recurse) {
+	private function assignSpecForRelationship($name, $resultType, &$spec, $storeMethodName, $recurse) {
 		$resultTypeInstance = \Injector::inst()->create($resultType);
-
 		$resultTypeMapping = array();
-
 		// get the fields for the result type, but do not recurse
 		if($recurse) {
 			$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
 		}
-
 		$resultTypeMapping['ID'] = array('type' => 'integer');
-
 		if($storeMethodName) {
 			$resultTypeMapping['__method'] = $name;
 		}
 		$spec = array('properties' => $resultTypeMapping);
-		// we now change the name to the result type, not the method name
-		$name = $resultType;
-	}
-
-
-	/**
-	 * @param string $name
-	 * @param boolean $storeMethodName
-	 * @param boolean $recurse
-	 */
-	private function assignSpecForManyRelationship($name, $resultType, &$spec, $storeMethodName, $recurse) {
-		$resultTypeInstance = \Injector::inst()->create($resultType);
-		$resultTypeMapping = array();
-
-		// get the fields for the result type, but do not recurse
-		if($recurse) {
-			$resultTypeMapping = $resultTypeInstance->getElasticaFields($storeMethodName, false);
-		}
-
-		$resultTypeMapping['ID'] = array('type' => 'integer');
-
-		if($storeMethodName) {
-			$resultTypeMapping['__method'] = $name;
-		}
-
-		$spec = array('properties' => $resultTypeMapping);
-
-
 		// we now change the name to the result type, not the method name
 		$name = $resultType;
 	}
