@@ -149,18 +149,12 @@ class ElasticaService {
 		}
 
 		$data = $query->toArray();
-		if(isset($data['query']['more_like_this'])) {
-			$query->MoreLikeThis = true;
-		} else {
-			$query->MoreLikeThis = false;
-		}
+		$query->MoreLikeThis = isset($data['query']['more_like_this']);
 
 		$search = new Search(new Client());
 
 		// get results from all shards, this makes test repeatable
-		if($this->test_mode) {
-			$search->setOption('search_type', Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
-		}
+		$this->checkIfTestMode($search);
 
 		$search->addIndex($this->getLocaleIndexName());
 		$this->addTypesToSearch($search, $types, $query);
@@ -256,6 +250,13 @@ class ElasticaService {
 	}
 
 
+	private function checkIfTestMode(&$search) {
+		if($this->test_mode) {
+			$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
+		}
+	}
+
+
 	private function checkForTermsMoreLikeThis($elasticaQuery, $search) {
 		if($elasticaQuery->MoreLikeThis) {
 
@@ -268,9 +269,7 @@ class ElasticaService {
 
 			$path = str_replace('_search', '_validate/query', $path);
 			$params = array('explain' => true, 'rewrite' => true);
-			if($this->test_mode) {
-				$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
-			}
+			$this->checkIfTestMode($search);
 
 			$response = $this->getClient()->request(
 				$path,
