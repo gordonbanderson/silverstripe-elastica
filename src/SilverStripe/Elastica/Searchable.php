@@ -449,7 +449,6 @@ class Searchable extends \DataExtension {
 
 		foreach($searchableFields as $name => $searchableField) {
 			// check for existence of methods and if they exist use that as the name
-			$name = '';
 			if(!isset($searchableField['type'])) {
 				$name = $searchableField['properties']['__method'];
 			}
