@@ -163,7 +163,7 @@ class ElasticaService {
 		}
 
 		$search->addIndex($this->getLocaleIndexName());
-		$this->addTypesToSearch($search, $types);
+		$this->addTypesToSearch($search, $types, $query);
 
 		$highlights = $this->getHighlightingConfig();
 		$this->addExtractedQueryTermsForMoreLikeThis($query, $highlights);
@@ -202,7 +202,7 @@ class ElasticaService {
 	}
 
 
-	private function addTypesToSearch(&$search, $type) {
+	private function addTypesToSearch(&$search, $types, $query) {
 		// If the query is a 'more like this' we can get the terms used for searching by performing
 		// an extra query, in this case a query validation with explain and rewrite turned on
 		$this->checkForTermsMoreLikeThis($query, $search);
