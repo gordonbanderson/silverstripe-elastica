@@ -167,37 +167,8 @@ class ElasticaService {
 
 		// If the query is a 'more like this' we can get the terms used for searching by performing
 		// an extra query, in this case a query validation with explain and rewrite turned on
-		if($query->MoreLikeThis) {
-			$path = $search->getPath();
+		$this->checkForTermsMoreLikeThis($query, $search);
 
-			$termData = array();
-			$termData['query'] = $data['query'];
-
-			$path = str_replace('_search', '_validate/query', $path);
-			$params = array('explain' => true, 'rewrite' => true);
-			if($this->test_mode) {
-				$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
-			}
-
-			$response = $this->getClient()->request(
-				$path,
-				\Elastica\Request::GET,
-				$termData,
-				$params
-			);
-
-			$rData = $response->getData();
-			$terms = null; // keep in scope
-
-			if(isset($rData['explanations'])) {
-				$explanation = $rData['explanations'][0]['explanation'];
-				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
-			}
-
-			if(isset($terms)) {
-				$this->MoreLikeThisTerms = $terms;
-			}
-		}
 
 		if(!empty($types)) {
 			foreach($types as $type) {
@@ -270,6 +241,44 @@ class ElasticaService {
 		}
 
 		return $searchResults;
+	}
+
+
+	private function checkForTermsMoreLikeThis($elasticaQuery, $search) {
+		if($elasticaQuery->MoreLikeThis) {
+
+
+			$path = $search->getPath();
+
+			$termData = array();
+			$data = $elasticaQuery->toArray();
+			$termData['query'] = $data['query'];
+
+			$path = str_replace('_search', '_validate/query', $path);
+			$params = array('explain' => true, 'rewrite' => true);
+			if($this->test_mode) {
+				$params['search_type'] = Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH;
+			}
+
+			$response = $this->getClient()->request(
+				$path,
+				\Elastica\Request::GET,
+				$termData,
+				$params
+			);
+
+			$rData = $response->getData();
+			$terms = null; // keep in scope
+
+			if(isset($rData['explanations'])) {
+				$explanation = $rData['explanations'][0]['explanation'];
+				$terms = ElasticaUtil::parseSuggestionExplanation($explanation);
+			}
+
+			if(isset($terms)) {
+				$this->MoreLikeThisTerms = $terms;
+			}
+		}
 	}
 
 
@@ -503,7 +512,7 @@ class ElasticaService {
 		foreach($this->getIndexedClasses() as $classname) {
 			ElasticaUtil::message("Indexing class $classname");
 
-			$inSiteTree = $classname === 'SiteTree' ? true : false;
+			$inSiteTree = null;
 			if(isset(self::$site_tree_classes[$classname])) {
 				$inSiteTree = self::$site_tree_classes[$classname];
 			} else {
