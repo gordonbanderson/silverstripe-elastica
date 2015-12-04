@@ -186,6 +186,9 @@ class ElasticaService {
 	}
 
 
+	/**
+	 * @param Query $query
+	 */
 	private function addExtractedQueryTermsForMoreLikeThis($query, &$highlights) {
 		if($query->MoreLikeThis) {
 			$termsMatchingQuery = array();
@@ -202,6 +205,10 @@ class ElasticaService {
 	}
 
 
+	/**
+	 * @param Search $search
+	 * @param Query $query
+	 */
 	private function addTypesToSearch(&$search, $types, $query) {
 		// If the query is a 'more like this' we can get the terms used for searching by performing
 		// an extra query, in this case a query validation with explain and rewrite turned on
