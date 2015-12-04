@@ -166,21 +166,9 @@ class ElasticaService {
 		$this->addTypesToSearch($search, $types);
 
 		$highlights = $this->getHighlightingConfig();
-
-		if($query->MoreLikeThis) {
-			$termsMatchingQuery = array();
-			foreach($this->MoreLikeThisTerms as $field => $terms) {
-				$termQuery = array('multi_match' => array(
-					'query' => implode(' ', $terms),
-					'type' => 'most_fields',
-					'fields' => array($field)
-				));
-				$termsMatchingQuery[$field] = array('highlight_query' => $termQuery);
-			}
-			$highlights['fields'] = $termsMatchingQuery;
-		}
-
+		$this->addExtractedQueryTermsForMoreLikeThis($query, $highlights);
 		$query->setHighlight($highlights);
+
 		$search->addIndex($this->getLocaleIndexName());
 		if(!empty($types)) {
 			foreach($types as $type) {
@@ -195,6 +183,22 @@ class ElasticaService {
 		}
 
 		return $searchResults;
+	}
+
+
+	private function addExtractedQueryTermsForMoreLikeThis($query, &$highlights) {
+		if($query->MoreLikeThis) {
+			$termsMatchingQuery = array();
+			foreach($this->MoreLikeThisTerms as $field => $terms) {
+				$termQuery = array('multi_match' => array(
+					'query' => implode(' ', $terms),
+					'type' => 'most_fields',
+					'fields' => array($field)
+				));
+				$termsMatchingQuery[$field] = array('highlight_query' => $termQuery);
+			}
+			$highlights['fields'] = $termsMatchingQuery;
+		}
 	}
 
 
