@@ -157,25 +157,61 @@ class ElasticaService {
 
 		$search = new Search(new Client());
 
+		// get results from all shards, this makes test repeatable
 		if($this->test_mode) {
 			$search->setOption('search_type', Search::OPTION_SEARCH_TYPE_DFS_QUERY_THEN_FETCH);
 		}
 
-
-
 		$search->addIndex($this->getLocaleIndexName());
+		$this->addTypesToSearch($search, $types);
 
-		// If the query is a 'more like this' we can get the terms used for searching by performing
-		// an extra query, in this case a query validation with explain and rewrite turned on
-		$this->checkForTermsMoreLikeThis($query, $search);
+		$highlights = $this->getHighlightingConfig();
 
+		if($query->MoreLikeThis) {
+			$termsMatchingQuery = array();
+			foreach($this->MoreLikeThisTerms as $field => $terms) {
+				$termQuery = array('multi_match' => array(
+					'query' => implode(' ', $terms),
+					'type' => 'most_fields',
+					'fields' => array($field)
+				));
+				$termsMatchingQuery[$field] = array('highlight_query' => $termQuery);
+			}
+			$highlights['fields'] = $termsMatchingQuery;
+		}
 
+		$query->setHighlight($highlights);
+		$search->addIndex($this->getLocaleIndexName());
 		if(!empty($types)) {
 			foreach($types as $type) {
 				$search->addType($type);
 			}
 		}
 
+		$params = $search->getOptions();
+		$searchResults = $search->search($query, $params);
+		if(isset($this->MoreLikeThisTerms)) {
+			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
+		}
+
+		return $searchResults;
+	}
+
+
+	private function addTypesToSearch(&$search, $type) {
+		// If the query is a 'more like this' we can get the terms used for searching by performing
+		// an extra query, in this case a query validation with explain and rewrite turned on
+		$this->checkForTermsMoreLikeThis($query, $search);
+
+		if(!empty($types)) {
+			foreach($types as $type) {
+				$search->addType($type);
+			}
+		}
+	}
+
+
+	private function getHighlightingConfig() {
 		$highlightsCfg = \Config::inst()->get('Elastica', 'Highlights');
 		$preTags = $highlightsCfg['PreTags'];
 		$postTags = $highlightsCfg['PostTags'];
@@ -212,35 +248,7 @@ class ElasticaService {
 			'fields' => $highlightFields
 		);
 
-		if($query->MoreLikeThis) {
-			$termsMatchingQuery = array();
-			foreach($this->MoreLikeThisTerms as $field => $terms) {
-				$termQuery = array('multi_match' => array(
-					'query' => implode(' ', $terms),
-					'type' => 'most_fields',
-					'fields' => array($field)
-				));
-				$termsMatchingQuery[$field] = array('highlight_query' => $termQuery);
-			}
-
-			$highlights['fields'] = $termsMatchingQuery;
-		}
-
-		$query->setHighlight($highlights);
-		$search->addIndex($this->getLocaleIndexName());
-		if(!empty($types)) {
-			foreach($types as $type) {
-				$search->addType($type);
-			}
-		}
-
-		$params = $search->getOptions();
-		$searchResults = $search->search($query, $params);
-		if(isset($this->MoreLikeThisTerms)) {
-			$searchResults->MoreLikeThisTerms = $this->MoreLikeThisTerms;
-		}
-
-		return $searchResults;
+		return $highlights;
 	}
 
 
