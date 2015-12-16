@@ -8,15 +8,19 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	public static $ignoreFixtureFileFor = array('testResultsForEmptySearch');
 
-
 	public function setUpOnce() {
-		//Add translatable
-		SiteTree::add_extension('Translatable');
+		//Add translatable if it exists
+		if (class_exists('Translatable')) {
+			SiteTree::add_extension('Translatable');
+		}
 		parent::setUpOnce();
 	}
 
-
 	public function testElasticSearchForm() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$form = new \ElasticSearchForm(new \Controller(), 'TestForm');
 		$fields = $form->Fields();
 		$result = array();
@@ -32,6 +36,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testHighlightPassingFields() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 
@@ -63,6 +71,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testAutoCompleteGood() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title' => 1, 'Description' => 1);
@@ -81,6 +93,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	// FIXME - this test is shardy unfortunately
 	public function testMoreLikeThisSinglePhoto() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 
 		echo "FP: Original title: {$fp->Title}\n";
@@ -138,6 +154,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	 */
 
 	public function testSimilarGood() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
@@ -165,6 +185,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	FIXME - this is not working, not sure why.  Trying to complete coverage of ReindexTask
 	 */
 	public function testBulkIndexing() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		//Reset the index, so that nothing has been indexed
 		$this->service->reset();
 
@@ -188,6 +212,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	// if this is not set to unbounded, zero, a conditional is triggered to add max doc freq to the request
 	public function testSimilarChangeMaxDocFreq() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setMaxDocFreq(4);
@@ -204,6 +232,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testSimilarNullFields() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
@@ -216,6 +248,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testSimilarNullItem() {
+		if (!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
@@ -226,12 +262,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 			$this->assertEquals('A searchable item cannot be null', $e->getMessage());
 		}
 	}
-
-
-
-
-
-
 
 	private function makeCode($paginated) {
 		$results = $paginated->getList()->toArray();
