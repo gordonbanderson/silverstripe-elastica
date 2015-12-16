@@ -298,6 +298,11 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 
 	public function testTemplateOverrideExtension() {
+
+		if (!class_exists('PageControllerTemplateOverrideExtension')) {
+			$this->markTestSkipped('PageControllerTemplateOverrideExtension not installed');
+		}
+
 		Page_Controller::remove_extension('PageControllerTemplateOverrideExtension');
 		$searchPageObj = $this->ElasticSearchPage2;
 
