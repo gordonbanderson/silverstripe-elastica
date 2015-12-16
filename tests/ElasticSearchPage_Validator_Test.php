@@ -53,7 +53,24 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 	public function testGoodData() {
 		$fields = $this->ElasticSearchPage->getCMSFields();
 		$form = new Form($this, 'Form', $fields, new FieldList());
+		//$this->assertTrue($form->validate(), "Saved object should already be validatable at the form level");
+
+
+		echo "Testing live....\n";
+				$this->ElasticSearchPage->publish('Stage', 'Live');
+
+		$fields = $this->ElasticSearchPage->getCMSFields();
+			$fields->push(new HiddenField('ID'));
+		$form = new Form($this, 'Form', $fields, new FieldList());
+		$form->loadDataFrom($this->ElasticSearchPage);
+		$form->setValidator($this->ElasticSearchPage->getCMSValidator());
 		$this->assertTrue($form->validate(), "Saved object should already be validatable at the form level");
+
+		$origMode = Versioned::get_reading_mode();
+		echo "CURRENT MODE:$origMode\n";
+		Versioned::set_reading_mode('Stage');
+		echo "CURRENT MODE:".Versioned::get_reading_mode()."\n";
+		Versioned::set_reading_mode($origMode); // reset current mode
 	}
 
 
