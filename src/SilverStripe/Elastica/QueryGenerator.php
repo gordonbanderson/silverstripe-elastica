@@ -409,8 +409,6 @@ class QueryGenerator {
 			$csvClasses = implode(',',$classes);
 		}
 
-		error_log("CSV CLASSES: $csvClasses");
-
 		$key ='SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
 
 		if ($fieldsAllowed) {
@@ -421,7 +419,6 @@ class QueryGenerator {
 		}
 
 		$result = $cache->load($key);
-		error_log("RESULT:$result for key $key \n");
 		if (!$result) {
 			$relevantClasses = array();
 			if (empty($csvClasses)) {
