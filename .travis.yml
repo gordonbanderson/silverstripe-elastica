@@ -1,38 +1,44 @@
-# See https://github.com/silverstripe-labs/silverstripe-travis-support for setup details
+language: php
 
 sudo: false
 
-language: php
-
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+addons:
+  apt:
+    packages:
+      - tidy
+      - elasticsearch
 
 env:
-  - DB=MYSQL CORE_RELEASE=3.2
+  global:
+    - DB=MYSQL CORE_RELEASE=3.1
 
 matrix:
+  allow_failures:
+    - php: hhvm-nightly
   include:
     - php: 5.6
-      env: DB=MYSQL CORE_RELEASE=3
-    - php: 5.6
-      env: DB=MYSQL CORE_RELEASE=3.1
-    - php: 5.6
-      env: DB=PGSQL CORE_RELEASE=3.2
+      env: DB=MYSQL
+    - php: 5.5
+      env: DB=MYSQL
+    - php: 5.4
+      env: DB=MYSQL
+    - php: 5.3
+      env: DB=MYSQL
+    - php: hhvm
+      env: DB=MYSQL
+      before_install:
+
 
 before_script:
+  - phpenv rehash
   - composer self-update || true
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
   - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
   - cd ~/builds/ss
-  - composer install
 
 script:
-  - vendor/bin/phpunit module/tests
+  - vendor/bin/phpunit --coverage-clover=coverage.clover elastica/tests/
 
-matrix:
-  allow_failures:
-    - php: 7.0
+after_script:
+    - wget https://scrutinizer-ci.com/ocular.phar
+    - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
