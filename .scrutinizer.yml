@@ -1,7 +1,19 @@
 inherit: true
 
+#Copied from https://www.adayinthelifeof.nl/2013/11/20/external-code-coverage-with-travis-scrutinizer/
 tools:
-    external_code_coverage: false
+    external_code_coverage:
+      timeout: 600
+    php_mess_detector: true
+    php_code_sniffer: true
+    sensiolabs_security_checker: true
+    php_pdepend: true
+    php_loc:
+        enabled: true
+        excluded_dirs: [vendor, tests]
+    php_cpd:
+        enabled: true
+        excluded_dirs: [vendor, tests]
 
 checks:
     php:
@@ -9,6 +21,4 @@ checks:
         duplication: true
 
 filter:
-    paths: [src/*, tests/*,code/*,searchpage/*,javascript/*,css/*]
-    excluded_paths:
-      - "tests/mock/"
+    paths: [templates/*, tests/*,code/*]
