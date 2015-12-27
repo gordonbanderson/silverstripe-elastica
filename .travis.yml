@@ -4,7 +4,7 @@ sudo: true
 
 addons:
   apt:
-    packages:
+    <packages:></packages:>
       - tidy
       - elasticsearch
 
@@ -40,7 +40,7 @@ before_script:
   - composer require satooshi/php-coveralls
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/
+  - vendor/bin/phpunit --filter testAllFieldsQuery --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/
 
 after_success:
     - cp coverage.clover ~/coverage.xml
