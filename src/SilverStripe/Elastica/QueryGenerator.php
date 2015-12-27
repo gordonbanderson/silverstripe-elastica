@@ -156,7 +156,7 @@ class QueryGenerator {
 
 
 		// pagination
-		$query->setLimit($this->pageLength);
+		$query->setSize($this->pageLength);
 		$query->setFrom($this->start);
 
 		if ($this->manipulatorInstance && !$queryTextExists) {
