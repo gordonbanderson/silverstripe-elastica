@@ -517,7 +517,6 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
-		echo "CURRENT LOCALE:" . $this->locale;
 		foreach($classes as $class) {
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
