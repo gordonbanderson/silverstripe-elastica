@@ -487,7 +487,6 @@ class Searchable extends \DataExtension {
 			if(SearchableHelper::isInSiteTree($this->owner->ClassName)) {
 				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
 					byID($this->owner->ID);
-				error_log('LIVE RECORD:' .$liveRecord);
 				if(!empty($liveRecord) && $liveRecord->ShowInSearch) {
 					$isIndexed = true;
 				} else {
