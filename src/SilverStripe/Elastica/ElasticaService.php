@@ -677,6 +677,6 @@ class ElasticaService {
 		);
 
 		$data = $response->getData();
-		return $data['term_vectors'];
+		return isset($data['term_vectors']) ? $data['term_vectors'] : array();
 	}
 }
