@@ -360,6 +360,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/asdfsadfsfd/4";
+		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Class asdfsadfsfd is either not found or not searchable');
@@ -370,6 +371,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77?ServerDown=1";
+		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -379,6 +381,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Zealand&ServerDown=1";
+		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -388,6 +391,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77";
+		$response = $this->get($url);
 
 		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
