@@ -483,18 +483,22 @@ class Searchable extends \DataExtension {
 	public function updateCMSFields(\FieldList $fields) {
 		$isIndexed = false;
 		// SIteTree object must have a live record, ShowInSearch = true
-		if(SearchableHelper::isInSiteTree($this->owner->ClassName)) {
-			$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
-				byID($this->owner->ID);
-			if($liveRecord->ShowInSearch) {
-				$isIndexed = true;
+		if (\DB::getConn()->hasTable($this->owner->ClassName)) {
+			if(SearchableHelper::isInSiteTree($this->owner->ClassName)) {
+				$liveRecord = \Versioned::get_by_stage(get_class($this->owner), 'Live')->
+					byID($this->owner->ID);
+				error_log('LIVE RECORD:' .$liveRecord);
+				if(!empty($liveRecord) && $liveRecord->ShowInSearch) {
+					$isIndexed = true;
+				} else {
+					$isIndexed = false;
+				}
 			} else {
-				$isIndexed = false;
+				// In the case of a DataObject we use the ShowInSearchFlag
+				$isIndexed = true;
 			}
-		} else {
-			// In the case of a DataObject we use the ShowInSearchFlag
-			$isIndexed = true;
 		}
+
 
 		if($isIndexed) {
 			$termVectors = $this->getTermVectors();
