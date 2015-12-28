@@ -167,7 +167,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 			}
 
 			foreach(array_keys($aggs) as $key) {
-				//echo "MARKING SELECTED AGGS FOR $key \n";
 				$aggDO = new \DataObject();
 				//FIXME - Camel case separate here
 				if(isset($indexedFieldTitleMapping[$key])) {
@@ -178,7 +177,6 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 
 				// now the buckets
 				if(isset($aggs[$key]['buckets'])) {
-					//echo "Buckets found for $key \n";
 					$bucketsAL = new \ArrayList();
 					foreach($aggs[$key]['buckets'] as $value) {
 						$ct = new \DataObject();
@@ -196,15 +194,12 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 						if(isset($this->filters[$key])) {
 
 							if($this->filters[$key] === (string)$value['key']) {
-								//echo "     - Marked as selected \n";
 								$ct->IsSelected = true;
 								// mark this facet as having been selected, so optional toggling
 								// of the display of the facet can be done via the template.
 								$aggDO->IsSelected = true;
 
 								$urlParam = $key . '=' . urlencode($this->filters[$key]);
-
-								//echo "    - URL PARAM : $urlParam \n";
 
 								// possible ampersand combos to remove
 								$v2 = '&' . $urlParam;
