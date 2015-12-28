@@ -12,15 +12,12 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 
 	public function setup() {
 		parent::setup();
-		echo "++++ CONFIG ++++\n";
 		$config = Config::inst()->get('FlickrPhotoTO', 'searchable_fields');
-		print_r($config);
 
 		\Config::inst()->update('FlickrPhotoTO', 'searchable_autocomplete', array('Title'));
 
 
 		// Delete and assert that it does not exist
-		echo "Displaying searchable fields\n";
 		$sql =  "SELECT ID,Name,ClazzName from SearchableField";
 		$records = DB::query($sql);
 		foreach ($records as $record) {
@@ -29,14 +26,11 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 
 		$filter = array('Name' => 'Title', 'ClazzName' => 'FlickrPhotoTO');
 		$sf = SearchableField::get()->filter($filter)->first();
-		print_r($sf);
 		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET Searchable=1,".
 				"EnableAutocomplete=1 where SearchableFieldID=".$sf->ID;
-		echo $sql;
 
 		DB::query($sql);
 
-		echo "Reindexing";
 		$task = new ReindexTask($this->service);
 		// null request is fine as no parameters used
 		$task->run(null);
@@ -49,10 +43,7 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
 
-		echo "DECODING:\n";
-		echo $body;
 		$result = json_decode($body);
-		echo "SUGGESTIONS\n";
 
 		$this->assertEquals('the', $result->Query);
 		$lquery = strtolower($result->Query);
@@ -64,10 +55,6 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 
 		// make sure there were actually some results
 		$this->assertEquals(10, sizeof($result->suggestions));
-
-		print_r($result);
-		die;
-
 
 		//search for different capitlisation, should produce the same result
 		$url = 'autocomplete/search?field=Title&filter=1&query=ThE';
@@ -103,10 +90,7 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
 
-		echo "DECODING:\n";
-		echo $body;
 		$result = json_decode($body);
-		echo "SUGGESTIONS\n";
 
 		$this->assertEquals('the', $result->Query);
 		$lquery = strtolower($result->Query);
