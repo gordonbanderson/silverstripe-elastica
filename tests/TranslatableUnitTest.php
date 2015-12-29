@@ -25,7 +25,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$fields = $form->Fields();
 		$result = array();
 		foreach($fields as $field) {
-			echo $field->getName();
 			$result[$field->getName()] = $field->Value();
 		}
 
@@ -98,8 +97,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		}
 
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-
-		echo "FP: Original title: {$fp->Title}\n";
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
@@ -107,11 +104,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 		$fields = array('Description.standard' => 1,'Title.standard' => 1);
 		$results = $es->moreLikeThis($fp, $fields, true);
-
-		echo "RESULTS:\n";
-		foreach ($results as $result) {
-			echo "-\t{$result->Title}\n";
-		}
 
 		$terms = $results->getList()->MoreLikeThisTerms;
 
@@ -163,9 +155,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
-		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
-		}
+
 		$this->assertEquals(32, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Railroad Station, Stockdale, Texas]", $results[0]->Title);
@@ -222,9 +212,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
-		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
-		}
+
 		$this->assertEquals(14, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
 		$this->makeCode($paginated);

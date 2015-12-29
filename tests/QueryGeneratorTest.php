@@ -196,13 +196,9 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'suggest' => $this->getDefaultSuggest('')
 		);
 
-		print_r($qg->generateElasticaQuery());
-
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		unset($expected['sort']);
 		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
 		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
@@ -210,7 +206,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 
 		$qg->setShowResultsForEmptyQuery(false);
 		$qg->setQueryText('New Zealand');
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$expected['query'] = array('query_string' => array('query' => 'New Zealand', 'lenient' => true));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
@@ -323,14 +318,12 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'suggest' => $this->getDefaultSuggest('')
 		);
 
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
 		unset($expected['sort']); // use query text search relevance for sorting, ie default Elasticsearch
 		$expected['query']['filtered']['query']['query_string'] = array('query' => 'New Zealand', 'lenient' => true);
 		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -369,7 +362,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'suggest' => $this->getDefaultSuggest('')
 		);
 
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
@@ -449,7 +441,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'suggest' => $this->getDefaultSuggest('')
 		);
 
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
@@ -463,7 +454,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		);
 
 		$expected['suggest'] = $this->getDefaultSuggest('New Zealand');
-		print_r($qg->generateElasticaQuery()->toArray());
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 	}
 
@@ -503,7 +493,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 			'suggest' => $this->getDefaultSuggest('')
 		);
 
-		echo(json_encode($qg->generateElasticaQuery()->toArray()));
 		$this->assertEquals($expected, $qg->generateElasticaQuery()->toArray());
 
 		$qg->setQueryText('New Zealand');
@@ -656,7 +645,6 @@ class QueryGeneratorTest extends ElasticsearchBaseTest {
 		$expected = array('Title^2', 'Title.*^2','Content', 'Content.*');
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 
-		echo "--------------------\n";
 		$qg->setClasses(array('FlickrPhotoTO','Page'));
 		$this->assertEquals($expected, $qg->convertWeightedFieldsForElastica($fields));
 

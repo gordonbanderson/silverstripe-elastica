@@ -112,7 +112,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
 		$fields = $flickrPhoto->getElasticaFields();
 
-		print_r($fields);
 		$expected = array('type' => 'date', 'format' => 'y-M-d H:m:s');
 		$this->assertEquals($expected, $fields['TakenAt']);
 
@@ -312,10 +311,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 		$expected['location'] = array('lat' => 13.42, 'lon' => 100);
 		$expected['TestMethod'] = 'this is a test method';
 		$expected['TestMethodHTML'] = 'this is a test method that returns *HTML*';
-
-
-		print_r($doc);
-
 		$this->assertEquals($expected, $doc);
 	}
 
@@ -648,7 +643,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$flickrPhoto->PhotographerID = $photographer->ID; ;
 		$flickrPhoto->write();
-		echo 'ID=' . $flickrPhoto->PhotographerID;
 		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
 
 		$actual = $fieldValuesArray['Photographer'];
@@ -683,16 +677,10 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 		$flickrPhoto->FlickrTagTOs()->add($tag1);
 		$flickrPhoto->FlickrTagTOs()->add($tag2);
-
-
-
-
 		$flickrPhoto->write();
-		echo 'ID=' . $flickrPhoto->PhotographerID;
 		$fieldValuesArray = $flickrPhoto->getFieldValuesAsArray();
 		$actual = $fieldValuesArray['Photographer'];
 		$this->assertEquals(array(), $actual);
-
 
 		$actual = $fieldValuesArray['FlickrTagTOs'];
 		$this->generateAssertionsFromArrayRecurse($actual);
@@ -740,7 +728,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testUpdateCMSFieldsSiteTreeLive() {
-		echo "+++++++++++++++++ testUpdateCMSFieldsSiteTreeLive +++++++++++++\n";
 		$page = $this->objFromFixture('SearchableTestPage', 'first');
 		$page->IndexingOff = false;
 		$page->Title = 'Test title edited';

@@ -35,57 +35,19 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testEnsureMapping() {
-
-		/*
-				$index = $this->service->getIndex();
-		$this->assertTrue($index->exists());
-
-		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
-		$fpMappingBefore = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
-
-
-
-
-		$this->checkNumberOfIndexedDocuments(-1);
-
-		$flickrPhoto = $this->objFromFixture('FlickrPhotoTO', 'photo0001');
-		$fpMappingAfter = $this->invokeMethod($this->service, 'ensureMapping', $flickrPhoto);
-
-		$this->assertEquals($fpMappingBefore, $fpMappingAfter);
-
-		 */
-
 		$index = $this->service->getIndex();
-
-
 		$mapping = $index->getMapping();
-
-		//$mapping = $mapping['FlickrPhotoTO'];
-
 		$type = $index->getType('FlickrPhotoTO');
 		$record = FlickrPhotoTO::get()->first();
 		$mappingBefore = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
 
 		$this->assertEquals($mapping['FlickrPhotoTO'], $mappingBefore['FlickrPhotoTO']);
 
-
 		// Delete the index
-		echo "++++++++++++++++++++++++++++++++++++ DELETING INDEX\n";
 		$task = new DeleteIndexTask($this->service);
 		$task->run(null);
-
 		$mappingAfter = $this->invokeMethod($this->service, 'ensureMapping', array($type, $record));
-
-		echo "MAPPING AFTER:\n";
-		print_r($mappingAfter);
-
-		//unset($mappingBefore['IsInSiteTree']);
-
-
-
 		$this->assertEquals($mappingBefore, $mappingAfter);
-
-
 	}
 
 
@@ -221,7 +183,6 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	public function testGetIndexedClasses() {
 		$this->service->setTestMode(false);
 
-		echo "+++++++++++++++++++++++++++++++++++++++++++\n";
 		$indexedClasses = $this->service->getIndexedClasses();
 
 		// Just the non testable classes

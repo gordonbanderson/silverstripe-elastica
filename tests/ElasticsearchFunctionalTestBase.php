@@ -56,8 +56,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		$orig_fixture_file = static::$fixture_file;
 
-		print_r(static::$ignoreFixtureFileFor);
-
 		foreach (static::$ignoreFixtureFileFor as $testPattern) {
 			$pattern = '/'.$testPattern.'/';
 			if (preg_match($pattern, $this->getName())) {

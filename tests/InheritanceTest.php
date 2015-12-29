@@ -40,16 +40,12 @@ class InheritanceTest extends ElasticsearchBaseTest {
 		$fields = $page->getElasticaFields();
 		$this->assertTrue(isset($fields['Title']['fields']['autocomplete']));
 
-		echo "\n\n\n\n\n\n\n\n+++++++++++++++++ GRANDFATHER PAGE +++++++++++++++++\n\n\n\n";
-
 		$page = $this->objFromFixture('SearchableTestGrandFatherPage', 'grandfather0001');
 		$this->assertTrue($page->hasExtension('SilverStripe\Elastica\Searchable'),
 			'Page extending SiteTree has Searchable extension');
 
 		$fields = $page->getElasticaFields();
 		$this->assertTrue(isset($fields['Title']['fields']['autocomplete']));
-
-		echo "---- TERM VECTORS FOR GF PAGE ----\n";
 
 		$terms = $page->getTermVectors();
 
@@ -59,9 +55,7 @@ class InheritanceTest extends ElasticsearchBaseTest {
 			'Title.shingles','Title.standard');
 		$indexedFields = array_keys($terms);
 		sort($indexedFields);
-		foreach ($indexedFields as $field) {
-			echo "'".$field."',";
-		}
+
 		$this->assertEquals($expected, $indexedFields);
 
 		$fatherTerms = $terms['FatherText.standard']['terms'];

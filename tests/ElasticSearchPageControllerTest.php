@@ -175,7 +175,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400&ShutterSpeed=2%2F250';
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -209,7 +208,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400&ShutterSpeed=2%2F250&Aspect=Vertical';
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -223,7 +221,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//Note pages need to be published, by default fixtures only reside in Stage
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('div.contentForEmptySearch', 0,
@@ -250,12 +247,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Auckland&sfid=".$searchPageObj->Identifier;
-
-		echo "URL:".$url;
 		$response = $this->get($url);
-
-		print_r($response);
-
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertAttributeHasExactValue('#ElasticSearchForm_SearchForm_q', 'q',
 			'Auckland');
@@ -306,20 +298,14 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		Page_Controller::remove_extension('PageControllerTemplateOverrideExtension');
 		$searchPageObj = $this->ElasticSearchPage2;
 
-		echo "Has extension? ";
-		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
-
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
 		$this->assertEquals(0, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
 		Page_Controller::add_extension('PageControllerTemplateOverrideExtension');
 		$searchPageObj = $this->ElasticSearchPage2;
-		echo "Has extension? ";
-		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
 		$this->assertEquals(1, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
-
 
 		$url .= "/similar/FlickrPhotoTO/77";
 		$response = $this->get($url);
@@ -426,7 +412,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=New%20Zealind&TestMode=true";
 		$response = $this->get($url);
-		print_r($response);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
@@ -466,8 +451,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?q=New Zealind&is=1';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
 
 		//Only the word New will match, Zealind does not exist.  Hence 'New York', 'New Orelans' etc
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'Image taken from page 59 of \'Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition\'');
@@ -522,11 +505,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url = $url.'?q='.$searchTerm;
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -592,11 +572,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url = $url.'?q='.$searchTerm;
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -646,7 +623,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$firstPageURL = $url;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-		print_r($response);
 
 		//There are 2 results for 'Contact Us', as 'About Us' has an Us in the title.
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -681,9 +657,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$firstPageURL = $url;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
-
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -736,14 +709,11 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 	private function enableHighlights() {
 		foreach (SearchableField::get()->filter('Name', 'Title') as $sf) {
-			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
 
 		foreach (SearchableField::get()->filter('Name', 'Content') as $sf) {
-			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
-
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}

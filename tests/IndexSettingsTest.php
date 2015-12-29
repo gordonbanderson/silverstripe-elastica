@@ -45,12 +45,6 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 		$config = $indexSettings->generateConfig();
 		$config = $config['index'];
 
-
-		print_r($config);
-
-		// check stemmed settings first
-		print_r($config);
-
 		// Check filters
 		$filters = $config['analysis']['filter'];
 
@@ -103,16 +97,12 @@ class IndexSettingsTest extends ElasticsearchBaseTest {
 		);
 		$this->assertEquals($expected, $filter_shingle);
 
-
-
-
 		// check for existence and then actual values of analyzer
 		$analyzers = $config['analysis']['analyzer'];
 		$stemmedAnalyzer = $analyzers['stemmed'];
 
 		$actual = $stemmedAnalyzer['tokenizer'];
 		$filterNames = $stemmedAnalyzer['filter'];
-		print_r($filterNames);
 
 		$expected = array('no_single_chars', 'english_snowball', 'lowercase', 'english_stop');
 
