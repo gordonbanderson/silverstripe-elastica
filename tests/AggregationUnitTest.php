@@ -32,6 +32,9 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		// check the aggregate results
 		$aggregations = $resultList->getAggregations();
 
+		error_log('AGGS');
+		error_log(print_r($aggregations,1));
+
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
 		$this->assertEquals("ISO", $agg->Name);
