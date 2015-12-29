@@ -6,7 +6,13 @@ addons:
   apt:
     packages:
       - tidy
-      - elasticsearch
+
+# Technique taken from https://github.com/GSA/asis/blob/e59f23ccc49fdc54fcbe5b12eb7b1dea196c5f34/.travis.yml
+before_install:
+  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb && sudo dpkg -i elasticsearch-1.7.2.deb && true
+  - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
+  - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
+  - sudo service elasticsearch start
 
 env:
   global:
@@ -24,7 +30,6 @@ matrix:
 
 before_script:
   - phpenv rehash
-  - sudo service elasticsearch start
   - composer self-update || true
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
   - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
@@ -33,7 +38,9 @@ before_script:
   # Check version of elasticsearch
   - dpkg -l | grep elastic
   # Check Ruflin Elastic
-  - cd vendor/ruflin/elastica/ && git log  --max-count 10 && cd -
+  - cd vendor/ruflin/elastica/
+  - git log  --max-count 10
+  - cd -
 
 
 script:
