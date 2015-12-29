@@ -14,8 +14,6 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	Notes:
 	Searching string on number fields fails
 	http://elasticsearch-users.115913.n3.nabble.com/Error-when-searching-multiple-fields-with-different-types-td3897459.html
-
-
 	*/
 	public function testNonTextFields() {
 		$numericFields = array(
@@ -310,20 +308,27 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest {
 	public function testResultListToArray() {
 		$sfs = SearchableField::get()->filter(array('ClazzName' => 'FlickrPhotoTO', 'Type' => 'string'));
 		foreach($sfs->getIterator() as $sf) {
-			echo "T2 $sf->ClazzName $sf->Name $sf->Type\n";
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
 
 		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $this->getResultsFor('New Zealand', 10, $fields);
-		echo get_class($resultList);
 
 		$toarr = $resultList->toArray();
 
 		foreach($toarr as $item) {
 			$hl = $item->SearchHighlights;
-			echo "HL:$hl"; // MORNING FIXME
+			foreach ($hl as $shl) {
+				$html = $shl->Snippet;
+				$splits = explode('<strong class="hl">', $html);
+				if (sizeof($splits) > 1) {
+					$splits = explode('</strong>', $splits[1]);
+					$term = $splits[0];
+					$term = strtolower($term);
+					$this->assertEquals('new', $term);
+				}
+			}
 		}
 
 
