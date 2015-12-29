@@ -203,7 +203,7 @@ class QueryGenerator {
 			$filtered = array();
 			$filtered['query'] = $data['query'];
 			unset($data['query']);
-			$filtered['filter'] = $this->selectedFilters;
+			$filtered['filter'] = array('term' => $this->selectedFilters);
 			$data['query'] = array('filtered' => $filtered);
 		}
 
