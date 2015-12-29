@@ -15,7 +15,6 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	public function setUpOnce() {
 		//Add translatable if it exists
 		if (class_exists('Translatable')) {
-			error_log("TRANSLATABLE EXISTS!");
 			SiteTree::add_extension('Translatable');
 		}
 		parent::setUpOnce();
