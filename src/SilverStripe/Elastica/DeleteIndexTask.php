@@ -24,9 +24,7 @@ class DeleteIndexTask extends \BuildTask {
 	 * Execute the task to delete the currently configured index
 	 */
 	public function run($request) {
-		$message = function ($content) {
-			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
-		};
+		$message = ElasticaUtil::getPrinter();
 
 		$this->service->define();
 		$this->service->reset();
