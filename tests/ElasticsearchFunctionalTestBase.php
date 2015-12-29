@@ -23,6 +23,9 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 
 	public function setUp() {
+
+		echo "*************** TEST: ".$this->getName();
+
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
 		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
