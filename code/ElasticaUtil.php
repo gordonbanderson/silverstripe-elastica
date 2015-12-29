@@ -17,13 +17,18 @@ class ElasticaUtil {
 	 */
 	private static $post_marker = "POSTZXCVBNM12345678| ";
 
+	/**
+	 * @var boolean true to show CLI output, false to hide
+	 */
+	private static $cli_printer_output = true;
+
 
 	/**
 	 * Function to display messages only if using the command line
 	 * @var string $content Text to display when in command line mode
 	 */
 	public static function message($content) {
-		if (\Director::is_cli()) {
+		if (\Director::is_cli() && self::$cli_printer_output == true) {
 			echo "$content\n";
 		}
 	}
@@ -188,5 +193,26 @@ class ElasticaUtil {
 			$queryField->setAttribute('data-autocomplete-sitetree', $siteTreeOnly);
 			$queryField->setAttribute('data-autocomplete-source', $link);
 			$queryField->setAttribute('data-autocomplete-function', $slug);
+	}
+
+	/**
+	 * @return function print content to either web browser or command line.  Can be optionally supressed
+	 */
+	public static function getPrinter() {
+		return function ($content) {
+			if (self::$cli_printer_output == true) {
+				print(\Director::is_cli() ? "T1 $content\n" : "T2 <p>$content</p>");
+			}
+
+		};
+	}
+
+	/**
+	 * Set to true to show output on the command line or browser, false to not
+	 *
+	 * @param   $newcli_printer_output true to show output, false to hide it
+	 */
+	public static function setPrinterOutput($new_cli_printer_output) {
+		self::$cli_printer_output = $new_cli_printer_output;
 	}
 }
