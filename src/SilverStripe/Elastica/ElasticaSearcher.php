@@ -370,8 +370,6 @@ class ElasticSearcher {
 	 * @return \PaginatedList  List of results
 	 */
 	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
-		echo "INDEXED ITEM:".$indexedItem;
-
 		if ($indexedItem == null) {
 			throw new \InvalidArgumentException('A searchable item cannot be null');
 		}
