@@ -223,7 +223,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//Note pages need to be published, by default fixtures only reside in Stage
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('div.contentForEmptySearch', 0,
@@ -251,7 +250,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Auckland&sfid=".$searchPageObj->Identifier;
 
-		echo "URL:".$url;
 		$response = $this->get($url);
 
 		print_r($response);
@@ -306,16 +304,11 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		Page_Controller::remove_extension('PageControllerTemplateOverrideExtension');
 		$searchPageObj = $this->ElasticSearchPage2;
 
-		echo "Has extension? ";
-		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
-
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
 		$this->assertEquals(0, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
 		Page_Controller::add_extension('PageControllerTemplateOverrideExtension');
 		$searchPageObj = $this->ElasticSearchPage2;
-		echo "Has extension? ";
-		echo $searchPageObj->has_extension('PageControllerTemplateOverrideExtension');
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
 		$this->assertEquals(1, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
@@ -518,11 +511,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url = $url.'?q='.$searchTerm;
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -588,12 +578,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url = $url.'?q='.$searchTerm;
-		echo "URL:$url\n";
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
-
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
 			"Page 1 of 1  (3 results found");
@@ -732,14 +718,11 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 	private function enableHighlights() {
 		foreach (SearchableField::get()->filter('Name', 'Title') as $sf) {
-			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
 
 		foreach (SearchableField::get()->filter('Name', 'Content') as $sf) {
-			echo "Highlighting {$sf->ClazzName} {$sf->Name}\n";
-
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
