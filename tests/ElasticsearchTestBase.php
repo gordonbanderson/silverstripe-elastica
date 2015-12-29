@@ -1,8 +1,7 @@
 <?php
-
+use SilverStripe\Elastica\ElasticaUtil;
 use SilverStripe\Elastica\ReindexTask;
 use SilverStripe\Elastica\ElasticaService;
-
 
 class ElasticsearchBaseTest extends SapphireTest {
 
@@ -15,6 +14,8 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 
 	public function setUpOnce() {
+		ElasticaUtil::setPrinterOutput(false);
+
 		// add Searchable extension where appropriate
 		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
 		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
