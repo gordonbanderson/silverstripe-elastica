@@ -8,7 +8,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 		parent::setup();
 		$this->ElasticSearchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
-		$this->ElasticSearchPage->SimilarityStopWords =  'a,the,which';
+		$this->ElasticSearchPage->SimilarityStopWords = 'a,the,which';
 		$this->ElasticSearchPage->write();
 
 		$this->Validator = $this->ElasticSearchPage->getCMSValidator();
@@ -34,7 +34,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 			'AutoCompleteFieldID' => null,
 			'AutoCompleteFunctionID' => null,
 			'SearchHelper' => null,
-			'SimilarityStopWords' => array('a', 'an', 'the', ),
+			'SimilarityStopWords' => array('a', 'an', 'the',),
 			'MinTermFreq' => 2,
 			'MaxTermFreq' => 25,
 			'MinDocFreq' => 2,
@@ -113,7 +113,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 		$esp->Identifier = 'THISWILLBECOPIED';
 		$esp->write();
 		$this->checkForError('Identifier', 'THISWILLBECOPIED',
-			'The identifier THISWILLBECOPIED already exists' );
+			'The identifier THISWILLBECOPIED already exists');
 	}
 
 
