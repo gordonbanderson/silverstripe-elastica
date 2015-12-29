@@ -108,8 +108,6 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 
 			$sortable = $filters['ShutterSpeed'];
 
-			echo "SORTABLE:$sortable\n";
-
 			$sortable = explode('/', $sortable);
 			if (sizeof($sortable) == 1) {
 				$sortable = trim($sortable[0]);
@@ -129,9 +127,6 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 				}
 
 			}
-
-			echo "MAPPED TO $sortable\n";
-
 
 			$filters['ShutterSpeed'] = $sortable;
 		}
