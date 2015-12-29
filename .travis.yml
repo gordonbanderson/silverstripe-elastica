@@ -17,7 +17,7 @@ matrix:
   allow_failures:
     - php: hhvm-nightly
   include:
-    - php: 5.6
+    - php: 5.5
       env: DB=MYSQL
       before_install:
 
@@ -32,7 +32,7 @@ before_script:
   - composer require satooshi/php-coveralls
 
 script:
-  - vendor/bin/phpunit --filter testAllFieldsQuery --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/
+  - vendor/bin/phpunit --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/
 
 after_success:
     - cp coverage.clover ~/coverage.xml
