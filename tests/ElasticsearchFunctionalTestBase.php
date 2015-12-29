@@ -14,6 +14,8 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 
 	public function setUpOnce() {
+		ElasticaUtil::setPrinterOutput(false);
+
 		$config = Config::inst();
 		$config->remove('Injector', 'SilverStripe\Elastica\ElasticaService');
 		$constructor = array('constructor' => array('%$Elastica\Client', 'elastica_ss_module_test'));
