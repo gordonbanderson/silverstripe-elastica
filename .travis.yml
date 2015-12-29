@@ -4,7 +4,7 @@ sudo: true
 
 addons:
   apt:
-    <packages:></packages:>
+    packages:
       - tidy
       - elasticsearch
 
