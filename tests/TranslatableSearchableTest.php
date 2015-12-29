@@ -15,7 +15,6 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	public function setUpOnce() {
 		//Add translatable if it exists
 		if (class_exists('Translatable')) {
-			error_log("TRANSLATABLE EXISTS!");
 			SiteTree::add_extension('Translatable');
 		}
 		parent::setUpOnce();
@@ -25,7 +24,7 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	public function setUp() {
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+		$classes = array('SearchableTestPage', 'SiteTree', 'Page', 'FlickrPhotoTO', 'FlickrSetTO',
 			'FlickrTagTO', 'FlickrAuthorTO', 'FlickrSetTO');
 		$this->requireDefaultRecordsFrom = $classes;
 		// load fixtures
@@ -35,7 +34,7 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 
 
 	public function testgetFieldValuesAsArrayWithLocale() {
-		if (!class_exists('Translatable')) {
+		if(!class_exists('Translatable')) {
 			$this->markTestSkipped('Translatable not installed');
 		}
 
@@ -68,7 +67,7 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	 * Test a valid identifier
 	 */
 	public function testMappingWithLocale() {
-		if (!class_exists('Translatable')) {
+		if(!class_exists('Translatable')) {
 			$this->markTestSkipped('Translatable not installed');
 		}
 
@@ -87,7 +86,7 @@ class TranslatableSearchableTest extends ElasticsearchBaseTest {
 	Get a record as an Elastic document and check values
 	 */
 	public function testGetElasticaDocumentWithLocale() {
-		if (!class_exists('Translatable')) {
+		if(!class_exists('Translatable')) {
 			$this->markTestSkipped('Translatable not installed');
 		}
 

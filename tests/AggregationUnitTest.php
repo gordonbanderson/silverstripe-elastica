@@ -32,6 +32,11 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		// check the aggregate results
 		$aggregations = $resultList->getAggregations();
 
+		error_log('AGGS');
+		foreach ($aggregations as $agg) {
+			error_log($agg->Name);
+		}
+
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
 		$this->assertEquals("ISO", $agg->Name);
@@ -655,7 +660,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		//Asserting name of aggregate as ISO
 		$agg = $aggregations[0];
 
-		print_r($agg);
 
 		$this->assertEquals("ISO", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
@@ -729,11 +733,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		$agg = $aggregations[2];
 		$this->assertEquals("Shutter Speed", $agg->Name);
 		$buckets = $agg->Buckets->toArray();
-
-
-		foreach ($buckets as $bucket) {
-			echo "{$bucket->Key} => {$bucket->DocumentCount}\n";
-		}
 
 		//Asserting aggregate of Shutter Speed, 2/250 has count 17
 		$this->assertEquals("2/250", $buckets[0]->Key);
@@ -847,7 +846,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 	public function testThreeAggregatesSelected() {
 		$ct = FlickrPhotoTO::get()->count();
-		echo "There are $ct flickr photos\n";
 
 		$fields = array('Title' => 1, 'Description' => 1);
 		$resultList = $this->search('New Zealand', $fields, array('ISO' => 400,
@@ -980,25 +978,12 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Add filters
 		foreach ($filters as $key => $value) {
-			echo "ADDING FILTER:$key => $value\n";
 			$es->addFilter($key,$value);
 		}
 
 		$es->showResultsForEmptySearch();
 
 		$resultList = $es->search($queryText, $fields);
-		$ctr = 0;
-
-		echo "{$resultList->count()} items found searching for '$queryText'\n\n";
-		foreach ($resultList as $result) {
-			$ctr++;
-			echo("($ctr) ".$result->Title."\n");
-			if ($result->SearchHighlightsByField->Content) {
-				foreach ($result->SearchHighlightsByField->Content as $highlight) {
-					echo("- ".$highlight->Snippet);
-				}
-			}
-		}
 
 		return $resultList;
 	}

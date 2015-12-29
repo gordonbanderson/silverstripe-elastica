@@ -59,12 +59,8 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		$orig_fixture_file = static::$fixture_file;
 
-		echo "TESTS TO IGNORE:\n";
-		print_r(static::$ignoreFixtureFileFor);
-
 		foreach (static::$ignoreFixtureFileFor as $testPattern) {
 			$pattern = '/'.$testPattern.'/';
-			echo "GREP: $pattern against ".$this->getName()."\n";
 			if (preg_match($pattern, $this->getName())) {
 				static::$fixture_file = null;
 			}
@@ -91,7 +87,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 			// temporarily disable Elasticsearch indexing, it will be done in a batch
 			$page->IndexingOff = true;
 
-			echo "Publishing ".$page->Title."\n";
 			$page->publish('Stage','Live');
 		}
 	}
@@ -110,15 +105,12 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	 * @return boolean
 	 */
 	public function assertSelectorStartsWithOrEquals($selector, $index, $expectedPrefix) {
-		echo "\nSELECTOR:$selector\n";
 		$items = $this->cssParser()->getBySelector($selector);
 
 		$ctr = 0;
 		foreach ($items as $item) {
 			$text = strip_tags($item);
 			$escaped = str_replace("'", "\'", $text);
-			echo "SELECTED:\$this->assertSelectorStartsWithOrEquals('{$selector}', $ctr, '$escaped');\n";
-			echo "ITEM:".$item."\n";
 			$ctr++;
 		}
 

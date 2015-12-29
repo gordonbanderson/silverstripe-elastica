@@ -67,8 +67,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 			}
 		}
 
-		echo "\n\n\n\nEXECUTING TEST {$this->getName()}, FIXTURES=".static::$fixture_file."\n";
-
 		parent::setUp();
 		static::$fixture_file = $orig_fixture_file;
 
@@ -96,8 +94,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 		foreach (SiteTree::get()->getIterator() as $page) {
 			// temporarily disable Elasticsearch indexing, it will be done in a batch
 			$page->IndexingOff = true;
-
-			echo "Publishing ".$page->Title."\n";
 			$page->publish('Stage','Live');
 		}
 	}
@@ -161,16 +157,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 	Helper methods for testing CMS fields
 	 */
 	public function checkTabExists($fields, $tabName) {
-		echo "Searching for tab $tabName\n";
 		$tab = $fields->findOrMakeTab("Root.{$tabName}");
 		$actualTabName = $tab->getName();
-		echo "TAB NAME:$tabName -> $actualTabName\n";
 		$splits = explode('.', $tabName);
 		$size = sizeof($splits);
-		print_r($splits);
-		echo "SIZE:$size\n";
 		$nameToCheck = end($splits);
-		echo "NAME TO CHECK:$nameToCheck\n";
 		$this->assertEquals($actualTabName, $nameToCheck);
 		if ($size == 1) {
 			$this->assertEquals("Root_${tabName}", $tab->id());
@@ -185,10 +176,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 	public function checkFieldExists($tab,$fieldName) {
 		$fields = $tab->Fields();
-		echo "TAB:{$tab->Name}\n";
-		foreach ($fields as $fi) {
-			echo "NAME:".$fi->Name."\n";
-		}
 		$field = $tab->fieldByName($fieldName);
 		$this->assertTrue($field != null);
 		return $field;

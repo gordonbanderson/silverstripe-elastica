@@ -21,7 +21,6 @@ class ElasticaUtiTest extends SapphireTest {
 		$sa = $this->getSuggestionArray('New Zealind raalway',
 			'new zealand railway',
 			'new <strong class="hl">zealand railway</strong>');
-		print_r($sa);
 
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$expected = array(

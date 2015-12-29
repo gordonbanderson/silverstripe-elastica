@@ -8,7 +8,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 		parent::setup();
 		$this->ElasticSearchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
-		$this->ElasticSearchPage->SimilarityStopWords =  'a,the,which';
+		$this->ElasticSearchPage->SimilarityStopWords = 'a,the,which';
 		$this->ElasticSearchPage->write();
 
 		$this->Validator = $this->ElasticSearchPage->getCMSValidator();
@@ -34,7 +34,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 			'AutoCompleteFieldID' => null,
 			'AutoCompleteFunctionID' => null,
 			'SearchHelper' => null,
-			'SimilarityStopWords' => array('a', 'an', 'the', ),
+			'SimilarityStopWords' => array('a', 'an', 'the',),
 			'MinTermFreq' => 2,
 			'MaxTermFreq' => 25,
 			'MinDocFreq' => 2,
@@ -53,23 +53,17 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 	public function testGoodData() {
 		$fields = $this->ElasticSearchPage->getCMSFields();
 		$form = new Form($this, 'Form', $fields, new FieldList());
-		//$this->assertTrue($form->validate(), "Saved object should already be validatable at the form level");
-
-
-		echo "Testing live....\n";
-				$this->ElasticSearchPage->publish('Stage', 'Live');
+		$this->ElasticSearchPage->publish('Stage', 'Live');
 
 		$fields = $this->ElasticSearchPage->getCMSFields();
-			$fields->push(new HiddenField('ID'));
+		$fields->push(new HiddenField('ID'));
 		$form = new Form($this, 'Form', $fields, new FieldList());
 		$form->loadDataFrom($this->ElasticSearchPage);
 		$form->setValidator($this->ElasticSearchPage->getCMSValidator());
 		$this->assertTrue($form->validate(), "Saved object should already be validatable at the form level");
 
 		$origMode = Versioned::get_reading_mode();
-		echo "CURRENT MODE:$origMode\n";
 		Versioned::set_reading_mode('Stage');
-		echo "CURRENT MODE:".Versioned::get_reading_mode()."\n";
 		Versioned::set_reading_mode($origMode); // reset current mode
 	}
 
@@ -119,7 +113,7 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 		$esp->Identifier = 'THISWILLBECOPIED';
 		$esp->write();
 		$this->checkForError('Identifier', 'THISWILLBECOPIED',
-			'The identifier THISWILLBECOPIED already exists' );
+			'The identifier THISWILLBECOPIED already exists');
 	}
 
 
@@ -131,22 +125,13 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 		$form = new Form($this, 'Form', $fields, new FieldList());
 		$form->loadDataFrom($this->ElasticSearchPage);
 
-		foreach ($form->Fields() as $field) {
-			echo "************** {$field->getName()} -> {$field->Value()}\n";
-		}
 		$form->setValidator($this->ElasticSearchPage->getCMSValidator());
 		$this->assertFalse($form->validate(), "The alternations to the record are expected to fail");
 
 		$errors = Session::get("FormInfo.{$form->FormName()}.errors");
 		$found = false;
-		print_r($errors);
 
 		foreach ($errors as $error) {
-			echo "Checking error\n";
-			echo " - " . $error['fieldName'].' => '.$error['message']."\n";
-			echo "\tT1:".($error['message'] == $message);
-			echo "\n\tT2:".($error['fieldName'] == $fieldName);
-
 			if ($error['message'] == $message && $error['fieldName'] == $fieldName) {
 				$found = true;
 				break;

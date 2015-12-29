@@ -49,19 +49,10 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$tab = $fields->findOrMakeTab("Root.Search.Fields");
 		$fieldsTab = $tab->Fields();
 
-		foreach ($fieldsTab as $field) {
-			echo "FIELD:{$field->getName()}\n";
-		}
-
 		$pickerField = $fieldsTab->fieldByName('ElasticaSearchableFields');
 		$pickerConfig = $pickerField->getConfig();
 		$gridDetailForm = $pickerConfig->getComponentByType('GridFieldDetailForm');
 
-		echo "SEARCHABLE FIELDS\n";
-		foreach ($searchPage->ElasticaSearchableFields()->getIterator() as $sf) {
-			echo "SEARCHABLE FIELD {$sf->ClazzName},{$sf->Name}!\n";
-
-		}
 		$searchableField = $searchPage->ElasticaSearchableFields()->filter(
 			array('ClazzName' => 'SiteTree', 'Name' => 'Title')
 		)->first();
@@ -304,8 +295,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	Test setting up a search page for data objects as if editing the CMS directly
 	 */
 	public function testSearchPageForDataObjects() {
-		echo "========================== TEST STARTS NOW ==========================\n";
-		//$this->devBuild();
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
 		$searchPage->ClassesToSearch = 'FlickrPhotoTO';

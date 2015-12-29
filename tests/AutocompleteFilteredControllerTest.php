@@ -5,12 +5,12 @@ use SilverStripe\Elastica\ReindexTask;
 /**
  * @package comments
  */
-class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
+class AutocompletFilteredeControllerTest extends ElasticsearchFunctionalTestBase {
 
-	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
+	public static $fixture_file = 'elastica/tests/autocomplete.yml';
 
 
-	public function setup() {
+	public function setupNOT() {
 		parent::setup();
 		$config = Config::inst()->get('FlickrPhotoTO', 'searchable_fields');
 
@@ -34,13 +34,11 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 	}
 
 
-
-	public function testDataObject() {
-		$url = 'autocomplete/search?field=Title&classes=FlickrPhotoTO&query=the';
+	public function testSiteTree() {
+		$url = 'autocomplete/search?field=Title&filter=1&query=the';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
-
 		$result = json_decode($body);
 
 		$this->assertEquals('the', $result->Query);
@@ -52,11 +50,10 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 		}
 
 		// make sure there were actually some results
-		$this->assertEquals(10, sizeof($result->suggestions));
-
+		$this->assertEquals(5, sizeof($result->suggestions));
 
 		//search for different capitlisation, should produce the same result
-		$url = 'autocomplete/search?field=Title&classes=FlickrPhotoTO&query=ThE';
+		$url = 'autocomplete/search?field=Title&filter=1&query=ThE';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
@@ -64,21 +61,32 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertEquals($result->suggestions, $result2->suggestions);
 
 		//append a space should produce the same result
-		$url = 'autocomplete/search?field=Title&classes=FlickrPhotoTO&query=ThE%20';
+		$url = 'autocomplete/search?field=Title&filter=1&query=ThE%20';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
 		$result3 = json_decode($body);
 		$this->assertEquals($result2->suggestions, $result3->suggestions);
 
+		//search for part of Moonraker
+		$url = 'autocomplete/search?field=Title&filter=1&query=rake';
+		$response = $this->get($url);
+		$this->assertEquals(200, $response->getStatusCode());
+		$body = $response->getBody();
+		$result = json_decode($body);
+		$this->assertEquals(1, sizeof($result->suggestions));
+
+
 
 		// test a non existent class, for now return blanks so as to avoid extra overhead as this
 		// method is called often
-		$url = 'autocomplete/search?field=FieldThatDoesNotExist&classes=FlickrPhotoTO&query=the';
+		$url = 'autocomplete/search?field=FieldThatDoesNotExist&filter=1&query=the';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$body = $response->getBody();
 		$result4 = json_decode($body);
 		$this->assertEquals(0, sizeof($result4->suggestions));
 	}
+
+
 }

@@ -19,7 +19,7 @@
 		"issues": "http://github.com/ajshort/silverstripe-elastica/issues"
 	},
 	"require": {
-		"ruflin/elastica": "dev-master",
+		"ruflin/elastica": "2.3.1",
 		"silverstripe/cms": ">=3.1"
 	},
 	"autoload": {

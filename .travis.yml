@@ -4,9 +4,15 @@ sudo: true
 
 addons:
   apt:
-    <packages:></packages:>
+    packages:
       - tidy
-      - elasticsearch
+
+# Technique taken from https://github.com/GSA/asis/blob/e59f23ccc49fdc54fcbe5b12eb7b1dea196c5f34/.travis.yml
+before_install:
+  - curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb && sudo dpkg -i elasticsearch-1.7.2.deb && true
+  - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
+  - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
+  - sudo service elasticsearch start
 
 env:
   global:
@@ -17,22 +23,26 @@ matrix:
   allow_failures:
     - php: hhvm-nightly
   include:
-    - php: 5.6
+    - php: 5.5
       env: DB=MYSQL
-      before_install:
-
 
 before_script:
   - phpenv rehash
-  - sudo service elasticsearch start
   - composer self-update || true
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
   - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
   - cd ~/builds/ss
   - composer require satooshi/php-coveralls
+  # Check version of elasticsearch
+  - dpkg -l | grep elastic
+  # Check Ruflin Elastic
+  - cd vendor/ruflin/elastica/
+  - git log  --max-count 10
+  - cd -
+
 
 script:
-  - vendor/bin/phpunit --filter testAllFieldsQuery --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/
+  - vendor/bin/phpunit --filter testAllFieldsQuery --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/AggregationUnitTest.php
 
 after_success:
     - cp coverage.clover ~/coverage.xml

@@ -37,27 +37,27 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$extraFields = array('Searchable' => 1, 'SimilarSearchable' => 1, 'Active' => 1,
 			'Weight' => 1);
 		$esfs2 = $esp2->ElasticaSearchableFields();
-		foreach ($esfs2 as $sf) {
-			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+		foreach($esfs2 as $sf) {
+			if($sf->Name == 'Title' || $sf->Name == 'Description') {
 				$esfs2->remove($sf);
 				$esfs2->add($sf, $extraFields);
 			}
 		}
 		$esp2->write();
 
-		$esfs= $esp->ElasticaSearchableFields();
+		$esfs = $esp->ElasticaSearchableFields();
 
-		foreach ($esfs as $sf) {
-			if ($sf->Name == 'Title' || $sf->Name == 'Description') {
+		foreach($esfs as $sf) {
+			if($sf->Name == 'Title' || $sf->Name == 'Description') {
 				$esfs->remove($sf);
 				$esfs->add($sf, $extraFields);
 			}
 		}
 		$esp->write();
-		$esp->publish('Stage','Live');
-		$esp2->publish('Stage','Live');
+		$esp->publish('Stage', 'Live');
+		$esp2->publish('Stage', 'Live');
 		$this->ElasticSearchPage = $esp;
-		$this->ElasticSearchPage2= $esp2;
+		$this->ElasticSearchPage2 = $esp2;
 	}
 
 
@@ -72,7 +72,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = $searchPageObj->Link();
 		$searchPage = $this->get($searchPageObj->URLSegment);
 		$this->assertEquals(200, $searchPage->getStatusCode());
-		$url = rtrim($url,'/');
+		$url = rtrim($url, '/');
 
         $response = $this->get($url);
         $this->assertEquals(200, $response->getStatusCode());
@@ -124,7 +124,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = $searchPageObj->Link();
 		$searchPage = $this->get($searchPageObj->URLSegment);
 		$this->assertEquals(200, $searchPage->getStatusCode());
-		$url = rtrim($url,'/');
+		$url = rtrim($url, '/');
 		$url .= '?ISO=400';
 
         $response = $this->get($url);
@@ -171,11 +171,10 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = $searchPageObj->Link();
 		$searchPage = $this->get($searchPageObj->URLSegment);
 		$this->assertEquals(200, $searchPage->getStatusCode());
-		$url = rtrim($url,'/');
+		$url = rtrim($url, '/');
 		$url .= '?ISO=400&ShutterSpeed=2%2F250';
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -205,11 +204,10 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = $searchPageObj->Link();
 		$searchPage = $this->get($searchPageObj->URLSegment);
 		$this->assertEquals(200, $searchPage->getStatusCode());
-		$url = rtrim($url,'/');
+		$url = rtrim($url, '/');
 		$url .= '?ISO=400&ShutterSpeed=2%2F250&Aspect=Vertical';
 
         $response = $this->get($url);
-		print_r($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -249,11 +247,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Auckland&sfid=".$searchPageObj->Identifier;
-
 		$response = $this->get($url);
-
-		print_r($response);
-
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertAttributeHasExactValue('#ElasticSearchForm_SearchForm_q', 'q',
 			'Auckland');
@@ -276,7 +270,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$pageLength = 10; // the default
 		$searchPageObj->ResultsPerPage = $pageLength;
 		$searchPageObj->write();
-		$searchPageObj->publish('Stage','Live');
+		$searchPageObj->publish('Stage', 'Live');
 
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
@@ -297,7 +291,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 	public function testTemplateOverrideExtension() {
 
-		if (!class_exists('PageControllerTemplateOverrideExtension')) {
+		if(!class_exists('PageControllerTemplateOverrideExtension')) {
 			$this->markTestSkipped('PageControllerTemplateOverrideExtension not installed');
 		}
 
@@ -312,7 +306,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$response = $this->get($url);
 		$this->assertEquals(1, PageControllerTemplateOverrideExtension::getTemplateOverrideCounter());
-
 
 		$url .= "/similar/FlickrPhotoTO/77";
 		$response = $this->get($url);
@@ -353,6 +346,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/asdfsadfsfd/4";
+		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Class asdfsadfsfd is either not found or not searchable');
@@ -363,6 +357,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77?ServerDown=1";
+		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -372,6 +367,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=Zealand&ServerDown=1";
+		$response = $this->get($url);
 		$this->assertSelectorStartsWithOrEquals('div.error', 0,
 			'Unable to connect to search server');
 	}
@@ -381,6 +377,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77";
+		$response = $this->get($url);
 
 		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
@@ -415,7 +412,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=New%20Zealind&TestMode=true";
 		$response = $this->get($url);
-		print_r($response);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
@@ -455,8 +451,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?q=New Zealind&is=1';
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
 
 		//Only the word New will match, Zealind does not exist.  Hence 'New York', 'New Orelans' etc
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'Image taken from page 59 of \'Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition\'');
@@ -555,9 +549,9 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
             'q' => 'New Zealand'
         ));
 
-		$url = rtrim($url,'/');
+		$url = rtrim($url, '/');
         $this->assertEquals(302, $response->getStatusCode());
-        $this->assertEquals($url.'?q=New Zealand&sfid=testwithagg', $response->getHeader('Location'));
+        $this->assertEquals($url . '?q=New Zealand&sfid=testwithagg', $response->getHeader('Location'));
 	}
 
 
@@ -580,6 +574,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = $url.'?q='.$searchTerm;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
+
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
 			"Page 1 of 1  (3 results found");
@@ -618,17 +613,16 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$searchPageObj = $this->ElasticSearchPage;
 		$searchPageObj->SiteTreeOnly = true;
 		$searchPageObj->write();
-		$searchPageObj->publish('Stage','Live');
+		$searchPageObj->publish('Stage', 'Live');
 
 
 		$pageLength = 10; // the default
 		$searchPageObj->ResultsPerPage = $pageLength;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url = $url.'?q='.$searchTerm;
+		$url = $url . '?q=' . $searchTerm;
 		$firstPageURL = $url;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-		print_r($response);
 
 		//There are 2 results for 'Contact Us', as 'About Us' has an Us in the title.
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -659,13 +653,10 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$pageLength = 10; // the default
 		$searchPageObj->ResultsPerPage = $pageLength;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url = $url.'?q='.$searchTerm;
+		$url = $url . '?q=' . $searchTerm;
 		$firstPageURL = $url;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
-
-		print_r($response);
-
 
 		//There are 3 results for mineralogy
 		$this->assertSelectorStartsWithOrEquals('div.resultsFound', 0,
@@ -684,7 +675,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 
 		$resultsP1 = $this->collateSearchResults();
 
-		$page2url = $url . '&start='.$pageLength;
+		$page2url = $url . '&start=' . $pageLength;
 
 		//Check pagination on page 2
 		$response2 = $this->get($page2url);
