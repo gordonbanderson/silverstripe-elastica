@@ -21,9 +21,7 @@ class SearchIndexTask extends \BuildTask {
 	}
 
 	public function run($request) {
-		$message = function ($content) {
-			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
-		};
+		$message = ElasticaUtil::getPrinter();
 
 		$locales = array();
 
