@@ -44,7 +44,7 @@ before_script:
 
 
 script:
-  - vendor/bin/phpunit --filter testSimilarGood --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/ElasticSearcherUnitTest.php
+  - vendor/bin/phpunit --filter testSimilarChangeMaxDocFreq --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/ElasticSearcherUnitTest.php
 
 after_success:
     - cp coverage.clover ~/coverage.xml
