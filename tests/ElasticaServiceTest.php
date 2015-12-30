@@ -145,8 +145,6 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$this->checkNumberOfIndexedDocuments(103);
 	}
 
-
-
 	public function testNonBulkIndexing() {
 		//Number of requests indexing wise made to Elasticsearch server
 		$reqs = $this->service->getIndexingRequestCtr();

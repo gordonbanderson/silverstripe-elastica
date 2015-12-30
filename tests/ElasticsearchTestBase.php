@@ -214,6 +214,8 @@ class ElasticsearchBaseTest extends SapphireTest {
 		if (isset($status['indices']['elastica_ss_module_test_en_us']['docs'])) {
 			$numberDocsInIndex = $status['indices']['elastica_ss_module_test_en_us']['docs']['num_docs'];
 			error_log('DOCUMENTS FOUND:'.$numberDocsInIndex);
+		} else {
+			$numberDocsInIndex = 0;
 		}
 
 		$this->assertEquals($expectedAmount,$numberDocsInIndex);
