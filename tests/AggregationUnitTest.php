@@ -32,13 +32,11 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 		// check the aggregate results
 		$aggregations = $resultList->getAggregations();
 
-		sort($aggregations);
-
 		error_log('AGGS');
 		foreach ($aggregations as $agg) {
 			error_log($agg->Name);
-			foreach ($agg->Buckets() as $value => $count) {
-				error_log("\t$value -> $count");
+			foreach ($agg->Buckets as $bucket) {
+				error_log("\t$bucket->Key -> $bucket->DocumentCount");
 			}
 		}
 
@@ -983,6 +981,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest {
 
 		//Add filters
 		foreach ($filters as $key => $value) {
+			error_log("ADDING FILTER RESULT $key, $value");
 			$es->addFilter($key,$value);
 		}
 
