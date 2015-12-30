@@ -22,7 +22,7 @@
 		"ruflin/elastica": "2.3.1",
 		"silverstripe/cms": ">=3.1",
 		"silverstripe/tagfield": "~1.2",
-		"briceberg/silverstripe-pickerfield" : "dev-master"
+		"briceburg/silverstripe-pickerfield" : "dev-master"
 	},
 	"autoload": {
 		"psr-0": { "SilverStripe\\Elastica": "src/" }
