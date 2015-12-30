@@ -22,7 +22,10 @@ class SearchableTest extends ElasticsearchBaseTest {
 	}
 
 
-
+	/*
+	FIXME - this method may be problematic, look at when fresh.  Different types
+	returned between mysql and sqlite3
+	 */
 	public function testgetFieldValuesAsArrayFromFixtures() {
 		$manyTypes = $this->objFromFixture('ManyTypesPage', 'manytypes0001');
 		$result = $manyTypes->getFieldValuesAsArray();
@@ -31,18 +34,18 @@ class SearchableTest extends ElasticsearchBaseTest {
 			'BooleanField' => '1',
 			'CurrencyField' => '100.25',
 			'DateField' => '2014-04-15',
-			'DecimalField' => '0',
-			'EnumField' => '',
+			'DecimalField' => '0.00',
 			'HTMLTextField' => '',
 			'HTMLVarcharField' => 'This is some *HTML*varchar field',
 			'IntField' => '677',
-			'PercentageField' => '27',
+			'PercentageField' => '8.2000',
 			'SS_DatetimeField' => '2014-10-18 08:24:00',
 			'TextField' => 'This is a text field',
 			'TimeField' => '17:48:18',
 			'Title' => 'Many Types Page',
-			'Content' => 'Many types of fields',
+			'Content' => 'Many types of fields'
 		);
+
 		$this->assertEquals($expected, $result);
 
 	}
