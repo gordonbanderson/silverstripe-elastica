@@ -2,6 +2,7 @@
 
 use SilverStripe\Elastica\ReindexTask;
 use SilverStripe\Elastica\ElasticaService;
+use SilverStripe\Elastica\ElasticaUtil;
 
 
 class ElasticsearchFunctionalTestBase extends FunctionalTest {
