@@ -7,8 +7,6 @@ addons:
     packages:
       - tidy
 
-before_install:
-  - pip install --user codecov
 
 # Technique taken from https://github.com/GSA/asis/blob/e59f23ccc49fdc54fcbe5b12eb7b1dea196c5f34/.travis.yml
 before_install:
@@ -16,6 +14,7 @@ before_install:
   - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - sudo service elasticsearch start
+  - pip install --user codecov
 
 env:
   global:
