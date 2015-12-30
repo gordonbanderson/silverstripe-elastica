@@ -125,12 +125,13 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
 
+		$results = $paginated->getList()->toArray();
+
 		foreach($results as $result) {
 			error_log('RESULT:' . $result->Title);
 		}
 
 		$this->assertEquals(32, $paginated->getTotalItems());
-		$results = $paginated->getList()->toArray();
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Railroad Station, Stockdale, Texas]", $results[0]->Title);
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Railroad Station, Taft, Texas]", $results[1]->Title);
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]", $results[2]->Title);
