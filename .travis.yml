@@ -44,7 +44,7 @@ before_script:
 
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/AutoCompleteOptionTest.php
+  - vendor/bin/phpunit --filter testResetIndex --coverage-clover=coverage.clover -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests/ElasticaServiceTest.php
 
 after_success:
     - cp coverage.clover ~/coverage.xml
