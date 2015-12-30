@@ -135,11 +135,6 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 		$aggs['ShutterSpeed']['buckets'] = $shutterSpeeds;
 	}
 
-
-
-
-
-
 	/*
 	In the event of aggregates being used and no query provided, sort by this (<field> => <order>)
 	 */
@@ -151,7 +146,4 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 	public function getIndexFieldTitleMapping() {
 		return self::$titleFieldMapping;
 	}
-
-
-
 }
