@@ -147,9 +147,19 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
-
-		$this->assertEquals(14, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
+		$ctr = 0;
+		foreach ($results as $result) {
+			$ctr++;
+			if ($ctr < 9) {
+				$this->assertStringStartsWith(
+					'[Texas and New Orleans, Southern Pacific',
+					$result->Title
+				);
+			}
+
+		}
+		$this->assertEquals(14, $paginated->getTotalItems());
 		$this->makeCode($paginated);
 	}
 
