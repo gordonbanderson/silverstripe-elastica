@@ -159,7 +159,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	 * @throws PHPUnit_Framework_AssertionFailedError
 	 * @return boolean
 	 */
-	public function assertSelectorContains($selector, $index, $expectedClause) {
+	public function assertSelectorContains($selector, $index, $expectedClause, $downcase = false) {
 		$items = $this->cssParser()->getBySelector($selector);
 
 		$ctr = 0;
@@ -171,8 +171,12 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		$ctr = 0;
 		$item = strip_tags($items[$index]);
+		if ($downcase) {
+			$item = strtolower($item);
+			$expectedClause = strtolower($expectedClause);
+		}
 
-		$errorMessage = "Failed to assert that '$item' started with '$expectedClause'";
+		$errorMessage = "Failed to assert that '$item' contains '$expectedClause'";
 		$this->assertContains($expectedClause, $item, $errorMessage);
 
 		return true;
