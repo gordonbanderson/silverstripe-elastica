@@ -85,8 +85,6 @@ class SearchableTest extends ElasticsearchBaseTest {
 				)
 			)
 		);
-		$expected = $stringFormat;
-		$this->assertEquals($expected, $fields['EnumField']);
 
 		$expected = $stringFormat;
 		$this->assertEquals($expected, $fields['HTMLTextField']);
