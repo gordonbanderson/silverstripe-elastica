@@ -142,12 +142,42 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$ctr = 0;
 		$item = strip_tags($items[$index]);
 
-
 		$errorMessage = "Failed to assert that '$item' started with '$expectedPrefix'";
 		$this->assertStringStartsWith($expectedPrefix, $item, $errorMessage);
 
 		return true;
 	}
+
+
+		/**
+	 *Assert that the indexth matching css node has a prefix as expected
+	 *
+	 * Note: &nbsp; characters are stripped from the content; make sure that your assertions take this into account.
+	 *
+	 * @param string $selector A basic CSS selector, e.g. 'li.jobs h3'
+	 * @param array|string $expectedMatches The content of at least one of the matched tags
+	 * @throws PHPUnit_Framework_AssertionFailedError
+	 * @return boolean
+	 */
+	public function assertSelectorContains($selector, $index, $expectedClause) {
+		$items = $this->cssParser()->getBySelector($selector);
+
+		$ctr = 0;
+		foreach ($items as $item) {
+			$text = strip_tags($item);
+			$escaped = str_replace("'", "\'", $text);
+			$ctr++;
+		}
+
+		$ctr = 0;
+		$item = strip_tags($items[$index]);
+
+		$errorMessage = "Failed to assert that '$item' started with '$expectedClause'";
+		$this->assertContains($expectedClause, $item, $errorMessage);
+
+		return true;
+	}
+
 
 
 	/*
