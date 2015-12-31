@@ -14,8 +14,8 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
-	public function setup() {
-		parent::setup();
+	public function setUp() {
+		parent::setUp();
 		$this->service->setTestMode(true);
 	}
 
@@ -52,7 +52,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 
 
 	public function testEnsureIndex() {
-		// Check that an index currently exists, it will from setup method
+		// Check that an index currently exists, it will from setUp method
 		$this->assertTrue($this->service->getIndex()->exists());
 
 		// Ensure the index exists when it already exists case
