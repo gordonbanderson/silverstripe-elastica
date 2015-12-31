@@ -397,13 +397,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=New%20Zealind&TestMode=true";
 		$response = $this->get($url);
-		error_log(print_r($response,1));
 		$this->assertEquals(200, $response->getStatusCode());
-
 		$ctr = 0;
-
-
-
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg strong.hl', 0, 'Zealand');
