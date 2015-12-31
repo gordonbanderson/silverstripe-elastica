@@ -33,12 +33,10 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 
 	public function setUp() {
-		error_log('++++ EL BASE SET UP T1');
 		// no need to index here as it's done when fixtures are loaded during setup method
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
 		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
-		error_log('++++ EL BASE SET UP T2');
 
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
@@ -46,32 +44,23 @@ class ElasticsearchBaseTest extends SapphireTest {
 			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
-		error_log('++++ EL BASE SET UP T3');
-
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$this->service->setTestMode(true);
-
-		error_log('++++ EL BASE SET UP T4');
 
 		$elasticException = false;
 
 		try {
 			// A previous test may have deleted the index and then failed, so check for this
 			if (!$this->service->getIndex()->exists()) {
-				error_log('++++ EL BASE SET UP T4a');
-
 				$this->service->getIndex()->create();
 			}
-			error_log('++++ EL BASE SET UP T4b');
 			$this->service->reset();
-			error_log('++++ EL BASE SET UP T4c');
 			// FIXME - use request getVar instead?
 			$_GET['progress'] = 20;
 			// load fixtures
 
 			$orig_fixture_file = static::$fixture_file;
-			error_log('++++ EL BASE SET UP T5');
 
 			foreach (static::$ignoreFixtureFileFor as $testPattern) {
 				$pattern = '/'.$testPattern.'/';
@@ -80,13 +69,9 @@ class ElasticsearchBaseTest extends SapphireTest {
 				}
 			}
 
-			error_log('++++ EL BASE SET UP T6');
 		} catch (Exception $e) {
-			error_log("**** EXCEPTION T1 ".$e->getMessage());
 			$elasticException = true;
 		}
-			error_log('++++ EL BASE SET UP T7');
-
 
 		// this needs to run otherwise nested injector errors show up
 		parent::setUp();
@@ -107,7 +92,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 			$task->run(null);
 		} catch (Exception $e) {
-			error_log("**** EXCEPTION T2 ".$e->getMessage());
 			$elasticException = true;
 		}
 
@@ -184,7 +168,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		}
 		echo "\t$prefix),\n";
-
 	}
 
 
