@@ -425,28 +425,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 			$ctr++;
 		}
 
-		//Only the word New will match, Zealind does not exist.  Hence 'New York', 'New Orelans' etc
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, 'Image taken from page 59 of \'Illustrated Handbook to Plymouth, Stonehouse & Devonport, with a new map ... New and enlarged edition\'');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 2, '[Texas and New Orleans, Southern Pacific Passenger Station, Waxahachie, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 3, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 4, 'Flash Light view in new Subterranean');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 5, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 6, '[Texas and New Orleans, Southern Pacific Railroad Station, Sinton, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 7, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 8, '[Texas and New Orleans, Southern Pacific Railroad Station, Taft, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 9, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 10, '[Texas and New Orleans, Southern Pacific, Tower No. 63, Mexia, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 11, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 12, '[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 13, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 14, 'Image taken from page 273 of \'Old and New London, etc\'');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 15, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 16, '[Texas and New Orleans, Southern Pacific, Switchman\'s Tower, San Antonio, Texas]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, 'Image taken from page 143 of \'Cassell\'s Old and New Edinburgh, etc\'');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
-
 
 
 		//no suggestions shown, the is flag prevents this
