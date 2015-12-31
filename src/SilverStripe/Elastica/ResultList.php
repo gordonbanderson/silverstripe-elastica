@@ -175,6 +175,10 @@ class ResultList extends \ViewableData implements \SS_Limitable, \SS_List {
 					$aggDO->Name = $key;
 				}
 
+				$aggDO->Slug = preg_replace(
+					'/[^a-zA-Z0-9_]/', '_', strtolower($aggDO->Name)
+				);
+
 				// now the buckets
 				if(isset($aggs[$key]['buckets'])) {
 					$bucketsAL = new \ArrayList();
