@@ -33,10 +33,12 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 
 	public function setUp() {
+		error_log('++++ EL BASE SET UP T1');
 		// no need to index here as it's done when fixtures are loaded during setup method
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
 		SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
+		error_log('++++ EL BASE SET UP T2');
 
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
@@ -44,42 +46,74 @@ class ElasticsearchBaseTest extends SapphireTest {
 			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
+		error_log('++++ EL BASE SET UP T3');
 
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$this->service->setTestMode(true);
 
-		// A previous test may have deleted the index and then failed, so check for this
-		if (!$this->service->getIndex()->exists()) {
-			$this->service->getIndex()->create();
-		}
-		$this->service->reset();
+		error_log('++++ EL BASE SET UP T4');
 
-		// FIXME - use request getVar instead?
-		$_GET['progress'] = 20;
-		// load fixtures
+		$elasticException = false;
 
-		$orig_fixture_file = static::$fixture_file;
+		try {
+			// A previous test may have deleted the index and then failed, so check for this
+			if (!$this->service->getIndex()->exists()) {
+				error_log('++++ EL BASE SET UP T4a');
 
-		foreach (static::$ignoreFixtureFileFor as $testPattern) {
-			$pattern = '/'.$testPattern.'/';
-			if (preg_match($pattern, $this->getName())) {
-				static::$fixture_file = null;
+				$this->service->getIndex()->create();
 			}
+			error_log('++++ EL BASE SET UP T4b');
+			$this->service->reset();
+			error_log('++++ EL BASE SET UP T4c');
+			// FIXME - use request getVar instead?
+			$_GET['progress'] = 20;
+			// load fixtures
+
+			$orig_fixture_file = static::$fixture_file;
+			error_log('++++ EL BASE SET UP T5');
+
+			foreach (static::$ignoreFixtureFileFor as $testPattern) {
+				$pattern = '/'.$testPattern.'/';
+				if (preg_match($pattern, $this->getName())) {
+					static::$fixture_file = null;
+				}
+			}
+
+			error_log('++++ EL BASE SET UP T6');
+		} catch (Exception $e) {
+			error_log("**** EXCEPTION T1 ".$e->getMessage());
+			$elasticException = true;
+		}
+			error_log('++++ EL BASE SET UP T7');
+
+
+		// this needs to run otherwise nested injector errors show up
+		parent::setUp();
+
+		if ($elasticException) {
+			$this->fail('T1 An error has occurred trying to contact Elasticsearch server');
 		}
 
-		parent::setUp();
-		static::$fixture_file = $orig_fixture_file;
+		try {
+			static::$fixture_file = $orig_fixture_file;
 
-		$this->publishSiteTree();
+			$this->publishSiteTree();
+			$this->service->reset();
 
-		$this->service->reset();
+			// index loaded fixtures
+			$task = new ReindexTask($this->service);
+			// null request is fine as no parameters used
 
-		// index loaded fixtures
-		$task = new ReindexTask($this->service);
-		// null request is fine as no parameters used
+			$task->run(null);
+		} catch (Exception $e) {
+			error_log("**** EXCEPTION T2 ".$e->getMessage());
+			$elasticException = true;
+		}
 
-		$task->run(null);
+		if ($elasticException) {
+			$this->fail('T2 An error has occurred trying to contact Elasticsearch server');
+		}
 
 	}
 
