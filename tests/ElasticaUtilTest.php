@@ -7,7 +7,7 @@ use SilverStripe\Elastica\ElasticaUtil;
  * Test the functionality of ElasticaUtil class
  * @package elastica
  */
-class ElasticaUtiTest extends ElasticsearchBaseTest {
+class ElasticaUtilTest extends ElasticsearchBaseTest {
 
 	public function testHumanReadableFalse() {
 		$this->assertEquals('No', ElasticaUtil::showBooleanHumanReadable(false));
