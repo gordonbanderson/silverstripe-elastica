@@ -225,12 +225,9 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$status = $index->getStatus()->getData();
 
 		$numberDocsInIndex = -1; // flag value for not yet indexed
-		error_log('CHECKING NUMBER OF INDEXED DOCUMENTS, SHOULD BE ' . $expectedAmount);
-		error_log(print_r($status,1));
 
 		if (isset($status['indices']['elastica_ss_module_test_en_us']['docs'])) {
 			$numberDocsInIndex = $status['indices']['elastica_ss_module_test_en_us']['docs']['num_docs'];
-			error_log('DOCUMENTS FOUND:'.$numberDocsInIndex);
 		} else {
 			$numberDocsInIndex = 0;
 		}
