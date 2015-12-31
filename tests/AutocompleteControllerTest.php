@@ -10,8 +10,8 @@ class AutocompleteControllerTest extends ElasticsearchFunctionalTestBase {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
-	public function setup() {
-		parent::setup();
+	public function setUp() {
+		parent::setUp();
 		$config = Config::inst()->get('FlickrPhotoTO', 'searchable_fields');
 
 		\Config::inst()->update('FlickrPhotoTO', 'searchable_autocomplete', array('Title'));
