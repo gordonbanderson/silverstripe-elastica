@@ -75,7 +75,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($url, '/');
 
         $response = $this->get($url);
-        error_log(print_r($response,1));
+
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertSelectorStartsWithOrEquals('ul.iso span.count', 0, '(5)');
@@ -129,7 +129,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400';
 
         $response = $this->get($url);
-        error_log(print_r($response,1));
+
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the no facets selected case, as expected
@@ -177,7 +177,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400&ShutterSpeed=2%2F250';
 
         $response = $this->get($url);
-        error_log(print_r($response,1));
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -191,8 +190,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 2, '(0)');
 		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 3, '(2)');
 		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 4, '(0)');
-
-
 	}
 
 
@@ -242,9 +239,6 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertExactHTMLMatchBySelector('div.contentForEmptySearch', array());
 	}
-
-
-
 
 	public function testQueryInSearchBoxForOneFormOnly() {
 		$searchPageObj = $this->ElasticSearchPage2;
@@ -381,30 +375,16 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "/similar/FlickrPhotoTO/77";
 		$response = $this->get($url);
+		$ctr = 0;
 
-		error_log(print_r($response,1));
+		// results vary slightly due to sharding, hence check for a string instead of absolute results
+		while ($ctr < 18) {
+			$this->assertSelectorContains('div.searchResult a', $ctr, 'New Orleans, Southern Pacific');
+			$ctr++;
+			$this->assertSelectorStartsWithOrEquals('div.searchResult a', $ctr, 'Similar');
+			$ctr++;
+		}
 
-		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 2, '[ and New Orleans, Southern Pacific Railroad Station, Taft, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 3, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 4, '[ and New Orleans, Southern Pacific Passenger Station, Waxahachie, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 5, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 6, '[ and New Orleans, Southern Pacific, Tower No. 63, Mexia, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 7, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 8, '[ and New Orleans, Southern Pacific Locomotive Scrap Line, Englewood Yards, Houston, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 9, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 10, '[ and New Orleans, Southern Pacific Railroad Station, Stockdale, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 11, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 12, '[ and New Orleans, Southern Pacific Freight Station, Waxahachie, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 13, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 14, '[ and New Orleans, Southern Pacific, Eakin Street Yard Office, Dallas, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 15, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 16, '[ and New Orleans, Southern Pacific, Switchman\'s Tower, San Antonio, ]');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 17, 'Similar');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 18, 'Villa Deserters Conducted to 11th Inf. Headquarters.');
-		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 19, 'Similar');
 	}
 
 
@@ -419,6 +399,17 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$response = $this->get($url);
 		error_log(print_r($response,1));
 		$this->assertEquals(200, $response->getStatusCode());
+
+		$ctr = 0;
+
+		// results vary slightly due to sharding, hence check for a string instead of absolute results
+		while ($ctr < 18) {
+			$this->assertSelectorContains('div.searchResult a', $ctr, 'New');
+			$ctr++;
+			$this->assertSelectorStartsWithOrEquals('div.searchResult a', $ctr, 'Similar');
+			$ctr++;
+		}
+
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg strong.hl', 0, 'Zealand');
