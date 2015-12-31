@@ -9,31 +9,6 @@ class AutocompletFilteredeControllerTest extends ElasticsearchFunctionalTestBase
 
 	public static $fixture_file = 'elastica/tests/autocomplete.yml';
 
-
-	public function setupNOT() {
-		parent::setup();
-		$config = Config::inst()->get('FlickrPhotoTO', 'searchable_fields');
-
-		\Config::inst()->update('FlickrPhotoTO', 'searchable_autocomplete', array('Title'));
-
-
-		// Delete and assert that it does not exist
-		$sql =  "SELECT ID,Name,ClazzName from SearchableField";
-		$records = DB::query($sql);
-
-		$filter = array('Name' => 'Title', 'ClazzName' => 'FlickrPhotoTO');
-		$sf = SearchableField::get()->filter($filter)->first();
-		$sql = "UPDATE ElasticSearchPage_ElasticaSearchableFields SET Searchable=1,".
-				"EnableAutocomplete=1 where SearchableFieldID=".$sf->ID;
-
-		DB::query($sql);
-
-		$task = new ReindexTask($this->service);
-		// null request is fine as no parameters used
-		$task->run(null);
-	}
-
-
 	public function testSiteTree() {
 		$url = 'autocomplete/search?field=Title&filter=1&query=the';
 		$response = $this->get($url);
