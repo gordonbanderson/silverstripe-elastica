@@ -214,7 +214,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		$nDocsAtStart = $this->getNumberOfIndexedDocuments();
 		$this->checkNumberOfIndexedDocuments($nDocsAtStart);
 		$this->service->reset();
-		$this->checkNumberOfIndexedDocuments(-1);
+		$this->checkNumberOfIndexedDocuments(0);
 	}
 
 
@@ -233,7 +233,7 @@ class ElasticaServiceTest extends ElasticsearchBaseTest {
 		//null request is fine as no parameters used
 		$task->run(null);
 
-		$this->checkNumberOfIndexedDocuments(-1);
+		$this->checkNumberOfIndexedDocuments(0);
 
 		//FIXME better options for testing here?
 	}
