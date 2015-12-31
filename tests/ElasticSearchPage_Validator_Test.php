@@ -4,8 +4,8 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase {
 
 	public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 
-	public function setup() {
-		parent::setup();
+	public function setUp() {
+		parent::setUp();
 		$this->ElasticSearchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
 		$this->ElasticSearchPage->SimilarityStopWords = 'a,the,which';
