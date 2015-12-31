@@ -27,7 +27,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 	public function setUp() {
 
-		echo "*************** TEST: ".$this->getName();
+		error_log("*************** TEST: ".$this->getName());
 
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
@@ -46,42 +46,64 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		FlickrAuthorTO::add_extension('SilverStripe\Elastica\Searchable');
 		SearchableTestPage::add_extension('SilverStripe\Elastica\Searchable');
 
-		// clear the index
-		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
-		$this->service->setTestMode(true);
+		$elasticaException = false;
 
-		// A previous test may have deleted the index and then failed, so check for this
-		if (!$this->service->getIndex()->exists()) {
-			$this->service->getIndex()->create();
-		}
-		$this->service->reset();
+		try {
+			// clear the index
+			$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
+			$this->service->setTestMode(true);
 
-		// FIXME - use request getVar instead?
-		$_GET['progress'] = 20;
-		// load fixtures
-
-		$orig_fixture_file = static::$fixture_file;
-
-		foreach (static::$ignoreFixtureFileFor as $testPattern) {
-			$pattern = '/'.$testPattern.'/';
-			if (preg_match($pattern, $this->getName())) {
-				static::$fixture_file = null;
+			// A previous test may have deleted the index and then failed, so check for this
+			if (!$this->service->getIndex()->exists()) {
+				$this->service->getIndex()->create();
 			}
+			$this->service->reset();
+
+			// FIXME - use request getVar instead?
+			$_GET['progress'] = 20;
+
+			// load fixtures
+			$orig_fixture_file = static::$fixture_file;
+
+			foreach (static::$ignoreFixtureFileFor as $testPattern) {
+				$pattern = '/'.$testPattern.'/';
+				if (preg_match($pattern, $this->getName())) {
+					static::$fixture_file = null;
+				}
+			}
+		} catch (Exception $e) {
+			error_log('**** T1 EXCEPTION ' . $e->getMessage());
+			$elasticaException = true;
 		}
 
+		// this has to be executed otherwise nesting exceptions occur
 		parent::setUp();
-		static::$fixture_file = $orig_fixture_file;
 
-		$this->publishSiteTree();
+		if ($elasticaException) {
+			$this->fail('T1 Exception with Elasticsearch');
+		}
 
-		$this->service->reset();
 
-		// index loaded fixtures
-		$task = new ReindexTask($this->service);
-		// null request is fine as no parameters used
+		try {
+			static::$fixture_file = $orig_fixture_file;
 
-		$task->run(null);
+			$this->publishSiteTree();
 
+			$this->service->reset();
+
+			// index loaded fixtures
+			$task = new ReindexTask($this->service);
+			// null request is fine as no parameters used
+
+			$task->run(null);
+		} catch (Exception $e) {
+			error_log('**** T2 EXCEPTION ' . $e->getMessage());
+			$elasticaException = true;
+		}
+
+		if ($elasticaException) {
+			$this->fail('T2 Exception with Elasticsearch');
+		}
 	}
 
 
