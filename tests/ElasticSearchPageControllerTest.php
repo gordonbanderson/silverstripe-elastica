@@ -133,29 +133,29 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the no facets selected case, as expected
-		$this->assertSelectorStartsWithOrEquals('span.count', 0, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 1, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 2, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 3, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 4, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 5, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 6, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 7, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 8, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 9, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 10, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 11, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 12, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 13, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 14, '(4)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 15, '(3)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 16, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 17, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 18, '(0)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 19, '(4)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 20, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 21, '(7)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 22, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 0, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 1, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 2, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 3, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 4, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 5, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 6, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed span.count', 0, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed span.count', 1, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed span.count', 2, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed span.count', 3, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed  span.count', 4, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.shutter_speed span.count', 5, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 0, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 1, '(4)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 2, '(3)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 3, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 4, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 0, '(0)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 1, '(4)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 2, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 3, '(7)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 4, '(1)');
 
 
 	}
@@ -181,16 +181,16 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
-        $this->assertSelectorStartsWithOrEquals('span.count', 0, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 1, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 2, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 3, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 4, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 5, '(0)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 6, '(1)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 7, '(0)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 8, '(2)');
-		$this->assertSelectorStartsWithOrEquals('span.count', 9, '(0)');
+        $this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 0, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.focal_length span.count', 1, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 0, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 1, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aperture span.count', 2, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 0, '(0)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 1, '(1)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 2, '(0)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 3, '(2)');
+		$this->assertSelectorStartsWithOrEquals('ul.aspect span.count', 4, '(0)');
 
 
 	}
