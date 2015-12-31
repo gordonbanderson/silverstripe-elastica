@@ -75,6 +75,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($url, '/');
 
         $response = $this->get($url);
+        error_log($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertSelectorStartsWithOrEquals('span.count', 0, '(5)');
@@ -128,6 +129,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400';
 
         $response = $this->get($url);
+        error_log($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the no facets selected case, as expected
@@ -175,6 +177,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= '?ISO=400&ShutterSpeed=2%2F250';
 
         $response = $this->get($url);
+        error_log($response);
         $this->assertEquals(200, $response->getStatusCode());
 
         // These are less than in the one facet selected case, as expected
@@ -379,6 +382,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url .= "/similar/FlickrPhotoTO/77";
 		$response = $this->get($url);
 
+		error_log($response);
+
 		//Title of the original is "[Texas and New Orleans, Southern Pacific Railroad Station, Sierra Blanca, Texas]"
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 0, '[ and New Orleans, Southern Pacific Railroad Station, Sinton, ]');
 		$this->assertSelectorStartsWithOrEquals('div.searchResult a', 1, 'Similar');
@@ -412,6 +417,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$url = rtrim($searchPageObj->Link(), '/');
 		$url .= "?q=New%20Zealind&TestMode=true";
 		$response = $this->get($url);
+		error_log($response);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg', 0, 'Showing results for ');
 		$this->assertSelectorStartsWithOrEquals('p.showingResultsForMsg a', 0, 'New ');
