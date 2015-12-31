@@ -9,8 +9,8 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
 
-	public function setup() {
-		parent::setup();
+	public function setUp() {
+		parent::setUp();
 		$esp = new ElasticSearchPage();
 		$esp->Title = 'Search with aggregation';
 		$esp->Content = 'Example search page with aggregation';
