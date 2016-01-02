@@ -244,13 +244,6 @@ class ElasticSearchPage extends Page {
 			$fields->dataFieldByName('ClazzName')->setDisabled(true);
 			$fields->dataFieldByName('Name')->setReadOnly(true);
 			$fields->dataFieldByName('Name')->setDisabled(true);
-
-			if(!$fieldAutocomplete->Value() == '1') {
-				$fieldEnableAutcomplete->setDisabled(true);
-				$fieldEnableAutcomplete->setReadOnly(true);
-				$fieldEnableAutcomplete->setTitle("Autcomplete is not available for this field");
-			}
-
 		});
 
 
