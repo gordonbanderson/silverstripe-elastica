@@ -36,7 +36,7 @@ before_script:
   - cd ~/builds/ss
 
 script:
-  - vendor/bin/phpunit --filter testSimilarChangeMaxDocFreq-c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests
+  - vendor/bin/phpunit --filter testSimilarChangeMaxDocFreq -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests
 
 after_success:
     - cp coverage.clover ~/coverage.xml
