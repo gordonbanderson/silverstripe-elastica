@@ -232,8 +232,7 @@ class ElasticSearchPage extends Page {
 			CheckboxField::create('ManyMany[Searchable]', 'Use for normal searching'),
 			CheckboxField::create('ManyMany[SimilarSearchable]', 'Use for similar search'),
 			NumericField::create('ManyMany[Weight]', 'Weighting'),
-			CheckboxField::create('ShowHighlights', 'Show highlights from search in results for this field'),
-			CheckboxField::create('ManyMany[EnableAutocomplete]', 'Enable Autocomplete')
+			CheckboxField::create('ShowHighlights', 'Show highlights from search in results for this field')
 		));
 
 		$edittest->setItemEditFormCallback(function($form) {
