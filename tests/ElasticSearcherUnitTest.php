@@ -143,7 +143,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 	public function testSimilarChangeMaxDocFreq() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
-		$es->setMaxDocFreq(4);
+		$es->setMaxDocFreq(8);
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
