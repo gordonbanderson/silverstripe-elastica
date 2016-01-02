@@ -76,7 +76,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title' => 1, 'Description' => 1);
 		$query = 'Lond';
 		$results = $es->autocomplete_search($query, 'Title');
 		$this->assertEquals(7, $results->getTotalItems());
