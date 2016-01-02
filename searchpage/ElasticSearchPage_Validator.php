@@ -25,10 +25,7 @@ class ElasticSearchPage_Validator extends RequiredFields {
 		if ($data['ClassesToSearch'] == array()) {
 			$data['ClassesToSearch'] = '';
 		}
-
 		$debug = $data['SiteTreeOnly'];
-		echo "STDATA:$debug\n";
-
 		// Check if any classes to search if site tree only is not ticked
 		if (!$data['SiteTreeOnly']) {
 			if (!$data['ClassesToSearch']) {
