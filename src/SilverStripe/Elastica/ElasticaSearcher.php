@@ -242,7 +242,6 @@ class ElasticSearcher {
 	}
 
 
-
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
@@ -434,8 +433,6 @@ class ElasticSearcher {
 			$mlt['max_doc_freq'] = $this->maxDocFreq;
 		}
 
-
-
         $query = new Query();
         $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
@@ -445,7 +442,6 @@ class ElasticSearcher {
 		if ($testMode) {
 			$elasticService->setTestMode(true);
 		}
-
 
 		// pagination
 		$query->setSize($this->pageLength);
