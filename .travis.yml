@@ -29,8 +29,6 @@ matrix:
       env: DB=SQLITE
     - php: 5.5
       env: DB=MYSQL
-    - php: 5.5
-      env: DB=PGSQL
 
 before_script:
   - phpenv rehash
