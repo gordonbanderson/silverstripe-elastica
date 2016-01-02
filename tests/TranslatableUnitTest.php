@@ -118,21 +118,13 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$expected = array('texas');
 		$this->assertEquals($expected, $terms['Title.standard']);
 
-		$expected = array('new', 'see', 'photographs', 'information', 'resolution', 'company', 'view',
-			'high', 'collection', 'pacific', 'orleans', 'degolyer', 'southern', 'everett',
-			'railroad', 'texas');
-
 		$expected = array('collection', 'company', 'degolyer', 'everett', 'file', 'high',
 			'information', 'new', 'orleans', 'pacific', 'photographs', 'railroad', 'resolution',
 			'see', 'southern', 'texas', 'view');
 
-
-
 		$actual = $terms['Description.standard'];
 		sort($expected);
 		sort($actual);
-
-
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -214,8 +206,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$paginated = $es->moreLikeThis($fp, $fields, true);
 
 		$this->assertEquals(14, $paginated->getTotalItems());
-		$results = $paginated->getList()->toArray();
-		$this->makeCode($paginated);
 	}
 
 
@@ -228,12 +218,12 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		try {
-			$paginated = $es->moreLikeThis($fp, null, true);
+			$es->moreLikeThis($fp, null, true);
+			$this->fail('More like this search should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Fields cannot be null', $e->getMessage());
 		}
 	}
-
 
 	public function testSimilarNullItem() {
 		if(!class_exists('Translatable')) {
@@ -245,19 +235,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 
 		try {
-			$paginated = $es->moreLikeThis(null, $fields, true);
+			$es->moreLikeThis(null, $fields, true);
+			$this->fail('Search should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('A searchable item cannot be null', $e->getMessage());
-		}
-	}
-
-	private function makeCode($paginated) {
-		$results = $paginated->getList()->toArray();
-		$ctr = 0;
-		echo '$result = $paginated->getList()->toArray();' . "\n";
-		foreach($results as $result) {
-			echo '$this->assertEquals("' . $result->Title . '", $results[' . $ctr . ']->Title);' . "\n";
-			$ctr++;
 		}
 	}
 
