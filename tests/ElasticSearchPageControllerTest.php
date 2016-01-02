@@ -243,7 +243,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 	public function testQueryInSearchBoxForOneFormOnly() {
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url .= "?q=Auckland&sfid=".$searchPageObj->Identifier;
+		$url .= "?q=Auckland&sfid=" . $searchPageObj->Identifier;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 		$this->assertAttributeHasExactValue('#ElasticSearchForm_SearchForm_q', 'q',
@@ -378,7 +378,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		$ctr = 0;
 
 		// results vary slightly due to sharding, hence check for a string instead of absolute results
-		while ($ctr < 18) {
+		while($ctr < 18) {
 			$this->assertSelectorContains('div.searchResult a', $ctr, 'New Orleans, Southern Pacific');
 			$ctr++;
 			$this->assertSelectorStartsWithOrEquals('div.searchResult a', $ctr, 'Similar');
@@ -450,7 +450,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//Note pages need to be published, by default fixtures only reside in Stage
 		$searchPageObj = $this->ElasticSearchPage2;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url = $url.'?q='.$searchTerm;
+		$url = $url . '?q=' . $searchTerm;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 
@@ -517,7 +517,7 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//Note pages need to be published, by default fixtures only reside in Stage
 		$searchPageObj = $this->ElasticSearchPage;
 		$url = rtrim($searchPageObj->Link(), '/');
-		$url = $url.'?q='.$searchTerm;
+		$url = $url . '?q=' . $searchTerm;
 		$response = $this->get($url);
 		$this->assertEquals(200, $response->getStatusCode());
 
@@ -648,18 +648,18 @@ class ElasticSearchPageControllerTest extends ElasticsearchFunctionalTestBase {
 		//increase the number of results and assert that they are the same as per pages 1,2 joined
 		$searchPageObj->ResultsPerPage = 20;
 		$searchPageObj->write();
-		$searchPageObj->publish('Stage','Live');
+		$searchPageObj->publish('Stage', 'Live');
 		$response3 = $this->get($firstPageURL);
 	}
 
 
 	private function enableHighlights() {
-		foreach (SearchableField::get()->filter('Name', 'Title') as $sf) {
+		foreach(SearchableField::get()->filter('Name', 'Title') as $sf) {
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
 
-		foreach (SearchableField::get()->filter('Name', 'Content') as $sf) {
+		foreach(SearchableField::get()->filter('Name', 'Content') as $sf) {
 			$sf->ShowHighlights = true;
 			$sf->write();
 		}
