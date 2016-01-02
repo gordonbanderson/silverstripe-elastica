@@ -89,10 +89,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$this->assertEquals('ShowHighlights', $field->getName());
 		$this->assertEquals(0, $field->Value());
 
-		$field = $form->Fields()->fieldByName('ManyMany[EnableAutocomplete]');
-		$this->assertEquals('ManyMany[EnableAutocomplete]', $field->getName());
-		$this->assertEquals(0, $field->Value());
-
 		$this->assertNotNull($form->Fields()->fieldByName('SecurityID'));
 
 
