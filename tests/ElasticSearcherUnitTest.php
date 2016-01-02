@@ -129,7 +129,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 		// FIXME - this test appears fragile due to sharding issues with more like this
 		$ctr = 0;
-		if ($ctr < 9) {
+		if($ctr < 9) {
 			$this->assertStringStartsWith(
 				'[Texas and New Orleans, Southern Pacific',
 				$results[$ctr]->Title
@@ -168,7 +168,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals(14, $paginated->getTotalItems());
 		$this->makeCode($paginated);
 	}
-	**/
+	 **/
 
 	public function testSimilarNullFields() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
@@ -217,16 +217,16 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$paginated = $es->search($query, $fields);
 		$ctr = 0;
 
-		foreach ($paginated->getList()->toArray() as $result) {
+		foreach($paginated->getList()->toArray() as $result) {
 			$ctr++;
-			foreach ($result->SearchHighlightsByField->Description_standard->getIterator() as $highlight) {
+			foreach($result->SearchHighlightsByField->Description_standard->getIterator() as $highlight) {
 				$snippet = $highlight->Snippet;
 				$snippet = strtolower($snippet);
 				$wordFound = false;
 				$lcquery = explode(' ', strtolower($query));
-				foreach ($lcquery as $part) {
+				foreach($lcquery as $part) {
 					$bracketed = '<strong class="hl">' . $part . '</strong>';
-					if (strpos($snippet, $bracketed) > 0) {
+					if(strpos($snippet, $bracketed) > 0) {
 						$wordFound = true;
 					}
 				}
@@ -246,17 +246,17 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$paginated = $es->search($query, $fields);
 		$ctr = 0;
 
-		foreach ($paginated->getList()->toArray() as $result) {
+		foreach($paginated->getList()->toArray() as $result) {
 			$ctr++;
 
-			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+			foreach($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
 				$snippet = $highlight->Snippet;
 				$snippet = strtolower($snippet);
 				$wordFound = false;
 				$lcquery = explode(' ', strtolower($query));
-				foreach ($lcquery as $part) {
+				foreach($lcquery as $part) {
 					$bracketed = '<strong class="hl">' . $part . '</strong>';
-					if (strpos($snippet, $bracketed) > 0) {
+					if(strpos($snippet, $bracketed) > 0) {
 						$wordFound = true;
 					}
 				}
@@ -273,7 +273,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$query = 'Lond';
 		$results = $es->autocomplete_search($query, 'Title');
 		$this->assertEquals(7, $results->getTotalItems());
-		foreach ($results->toArray() as $result) {
+		foreach($results->toArray() as $result) {
 			$this->assertTrue(strpos($result->Title, $query) > 0);
 		}
 	}
@@ -283,7 +283,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$results = $paginated->getList()->toArray();
 		$ctr = 0;
 		echo '$result = $paginated->getList()->toArray();' . "\n";
-		foreach ($results as $result) {
+		foreach($results as $result) {
 			echo '$this->assertEquals("' . $result->Title . '", $results[' . $ctr . ']->Title);' . "\n";
 			$ctr++;
 		}
