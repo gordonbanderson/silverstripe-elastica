@@ -86,3 +86,6 @@ YourPage:
   searchable_relationships:
     - Tags()
 ```
+
+##Index Invalidation
+In the case of an item indexed through a relationship, if that item changes the original items needs to be invalidated.  This is a TODO, currently - the only current workaround is to reindex.
