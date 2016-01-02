@@ -80,9 +80,6 @@ class ElasticaUtilTest extends ElasticsearchBaseTest {
 		);
 		$sa = array();
 		array_push($sa, $suggestion);
-
-		$expected = array();
-
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$this->assertEquals(null, $pair);
 	}
