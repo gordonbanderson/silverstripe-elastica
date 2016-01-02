@@ -28,7 +28,7 @@ class ElasticaUtil {
 	 * @var string $content Text to display when in command line mode
 	 */
 	public static function message($content) {
-		if (\Director::is_cli() && self::$cli_printer_output == true) {
+		if (\Director::is_cli() && self::$cli_printer_output === true) {
 			echo "$content\n";
 		}
 	}
@@ -99,14 +99,8 @@ class ElasticaUtil {
     				if (mb_strtolower($chr, "UTF-8") != $chr) {
     					$upperLowercaseWord = $lowercaseWord;
     					$upperLowercaseWord[0] = $chr;
-
-    					//$possiblyUppercaseHighlighted = str_replace($lowercaseWord, $possiblyUppercase, $possiblyUppercaseHighlighted);
     					$withHighlights = str_replace($lowercaseWord, $upperLowercaseWord, $possiblyUppercaseHighlighted);
-
     					$lowercaseWord[0] = $chr;
-
-    					//str_replace(search, replace, subject)
-
     					array_push($plain, $lowercaseWord);
     					array_push($highlighted, $withHighlights);
     				} else {
@@ -145,9 +139,7 @@ class ElasticaUtil {
 	 * @return array             Array of fieldnames mapped to terms
 	 */
 	public static function parseSuggestionExplanation($explanation) {
-
 		$explanation = explode('-ConstantScore', $explanation)[0];
-
         $bracketPos = strpos($explanation, ')~');
 
         if (substr($explanation, 0,2) == '((') {
@@ -187,12 +179,12 @@ class ElasticaUtil {
 	 * @param FormField &$queryField field used to type a search query
 	 */
 	public static function addAutocompleteToQueryField(&$queryField, $classesToSearch, $siteTreeOnly, $link, $slug) {
-			$queryField->setAttribute('data-autocomplete', 'true');
-			$queryField->setAttribute('data-autocomplete-field', 'Title');
-			$queryField->setAttribute('data-autocomplete-classes', $classesToSearch);
-			$queryField->setAttribute('data-autocomplete-sitetree', $siteTreeOnly);
-			$queryField->setAttribute('data-autocomplete-source', $link);
-			$queryField->setAttribute('data-autocomplete-function', $slug);
+		$queryField->setAttribute('data-autocomplete', 'true');
+		$queryField->setAttribute('data-autocomplete-field', 'Title');
+		$queryField->setAttribute('data-autocomplete-classes', $classesToSearch);
+		$queryField->setAttribute('data-autocomplete-sitetree', $siteTreeOnly);
+		$queryField->setAttribute('data-autocomplete-source', $link);
+		$queryField->setAttribute('data-autocomplete-function', $slug);
 	}
 
 	/**
@@ -200,7 +192,7 @@ class ElasticaUtil {
 	 */
 	public static function getPrinter() {
 		return function ($content) {
-			if (self::$cli_printer_output == true) {
+			if (self::$cli_printer_output === true) {
 				print(\Director::is_cli() ? "T1 $content\n" : "T2 <p>$content</p>");
 			}
 
