@@ -9,8 +9,8 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	public static $ignoreFixtureFileFor = array();
 
 	protected $extraDataObjects = array(
-		'SearchableTestPage','FlickrPhotoTO','FlickrAuthorTO','FlickrSetTO','FlickrTagTO',
-		'SearchableTestFatherPage','SearchableTestGrandFatherPage'
+		'SearchableTestPage', 'FlickrPhotoTO', 'FlickrAuthorTO', 'FlickrSetTO', 'FlickrTagTO',
+		'SearchableTestFatherPage', 'SearchableTestGrandFatherPage'
 	);
 
 
@@ -27,7 +27,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 	public function setUp() {
 
-		error_log("*************** TEST: ".$this->getName());
+		error_log("*************** TEST: " . $this->getName());
 
 		$cache = SS_Cache::factory('elasticsearch');
 		$cache->clean(Zend_Cache::CLEANING_MODE_ALL);
@@ -35,7 +35,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 		// this needs to be called in order to create the list of searchable
 		// classes and fields that are available.  Simulates part of a build
-		$classes = array('SearchableTestPage','SiteTree','Page','FlickrPhotoTO','FlickrSetTO',
+		$classes = array('SearchableTestPage', 'SiteTree', 'Page', 'FlickrPhotoTO', 'FlickrSetTO',
 			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
@@ -54,7 +54,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 			$this->service->setTestMode(true);
 
 			// A previous test may have deleted the index and then failed, so check for this
-			if (!$this->service->getIndex()->exists()) {
+			if(!$this->service->getIndex()->exists()) {
 				$this->service->getIndex()->create();
 			}
 			$this->service->reset();
@@ -65,9 +65,9 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 			// load fixtures
 			$orig_fixture_file = static::$fixture_file;
 
-			foreach (static::$ignoreFixtureFileFor as $testPattern) {
-				$pattern = '/'.$testPattern.'/';
-				if (preg_match($pattern, $this->getName())) {
+			foreach(static::$ignoreFixtureFileFor as $testPattern) {
+				$pattern = '/' . $testPattern . '/';
+				if(preg_match($pattern, $this->getName())) {
 					static::$fixture_file = null;
 				}
 			}
@@ -79,7 +79,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		// this has to be executed otherwise nesting exceptions occur
 		parent::setUp();
 
-		if ($elasticaException) {
+		if($elasticaException) {
 			$this->fail('T1 Exception with Elasticsearch');
 		}
 
@@ -101,18 +101,18 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 			$elasticaException = true;
 		}
 
-		if ($elasticaException) {
+		if($elasticaException) {
 			$this->fail('T2 Exception with Elasticsearch');
 		}
 	}
 
 
 	private function publishSiteTree() {
-		foreach (SiteTree::get()->getIterator() as $page) {
+		foreach(SiteTree::get()->getIterator() as $page) {
 			// temporarily disable Elasticsearch indexing, it will be done in a batch
 			$page->IndexingOff = true;
 
-			$page->publish('Stage','Live');
+			$page->publish('Stage', 'Live');
 		}
 	}
 
@@ -133,7 +133,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$items = $this->cssParser()->getBySelector($selector);
 
 		$ctr = 0;
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$text = strip_tags($item);
 			$escaped = str_replace("'", "\'", $text);
 			$ctr++;
@@ -163,7 +163,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 		$items = $this->cssParser()->getBySelector($selector);
 
 		$ctr = 0;
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$text = strip_tags($item);
 			$escaped = str_replace("'", "\'", $text);
 			$ctr++;
@@ -189,7 +189,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	 */
 	public function assertAttributeHasExactValue($selector, $attributeName, $expectedValue) {
 		$items = $this->cssParser()->getBySelector($selector);
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$this->assertEquals($expectedValue, $item['value']);
 		}
 	}
@@ -198,9 +198,9 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	public function assertAttributesHaveExactValues($selector, $expectedValues) {
 		$attributeNames = array_keys($expectedValues);
 		$items = $this->cssParser()->getBySelector($selector);
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$actualValues = array();
-			foreach ($attributeNames as $attributeName) {
+			foreach($attributeNames as $attributeName) {
 				$actualValues[$attributeName] = (string)$item[$attributeName];
 			}
 			$this->assertEquals($expectedValues, $actualValues);
@@ -210,7 +210,7 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 
 	public function assertNumberOfNodes($selector, $expectedAmount) {
 		$items = $this->cssParser()->getBySelector($selector);
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$text = strip_tags($item);
 		}
 
@@ -223,9 +223,9 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest {
 	public function collateSearchResults() {
 		$items = $this->cssParser()->getBySelector('div.searchResults .searchResult');
 		$result = array();
-		foreach ($items as $item) {
+		foreach($items as $item) {
 			$attr = $item->attributes()->id;
-			array_push($result, $attr."");
+			array_push($result, $attr . "");
 		}
 
 		return $result;
