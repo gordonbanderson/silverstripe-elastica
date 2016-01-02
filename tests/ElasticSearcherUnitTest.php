@@ -140,6 +140,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 
 
 	// if this is not set to unbounded, zero, a conditional is triggered to add max doc freq to the request
+	/**
 	public function testSimilarChangeMaxDocFreq() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
@@ -167,7 +168,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest {
 		$this->assertEquals(14, $paginated->getTotalItems());
 		$this->makeCode($paginated);
 	}
-
+	**/
 
 	public function testSimilarNullFields() {
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
