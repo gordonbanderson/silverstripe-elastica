@@ -52,6 +52,7 @@ screenshot below, the number of results has been changed to 20
 After saving an Elastic Search Page, the fields available will be shown in the Search/Fields tab.
 The fields available from the list of selected classes will be shown and are editable.  Note
 that a field weight <= 0 is invalid and the page cannot be saved.
+
 ![List of Searchable Fields]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica005-fields-weighting.png
 "List of Searchable Fields")
@@ -66,15 +67,54 @@ question
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica004-alter-weighting.png
 "Editing Weighting")
 
-Note that if a field is missing it will be ignored, the search does not fail.  An example of this
-would be a BlogPost having BlogTags associated with it, whereas of course a standard Page does
-not have this field.  Page and BlogPost however have Title and Content fields in common.
+If a field searched for is not present in all the objects being searched, the search does not fail.
+An example of this would be a BlogPost having BlogTags associated with it, whereas of course a
+standard Page does not have this field.  Page and BlogPost however have Title and Content fields in
+common.
 
 ##Autocompletion
-TODO
+Autocompletion should only be indexed for relatively short fields as it is extremely verbose in
+the number of terms indexed.  Good example of suitable fields are the title of a page or the full
+name of a Member.
+
+![Autocomplete]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica-autocomplete.png
+"Editing Autocompletion")
+
+To enable autocomplete click on the Search/AutoComplete tab.  A drop down list of autocompleteable
+fields is shown, of which only one can be selected.  There are 3 options for what can happen when
+autocompleted text is selected.
+
+* GoToRecord - go directly to a page showing the record whose field was autocompleted
+* Similar - find objects similar to that represented by the selected autocomplete text
+* Search - search using the terms of the title of the selected autocomplete text
+
+##Aggregations
+Aggregations are sufficiently complex they are on a [separate page](./Aggregations.md).
 
 ##Similarity Searching
-TODO
+A similarity search, or in Elasticsearch parlance a 'more like this' query finds documents similar
+to the one used as the basis for the search.  It has several configurable parameters and some
+experimentation may be required depending on your site's content.
+
+* Stop Words - terms to ignore when querying
+* Minimum term frequency - minimum number of times a term can appear in a field to be used
+* Maximum terms selected - the maximum number of terms selected to be used for similarity search
+* Minimum document frequency - the minimum number of documents a term appears in
+* Maximum document frequency - the maximum number of documents a term appears in.  Can be used to
+filter stop words
+* Minimum word length - the minimum length of a term for it to be considered
+* Maximum word length - the maximum length of a term for it to be considered
+* Number of %age of matching terms - see
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
+for a detailed explanation.
+
+Note that the default values are as per the Elasticsearch documentation.  Clicking on the button
+'Restore Defaults' restores these values (after a Save).
+
+![Similarity Searching]
+(https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica-similarity.png
+"Editing similarity search parameters")
 
 ##Overriding the SearchPage Template
 It is most likely necessary to override the default template when rendering serach results for
