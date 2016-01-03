@@ -416,9 +416,3 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		}
 	}
 }
-
-
-
-
-
-
