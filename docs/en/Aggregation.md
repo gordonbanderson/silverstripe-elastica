@@ -9,8 +9,8 @@ resulting search can be slow.
 
 ###What is a Aggregated Search?
 The following screenshots were taken from a live demo available at
-http://elastica.weboftalent.asia/search-examples/flickr-image-results
-- the username/password for Basic Auth is search/search.
+http://elastica.weboftalent.asia/search-examples/flickr-image-results - the
+username/password for Basic Auth is search/search.
 
 ####Landing Page
 No filters are selected, results showing are displayed in a predefined arbitrary
