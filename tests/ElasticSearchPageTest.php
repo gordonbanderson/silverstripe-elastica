@@ -305,7 +305,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	each unique field name declared in searchable_fields
 	 */
 	public function testSearchableFieldsCreatedAtBuildTime() {
-
 		$searchableTestPage = $this->objFromFixture('SearchableTestPage', 'first');
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
@@ -336,10 +335,7 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 
 		$sfs = $searchPage->SearchableFields();
 
-
-
 		// check the names expected to appear
-
 		$fieldCtr = 0;
 		foreach ($expectedClasses as $expectedClass) {
 			$expectedFields = array();
@@ -361,13 +357,11 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 				$fieldCtr++;
 				array_push($expectedFields, $expectedName);
 			}
-
 		}
 		$nSearchableFields = SearchableField::get()->count();
 
 		$this->assertEquals($fieldCtr, $nSearchableFields);
 	}
-
 
 
 	public function testGetCMSValidator() {
