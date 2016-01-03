@@ -26,24 +26,40 @@ It should be noted that in this example many of the images have no photographic
 data due to their age - only images free of copyright were used.
 
 Select the filter 'ISO' with value '200' - there are 8 results for this
-combination.
+combination.  This is what the number in brackets infers.
 
 ![Opening an Aggregation]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/001-elastica-aggregation-open-filter.png
 "Opening an Aggregation")
 
-![PIC]
+####Aggregation With Filter Selected
+The filter for 'ISO' with value '200' has been selected.  The filter can be
+cancelled by clicking on the red 'x' icon marked by the arrow.  Images shown on
+the right hand side all have an ISO value of 200.
+
+![Aggregation With Filter Selected]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/002-elastica-facets-selected-filter.png
-"PIC")
+"Aggregation With Filter Selected")
 
-![PIC]
+####Opening a Second Filter
+This is known as drilling down.  Having already selected a filter for ISO with
+value 200, select a second filter for a Shutter Speed of 1/125.  This
+combination has a total of 3 results, namely there are 3 FlickrPhotos with ISO
+200 and a Shutter Speed value of 1/125 (1/125th of a second).
+![Opening a Second Filter]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/003-elastica-facetsx1.5-selected.png
-"PIC")
+"Opening a Second Filter")
 
-![PIC]
+####Two Filters Selected
+With both of the above filters selected, only 3 results now show in the search.
+![Two Filters Selected]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/005-elastica-facets-2-selected.png
-"PIC")
+"Two Filters Selected")
 
-![PIC]
+####Free Text Searching Within Selected Filters
+It is also possible to search via text whilst selecting filters.  Here the one
+results for lighthouse is shown within the context of the selected filters.
+
+![Searching Within Selected Filters]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/006-elastica-facets-2-selected-and-search.png
-"PIC")
+"Searching Within Selected Filters")
