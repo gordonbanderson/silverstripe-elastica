@@ -498,7 +498,6 @@ class Searchable extends \DataExtension {
 			}
 		}
 
-
 		if($isIndexed) {
 			$termVectors = $this->getTermVectors();
 			$termFields = array_keys($termVectors);
@@ -526,21 +525,30 @@ class Searchable extends \DataExtension {
 				}
 
 				$config = \GridFieldConfig_RecordViewer::create(100);
-				$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+				$viewer = $config->getComponentByType('GridFieldDataColumns');
+				$viewer->setDisplayFields(array(
 					'Term' => 'Term',
 					'TTF' => 'Total term frequency (how often a term occurs in all documents)',
 					'DocFreq' => 'n documents with this term',
 					'TermFreq'=> 'n times this term appears in this field'
 				));
 
-			   $underscored = str_replace('.', '_', $field);
+				$underscored = str_replace('.', '_', $field);
+
+				$alteredFieldName = str_replace('standard', 'unstemmed', $field);
+				$splits = explode('_', $underscored);
+				if (sizeof($splits) == 1) {
+					$alteredFieldName .= '.stemmed';
+				}
 
 				$gridField = new \GridField(
 					'TermsFor' . $underscored, // Field name
-					$field . 'TITLE' . $field, // Field title
+					$alteredFieldName.'T1' , // Field title
 					$terms,
 					$config
 				);
+
+				$underscored = str_replace('.', '_', $alteredFieldName);
 			   $fields->addFieldToTab('Root.ElasticaTerms.' . $underscored, $gridField);
 			}
 
