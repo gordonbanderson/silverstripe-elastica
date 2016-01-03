@@ -1,4 +1,20 @@
-#How Data Is Indexed
+#How Data Is Indexed and Searched
+##Overview
+Elasticsearch is a complex beast, this module attempts to hide that complexity
+from the SilverStripe developer.  Indexed data is stored in what are known as
+multi fields in Elasticsearch.  In this module indexed data is stored as
+follows:
+
+* FieldName - stemmed text
+* FieldName.standard - unstemmed text
+* FieldName.shingles - pairs of consecutive words
+
+and for fields that have autocompletion enabled:
+
+* FieldName.autocomplete - groups of consecutive letters to be used for
+autocompletion search functionality.
+
+More details about each indexing method is below.
 
 ##Worked Example
 Consider the following Flickr photograph with Title and Description both being:
@@ -21,11 +37,11 @@ place.
 "Unstemmed Terms for the Description")
 
 ###Stemmed Terms
-Token are generated as per Unstemmed terms, but then the terms are passed
-through what is known as a 'stemmer' reducing the terms to a 'root form'.  This
+Tokens are generated as per unstemmed terms, but then the terms are passed
+through what is known as a 'stemmer' reducing the tokens to a 'root form'.  This
 is best explained by example.  Terms such as _laughs_, _laughed_, and _laughing_
 get reduced to the form _laugh_.  The idea here is that when a user searches for
-_laugh_ then documents containing _laughs_, _laughed_ and _laughing_ would match
+_laugh_ then documents containing _laughs_, _laughed_ or _laughing_ would match
 and show as a result for the search.
 
 In the example below the term _terraces_ has been reduced to _terrac_ - note
@@ -42,9 +58,9 @@ algorithms are supported.
 "Stemmed Terms for the Description")
 
 ###Shingles
-Shingles, or word n-grams, are pairs, triples, quadruples etc indexed as a
-single token in the index.  The Elasticsearch documentation indicates that two
-is enough for good phrase matching.
+Shingles, or word n-grams, are pairs, triples, or quadruples etc of terms
+indexed as a single token in the index.  The Elasticsearch documentation
+indicates that two is enough for good phrase matching.
 
 Using the example text above, the shingles formed are:
 
@@ -62,7 +78,7 @@ ca 1930s
 When a search for 'Cambridge and Kent' is made, it will be broken down into
 it's shingles 'cambridge and', 'and kent', this provides 2 adjacent matches
 that are unique within the entire index for the document below.  This will mean
-the indexed terms ranking higher in the search results.
+the phrase match ranking higher in the search results.
 
 
 ![Shingle Terms for the Description Field]
@@ -96,3 +112,12 @@ for more information.
 ![Editing a Flickr Photo]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica-edit-flickrphoto.png
 "Editing a Flickr photo")
+
+##Searching
+When a search is performed the query is converted into each of stemmed,
+unstemmed and shingles as above.  Each field is searched and the resultant
+scores combined to form the final ranking.
+
+Note that currently it is not possible to apply a separate weighting to each
+of stemmed, unstemmed, and shingles but this is a desirable TODO - see
+https://github.com/gordonbanderson/silverstripe-elastica/issues/31
