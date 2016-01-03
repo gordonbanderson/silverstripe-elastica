@@ -76,7 +76,7 @@ via an extension.  It manipulates the indexed data from the defaults provided
 by Elasticsearch and this module into a form suitable for aggregation.
 
 There are two steps to be taken:
-* Optionally odify the mapping of the document
+* Optionally modify the mapping of the document
 * Optionally modify the actual data stored
 
 ```php
@@ -104,7 +104,7 @@ Shutter speed has values of the form 1/10, 1/250, 2.5 and has to be altered
 in order to sort it numerically.  This is done by converting the value to six
 decimal places and and then placing the real value afterwards separated by a
 vertical bar.  Thus a value of 1/250 would be stored as a token 0.004000 | 1/250
-- this allows for the shutter speeds to be sorted but still rendered in their
+, this allows for the shutter speeds to be sorted but still rendered in their
 fractional form.
 ```php
     	$properties['ShutterSpeed'] = array(
@@ -113,15 +113,16 @@ fractional form.
 		);
 
 ```
-Convert Aperture to a double as opposed to a float.  Otherwise values appear
-containing small rounding errors such as 0.399999 making aggregation impossible.
+Convert the field Aperture to a double as opposed to a float.  Otherwise values
+appear containing small rounding errors such as 0.399999 making sensible
+aggregation impossible.
 ```php
     	$properties['Aperture'] = array(
     		// do not use float as the rounding makes facets impossible
     		'type' => 'double'
     	);
 ```
-Set the altered properties
+Set the altered properties for returning from the method.
 ```php
     	// set the new properties on the mapping
     	$mapping->setProperties($properties);
@@ -135,13 +136,12 @@ Modify data indexed in Elasticsearch from those values stored in SilverStripe
 	/**
 	 * Populate elastica with the location of the photograph.  Modify values for
 	 * aggregation purposes
-	 * @param  \Elastica\Document $document Representation of an Elastic Search
-	 			document
+	 * @param  \Elastica\Document $document Representation of an Elastic Search document
 	 * @return \Elastica\Document modified version of the document
 	 */
 	public function updateElasticsearchDocument(\Elastica\Document $document) {
 ```
-Store location
+Store the location using the Lat and Lon fields provided by the Mappable module
 ```php
 		$coors = array('lat' => $this->owner->Lat, 'lon' => $this->owner->Lon);
 		$document->set('location',$coors);
@@ -186,7 +186,9 @@ class FlickrPhotoElasticaSearchHelper implements ElasticaSearchHelperInterface {
 
 ```
 Use what is known as a ranged aggregation to decide on whether an image is
-horizontal, vertical or square.  It used the ratio of height divided by width
+horizontal, vertical or square.  It uses the ratio of height divided by width.
+Here Aspect is the title to show in the aggregation menu, AspectRatio is the
+name of the field in SilverStripe to use.
 ```php
 	public function __construct() {
 		$aspectAgg = new RangedAggregation('Aspect', 'AspectRatio');
@@ -197,9 +199,10 @@ horizontal, vertical or square.  It used the ratio of height divided by width
         $aspectAgg->addRange(1.79, 1e7, 'Tallest');
 	}
 ```
-
-
-
+The value of shutter speed are indexed as their value in decimal, and then after
+a vertical bar their original fractional representation.  This method replaces
+the decimals with the fractional version for the purposes of displaying in the
+aggregation menu.  They will be in the correct numerical order.
 ```php
 	/**
 	 * Manipulate the results, e.g. fixing up values if issues with ordering in Elastica
@@ -254,7 +257,8 @@ this mapping.
 		}
 	}
 ```
-
+This method defines the aggregations that are shown in the aggregation menu for
+an Elastic Search Page.
 ```php
 	/**
 	 * Add a number of facets to the FlickrPhoto query
@@ -325,4 +329,3 @@ human readable name in the aggregation menus.
 	}
 }
 ```
-
