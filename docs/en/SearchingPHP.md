@@ -38,9 +38,9 @@ $es->addFilter('IsInSiteTree', true);
 ```
 is replaced by
 ```php
-$es->setClasses('Page,BlogPost');
+$es->setClasses('FlickrPhoto,BlogPost');
 ```
-This means that only SilverStripe content types of class Page or BlogPost are searched.  Note that
+This means that only SilverStripe content types of class FlickrPhoto or BlogPost are searched.  Note that
 one can mix and match SiteTree and non SiteTree classes here.
 
 ```php
@@ -52,8 +52,8 @@ $es = new \ElasticSearcher();
 $es->setStart(0);
 $es->setPageLength(20);
 
-//Only show SiteTree results
-$es->addFilter('IsInSiteTree', true);
+$es->setClasses('FlickrPhoto,BlogPost');
+
 
 //Perform the actual search
 $results = $es->search($query);
@@ -85,7 +85,6 @@ $es->setPageLength(20);
 $es->addFilter('IsInSiteTree', true);
 
 //List fields to search, weighting and Type
-//FIXME - remove need for Type
 $fields = array(
 	'Title' => array(
 		'Weight' => 4,
@@ -108,7 +107,6 @@ foreach ($results as $result) {
 			$message("- ".$highlight->Snippet);
 		}
 	}
-
 	echo "\n\n";
 }
 ```
