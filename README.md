@@ -13,8 +13,10 @@ This module provides a SilverStripe wrapper around the powerful elastica search 
 * [Configuration](./docs/en/Configuration.md)
 * [Tasks](./docs/en/Tasks.md)
 * [Indexing](./docs/en/Indexing.md)
-* [Searching within the CMS](./docs/en/SearchCMS.md)
-* [Searching Using Code](./docs/en/SearchCoding.md)
+* [Searching within the CMS](./docs/en/SearchPages.md)
+* [Searching Using Code](./docs/en/SearchingPHP.md)
+* [Aggregated Search](./docs/en/Aggregation.md)
+* [How Data is Indexed and Searched by the Module](./docs/en/HowDataIsIndexedAndSearched.md)
 * [Command Line Tools](./docs/en/CommandLineTools.md)
 
 ##Requirements
