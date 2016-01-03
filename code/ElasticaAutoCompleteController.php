@@ -29,7 +29,7 @@ class ElasticaAutoCompleteController extends Controller {
 		}
 
 		if ($filter) {
-			$es->addFilter('InSiteTree', true);
+			$es->addFilter('IsInSiteTree', true);
 		}
 
 		$resultList = $es->autocomplete_search($query,$field);

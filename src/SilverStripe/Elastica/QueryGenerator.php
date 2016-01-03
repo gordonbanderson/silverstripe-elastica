@@ -156,7 +156,7 @@ class QueryGenerator {
 
 
 		// pagination
-		$query->setLimit($this->pageLength);
+		$query->setSize($this->pageLength);
 		$query->setFrom($this->start);
 
 		if ($this->manipulatorInstance && !$queryTextExists) {
@@ -203,7 +203,7 @@ class QueryGenerator {
 			$filtered = array();
 			$filtered['query'] = $data['query'];
 			unset($data['query']);
-			$filtered['filter'] = $this->selectedFilters;
+			$filtered['filter'] = array('term' => $this->selectedFilters);
 			$data['query'] = array('filtered' => $filtered);
 		}
 
@@ -409,8 +409,6 @@ class QueryGenerator {
 			$csvClasses = implode(',',$classes);
 		}
 
-		error_log("CSV CLASSES: $csvClasses");
-
 		$key ='SEARCHABLE_FIELDS_'.str_replace(',', '_', $csvClasses);
 
 		if ($fieldsAllowed) {
@@ -421,7 +419,6 @@ class QueryGenerator {
 		}
 
 		$result = $cache->load($key);
-		error_log("RESULT:$result for key $key \n");
 		if (!$result) {
 			$relevantClasses = array();
 			if (empty($csvClasses)) {

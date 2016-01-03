@@ -37,17 +37,17 @@ class FlickrPhotoTO extends DataObject implements TestOnly {
 		'ZoomLevel' => 'Int'
 	);
 
-	static $belongs_many_many = array(
+	private static $belongs_many_many = array(
 		'FlickrSetTOs' => 'FlickrSetTO'
 	);
 
 	//1 to many
-	static $has_one = array(
+	private static $has_one = array(
 		'Photographer' => 'FlickrAuthorTO'
 	);
 
 	//many to many
-	static $many_many = array(
+	private static $many_many = array(
 		'FlickrTagTOs' => 'FlickrTagTO'
 	);
 
@@ -108,26 +108,26 @@ class FlickrSetTO extends DataObject implements TestOnly {
  * @subpackage tests
  */
 class FlickrAuthorTO extends DataObject implements TestOnly {
-		private static $db = array(
-			'PathAlias' => 'Varchar',
-			'DisplayName' => 'Varchar'
-		);
+	private static $db = array(
+		'PathAlias' => 'Varchar',
+		'DisplayName' => 'Varchar'
+	);
 
-		//1 to many
-		private static $has_many = array('FlickrPhotoTOs' => 'FlickrPhotoTO');
+	//1 to many
+	private static $has_many = array('FlickrPhotoTOs' => 'FlickrPhotoTO');
 
-		private static $searchable_fields = array('PathAlias', 'DisplayName');
+	private static $searchable_fields = array('PathAlias', 'DisplayName');
 
-		/**
-		 * NOTE: You would not normally want to do this as this means that all of
-		 * each user's FlickrPhotoTOs would be indexed against FlickrAuthorTO, so if
-		 * the user has 10,000 pics then the text of those 10,000 pics would
-		 * be indexed also.  This is purely for test purposes with a small and
-		 * controlled dataset
-		 *
-		 * @var array
-		 */
-		private static $searchable_relationships = array('FlickrPhotoTOs');
+	/**
+	 * NOTE: You would not normally want to do this as this means that all of
+	 * each user's FlickrPhotoTOs would be indexed against FlickrAuthorTO, so if
+	 * the user has 10,000 pics then the text of those 10,000 pics would
+	 * be indexed also.  This is purely for test purposes with a small and
+	 * controlled dataset
+	 *
+	 * @var array
+	 */
+	private static $searchable_relationships = array('FlickrPhotoTOs');
 }
 
 
@@ -179,8 +179,6 @@ class FlickrPhotoTOTestIndexingExtension extends Extension implements ElasticaIn
 	 */
 	public function updateElasticsearchDocument(\Elastica\Document $document)
 	{
-	//	self::$ctr++;
-
 		if ($this->owner->Lat != null && $this->owner->Lon != null) {
 			$coors = array('lat' => $this->owner->Lat, 'lon' => $this->owner->Lon);
 			$document->set('location',$coors);
@@ -209,9 +207,52 @@ class FlickrPhotoTOTestIndexingExtension extends Extension implements ElasticaIn
 	}
 
 
-
-		public function updateElasticHTMLFields(array $htmlFields) {
-			array_push($htmlFields, 'TestMethodHTML');
-			return $htmlFields;
-		}
+	public function updateElasticHTMLFields(array $htmlFields) {
+		array_push($htmlFields, 'TestMethodHTML');
+		return $htmlFields;
+	}
 }
+
+
+/**
+ * @package elastica
+ * @subpackage tests
+ */
+class ManyTypesPage extends Page { // FIXME, TestOnly
+	private static $searchable_fields = array(
+		'BooleanField',
+		'CurrencyField',
+		'DateField',
+		'DecimalField',
+		'HTMLTextField',
+		'HTMLVarcharField',
+		'IntField',
+		'PercentageField',
+		'SS_DatetimeField',
+		'TextField',
+		'TimeField'
+	);
+
+	private static $db = array(
+		'BooleanField' => 'Boolean',
+		'CurrencyField' => 'Currency',
+		'DateField' => 'Date',
+		'DecimalField' => 'Decimal',
+		'HTMLTextField' => 'HTMLText',
+		'HTMLVarcharField' => 'HTMLVarchar',
+		'IntField' => 'Int',
+		'PercentageField' => 'Percentage',
+		'SS_DatetimeField' => 'SS_Datetime',
+		'TextField' => 'Text',
+		'TimeField' => 'Time'
+	);
+
+}
+
+/**
+ * @package elastica
+ * @subpackage tests
+ */
+class ManyTypesPage_Controller extends Controller implements TestOnly {
+}
+

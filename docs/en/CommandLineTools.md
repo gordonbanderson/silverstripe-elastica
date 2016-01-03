@@ -15,10 +15,10 @@ curl 'localhost:9200/_cat/indices?v'
 
 Example output, showing three indexes, one each for English, German and Thai
 ```
-health status index            pri rep docs.count docs.deleted store.size pri.store.size 
-yellow open   searchtest_en_us   5   1        731            0      6.3mb          6.3mb 
-yellow open   searchtest_th_th   5   1          1            0     16.5kb         16.5kb 
-yellow open   searchtest_de_de   5   1        342            0      3.5mb          3.5mb 
+health status index            pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   searchtest_en_us   5   1        731            0      6.3mb          6.3mb
+yellow open   searchtest_th_th   5   1          1            0     16.5kb         16.5kb
+yellow open   searchtest_de_de   5   1        342            0      3.5mb          3.5mb
 ```
 
 ###Server Status
@@ -26,7 +26,7 @@ yellow open   searchtest_de_de   5   1        342            0      3.5mb       
 curl 'http://localhost:9200/?pretty'
 ```
 Example ouput in JSON format:
-```
+```json
 {
   "status" : 200,
   "name" : "Aralune",
@@ -131,7 +131,7 @@ You can vary the number by adding a size parameter, which is the number of resul
 curl -XGET 'http://localhost:9200/YOUR_INDEX_NAME/_search?q=YOUR_SEARCH_TERM&pretty'
 ```
 You can see the same search with highlighted results like this:
-```
+```bash
 curl -XGET 'http://localhost:9200/YOUR_INDEX_NAME/_search?q=YOUR_SEARCH_TERM&highlighter=true&pretty'
 ```
 
@@ -153,11 +153,11 @@ is this:
 
 ```bash
 
->$ elasticindexes 
-health status index            pri rep docs.count docs.deleted store.size pri.store.size 
-yellow open   searchtest_en_us   5   1        731            0      6.3mb          6.3mb 
-yellow open   searchtest_th_th   5   1          1            0     16.5kb         16.5kb 
-yellow open   searchtest_de_de   5   1        342            0      3.5mb          3.5mb 
+>$ elasticindexes
+health status index            pri rep docs.count docs.deleted store.size pri.store.size
+yellow open   searchtest_en_us   5   1        731            0      6.3mb          6.3mb
+yellow open   searchtest_th_th   5   1          1            0     16.5kb         16.5kb
+yellow open   searchtest_de_de   5   1        342            0      3.5mb          3.5mb
 
 >$searchelastica searchtest_en_us bicycle
 searchtest_en_us bicycle

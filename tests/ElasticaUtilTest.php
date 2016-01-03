@@ -7,7 +7,7 @@ use SilverStripe\Elastica\ElasticaUtil;
  * Test the functionality of ElasticaUtil class
  * @package elastica
  */
-class ElasticaUtiTest extends SapphireTest {
+class ElasticaUtilTest extends ElasticsearchBaseTest {
 
 	public function testHumanReadableFalse() {
 		$this->assertEquals('No', ElasticaUtil::showBooleanHumanReadable(false));
@@ -21,7 +21,6 @@ class ElasticaUtiTest extends SapphireTest {
 		$sa = $this->getSuggestionArray('New Zealind raalway',
 			'new zealand railway',
 			'new <strong class="hl">zealand railway</strong>');
-		print_r($sa);
 
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$expected = array(
@@ -81,9 +80,6 @@ class ElasticaUtiTest extends SapphireTest {
 		);
 		$sa = array();
 		array_push($sa, $suggestion);
-
-		$expected = array();
-
 		$pair = ElasticaUtil::getPhraseSuggestion($sa);
 		$this->assertEquals(null, $pair);
 	}

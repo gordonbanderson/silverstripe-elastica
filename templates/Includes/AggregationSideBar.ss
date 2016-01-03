@@ -17,7 +17,7 @@
 		<ul class="aggregations">
 		<% loop Aggregations %>
 			<% if $IsSelected %>
-				<li class="aggTitle link selected">
+				<li class="aggTitle link selected $Slug">
 				<% with Buckets.First %>
 				<a href="$URL">$Key <span class="remove">&#39;</span></a>
 				<% end_with %>
@@ -25,7 +25,7 @@
 				</li>
 			<% else %>
 				<li class="aggTitle link">$Name &nbsp;<span class="facetToggle rotate">&#93;</span></li>
-				<ul>
+				<ul class="$Slug">
 				<% loop Buckets %>
 				<li class="link"><% if $IsSelected %><a href="$URL">$Key &nbsp;<i class="fi-x"></i></a><% else %>
 				<a href="$URL"><span class="arrow">&rarr;</span><span class="text">{$Key}&nbsp;<span class="count">($DocumentCount)</span><span></a><% end_if %>

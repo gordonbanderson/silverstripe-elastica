@@ -242,7 +242,6 @@ class ElasticSearcher {
 	}
 
 
-
 	/**
 	 * Search against elastica using the criteria already provided, such as page length, start,
 	 * and of course the filters
@@ -332,8 +331,6 @@ class ElasticSearcher {
 		$qg->setQueryText($queryText);
 
 		//only one field but must be array
-		echo "FIELD\n";
-		print_r($field);
 		$qg->setFields(array($field => 1));
 		if ($this->classes) {
 			$qg->setClasses($this->classes);
@@ -349,12 +346,8 @@ class ElasticSearcher {
 		$qg->setShowResultsForEmptyQuery(false);
 		$query = $qg->generateElasticaAutocompleteQuery();
 
-		print_r($query);
-
 		$elasticService = \Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$elasticService->setLocale($this->locale);
-		echo "FILTERS\n";
-		print_r($this->filters);
 		$resultList = new ResultList($elasticService, $query, $queryText, $this->filters);
 
 		// restrict SilverStripe ClassNames returned
@@ -376,8 +369,6 @@ class ElasticSearcher {
 	 * @return \PaginatedList  List of results
 	 */
 	public function moreLikeThis($indexedItem, $fieldsToSearch, $testMode = false) {
-		echo "INDEXED ITEM:".$indexedItem;
-
 		if ($indexedItem == null) {
 			throw new \InvalidArgumentException('A searchable item cannot be null');
 		}
@@ -442,8 +433,6 @@ class ElasticSearcher {
 			$mlt['max_doc_freq'] = $this->maxDocFreq;
 		}
 
-
-
         $query = new Query();
         $query->setParams(array('query' => array('more_like_this' => $mlt)));
 
@@ -453,7 +442,6 @@ class ElasticSearcher {
 		if ($testMode) {
 			$elasticService->setTestMode(true);
 		}
-
 
 		// pagination
 		$query->setSize($this->pageLength);

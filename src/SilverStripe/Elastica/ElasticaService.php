@@ -517,7 +517,6 @@ class ElasticaService {
 
 		//Count the number of documents for this locale
 		$amount = 0;
-		echo "CURRENT LOCALE:" . $this->locale;
 		foreach($classes as $class) {
 			$amount += $this->recordsByClassConsiderVersioned($class)->count();
 		}
@@ -548,7 +547,7 @@ class ElasticaService {
 
 		}
 
-		echo "Completed indexing documents for locale $this->locale\n";
+		ElasticaUtil::message("Completed indexing documents for locale $this->locale\n");
 
 	}
 
@@ -677,6 +676,6 @@ class ElasticaService {
 		);
 
 		$data = $response->getData();
-		return $data['term_vectors'];
+		return isset($data['term_vectors']) ? $data['term_vectors'] : array();
 	}
 }

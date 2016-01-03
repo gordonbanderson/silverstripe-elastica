@@ -6,12 +6,12 @@ and rebuilds it from scratch.
 
 ##Manipulation of Mapping and Document
 Sometimes you might want to alter document content prior to being sent to elasticsearch,
-or alter the mapping of a field.  For that purpose add the following methods to the class whose 
+or alter the mapping of a field.  For that purpose add the following methods to the class whose
 mapping or document you wish to manipulate.  Note that with third party module one should use an
 extension otherwise these edits may possibly be lost after a composer update.
 ###Basic Format
 
-```
+```php
 	class YourPage extends Page
 	{
 		public static function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping)

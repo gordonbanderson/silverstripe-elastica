@@ -2,8 +2,9 @@
 
 class AutoCompleteOptionTest extends ElasticsearchBaseTest {
 
-	public function setup() {
+	public function setUp() {
 		$this->AutoCompleteOption = new AutoCompleteOption();
+		parent::setUp();
 	}
 
 	public function testCanCreate() {

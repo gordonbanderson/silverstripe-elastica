@@ -49,19 +49,10 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$tab = $fields->findOrMakeTab("Root.Search.Fields");
 		$fieldsTab = $tab->Fields();
 
-		foreach ($fieldsTab as $field) {
-			echo "FIELD:{$field->getName()}\n";
-		}
-
 		$pickerField = $fieldsTab->fieldByName('ElasticaSearchableFields');
 		$pickerConfig = $pickerField->getConfig();
 		$gridDetailForm = $pickerConfig->getComponentByType('GridFieldDetailForm');
 
-		echo "SEARCHABLE FIELDS\n";
-		foreach ($searchPage->ElasticaSearchableFields()->getIterator() as $sf) {
-			echo "SEARCHABLE FIELD {$sf->ClazzName},{$sf->Name}!\n";
-
-		}
 		$searchableField = $searchPage->ElasticaSearchableFields()->filter(
 			array('ClazzName' => 'SiteTree', 'Name' => 'Title')
 		)->first();
@@ -98,10 +89,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$this->assertEquals('ShowHighlights', $field->getName());
 		$this->assertEquals(0, $field->Value());
 
-		$field = $form->Fields()->fieldByName('ManyMany[EnableAutocomplete]');
-		$this->assertEquals('ManyMany[EnableAutocomplete]', $field->getName());
-		$this->assertEquals(0, $field->Value());
-
 		$this->assertNotNull($form->Fields()->fieldByName('SecurityID'));
 
 
@@ -117,16 +104,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 			new Controller(),
 			'Form'
 		);
-		$form = $request->ItemEditForm();
-		$field = $form->Fields()->fieldByName('ManyMany[EnableAutocomplete]');
-		$this->assertEquals('ManyMany[EnableAutocomplete]', $field->getName());
-		$this->assertEquals(0, $field->Value());
-
-		// check that the autocomplete enabling field is disabled
-		$this->assertEquals(true, $field->getAttributes()['readonly']);
-		$this->assertEquals(true, $field->getAttributes()['disabled']);
-		$this->assertEquals('Autcomplete is not available for this field', $field->Title());
-
 	}
 
 
@@ -304,8 +281,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 	Test setting up a search page for data objects as if editing the CMS directly
 	 */
 	public function testSearchPageForDataObjects() {
-		echo "========================== TEST STARTS NOW ==========================\n";
-		//$this->devBuild();
 		$searchPage = $this->objFromFixture('ElasticSearchPage', 'search');
 
 		$searchPage->ClassesToSearch = 'FlickrPhotoTO';

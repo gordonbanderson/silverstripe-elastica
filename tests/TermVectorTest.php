@@ -26,7 +26,6 @@ class TermVectorTest extends ElasticsearchBaseTest {
 		// Original is 'Image taken from page 386 of ''The Bab Ballads, with which are included
 		// Songs of a Savoyard ... With 350 illustrations by the author'''
 
-		print_r(array_keys($termVectors['Title.standard']['terms']));
 
 		$expected = array(350, 386, 'author', 'bab', 'ballad', 'from', 'illustr', 'image', 'includ',
 			'page', 'savoyard', 'song', 'taken', 'which');

@@ -63,7 +63,7 @@ ManyTypesPage:
     HtmlTextField: '<p>This is some <b>HTML</b>text field</p>'
     HTMLVarcharField: '<p>This is some <b>HTML</b>varchar field</p>'
     IntField: 677
-    PercentageField: 27
+    PercentageField: 8.2
     SS_DatetimeField: '2014-10-18 8:24:00'
     TextField: 'This is a text field'
     TimeField: 17:48:18

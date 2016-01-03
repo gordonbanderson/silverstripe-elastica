@@ -70,24 +70,8 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 		$agg4->setOrder('_term', 'asc');
 		$query->addAggregation($agg4);
 
-
-
 		$aspectRangedAgg = RangedAggregation::getByTitle('Aspect');
         $query->addAggregation($aspectRangedAgg->getRangeAgg());
-
-		// leave this out for the moment as way too many terms being returned slowing things down
-		/*
-		$agg5 = new Terms("Tags");
-		$agg5->setField("FlickrTagTOs.RawValue");
-		$agg5->setSize(10);
-		$agg5->setOrder('_term', 'asc');
-
-		$agg6 = new TopHits('Top Hits');
-		$agg6->setSize(20);
-		$agg5->addAggregation($agg6);
-
-		$query->addAggregation($agg5);
-		*/
 
 		// remove NearestTo from the request so it does not get used as a term filter
 		unset(Controller::curr()->request['NearestTo']);
@@ -108,8 +92,6 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 
 			$sortable = $filters['ShutterSpeed'];
 
-			echo "SORTABLE:$sortable\n";
-
 			$sortable = explode('/', $sortable);
 			if (sizeof($sortable) == 1) {
 				$sortable = trim($sortable[0]);
@@ -129,9 +111,6 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 				}
 
 			}
-
-			echo "MAPPED TO $sortable\n";
-
 
 			$filters['ShutterSpeed'] = $sortable;
 		}
@@ -154,35 +133,7 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 			$ctr++;
 		}
 		$aggs['ShutterSpeed']['buckets'] = $shutterSpeeds;
-
-		// Note that instead of storing as arrays, nesting might be a better option
-		// Or at least have than an option
-		// See http://coderify.com/aggregates-array-field-and-autocomplete-funcionality-in-elasticsearch/
-
-		/*
-
-		$querystring = Controller::curr()->request->getVar('Tags');
-
-		if ($querystring != '') {
-			$buckets = $aggs['Tags']['buckets'];
-			$ctr = 0;
-			foreach ($buckets as $bucket) {
-				$key = $bucket['key'];
-				if ($key !== $querystring) {
-					unset($buckets[$ctr]);
-				}
-
-				$ctr++;
-			}
-			$aggs['Tags']['buckets'] = $buckets;
-		}
-		*/
 	}
-
-
-
-
-
 
 	/*
 	In the event of aggregates being used and no query provided, sort by this (<field> => <order>)
@@ -195,7 +146,4 @@ class FlickrPhotoTOElasticaSearchHelper implements ElasticaSearchHelperInterface
 	public function getIndexFieldTitleMapping() {
 		return self::$titleFieldMapping;
 	}
-
-
-
 }

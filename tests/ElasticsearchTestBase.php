@@ -1,8 +1,7 @@
 <?php
-
+use SilverStripe\Elastica\ElasticaUtil;
 use SilverStripe\Elastica\ReindexTask;
 use SilverStripe\Elastica\ElasticaService;
-
 
 class ElasticsearchBaseTest extends SapphireTest {
 
@@ -15,6 +14,8 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 
 	public function setUpOnce() {
+		ElasticaUtil::setPrinterOutput(false);
+
 		// add Searchable extension where appropriate
 		FlickrSetTO::add_extension('SilverStripe\Elastica\Searchable');
 		FlickrPhotoTO::add_extension('SilverStripe\Elastica\Searchable');
@@ -43,44 +44,60 @@ class ElasticsearchBaseTest extends SapphireTest {
 			'FlickrTagTO', 'FlickrAuthorTO');
 		$this->requireDefaultRecordsFrom = $classes;
 
-
 		// clear the index
 		$this->service = Injector::inst()->create('SilverStripe\Elastica\ElasticaService');
 		$this->service->setTestMode(true);
 
-		// A previous test may have deleted the index and then failed, so check for this
-		if (!$this->service->getIndex()->exists()) {
-			$this->service->getIndex()->create();
-		}
-		$this->service->reset();
+		$elasticException = false;
 
-		// FIXME - use request getVar instead?
-		$_GET['progress'] = 20;
-		// load fixtures
-
-		$orig_fixture_file = static::$fixture_file;
-
-		foreach (static::$ignoreFixtureFileFor as $testPattern) {
-			$pattern = '/'.$testPattern.'/';
-			if (preg_match($pattern, $this->getName())) {
-				static::$fixture_file = null;
+		try {
+			// A previous test may have deleted the index and then failed, so check for this
+			if (!$this->service->getIndex()->exists()) {
+				$this->service->getIndex()->create();
 			}
+			$this->service->reset();
+			// FIXME - use request getVar instead?
+			$_GET['progress'] = 20;
+			// load fixtures
+
+			$orig_fixture_file = static::$fixture_file;
+
+			foreach (static::$ignoreFixtureFileFor as $testPattern) {
+				$pattern = '/'.$testPattern.'/';
+				if (preg_match($pattern, $this->getName())) {
+					static::$fixture_file = null;
+				}
+			}
+
+		} catch (Exception $e) {
+			$elasticException = true;
 		}
 
-		echo "\n\n\n\nEXECUTING TEST {$this->getName()}, FIXTURES=".static::$fixture_file."\n";
-
+		// this needs to run otherwise nested injector errors show up
 		parent::setUp();
-		static::$fixture_file = $orig_fixture_file;
 
-		$this->publishSiteTree();
+		if ($elasticException) {
+			$this->fail('T1 An error has occurred trying to contact Elasticsearch server');
+		}
 
-		$this->service->reset();
+		try {
+			static::$fixture_file = $orig_fixture_file;
 
-		// index loaded fixtures
-		$task = new ReindexTask($this->service);
-		// null request is fine as no parameters used
+			$this->publishSiteTree();
+			$this->service->reset();
 
-		$task->run(null);
+			// index loaded fixtures
+			$task = new ReindexTask($this->service);
+			// null request is fine as no parameters used
+
+			$task->run(null);
+		} catch (Exception $e) {
+			$elasticException = true;
+		}
+
+		if ($elasticException) {
+			$this->fail('T2 An error has occurred trying to contact Elasticsearch server');
+		}
 
 	}
 
@@ -96,8 +113,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 		foreach (SiteTree::get()->getIterator() as $page) {
 			// temporarily disable Elasticsearch indexing, it will be done in a batch
 			$page->IndexingOff = true;
-
-			echo "Publishing ".$page->Title."\n";
 			$page->publish('Stage','Live');
 		}
 	}
@@ -153,7 +168,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 		}
 		echo "\t$prefix),\n";
-
 	}
 
 
@@ -161,16 +175,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 	Helper methods for testing CMS fields
 	 */
 	public function checkTabExists($fields, $tabName) {
-		echo "Searching for tab $tabName\n";
 		$tab = $fields->findOrMakeTab("Root.{$tabName}");
 		$actualTabName = $tab->getName();
-		echo "TAB NAME:$tabName -> $actualTabName\n";
 		$splits = explode('.', $tabName);
 		$size = sizeof($splits);
-		print_r($splits);
-		echo "SIZE:$size\n";
 		$nameToCheck = end($splits);
-		echo "NAME TO CHECK:$nameToCheck\n";
 		$this->assertEquals($actualTabName, $nameToCheck);
 		if ($size == 1) {
 			$this->assertEquals("Root_${tabName}", $tab->id());
@@ -185,10 +194,6 @@ class ElasticsearchBaseTest extends SapphireTest {
 
 	public function checkFieldExists($tab,$fieldName) {
 		$fields = $tab->Fields();
-		echo "TAB:{$tab->Name}\n";
-		foreach ($fields as $fi) {
-			echo "NAME:".$fi->Name."\n";
-		}
 		$field = $tab->fieldByName($fieldName);
 		$this->assertTrue($field != null);
 		return $field;
@@ -220,8 +225,11 @@ class ElasticsearchBaseTest extends SapphireTest {
 		$status = $index->getStatus()->getData();
 
 		$numberDocsInIndex = -1; // flag value for not yet indexed
+
 		if (isset($status['indices']['elastica_ss_module_test_en_us']['docs'])) {
 			$numberDocsInIndex = $status['indices']['elastica_ss_module_test_en_us']['docs']['num_docs'];
+		} else {
+			$numberDocsInIndex = 0;
 		}
 
 		$this->assertEquals($expectedAmount,$numberDocsInIndex);

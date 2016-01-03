@@ -8,20 +8,23 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	public static $ignoreFixtureFileFor = array('testResultsForEmptySearch');
 
-
 	public function setUpOnce() {
-		//Add translatable
-		SiteTree::add_extension('Translatable');
+		//Add translatable if it exists
+		if(class_exists('Translatable')) {
+			SiteTree::add_extension('Translatable');
+		}
 		parent::setUpOnce();
 	}
 
-
 	public function testElasticSearchForm() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$form = new \ElasticSearchForm(new \Controller(), 'TestForm');
 		$fields = $form->Fields();
 		$result = array();
 		foreach($fields as $field) {
-			echo $field->getName();
 			$result[$field->getName()] = $field->Value();
 		}
 
@@ -32,6 +35,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 
 	public function testHighlightPassingFields() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 
@@ -42,34 +49,37 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$paginated = $es->search($query, $fields);
 		$ctr = 0;
 
-		foreach ($paginated->getList()->toArray() as $result) {
+		foreach($paginated->getList()->toArray() as $result) {
 			$ctr++;
 
-			foreach ($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
+			foreach($result->SearchHighlightsByField->Description->getIterator() as $highlight) {
 				$snippet = $highlight->Snippet;
 				$snippet = strtolower($snippet);
 				$wordFound = false;
 				$lcquery = explode(' ', strtolower($query));
-				foreach ($lcquery as $part) {
-					$bracketed = '<strong class="hl">'.$part.'</strong>';
-					if (strpos($snippet, $bracketed) > 0) {
+				foreach($lcquery as $part) {
+					$bracketed = '<strong class="hl">' . $part . '</strong>';
+					if(strpos($snippet, $bracketed) > 0) {
 						$wordFound = true;
 					}
 				}
-				$this->assertTrue($wordFound,'Highlight should have been found');
+				$this->assertTrue($wordFound, 'Highlight should have been found');
 			}
 		}
 	}
 
 
 	public function testAutoCompleteGood() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
-		$fields = array('Title' => 1, 'Description' => 1);
 		$query = 'Lond';
 		$results = $es->autocomplete_search($query, 'Title');
 		$this->assertEquals(7, $results->getTotalItems());
-		foreach ($results->toArray() as $result) {
+		foreach($results->toArray() as $result) {
 			$this->assertTrue(strpos($result->Title, $query) > 0);
 		}
 	}
@@ -81,9 +91,11 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	// FIXME - this test is shardy unfortunately
 	public function testMoreLikeThisSinglePhoto() {
-		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
 
-		echo "FP: Original title: {$fp->Title}\n";
+		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$locale = \i18n::default_locale();
 		$es->setLocale($locale);
@@ -91,11 +103,6 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 		$fields = array('Description.standard' => 1,'Title.standard' => 1);
 		$results = $es->moreLikeThis($fp, $fields, true);
-
-		echo "RESULTS:\n";
-		foreach ($results as $result) {
-			echo "-\t{$result->Title}\n";
-		}
 
 		$terms = $results->getList()->MoreLikeThisTerms;
 
@@ -110,21 +117,13 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		$expected = array('texas');
 		$this->assertEquals($expected, $terms['Title.standard']);
 
-		$expected = array('new', 'see','photographs', 'information','resolution', 'company', 'view',
-			'high', 'collection', 'pacific', 'orleans', 'degolyer', 'southern', 'everett',
-			'railroad', 'texas');
-
 		$expected = array('collection', 'company', 'degolyer', 'everett', 'file', 'high',
 			'information', 'new', 'orleans', 'pacific', 'photographs', 'railroad', 'resolution',
 			'see', 'southern', 'texas', 'view');
 
-
-
 		$actual = $terms['Description.standard'];
 		sort($expected);
 		sort($actual);
-
-
 		$this->assertEquals($expected, $actual);
 	}
 
@@ -138,14 +137,16 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	 */
 
 	public function testSimilarGood() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
-		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
-		}
+
 		$this->assertEquals(32, $paginated->getTotalItems());
 		$results = $paginated->getList()->toArray();
 		$this->assertEquals("[Texas and New Orleans, Southern Pacific Railroad Station, Stockdale, Texas]", $results[0]->Title);
@@ -165,6 +166,10 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 	FIXME - this is not working, not sure why.  Trying to complete coverage of ReindexTask
 	 */
 	public function testBulkIndexing() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		//Reset the index, so that nothing has been indexed
 		$this->service->reset();
 
@@ -179,7 +184,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 		//Check that the number of indexing requests has increased by 2
 		$deltaReqs = $this->service->getIndexingRequestCtr() - $reqs;
 		//One call is made for each of Page and FlickrPhotoTO
-		$this->assertEquals(2,$deltaReqs);
+		$this->assertEquals(2, $deltaReqs);
 
 		// default installed pages plus 100 FlickrPhotoTOs
 		$this->checkNumberOfIndexedDocuments(103);
@@ -188,58 +193,51 @@ class TranslatableUnitTest extends ElasticsearchBaseTest {
 
 	// if this is not set to unbounded, zero, a conditional is triggered to add max doc freq to the request
 	public function testSimilarChangeMaxDocFreq() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setMaxDocFreq(4);
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 		$paginated = $es->moreLikeThis($fp, $fields, true);
-		foreach ($paginated->getList() as $result) {
-			echo $result->ID. ' : '.$result->Title."\n";
-		}
+
 		$this->assertEquals(14, $paginated->getTotalItems());
-		$results = $paginated->getList()->toArray();
-		$this->makeCode($paginated);
 	}
 
 
 	public function testSimilarNullFields() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		try {
-			$paginated = $es->moreLikeThis($fp, null, true);
+			$es->moreLikeThis($fp, null, true);
+			$this->fail('More like this search should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('Fields cannot be null', $e->getMessage());
 		}
 	}
 
-
 	public function testSimilarNullItem() {
+		if(!class_exists('Translatable')) {
+			$this->markTestSkipped('Translatable not installed');
+		}
+
 		$es = new ElasticSearcher();
 		$es->setClasses('FlickrPhotoTO');
 		$fields = array('Title.standard' => 1, 'Description.standard' => 1);
 
 		try {
-			$paginated = $es->moreLikeThis(null, $fields, true);
+			$es->moreLikeThis(null, $fields, true);
+			$this->fail('Search should have failed');
 		} catch (InvalidArgumentException $e) {
 			$this->assertEquals('A searchable item cannot be null', $e->getMessage());
-		}
-	}
-
-
-
-
-
-
-
-	private function makeCode($paginated) {
-		$results = $paginated->getList()->toArray();
-		$ctr = 0;
-		echo '$result = $paginated->getList()->toArray();'."\n";
-		foreach ($results as $result) {
-			echo '$this->assertEquals("'.$result->Title.'", $results['.$ctr.']->Title);'."\n";
-			$ctr++;
 		}
 	}
 
