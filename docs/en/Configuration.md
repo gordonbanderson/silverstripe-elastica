@@ -41,6 +41,12 @@ size too much.
 
 After every change to your data model you should execute the `SilverStripe-Elastica-ReindexTask`, see below.
 
+###Autocomplete Fields
+Autocomplete, or 'find as you type', fields attempt to find search results
+whilst text is entered into a search field.  In order for the search to be fast
+the indexing of terms is verbose, as such only enable this option for short
+fields such as a person's name or the title of a page.
+
 ###Purely PHP
 ```php
 	class YourPage extends Page
@@ -57,6 +63,8 @@ After every change to your data model you should execute the `SilverStripe-Elast
 			"YourField2"
 		);
 
+		private static $searchable_autocomplete = array('Title');
+
 		// example where this content type has related tags
 		private static $searchable_relationships = array(
 			'Tags()'
@@ -64,9 +72,11 @@ After every change to your data model you should execute the `SilverStripe-Elast
 	}
 ```
 ###PHP and YML
-Static variables in SilverStripe classes can be configured in YML files.  This is the preferred way to
-configure indexable fields on a class, as it means third party module classes can have fields made
-searchable without altering any module code.
+Static variables in SilverStripe classes can be configured in YML files.  This
+is the preferred way to configure indexable fields on a class, as it means
+third-party module classes can have fields made searchable without altering any
+module code.
+
 ```php
 	class YourPage extends Page
 	{
@@ -85,7 +95,11 @@ YourPage:
 	- YourField2
   searchable_relationships:
     - Tags()
+  searchable_autocomplete:
+    - Title
 ```
 
 ##Index Invalidation
-In the case of an item indexed through a relationship, if that item changes the original items needs to be invalidated.  This is a TODO, currently - the only current workaround is to reindex.
+In the case of an item indexed through a relationship, if that item changes the
+original items needs to be invalidated.  This is a TODO, currently - the only
+current workaround is to reindex.
