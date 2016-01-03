@@ -537,7 +537,7 @@ class Searchable extends \DataExtension {
 
 				$gridField = new \GridField(
 					'TermsFor' . $underscored, // Field name
-					$field . 'TITLE' . $field, // Field title
+					$field . '__' . $field, // Field title
 					$terms,
 					$config
 				);
