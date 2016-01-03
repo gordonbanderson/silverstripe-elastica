@@ -543,13 +543,13 @@ class Searchable extends \DataExtension {
 
 				$gridField = new \GridField(
 					'TermsFor' . $underscored, // Field name
-					$alteredFieldName.'T1' , // Field title
+					$alteredFieldName , // Field title
 					$terms,
 					$config
 				);
 
 				$underscored = str_replace('.', '_', $alteredFieldName);
-			   $fields->addFieldToTab('Root.ElasticaTerms.' . $underscored, $gridField);
+				$fields->addFieldToTab('Root.ElasticaTerms.' . $underscored, $gridField);
 			}
 
 		}

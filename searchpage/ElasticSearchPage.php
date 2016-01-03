@@ -237,9 +237,6 @@ class ElasticSearchPage extends Page {
 
 		$edittest->setItemEditFormCallback(function($form) {
 			$fields = $form->Fields();
-			$fieldAutocomplete = $fields->dataFieldByName('Autocomplete');
-			$fieldEnableAutcomplete = $fields->dataFieldByName('ManyMany[EnableAutocomplete]');
-
 			$fields->dataFieldByName('ClazzName')->setReadOnly(true);
 			$fields->dataFieldByName('ClazzName')->setDisabled(true);
 			$fields->dataFieldByName('Name')->setReadOnly(true);
