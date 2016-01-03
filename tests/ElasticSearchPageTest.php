@@ -90,20 +90,6 @@ class ElasticSearchPageTest extends ElasticsearchBaseTest {
 		$this->assertEquals(0, $field->Value());
 
 		$this->assertNotNull($form->Fields()->fieldByName('SecurityID'));
-
-
-		// now choose a field without autocopmlete
-		$searchableField = $searchPage->ElasticaSearchableFields()->filter(
-			array('ClazzName' => 'SiteTree', 'Name' => 'Content')
-		)->first();
-
-		$request = new GridFieldDetailForm_ItemRequest(
-			GridField::create('ElasticaSearchableFields', 'ElasticaSearchableFields'),
-			$gridDetailForm,
-			$searchableField,
-			new Controller(),
-			'Form'
-		);
 	}
 
 
