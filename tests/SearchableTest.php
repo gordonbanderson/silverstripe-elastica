@@ -743,14 +743,12 @@ class SearchableTest extends ElasticsearchBaseTest {
 			foreach($tab->FieldList() as $field) {
 				array_push($tabFields, $field->getName());
 			}
-			$expectedName = 'TermsFor' . $tab->getName(); ;
-			$expected = array($expectedName);
-			$this->assertEquals($expected, $tabFields);
 			array_push($tabNames, $tab->getName());
 		}
 		$expected = array(
-			'Content', 'Content_standard', 'Link', 'Title', 'Title_autocomplete', 'Title_shingles',
-			'Title_standard');
+			'Content_stemmed', 'Content_unstemmed', 'Link_stemmed',
+			'Title_stemmed', 'Title_autocomplete', 'Title_shingles',
+			'Title_unstemmed');
 		$this->generateAssertionsFromArray1D($tabNames);
 		$this->assertEquals($expected, $tabNames);
 
