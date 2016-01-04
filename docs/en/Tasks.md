@@ -24,8 +24,8 @@ functional.
 
 ##Search Index
 Not so much a task but a convenient way to test if SiteTree data has been
-indexed correctly.  Simply called the search index task with your query being
-the 'q' parameter
+indexed correctly.  Simply call the search index task with a query being passed
+using the 'q' parameter
 ```bash
 sudo -u www-data framework/sake dev/tasks/SilverStripe-Elastica-SearchIndexTask q=rain
 ```
@@ -42,14 +42,14 @@ he was safely sheltered from the <strong class="highlight">rain</strong>, "you
 ```
 
 ##Aliases
-It is useful to add aliases for these tasks.  On Debian the file to edit is
-`~/.bash_aliases.`  Add likes of the following:
+It is useful to add aliases for these tasks.  On Debian systems the file to edit
+is `~/.bash_aliases.`  Add likes of the following:
 
 ```bash
 alias ssreindex='sudo -u www-data framework/sake dev/tasks/SilverStripe-Elastica-ReindexTask progress=250'
 alias ssdeleteindex='sudo -u www-data framework/sake dev/tasks/SilverStripe-Elastica-DeleteIndexTask'
 ```
-Now you can just navigate on the command line to the root of the SilverStripe
+One can then navigate on the command line to the root of the SilverStripe
 install and type this to reindex:
 ```bash
 ssreindex
