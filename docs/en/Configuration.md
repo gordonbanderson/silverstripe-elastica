@@ -60,7 +60,8 @@ fields such as a person's name or the title of a page.
 
 
 After every change in the searchable fields for a Dataobject the task
-`SilverStripe-Elastica-ReindexTask` should be executed.  See below.
+`SilverStripe-Elastica-ReindexTask` should be executed.
+See [Tasks](./Tasks.md).
 
 ###Purely PHP
 ```php
