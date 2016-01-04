@@ -22,7 +22,7 @@ sudo dpkg -i elasticsearch-1.7.2.deb
 ```
 
 By default the server binds to an address of 0.0.0.0, so if installing on a
-public machine you will probably want to restrict the visibility.  For a single
+public machine it is advisable to restrict the visibility.  For a single
 VPS instance edit the file `/etc/elasticsearch/elasticsearch.yml` and update the
 value `network.bind_host` as follows.
 

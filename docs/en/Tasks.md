@@ -9,11 +9,13 @@ the following example as a guide:
 	sudo -u www-data framework/sake dev/tasks/SilverStripe-Elastica-ReindexTask
 ```
 
-##Reindex
+##Index/Reindex
 Execute a reindex of all of the classes configured to be indexed.
 ```bash
 	framework/sake dev/tasks/SilverStripe-Elastica-ReindexTask
 ```
+Without this task being executed it will not be possible to search as the index
+will be empty, and thus return no results.
 
 ##Delete Index
 Delete the configured index.  Reindexing as above will restore the index as

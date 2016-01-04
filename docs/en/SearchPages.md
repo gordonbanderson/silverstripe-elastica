@@ -28,15 +28,16 @@ Using the standard mechanism for adding a page in the CMS, add a page of type
 
 ##Configuring a Search Page
 ###Search Site Tree Only
-Select the 'Site Tree Only' checkbox, and then save the page.  This will simulate the standard
-SilverStripe search, namely all pages in the SiteTree, but using Elastic Search.
+Select the 'Site Tree Only' checkbox, and then save the page.  This will
+simulate the standard SilverStripe search, namely all pages in the SiteTree,
+but using Elasticsearch for the free text searching.
 ![Search the SiteTree Only]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica001-site-tree-only.png
 "Search the SiteTree Only")
 
 ###Selected List of ClassNames
 It is possible to restrict the classes that are searched, useful for example if
-searching a particular subset of your site likes of a blog.  In the example
+searching a particular subsection of a site likes of a blog.  In the example
 below only pages of type Blog or BlogPost are returned from the search.
 ![Search Blogs Only]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica002-blogpost.png
@@ -65,67 +66,75 @@ page cannot be saved.
 "List of Searchable Fields")
 * Weighting - adjust the weight of that field, making it more or less important
 * Use for Search? - true to use the field in the search, false not to
-* Use for Similar Search? - true to use the field when doing a simiilar search, false not to
-* Show Search Highlights - show query terms highlight in the search results for the field in
-question
-
+* Use for Similar Search? - true to use the field when doing a simiilarity
+search, false not to
+* Show Search Highlights - show query terms highlight in the search results for
+the field in question
 
 ![Editing Weighting]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica004-alter-weighting.png
 "Editing Weighting")
 
-If a field searched for is not present in all the objects being searched, the search does not fail.
-An example of this would be a BlogPost having BlogTags associated with it, whereas of course a
-standard Page does not have this field.  Page and BlogPost however have Title and Content fields in
-common.
+If a field searched for is not present in all the objects being searched, the
+search does not fail.  An example of this would be a BlogPost having BlogTags
+associated with it, whereas of course a standard Page does not have this field.
+Page and BlogPost however have Title and Content fields in common.
 
 ##Autocompletion
-Autocompletion should only be indexed for relatively short fields as it is extremely verbose in
-the number of terms indexed.  Good example of suitable fields are the title of a page or the full
-name of a Member.
+Autocompletion should only be indexed for relatively short fields as it is
+extremely verbose in the number of terms indexed.  Good examples of suitable
+fields are the title of a page or the full name of a Member.
 
 ![Autocomplete]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica-autocomplete.png
 "Editing Autocompletion")
 
-To enable autocomplete click on the Search/AutoComplete tab.  A drop down list of autocompleteable
-fields is shown, of which only one can be selected.  There are 3 options for what can happen when
-autocompleted text is selected.
+To enable autocomplete click on the Search/AutoComplete tab.  A drop down list
+of autocompleteable fields is shown, of which only one can be selected.  There
+are 3 options for what can happen when autocompleted text is selected.
 
-* GoToRecord - go directly to a page showing the record whose field was autocompleted
-* Similar - find objects similar to that represented by the selected autocomplete text
+* GoToRecord - go directly to a page showing the record whose field was
+autocompleted
+* Similar - find objects similar to that represented by the selected
+autocomplete text
 * Search - search using the terms of the title of the selected autocomplete text
 
 ##Aggregations
-Aggregations are sufficiently complex they are on a [separate page](./Aggregations.md).
+Aggregations are sufficiently complex they are on a
+[separate page](./Aggregation.md).
 
 ##Similarity Searching
-A similarity search, or in Elasticsearch parlance a 'more like this' query finds documents similar
-to the one used as the basis for the search.  It has several configurable parameters and some
-experimentation may be required depending on your site's content.
+A similarity search, or in Elasticsearch parlance a 'more like this' query finds
+documents similar o the one used as the basis for the search.  It has several
+configurable parameters and some experimentation may be required depending on
+site content.
 
 * Stop Words - terms to ignore when querying
-* Minimum term frequency - minimum number of times a term can appear in a field to be used
-* Maximum terms selected - the maximum number of terms selected to be used for similarity search
+* Minimum term frequency - minimum number of times a term can appear in a field
+to be used
+* Maximum terms selected - the maximum number of terms selected to be used for
+similarity search
 * Minimum document frequency - the minimum number of documents a term appears in
-* Maximum document frequency - the maximum number of documents a term appears in.  Can be used to
-filter stop words
+* Maximum document frequency - the maximum number of documents a term appears
+in.  Can be used to filter stop words
 * Minimum word length - the minimum length of a term for it to be considered
 * Maximum word length - the maximum length of a term for it to be considered
 * Number of %age of matching terms - see
 https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-minimum-should-match.html
 for a detailed explanation.
 
-Note that the default values are as per the Elasticsearch documentation.  Clicking on the button
-'Restore Defaults' restores these values (after a Save).
+Note that the default values are as per the Elasticsearch documentation.
+Clicking on the button 'Restore Defaults' restores these values (after a Save).
 
 ![Similarity Searching]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica-similarity.png
 "Editing similarity search parameters")
 
 ##Overriding the SearchPage Template
-It is most likely necessary to override the default template when rendering serach results for
-DataObjects, as they may not have the methods _Title_ and _AbsoluteLink_ necessary to render them.
+It is most likely necessary to override the default template when rendering
+search results for DataObjects, as they may not have the methods _Title_ and
+_AbsoluteLink_ necessary to render them.
+
 This requires another module that can alter the template for a given page.
 
 ###Installation of Template Override Module
@@ -140,8 +149,9 @@ cd template-override
 git checkout 3.1
 ```
 ###Using Template Override
-Simple navigate to the tab 'Template', or i18n equivalent, and enter the name of the template
-in the text field provided.  If the value is left empty, the normal template will be used.
+Simple navigate to the tab 'Template', or i18n equivalent, and enter the name of
+the template in the text field provided.  If the value is left empty, the normal
+template will be used.
 ![Setting Templates to BlogSearchResults.ss]
 (https://raw.githubusercontent.com/gordonbanderson/silverstripe-elastica/screenshots/screenshots/elastica007-blog-search-results-template.png
 "Setting Templates to BlogSearchResults.ss")
