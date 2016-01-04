@@ -1,4 +1,5 @@
 <?php
+namespace SilverStripe\Elastica;
 
 class IdentityElasticaIndexingHelper extends Extension implements ElasticaIndexingHelperInterface {
 	public function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping) {
