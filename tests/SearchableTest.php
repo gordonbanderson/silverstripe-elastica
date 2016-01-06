@@ -1,6 +1,6 @@
 <?php
 
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticaSearcher;
 
 /**
  * Test the functionality of the Searchable extension.
@@ -734,7 +734,7 @@ class SearchableTest extends ElasticsearchBaseTest
 
     private function getResultsFor($query, $pageLength = 10)
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength($pageLength);
         $es->setClasses('FlickrPhotoTO');

@@ -1,6 +1,6 @@
 <?php
 
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticaSearcher;
 
 /**
  * Test the functionality of the Searchable extension.
@@ -925,11 +925,11 @@ class AggregationUnitTest extends ElasticsearchBaseTest
     }
 
     /*
-    ResultList and ElasticSearcher both have accessors to the aggregates.  Check they are the same
+    ResultList and ElasticaSearcher both have accessors to the aggregates.  Check they are the same
      */
     public function testGetAggregations()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength(10);
         //$es->addFilter('IsInSiteTree', false);
@@ -942,7 +942,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest
     public function testAggregationNonExistentField()
     {
         $filters = array();
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength(10);
         //$es->addFilter('IsInSiteTree', false);
@@ -971,7 +971,7 @@ class AggregationUnitTest extends ElasticsearchBaseTest
     private function search($queryText, $fields = array('Title' => 1, 'Description' => 1),
         $filters = array())
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength(10);
         $es->setClasses('FlickrPhotoTO');

@@ -1,6 +1,6 @@
 <?php
 
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticaSearcher;
 use SilverStripe\Elastica\ReindexTask;
 
 class TranslatableUnitTest extends ElasticsearchBaseTest
@@ -41,7 +41,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
             $this->markTestSkipped('Translatable not installed');
         }
 
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
 
         $es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
@@ -76,7 +76,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
             $this->markTestSkipped('Translatable not installed');
         }
 
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $query = 'Lond';
         $results = $es->autocomplete_search($query, 'Title');
@@ -96,7 +96,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
         }
 
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $locale = \i18n::default_locale();
         $es->setLocale($locale);
         $es->setClasses('FlickrPhotoTO');
@@ -140,7 +140,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
         }
 
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 1, 'Description.standard' => 1);
         $paginated = $es->moreLikeThis($fp, $fields, true);
@@ -196,7 +196,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
         }
 
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setMaxDocFreq(4);
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 1, 'Description.standard' => 1);
@@ -212,7 +212,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
         }
 
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         try {
             $es->moreLikeThis($fp, null, true);
@@ -228,7 +228,7 @@ class TranslatableUnitTest extends ElasticsearchBaseTest
             $this->markTestSkipped('Translatable not installed');
         }
 
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 1, 'Description.standard' => 1);
 

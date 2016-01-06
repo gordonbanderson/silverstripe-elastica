@@ -1,6 +1,6 @@
 <?php
 
-use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\ElasticaSearcher;
 
 class ElasticaAutoCompleteController extends Controller
 {
@@ -12,7 +12,7 @@ class ElasticaAutoCompleteController extends Controller
 
     public function search()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $query = $this->request->getVar('query');
         $query = trim($query);
         $classes = $this->request->getVar('classes');

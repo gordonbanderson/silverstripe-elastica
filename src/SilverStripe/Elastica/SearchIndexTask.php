@@ -39,7 +39,7 @@ class SearchIndexTask extends \BuildTask
 
         // search SiteTree showing highlights
         $query = $request->getVar('q');
-        $es = new \ElasticSearcher();
+        $es = new \ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength(20);
         $es->addFilter('IsInSiteTree', true);

@@ -5,7 +5,7 @@ use Elastica\Query;
 use Elastica\Aggregation\Filter;
 use Elastica\Filter\Term;
 use Elastica\Aggregation\Terms;
-use \SilverStripe\Elastica\ElasticSearcher;
+use \SilverStripe\Elastica\ElasticaSearcher;
 use \SilverStripe\Elastica\Searchable;
 use \SilverStripe\Elastica\ElasticaUtil;
 
@@ -35,7 +35,7 @@ class ElasticSearchPage_Controller extends Page_Controller
         $class = $this->request->param('ID');
         $instanceID = $this->request->param('OtherID');
 
-        $es = $this->primeElasticSearcherFromRequest();
+        $es = $this->primeElasticaSearcherFromRequest();
         $data = $this->initialiseDataArray();
         $this->setMoreLikeThisParamsFromRequest($es);
         $this->addSiteTreeFilterIfRequired($es);
@@ -92,7 +92,7 @@ class ElasticSearchPage_Controller extends Page_Controller
      */
     public function index()
     {
-        $es = $this->primeElasticSearcherFromRequest();
+        $es = $this->primeElasticaSearcherFromRequest();
         $data = $this->initialiseDataArray();
         $this->dealWithAggregation($es);
         $this->addSiteTreeFilterIfRequired($es);
@@ -219,15 +219,15 @@ class ElasticSearchPage_Controller extends Page_Controller
     /**
      * Set the start page from the request and results per page for a given searcher object.
      */
-    private function primeElasticSearcherFromRequest()
+    private function primeElasticaSearcherFromRequest()
     {
-        $elasticSearcher = new ElasticSearcher();
+        $ElasticaSearcher = new ElasticaSearcher();
         // start, and page length, i.e. pagination
         $startParam = $this->request->getVar('start');
         $start = isset($startParam) ? $startParam : 0;
-        $elasticSearcher->setStart($start);
+        $ElasticaSearcher->setStart($start);
         $this->StartTime = microtime(true);
-        $elasticSearcher->setPageLength($this->SearchPage->ResultsPerPage);
+        $ElasticaSearcher->setPageLength($this->SearchPage->ResultsPerPage);
 
         // Do not show suggestions if this flag is set
         $this->IgnoreSuggestions = null !== $this->request->getVar('is');
@@ -239,24 +239,24 @@ class ElasticSearchPage_Controller extends Page_Controller
 
         $this->TestMode = !empty($this->request->getVar('TestMode'));
 
-        return $elasticSearcher;
+        return $ElasticaSearcher;
     }
 
     /**
      * Set the admin configured similarity parameters.
      *
-     * @param \SilverStripe\Elastica\ElasticSearcher &$elasticSearcher ElasticaSearcher object
+     * @param \SilverStripe\Elastica\ElasticaSearcher &$ElasticaSearcher ElasticaSearcher object
      */
-    private function setMoreLikeThisParamsFromRequest(&$elasticSearcher)
+    private function setMoreLikeThisParamsFromRequest(&$ElasticaSearcher)
     {
-        $elasticSearcher->setMinTermFreq($this->MinTermFreq);
-        $elasticSearcher->setMaxTermFreq($this->MaxTermFreq);
-        $elasticSearcher->setMinDocFreq($this->MinDocFreq);
-        $elasticSearcher->setMaxDocFreq($this->MaxDocFreq);
-        $elasticSearcher->setMinWordLength($this->MinWordLength);
-        $elasticSearcher->setMaxWordLength($this->MaxWordLength);
-        $elasticSearcher->setMinShouldMatch($this->MinShouldMatch);
-        $elasticSearcher->setSimilarityStopWords($this->SimilarityStopWords);
+        $ElasticaSearcher->setMinTermFreq($this->MinTermFreq);
+        $ElasticaSearcher->setMaxTermFreq($this->MaxTermFreq);
+        $ElasticaSearcher->setMinDocFreq($this->MinDocFreq);
+        $ElasticaSearcher->setMaxDocFreq($this->MaxDocFreq);
+        $ElasticaSearcher->setMinWordLength($this->MinWordLength);
+        $ElasticaSearcher->setMaxWordLength($this->MaxWordLength);
+        $ElasticaSearcher->setMinShouldMatch($this->MinShouldMatch);
+        $ElasticaSearcher->setSimilarityStopWords($this->SimilarityStopWords);
     }
 
     private function dealWithAggregation(&$es)

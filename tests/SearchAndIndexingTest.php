@@ -1,6 +1,6 @@
 <?php
 
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticaSearcher;
 
 /**
  * Test the functionality of the Searchable extension.
@@ -427,7 +427,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest
      */
     private function search($query, $resultsExpected = 10, $fields = null)
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength(100);
         $es->setClasses('FlickrPhotoTO');
@@ -439,7 +439,7 @@ class SearchAndIndexingTest extends ElasticsearchBaseTest
 
     private function getResultsFor($query, $pageLength = 10, $fields = array('Title' => 1, 'Description' => 1))
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setStart(0);
         $es->setPageLength($pageLength);
         $es->setClasses('FlickrPhotoTO');

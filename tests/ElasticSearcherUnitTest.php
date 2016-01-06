@@ -1,8 +1,8 @@
 <?php
 
-use SilverStripe\Elastica\ElasticSearcher;
+use SilverStripe\Elastica\ElasticaSearcher;
 
-class ElasticSearcherUnitTest extends ElasticsearchBaseTest
+class ElasticaSearcherUnitTest extends ElasticsearchBaseTest
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
@@ -20,7 +20,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testSuggested()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $locale = \i18n::default_locale();
         $es->setLocale($locale);
         $es->setClasses('FlickrPhotoTO');
@@ -32,7 +32,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testResultsForEmptySearch()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
 
         $es->hideResultsForEmptySearch();
         $this->assertFalse($es->getShowResultsForEmptySearch());
@@ -44,7 +44,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testMoreLikeThisSinglePhoto()
     {
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $locale = \i18n::default_locale();
         $es->setLocale($locale);
         $es->setClasses('FlickrPhotoTO');
@@ -79,7 +79,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testSimilarNoWeighting()
     {
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard', 'Description.standard');
         try {
@@ -93,7 +93,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testSimilarWeightingNotNumeric()
     {
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 4, 'Description.standard' => 'not numeric');
         try {
@@ -107,7 +107,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testSimilarToNonSearchable()
     {
         $m = Member::get()->first(); // this is not by default Searchable
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 4, 'Description.standard' => 2);
         try {
@@ -121,7 +121,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testSimilarGood()
     {
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 1, 'Description.standard' => 1);
         $paginated = $es->moreLikeThis($fp, $fields, true);
@@ -146,7 +146,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
     public function testSimilarNullFields()
     {
         $fp = $this->objFromFixture('FlickrPhotoTO', 'photo0076');
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         try {
             $paginated = $es->moreLikeThis($fp, null, true);
@@ -157,7 +157,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testSimilarNullItem()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title.standard' => 1, 'Description.standard' => 1);
 
@@ -170,7 +170,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testHighlightsAsIfCMSEdited()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $locale = \i18n::default_locale();
         $es->setLocale($locale);
         $es->setClasses('FlickrPhotoTO');
@@ -210,7 +210,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testHighlightPassingFields()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $es->setHighlightedFields(array('Title', 'Title.standard', 'Description'));
 
@@ -240,7 +240,7 @@ class ElasticSearcherUnitTest extends ElasticsearchBaseTest
 
     public function testAutoCompleteGood()
     {
-        $es = new ElasticSearcher();
+        $es = new ElasticaSearcher();
         $es->setClasses('FlickrPhotoTO');
         $fields = array('Title' => 1, 'Description' => 1);
         $query = 'Lond';

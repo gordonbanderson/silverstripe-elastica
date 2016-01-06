@@ -8,7 +8,7 @@ Elasticsearch to search for models in the backend.
 $query = $request->getVar('q');
 
 //Create an elastic searcher, here of page length 20
-$es = new \ElasticSearcher();
+$es = new \ElasticaSearcher();
 $es->setStart(0);
 $es->setPageLength(20);
 
@@ -48,7 +48,7 @@ one can mix and match SiteTree and non SiteTree classes here.
 $query = $request->getVar('q');
 
 //Create an elastic searcher, here of page length 20
-$es = new \ElasticSearcher();
+$es = new \ElasticaSearcher();
 $es->setStart(0);
 $es->setPageLength(20);
 
@@ -77,7 +77,7 @@ foreach ($results as $result) {
 $query = $request->getVar('q');
 
 //Create an elastic searcher, here of page length 20
-$es = new \ElasticSearcher();
+$es = new \ElasticaSearcher();
 $es->setStart(0);
 $es->setPageLength(20);
 
