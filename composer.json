@@ -24,7 +24,7 @@
 	},
 	"require": {
 		"ruflin/elastica": "2.3.1",
-		"silverstripe/cms": "~3.1",
+		"silverstripe/cms": "3.1.*",
 		"silverstripe/tagfield": "~1.2",
 		"briceburg/silverstripe-pickerfield" : "dev-master"
 	},
