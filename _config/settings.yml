@@ -1,0 +1,24 @@
+Elastica:
+  #These URL params are filtered out of aggregation searches
+  BlackList:
+    - 'q'
+    - 'url'
+    - 'start'
+    - 'is'
+    - 'ServerDown'
+    - 'sfid'
+
+
+    #URL variable tools, see https://docs.silverstripe.org/en/3.1/developer_guides/debugging/url_variable_tools/
+    - 'flush'
+    - 'showtemplate'
+    - 'isDev'
+    - 'isTest'
+    - 'debug'
+    - 'debug_request'
+    - 'debugmethods'
+    - 'debugfailover'
+    - 'showqueries'
+    - 'previewwrite'
+    - 'BackURL'
+    - 'TestMode'

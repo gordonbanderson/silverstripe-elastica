@@ -1,0 +1,250 @@
+.searchResults {
+	clear: both;
+}
+
+.searchResult {
+	display: block;
+	padding-top: 1.5em;
+}
+
+.searchResultFooter {
+	padding-top: .5em;
+}
+
+
+.typography div#PageNumbers {
+	padding-top: 2em;
+}
+
+#ElasticSearchForm_SearchForm fieldset {
+}
+
+#ElasticSearchForm_SearchForm .Actions {
+	padding-left: 20px;
+	padding-top: 2px;
+
+}
+
+
+article form#ElasticSearchForm_SearchForm  {
+	max-width: 100%;
+	width:100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+article form#ElasticSearchForm_SearchForm fieldset {
+	float: left;
+	/* line up centrally approx */
+	padding-left: 30px;
+}
+
+article form#ElasticSearchForm_SearchForm fieldset input.text {
+	float: none;
+	max-width: 100%;
+}
+
+
+form#ElasticSearchForm_SearchForm fieldset input.text {
+		width: 624px;
+
+}
+
+.no-sidebar form#ElasticSearchForm_SearchForm fieldset input.text {
+		width: 900px;
+
+}
+
+
+article form#ElasticSearchForm_SearchForm  .Actions {
+	float: left;
+}
+
+
+div.message {
+	border-left: solid #AAA 1px;
+	border-top: solid #AAA 1px;
+	border-bottom: solid #666 1px;
+	border-right: solid #666 1px;
+	display: block;
+	clear: both;
+	padding: 0.5em;
+	font-weight: bold;
+}
+
+div.message.error {
+	background: red;
+	color: #FFF;
+}
+
+
+
+.aggregationMenu h3 {
+	padding-top: 1em;
+}
+
+/* -- search result info -- */
+.typography p.showingResultsForMsg {
+	font-size: 140%;
+	padding-top: 10px;
+	margin: 0px;
+}
+
+ .typography p.searchOriginalQueryMsg {
+	margin: 0;
+	padding: 0;
+	margin-top: 5px;
+}
+
+/* -- search results -- */
+div.searchResult {
+	clear: both;
+}
+
+strong.hl {
+	font-weight: bold;
+
+}
+
+
+div.searchResult .infoAndImage {
+	display: table;
+	width: 100%;
+}
+
+.infoAndImage .searchResultInfo, .infoAndImage img {
+	display: table-cell;
+	vertical-align: top;
+}
+
+.infoAndImage img {
+	float: right;
+}
+
+.source {
+	float: right;
+}
+
+div.searchFooter {
+	margin-top: 6px;
+	color: #777;
+}
+
+/* -- aggregations -- */
+.main .secondary ul.aggregations li {
+    padding: 10px 0;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 11px;
+    color: #111;
+    line-height: 17px;
+    border-bottom: none;
+    font-family: 'Lucida Sans', 'Lucida Grande', Arial, Helvetica, sans-serif;
+}
+
+.main .secondary ul.aggregations li span.facetToggle,
+.main .secondary ul.aggregations li .remove,
+#cancelSimilar.remove
+ {
+	color: #b80000;
+	font-family: 'WebSymbolsRegular';
+	font-size: 120%;
+	cursor: pointer;
+}
+
+
+#cancelSimilar.remove {
+	float: right;
+}
+
+.main .secondary ul.aggregations li.selected a {
+	float: right;
+	padding-top: 0px;
+}
+
+
+span.count {
+	color: #AAA;
+	font-weight: bold;
+}
+
+
+#PageNumbers {
+	clear: both;
+	text-align: center;
+	margin-top: 2em;
+}
+
+#PageNumbers a {
+	padding: 4px 8px;
+	background: #E7E7E7;
+}
+
+#PageNumbers span.current, #PageNumber span.dotdotdot {
+	padding: 4px 8px;
+}
+
+
+//---- autocomplete ----
+div.autocomplete-suggestions {
+	overflow: auto;
+	font-size: 200%;
+}
+
+.autocomplete-suggestion {
+	padding: 2px 5px;
+	white-space: nowrap;
+	background: white;
+	overflow: hidden;
+}
+
+div.autocomplete-suggestions {
+	border: 1px solid #999;
+	-webkit-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+	-moz-box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+	box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.6);
+
+	 opacity: 0.95;
+    filter: alpha(opacity=90); /* For IE8 and earlier */
+}
+
+.autocomplete-selected {
+	background: #F0F0F0;
+}
+
+.autocomplete-suggestions strong {
+	font-weight: bold;
+	color: black;
+}
+
+
+/* ---- similar search ---- */
+div.similarSearchInfo {
+	background: #EDEDED;
+	border: solid #999 1px;
+	padding: 10px;
+}
+
+
+div.terms ul{
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	padding-top: 10px;
+}
+
+div.terms ul li {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+	padding-right: 5px;
+	display: inline-block;
+	font-style: italic;
+}
+
+div.terms ul li.fieldName {
+	font-weight: bold;
+	font-style: normal;
+	padding-right: 0px;
+}

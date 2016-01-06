@@ -2,6 +2,9 @@ Injector:
   SilverStripe\Elastica\ReindexTask:
     constructor:
       - %$SilverStripe\Elastica\ElasticaService
+  SilverStripe\Elastica\SearchIndexTask:
+    constructor:
+      - %$SilverStripe\Elastica\ElasticaService
   SilverStripe\Elastica\DeleteIndexTask:
     constructor:
       - %$SilverStripe\Elastica\ElasticaService

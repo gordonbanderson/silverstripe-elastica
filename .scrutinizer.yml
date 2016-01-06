@@ -1,0 +1,9 @@
+inherit: true
+tools:
+    external_code_coverage:
+      timeout: 600
+
+filter:
+  paths: [src/*, tests/*,code/*,searchpage/*,javascript/*,css/*]
+  excluded_paths:
+    - "tests/mock/"

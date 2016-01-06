@@ -1,0 +1,18 @@
+---
+Name: elastica
+After: 'framework/*','cms/*'
+---
+SiteTree:
+  extensions:
+    # Find ElasticSearchPage by unique id, used to post to correct search form
+    - FindElasticaSearchPageExtension
+
+    # Make the SiteTree searchable
+    - 'SilverStripe\Elastica\Searchable'
+
+  searchable_autocomplete:
+    - Title
+
+DevBuildController:
+  extensions:
+    - SilverStripe\Elastica\ClearElasticFieldCacheExtension

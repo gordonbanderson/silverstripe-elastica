@@ -1,0 +1,104 @@
+ElasticSearchPage:
+  search:
+    Title: Search
+    Content: Example Search Page
+    ClassesToSearch: ''
+    ResultsPerPage: 4
+    SiteTreeOnly: true
+    Identifier: testsearchpage
+    IndexingOff: true
+    URLSegment: search
+
+
+Member:
+  elasticsearchadmin:
+    FirstName: admin
+  visitor:
+    FirstName: visitor
+
+Group:
+  elasticsearchadmins:
+    Title: Admin
+    Members: =>Member.elasticsearchadmin
+
+SearchableTestPage:
+  first:
+    Title: First
+    Content: TRACE0
+  second:
+    Title: Second
+    IndexingOff: true
+  third:
+    Title: Third
+    IndexingOff: true
+  fourth:
+    Title: Fourth
+    IndexingOff: true
+
+
+#Father and grandfather pages
+SearchableTestFatherPage:
+  father0001:
+    Title: Father Page
+    Content: This is a father page TRACE1
+    FatherText: This is the father field TRACE2
+
+SearchableTestGrandFatherPage:
+  grandfather0001:
+    Title: Grandfather Page
+    Content: This is a grand father page
+    FatherText: This is the father field in a grandfather page TRACE3
+    GrandFatherText: This is the grandfather page TRACE4
+
+
+
+ManyTypesPage:
+  manytypes0001:
+    Title: Many Types Page
+    Content: Many types of fields
+    BooleanField: true
+    CurrencyField: 100.25
+    DateField: 2014-04-15
+    DeciamlField: 7.897897
+    HtmlTextField: '<p>This is some <b>HTML</b>text field</p>'
+    HTMLVarcharField: '<p>This is some <b>HTML</b>varchar field</p>'
+    IntField: 677
+    PercentageField: 8.2
+    SS_DatetimeField: '2014-10-18 8:24:00'
+    TextField: 'This is a text field'
+    TimeField: 17:48:18
+    EnumField: wibble
+
+
+FlickrPhotoTO:
+  photo0001:
+    Title: 'Bangkok'
+    Description: 'Test photograph'
+    FlickrID: 1234567
+    TakenAt: 2012-4-24 18:12:00
+    FirstViewed: 2012-4-28
+    Aperture: 8.0
+    ShutterSpeed: 1/100
+    FocalLength35mm: 140
+    ISO: 400
+    MediumURL: 'http://www.test.com/test.jpg',
+    MediumHeight: 400,
+    MediumWidth: 300
+    IndexingOff: true
+    OriginalWidth: 1446
+    OriginalHeight: 1427
+    AspectRatio: 1.013
+    TakenAt: 2011-7-4 20:36
+    TakenAtTD: 2011-7-4
+    Lat: 13.42
+    Lon: 100
+
+
+
+
+#Test for check on duplicate indexing
+SiteTree:
+  sitetree001:
+    Title: Test Title
+    Content: Test content
+    IndexingOff: true

@@ -12,11 +12,26 @@ $ sudo apt-get update
 $ sudo apt-get install oracle-java8-installer
 ```
 
-####Elastic
-The Debian package for Elastic can be found at https://www.elastic.co/downloads/elasticsearch - download it, and to install (with administrator privileges) type
+####Elasticsearch
+The Debian package for relevant version of Elasticsearch, 1.7.2, can be found at
+https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-1.7.2.deb - download
+it, and to install (with super user privileges) type
 ```bash
 cd /path/to/download
-sudo dpkg -i elasticpackagename.deb
+sudo dpkg -i elasticsearch-1.7.2.deb
+```
+
+By default the server binds to an address of 0.0.0.0, so if installing on a
+public machine it is advisable to restrict the visibility.  For a single
+VPS instance edit the file `/etc/elasticsearch/elasticsearch.yml` and update the
+value `network.bind_host` as follows.
+
+```
+network.bind_host: localhost
+```
+Restart elasticsearch
+```
+sudo service elasticsearch restart
 ```
 
 ##SilverStripe
@@ -29,4 +44,6 @@ If you wish to use this codebase, if a pull request has not been accepted:
 ```bash
 rm -rf elastica
 git clone git@github.com:gordonbanderson/silverstripe-elastica.git elastica
+cd elastica
+git checkout dev2
 ```

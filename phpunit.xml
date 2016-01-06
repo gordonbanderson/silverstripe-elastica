@@ -1,0 +1,23 @@
+<phpunit bootstrap="../framework/tests/bootstrap.php" colors="true">
+
+	<testsuite name="SilverStripe Elasticsearch Module">
+		<directory>./tests</directory>
+	</testsuite>
+
+	<listeners>
+		<listener class="SS_TestListener" file="framework/dev/TestListener.php" />
+	</listeners>
+
+	<groups>
+		<exclude>
+			<group>sanitychecks</group>
+		</exclude>
+	</groups>
+
+	<filter>
+        <whitelist>
+            <directory>../elastica</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>

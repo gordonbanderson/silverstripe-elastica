@@ -5,32 +5,31 @@ namespace SilverStripe\Elastica;
 /**
  * Defines and refreshes the elastic search index.
  */
-class DeleteIndexTask extends \BuildTask {
+class DeleteIndexTask extends \BuildTask
+{
+    protected $title = 'Elastic Search Index Deletion';
 
-	protected $title = 'Elastic Search Index Deletion';
+    protected $description = 'Deletes the configured elastic search index';
 
-	protected $description = 'Deletes the configured elastic search index';
+    /**
+     * @var ElasticaService
+     */
+    private $service;
 
-	/**
-	 * @var ElasticaService
-	 */
-	private $service;
+    public function __construct(ElasticaService $service)
+    {
+        $this->service = $service;
+    }
 
-	public function __construct(ElasticaService $service) {
-		$this->service = $service;
-	}
+    /**
+     * Execute the task to delete the currently configured index.
+     */
+    public function run($request)
+    {
+        $message = ElasticaUtil::getPrinter();
 
-	/**
-	 * Execute the task to delete the currently configured index
-	 */
-	public function run($request) {
-		$message = function ($content) {
-			print(\Director::is_cli() ? "$content\n" : "<p>$content</p>");
-		};
-
-		$this->service->define();
-		$this->service->reset();
-		$message('Successfully deleted configured index');
-	}
-
+        $this->service->define();
+        $this->service->reset();
+        $message('Successfully deleted configured index');
+    }
 }
