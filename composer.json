@@ -1,8 +1,8 @@
 {
-	"name": "silverstripe-australia/elastica",
-	"description": "Provides Elastic Search integration for SilverStripe DataObjects using Elastica",
+	"name": "weboftalent/elastica",
+	"description": "Provides Elastic Search integration for SilverStripe DataObjects using Elastica.  Fork of module by AJ Short",
 	"type": "silverstripe-module",
-	"homepage": "http://github.com/ajshort/silverstripe-elastica",
+	"homepage": "https://github.com/gordonbanderson/silverstripe-elastica",
 	"keywords": ["silverstripe", "search", "elasticsearch", "elastica"],
 	"license": "BSD-3-Clause",
 	"authors": [
@@ -13,14 +13,18 @@
 		{
 			"name": "Marcus Nyeholt",
 			"email": "marcus@silverstripe.com.au"
+		},
+		{
+			"name": "Gordon Anderson",
+			"email": "gordon.b.anderson@gmail.com"
 		}
 	],
 	"support": {
-		"issues": "http://github.com/ajshort/silverstripe-elastica/issues"
+		"issues": "https://github.com/gordonbanderson/silverstripe-elastica/issues"
 	},
 	"require": {
 		"ruflin/elastica": "2.3.1",
-		"silverstripe/cms": ">=3.1",
+		"silverstripe/cms": "~3.1",
 		"silverstripe/tagfield": "~1.2",
 		"briceburg/silverstripe-pickerfield" : "dev-master"
 	},
