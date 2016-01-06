@@ -1,40 +1,38 @@
 <?php
 
 /**
-* Represents a searchable class in Elastica for editing purposes
-*/
-class SearchableClass extends DataObject {
+ * Represents a searchable class in Elastica for editing purposes.
+ */
+class SearchableClass extends DataObject
+{
+    private static $db = array('Name' => 'Varchar', 'InSiteTree' => 'Boolean');
 
-	private static $db = array('Name' => 'Varchar', 'InSiteTree' => 'Boolean');
+    private static $has_many = array('SearchableFields' => 'SearchableField');
 
-	private static $has_many = array('SearchableFields' => 'SearchableField');
+    private static $display_fields = array('Name', 'IsInSiteTreeHumanReadable');
 
-	private static $display_fields = array('Name', 'IsInSiteTreeHumanReadable');
+    public function getCMSFields()
+    {
+        $fields = new FieldList();
 
+        $fields->push(new TabSet('Root', $mainTab = new Tab('Main')));
+        $mainTab->setTitle(_t('SiteTree.TABMAIN', 'Main'));
 
-	public function getCMSFields() {
+        $fields->addFieldToTab('Root.Main',  $nf = new TextField('Name', 'Name'));
+        $nf->setReadOnly(true);
+        $nf->setDisabled(true);
 
-		$fields = new FieldList();
+        $config = GridFieldConfig_RecordEditor::create();
 
-		$fields->push( new TabSet( "Root", $mainTab = new Tab( "Main" ) ) );
-		$mainTab->setTitle( _t( 'SiteTree.TABMAIN', "Main" ) );
+        // remove add button
+        $config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
+        $config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
 
-		$fields->addFieldToTab( 'Root.Main',  $nf = new TextField( 'Name', 'Name') );
-		$nf->setReadOnly(true);
-		$nf->setDisabled(true);
-
-		$config = GridFieldConfig_RecordEditor::create();
-
-		// remove add button
-		$config->removeComponent($config->getComponentByType('GridFieldAddNewButton'));
-		$config->removeComponent($config->getComponentByType('GridFieldDeleteAction'));
-
-		$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
+        $config->getComponentByType('GridFieldDataColumns')->setDisplayFields(array(
             'Name' => 'Name',
             'Weight' => 'Weighting',
-            'Searchable' => 'Search this field?'
+            'Searchable' => 'Search this field?',
         ));
-
 
         $gridField = new GridField(
             'SearchableField', // Field name
@@ -45,17 +43,17 @@ class SearchableClass extends DataObject {
 
         $fields->addFieldToTab('Root.Main', $gridField);
 
-		/*
-	    $fields = new FieldList();
-	    $fields->addFieldToTab('Root.Main', new TextField('Name', 'Name'));
+        /*
+        $fields = new FieldList();
+        $fields->addFieldToTab('Root.Main', new TextField('Name', 'Name'));
 
 
         */
-	    return $fields;
-	}
+        return $fields;
+    }
 
-
-	public function IsInSiteTreeHumanReadable() {
-		return $this->InSiteTree ? 'Yes' : 'No';
-	}
+    public function IsInSiteTreeHumanReadable()
+    {
+        return $this->InSiteTree ? 'Yes' : 'No';
+    }
 }

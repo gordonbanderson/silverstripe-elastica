@@ -1,11 +1,10 @@
 <?php
-interface ElasticaIndexingHelperInterface {
 
-		public function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping);
+interface ElasticaIndexingHelperInterface
+{
+    public function updateElasticsearchMapping(\Elastica\Type\Mapping $mapping);
 
+    public function updateElasticsearchDocument(\Elastica\Document $document);
 
-		public function updateElasticsearchDocument(\Elastica\Document $document);
-
-
-		public function updateElasticHTMLFields(array $htmlFields);
+    public function updateElasticHTMLFields(array $htmlFields);
 }
