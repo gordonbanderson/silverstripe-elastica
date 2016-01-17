@@ -37,13 +37,5 @@ sudo service elasticsearch restart
 ##SilverStripe
 Install core module and dependencies
 ```bash
-composer --verbose require silverstripe-australia/elastica --profile
-```
-
-If you wish to use this codebase, if a pull request has not been accepted:
-```bash
-rm -rf elastica
-git clone git@github.com:gordonbanderson/silverstripe-elastica.git elastica
-cd elastica
-git checkout dev2
+composer require weboftalent/elastica
 ```
