@@ -199,7 +199,7 @@ class ElasticaUtil
     {
         return function ($content) {
             if (self::$cli_printer_output === true) {
-                echo \Director::is_cli() ? "T1 $content\n" : "T2 <p>$content</p>";
+                echo \Director::is_cli() ? "$content\n" : "<p>$content</p>";
             }
 
         };

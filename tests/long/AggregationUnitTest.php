@@ -31,14 +31,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest
         $aggregations = $resultList->getAggregations();
         $this->aggregationByName($aggregations);
 
-        error_log('AGGS');
-        foreach ($aggregations as $agg) {
-            error_log($agg->Name);
-            foreach ($agg->Buckets as $bucket) {
-                error_log("\t$bucket->Key -> $bucket->DocumentCount");
-            }
-        }
-
         //Asserting name of aggregate as ISO
         $agg = $aggregations['ISO'];
         $this->assertEquals('ISO', $agg->Name);
@@ -979,7 +971,6 @@ class AggregationUnitTest extends ElasticsearchBaseTest
 
         //Add filters
         foreach ($filters as $key => $value) {
-            error_log("ADDING FILTER RESULT $key, $value");
             $es->addFilter($key, $value);
         }
 

@@ -25,8 +25,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest
 
     public function setUp()
     {
-        error_log('*************** TEST: '.$this->getName());
-
         $cache = SS_Cache::factory('elasticsearch');
         $cache->clean(Zend_Cache::CLEANING_MODE_ALL);
         SS_Cache::set_cache_lifetime('elasticsearch', 3600, 1000);
@@ -70,7 +68,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest
                 }
             }
         } catch (Exception $e) {
-            error_log('**** T1 EXCEPTION '.$e->getMessage());
             $elasticaException = true;
         }
 
@@ -94,7 +91,6 @@ class ElasticsearchFunctionalTestBase extends FunctionalTest
 
             $task->run(null);
         } catch (Exception $e) {
-            error_log('**** T2 EXCEPTION '.$e->getMessage());
             $elasticaException = true;
         }
 

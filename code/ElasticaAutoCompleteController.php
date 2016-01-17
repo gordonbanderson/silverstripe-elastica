@@ -21,8 +21,6 @@ class ElasticaAutoCompleteController extends Controller
         // Makes most sense to only provide one field here, e.g. Title, Name
         $field = $this->request->getVar('field');
 
-        error_log('QUERY:'.$query);
-
         // start, and page length, i.e. pagination
         $es->setPageLength(10);
         if ($classes) {

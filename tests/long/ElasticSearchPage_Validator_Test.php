@@ -132,8 +132,6 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase
         $errors = Session::get("FormInfo.{$form->FormName()}.errors");
         $found = false;
 
-        error_log(print_r($errors, 1));
-
         foreach ($errors as $error) {
             if ($error['message'] == $message && $error['fieldName'] == $fieldName) {
                 $found = true;
