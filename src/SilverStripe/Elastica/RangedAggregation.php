@@ -35,7 +35,8 @@ class RangedAggregation
 
     public function getFilter($chosenName)
     {
-        $rangeArray = $this->Range->toArray()['range']['ranges'];
+        $wholeRangeArray = $this->Range->toArray();
+        $rangeArray = $wholeRangeArray['range']['ranges'];
         $result = null;
         foreach ($rangeArray as $range) {
             if ($range['key'] === $chosenName) {

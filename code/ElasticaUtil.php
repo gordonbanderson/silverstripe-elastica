@@ -142,7 +142,10 @@ class ElasticaUtil
      */
     public static function parseSuggestionExplanation($explanation)
     {
-        $explanation = explode('-ConstantScore', $explanation)[0];
+        // on 2 lines to keep php 5.3 happy
+        $explanation = explode('-ConstantScore', $explanation);
+        $explanation = $explanation[0];
+
         $bracketPos = strpos($explanation, ')~');
 
         if (substr($explanation, 0, 2) == '((') {
@@ -198,7 +201,7 @@ class ElasticaUtil
     public static function getPrinter()
     {
         return function ($content) {
-            if (self::$cli_printer_output === true) {
+            if (ElasticaUtil::getPrinterOutput() === true) {
                 echo \Director::is_cli() ? "$content\n" : "<p>$content</p>";
             }
 
@@ -213,5 +216,13 @@ class ElasticaUtil
     public static function setPrinterOutput($new_cli_printer_output)
     {
         self::$cli_printer_output = $new_cli_printer_output;
+    }
+
+    /**
+     * Accessor to printer output variable.  Needed for PHP 5.3 compliance
+     * @return bool true to output text when CLI, false not to
+     */
+    public static function getPrinterOutput() {
+        return self::$cli_printer_output;
     }
 }

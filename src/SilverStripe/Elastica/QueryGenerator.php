@@ -186,7 +186,8 @@ class QueryGenerator
      */
     public function generateElasticaAutocompleteQuery()
     {
-        $field = array_keys($this->fields)[0];
+        $fieldNames = array_keys($this->fields);
+        $field = $fieldNames[0];
         $data = array(
             'size' => 10,
             'query' => array(

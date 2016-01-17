@@ -121,11 +121,20 @@ class SearchAndIndexingTest extends ElasticsearchTestBase
 
     public function testEach()
     {
-        $callback = function ($fp) {
-            $this->assertTrue(true, 'Callback reached');
-        };
-        $resultList = $this->getResultsFor('New Zealand', 10);
-        $resultList->each($callback);
+        if (!defined('PHP_VERSION_ID')) {
+            $version = explode('.', PHP_VERSION);
+            define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
+        }
+
+        // this does not work with PHP 5.3
+        if (PHP_VERSION_ID > 54000) {
+           $callback = function ($fp) {
+                $this->assertTrue(true, 'Callback reached');
+            };
+            $resultList = $this->getResultsFor('New Zealand', 10);
+            $resultList->each($callback);
+        }
+
     }
 
     /*

@@ -112,8 +112,9 @@ class ResultList extends \ViewableData implements \SS_list
                 $this->MoreLikeThisTerms = $ers->MoreLikeThisTerms;
             }
 
-            if (isset($ers->getSuggests()['query-phrase-suggestions'])) {
-                $suggest = $ers->getSuggests()['query-phrase-suggestions'];
+            $suggestions = $ers->getSuggests();
+            if (isset($suggestions['query-phrase-suggestions'])) {
+                $suggest = $suggestions['query-phrase-suggestions'];
                 $suggestedPhraseAndHL = ElasticaUtil::getPhraseSuggestion($suggest);
                 if ($suggestedPhraseAndHL) {
                     $this->SuggestedQuery = $suggestedPhraseAndHL['suggestedQuery'];
