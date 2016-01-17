@@ -11,3 +11,14 @@ Injector:
   SilverStripe\Elastica\Searchable:
     constructor:
       - %$SilverStripe\Elastica\ElasticaService
+  SilverStripe\Elastica\ElasticaService:
+    constructor:
+      - %$Elastica\Client
+      # Default behaviour is to use the root path of the install as the index
+      # name with slashes replaced by dashes and all lowercased.  This value is
+      # a flag to effect that behaviour
+      #
+      # i) A value must be set or /dev/build fails when installing
+      # ii) Using the path ensures a unique name if one is not provided by the
+      # developer to override this
+      - USE_WWW_PATH_AS_NAME
