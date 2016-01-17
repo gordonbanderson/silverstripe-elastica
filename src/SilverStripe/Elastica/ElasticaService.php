@@ -88,6 +88,15 @@ class ElasticaService
     {
         $this->client = $client;
         $this->indexName = $newIndexName;
+
+        // Check for default flag value, which uses the root path as the index name
+        if ($newIndexName == 'USE_WWW_PATH_AS_NAME') {
+            $name = \Director::baseFolder();
+            $name = str_replace('/', '-', $name);
+            $name = substr($name, 1);
+            $name = strtolower($name);
+            $this->indexName = $name;
+        }
         $this->locale = \i18n::default_locale();
     }
 
