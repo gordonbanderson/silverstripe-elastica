@@ -1,5 +1,24 @@
 # Change Log
 
+## [Unreleased](https://github.com/gordonbanderson/silverstripe-elastica/tree/HEAD)
+
+[Full Changelog](https://github.com/gordonbanderson/silverstripe-elastica/compare/1.0.2...HEAD)
+
+**Closed issues:**
+
+- Install Fails Due to Lack of an Index Name [\#34](https://github.com/gordonbanderson/silverstripe-elastica/issues/34)
+
+## [1.0.2](https://github.com/gordonbanderson/silverstripe-elastica/tree/1.0.2) (2016-01-17)
+[Full Changelog](https://github.com/gordonbanderson/silverstripe-elastica/compare/1.0.1...1.0.2)
+
+**Closed issues:**
+
+- Fix Installation Instructions [\#33](https://github.com/gordonbanderson/silverstripe-elastica/issues/33)
+- Convert to PSR 2 [\#32](https://github.com/gordonbanderson/silverstripe-elastica/issues/32)
+
+## [1.0.1](https://github.com/gordonbanderson/silverstripe-elastica/tree/1.0.1) (2016-01-06)
+[Full Changelog](https://github.com/gordonbanderson/silverstripe-elastica/compare/1.0.0...1.0.1)
+
 ## [1.0.0](https://github.com/gordonbanderson/silverstripe-elastica/tree/1.0.0) (2016-01-06)
 **Merged pull requests:**
 
