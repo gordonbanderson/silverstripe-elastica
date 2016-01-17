@@ -2,6 +2,13 @@ language: php
 
 sudo: true
 
+php:
+  - 5.3
+  - 5.4
+  - 5.5
+  - 5.6
+  - 7.0
+
 addons:
   apt:
     packages:
@@ -28,6 +35,10 @@ matrix:
       env: DB=SQLITE
     - php: 5.5
       env: DB=MYSQL
+    - php: 5.5
+      env: DB=SQLITE CORE_RELEASE=3.2
+    - php: 5.5
+      env: DB=MYSQL CORE_RELEASE=3.2
 
     # Run tests in parallel in order to avoid hitting the 50 min time limit
     # A different value for TESTS is used as a switch to choose which tests
@@ -54,6 +65,9 @@ matrix:
       env: DB=SQLITE TESTS=10
     - php: 5.6
       env: DB=SQLITE TESTS=11
+
+  allow_failures:
+    - php: 7.0
 
 
 before_script:
