@@ -242,7 +242,8 @@ class ElasticSearchPage_Controller extends Page_Controller
         $queryText = !empty($queryTextParam) ? $queryTextParam : '';
         $this->QueryText = $queryText;
 
-        $this->TestMode = !empty($this->request->getVar('TestMode'));
+        $testMode = $this->request->getVar('TestMode');
+        $this->TestMode = !empty($testMode);
 
         return $ElasticaSearcher;
     }
@@ -352,7 +353,8 @@ class ElasticSearchPage_Controller extends Page_Controller
     private function checkForSimulatedServerDown()
     {
         // Simulate server being down for testing purposes
-        if (!empty($this->request->getVar('ServerDown'))) {
+        $serverDown = $this->request->getVar('ServerDown');
+        if (!empty($serverDown)) {
             throw new Elastica\Exception\Connection\HttpException('Unable to reach search server');
         }
     }
