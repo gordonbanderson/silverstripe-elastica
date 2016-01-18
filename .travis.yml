@@ -16,7 +16,7 @@ addons:
 
 # Technique taken from https://github.com/GSA/asis/blob/e59f23ccc49fdc54fcbe5b12eb7b1dea196c5f34/.travis.yml
 before_install:
-  - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.1.1.deb && sudo dpkg -i elasticsearch-1.7.2.deb && true
+  - travis_retry curl -O https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-2.1.1.deb && sudo dpkg -i elasticsearch-2.1.1.deb && true
   - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - sudo service elasticsearch start
