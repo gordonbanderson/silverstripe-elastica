@@ -3,7 +3,7 @@
 
 /**
  */
-class TermVectorTest extends ElasticsearchBaseTest
+class TermVectorTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 

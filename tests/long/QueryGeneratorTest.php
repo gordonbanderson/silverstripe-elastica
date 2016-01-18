@@ -5,7 +5,7 @@ use \SilverStripe\Elastica\QueryGenerator;
 /**
  * Test query generation.
  */
-class QueryGeneratorTest extends ElasticsearchBaseTest
+class QueryGeneratorTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 

@@ -2,7 +2,7 @@
 
 use SilverStripe\Elastica\ElasticaSearcher;
 
-class ElasticaSearcherUnitTest extends ElasticsearchBaseTest
+class ElasticaSearcherUnitTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 

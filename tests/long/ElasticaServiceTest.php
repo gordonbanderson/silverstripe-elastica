@@ -7,7 +7,7 @@ use SilverStripe\Elastica\DeleteIndexTask;
 /**
  * Test the functionality ElasticaService class.
  */
-class ElasticaServiceTest extends ElasticsearchBaseTest
+class ElasticaServiceTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 

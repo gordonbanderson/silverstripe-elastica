@@ -3,7 +3,7 @@
 use SilverStripe\Elastica\ElasticaUtil;
 use SilverStripe\Elastica\ReindexTask;
 
-class ElasticsearchBaseTest extends SapphireTest
+class ElasticsearchTestBase extends SapphireTest
 {
     public static $ignoreFixtureFileFor = array();
 

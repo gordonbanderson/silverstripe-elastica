@@ -3,7 +3,7 @@
 /**
  * Test the functionality SearchableClass.
  */
-class SearchableClassTest extends ElasticsearchBaseTest
+class SearchableClassTest extends ElasticsearchTestBase
 {
     public function testCMSFields()
     {

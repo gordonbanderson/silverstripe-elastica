@@ -2,7 +2,7 @@
 
 /**
  */
-class ElasticSearchPageTest extends ElasticsearchBaseTest
+class ElasticSearchPageTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 

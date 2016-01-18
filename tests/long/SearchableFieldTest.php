@@ -3,7 +3,7 @@
 /**
  * Test the functionality of the Searchable extension.
  */
-class SearchableFieldTest extends ElasticsearchBaseTest
+class SearchableFieldTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 

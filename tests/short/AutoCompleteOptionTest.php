@@ -1,6 +1,6 @@
 <?php
 
-class AutoCompleteOptionTest extends ElasticsearchBaseTest
+class AutoCompleteOptionTest extends ElasticsearchTestBase
 {
     public function setUp()
     {

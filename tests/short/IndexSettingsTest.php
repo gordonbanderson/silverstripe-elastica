@@ -3,7 +3,7 @@
 /**
  * Test the functionality of the Searchable extension.
  */
-class IndexSettingsTest extends ElasticsearchBaseTest
+class IndexSettingsTest extends ElasticsearchTestBase
 {
     //public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
     public function setUp()

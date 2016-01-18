@@ -5,7 +5,7 @@ use SilverStripe\Elastica\Searchable;
 /**
  * Test that inheritance works correctly with configuration properties.
  */
-class InheritanceTest extends ElasticsearchBaseTest
+class InheritanceTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 

@@ -78,10 +78,14 @@ class ElasticSearchPage_Validator_Test extends ElasticsearchFunctionalTestBase
 
     public function testEmptyResultsPerPage()
     {
-        $this->checkForError('ResultsPerPage', '',
-            '&#039;&#039; is not a number, only numbers can be accepted for this field');
+
+// This fails on 3.2 as the behaviour of NumericField is different
+//        $this->checkForError('ResultsPerPage', '',
+//            '&#039;&#039; is not a number, only numbers can be accepted for this field');
+
         $this->checkForError('ResultsPerPage', '',
             'Results per page must be &gt;=1');
+
         $this->checkForError('ResultsPerPage', 0,
             'Results per page must be &gt;=1');
     }

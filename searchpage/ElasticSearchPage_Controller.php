@@ -145,7 +145,11 @@ class ElasticSearchPage_Controller extends Page_Controller
      */
     public function QueryIsEmpty()
     {
-        return empty($this->request->getVar('q'));
+        // PHP 5.4 requires empty only checks a variable
+        // see http://www.davidtan.org/php-solution-for-cant-use-method-return-value-in-write-context/
+        $q = $this->request->getVar('q');
+        $result = empty($q);
+        return $result;
     }
 
     /**
@@ -213,7 +217,8 @@ class ElasticSearchPage_Controller extends Page_Controller
      */
     private function isParamSet($paramName)
     {
-        return !empty($this->request->getVar($paramName));
+        $param = $this->request->getVar($paramName);
+        return !empty($param);
     }
 
     /**

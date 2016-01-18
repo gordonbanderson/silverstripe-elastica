@@ -5,7 +5,7 @@ use SilverStripe\Elastica\ElasticaUtil;
 /**
  * Test the functionality of ElasticaUtil class.
  */
-class ElasticaUtilTest extends ElasticsearchBaseTest
+class ElasticaUtilTest extends ElasticsearchTestBase
 {
     public function testHumanReadableFalse()
     {

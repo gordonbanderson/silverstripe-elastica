@@ -4,7 +4,7 @@
 /**
  * Test the functionality of the Searchable extension.
  */
-class TranslatableSearchableTest extends ElasticsearchBaseTest
+class TranslatableSearchableTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 

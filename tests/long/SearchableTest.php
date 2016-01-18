@@ -5,7 +5,7 @@ use SilverStripe\Elastica\ElasticaSearcher;
 /**
  * Test the functionality of the Searchable extension.
  */
-class SearchableTest extends ElasticsearchBaseTest
+class SearchableTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/ElasticaTest.yml';
 

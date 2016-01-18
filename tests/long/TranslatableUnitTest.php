@@ -3,7 +3,7 @@
 use SilverStripe\Elastica\ElasticaSearcher;
 use SilverStripe\Elastica\ReindexTask;
 
-class TranslatableUnitTest extends ElasticsearchBaseTest
+class TranslatableUnitTest extends ElasticsearchTestBase
 {
     public static $fixture_file = 'elastica/tests/lotsOfPhotos.yml';
 
