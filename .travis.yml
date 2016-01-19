@@ -20,7 +20,7 @@ before_install:
   - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - sudo service elasticsearch start
-  - wait 60
+  - curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
   - cat /var/log/elasticsearch/elasticsearch*.log
   - pip install --user codecov
 
@@ -78,6 +78,8 @@ before_script:
   - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
   - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
   - cd ~/builds/ss
+  - curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
+  - cat /var/log/elasticsearch/elasticsearch*.log
 
 script:
   - vendor/bin/phpunit -c $MODULE_PATH/phpunit.xml $MODULE_PATH/tests
