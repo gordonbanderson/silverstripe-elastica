@@ -20,6 +20,8 @@ before_install:
   - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - sudo service elasticsearch start
+  - wait 60
+  - cat /var/log/elasticsearch/elasticsearch*.log
   - pip install --user codecov
 
 env:
