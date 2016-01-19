@@ -2,12 +2,12 @@ language: php
 
 sudo: true
 
-php:
-  - 5.3
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
+#php:
+#  - 5.3
+#  - 5.4
+#  - 5.5
+#  - 5.6
+#  - 7.0
 
 addons:
   apt:
@@ -20,8 +20,7 @@ before_install:
   - 'echo ''script.disable_dynamic: false'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - 'echo ''index.number_of_shards: 1'' | sudo tee --append /etc/elasticsearch/elasticsearch.yml'
   - sudo service elasticsearch start
-  - curl -XGET 'http://localhost:9200/_cluster/health?pretty=true'
-  - cat /var/log/elasticsearch/elasticsearch*.log
+  - tail -f /var/log/elasticsearch/elasticsearch.log
   - pip install --user codecov
 
 env:
@@ -33,40 +32,16 @@ matrix:
   #allow_failures:
   #  - php: hhvm-nightly
   include:
-    - php: 5.5
-      env: DB=SQLITE
-    - php: 5.5
-      env: DB=MYSQL
-    - php: 5.5
-      env: DB=SQLITE CORE_RELEASE=3.2
-    - php: 5.5
+    - php: 5.6
       env: DB=MYSQL CORE_RELEASE=3.2
-
-    # Run tests in parallel in order to avoid hitting the 50 min time limit
-    # A different value for TESTS is used as a switch to choose which tests
-    # to run.
-    - php: 5.6
-      env: DB=SQLITE TESTS=1
-    - php: 5.6
-      env: DB=SQLITE TESTS=2
-    - php: 5.6
-      env: DB=SQLITE TESTS=3
-    - php: 5.6
-      env: DB=SQLITE TESTS=4
-    - php: 5.6
-      env: DB=SQLITE TESTS=5
-    - php: 5.6
-      env: DB=SQLITE TESTS=6
-    - php: 5.6
-      env: DB=SQLITE TESTS=7
-    - php: 5.6
-      env: DB=SQLITE TESTS=8
-    - php: 5.6
-      env: DB=SQLITE TESTS=9
-    - php: 5.6
-      env: DB=SQLITE TESTS=10
-    - php: 5.6
-      env: DB=SQLITE TESTS=11
+ #   - php: 5.5
+ #     env: DB=SQLITE
+ #   - php: 5.5
+ #     env: DB=MYSQL
+ #   - php: 5.5
+ #     env: DB=SQLITE CORE_RELEASE=3.2
+ #   - php: 5.5
+ #     env: DB=MYSQL CORE_RELEASE=3.2
 
   allow_failures:
     - php: 7.0
