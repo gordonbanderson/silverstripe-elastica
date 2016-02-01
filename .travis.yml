@@ -31,13 +31,15 @@ matrix:
   #allow_failures:
   #  - php: hhvm-nightly
   include:
-    - php: 5.5
+    - php: 5.6
       env: DB=SQLITE
-    - php: 5.5
+    - php: 5.6
       env: DB=MYSQL
-    - php: 5.5
+    - php: 5.6
+      env: DB=PGSQL
+    - php: 5.6
       env: DB=SQLITE CORE_RELEASE=3.2
-    - php: 5.5
+    - php: 5.6
       env: DB=MYSQL CORE_RELEASE=3.2
 
     # Run tests in parallel in order to avoid hitting the 50 min time limit
