@@ -140,10 +140,10 @@ class ElasticSearchPage extends Page
         $fields->addFieldToTab('Root.Main', $identifierField, 'Content');
         $fields->addFieldToTab('Root.Search.SearchFor', new CheckboxField('SiteTreeOnly', 'Show search results for all SiteTree objects only'));
 
-        $sql = 'SELECT DISTINCT ClassName from SiteTree_Live UNION '
-             .'SELECT DISTINCT ClassName from SiteTree '
-             ."WHERE ClassName != 'ErrorPage'"
-             .'ORDER BY ClassName'
+        $sql = 'SELECT DISTINCT "ClassName" from "SiteTree_Live" UNION '
+             .'SELECT DISTINCT "ClassName" from "SiteTree" '
+             ."WHERE \"ClassName\" != 'ErrorPage'"
+             .'ORDER BY "ClassName"'
         ;
 
         $classes = array();
@@ -340,23 +340,23 @@ class ElasticSearchPage extends Page
                 $esfs->add($newSearchableField);
 
                 // Note 1 used instead of true for SQLite3 testing compatibility
-                $sql = 'UPDATE ElasticSearchPage_ElasticaSearchableFields SET ';
-                $sql .= 'Active=1, Weight=1 WHERE ElasticSearchPageID = '.$this->ID;
+                $sql = 'UPDATE "ElasticSearchPage_ElasticaSearchableFields" SET ';
+                $sql .= '"Active"=1, "Weight"=1 WHERE "ElasticSearchPageID" = '.$this->ID;
                 DB::query($sql);
             }
         }
 
         // Mark all the fields for this page as inactive initially
-        $sql = 'UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=0 WHERE ';
-        $sql .= "ElasticSearchPageID={$this->ID}";
+        $sql = 'UPDATE "ElasticSearchPage_ElasticaSearchableFields" SET "ACTIVE"=0 WHERE ';
+        $sql .= "\"ElasticSearchPageID\"={$this->ID}";
         DB::query($sql);
 
         $activeIDs = array_keys($sfs->map()->toArray());
         $activeIDs = implode(',', $activeIDs);
 
         //Mark as active the relevant ones
-        $sql = 'UPDATE ElasticSearchPage_ElasticaSearchableFields SET ACTIVE=1 WHERE ';
-        $sql .= "ElasticSearchPageID={$this->ID} AND SearchableFieldID IN (";
+        $sql = 'UPDATE "ElasticSearchPage_ElasticaSearchableFields" SET "ACTIVE"=1 WHERE ';
+        $sql .= "\"ElasticSearchPageID\"={$this->ID} AND \"SearchableFieldID\" IN (";
         $sql .= "$activeIDs)";
         DB::query($sql);
     }

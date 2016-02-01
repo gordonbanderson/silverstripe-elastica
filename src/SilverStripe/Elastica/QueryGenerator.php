@@ -423,7 +423,7 @@ class QueryGenerator
         if (!$result) {
             $relevantClasses = array();
             if (empty($csvClasses)) {
-                $sql = 'SELECT DISTINCT Name from SearchableClass where InSiteTree = 1 order by Name';
+                $sql = 'SELECT DISTINCT "Name" from "SearchableClass" where "InSiteTree" = 1 order by "Name"';
                 $records = \DB::query($sql);
                 foreach ($records as $record) {
                     array_push($relevantClasses, $record['Name']);
@@ -437,8 +437,8 @@ class QueryGenerator
                 $relevantClassesCSV = self::convertToQuotedCSV($relevantClasses);
 
                 //Perform a database query to get get a list of searchable fieldnames to Elasticsearch mapping
-                $sql = 'SELECT  sf.Name,sf.Type FROM SearchableClass sc  INNER JOIN SearchableField sf ON '
-                     ."sc.id = sf.SearchableClassID WHERE sc.name IN ($relevantClassesCSV)";
+                $sql = 'SELECT  "SearchableField"."Name","SearchableField"."Type" FROM "SearchableClass"  INNER JOIN "SearchableField" ON '
+                     ."\"SearchableClass\" . \"ID\" = \"SearchableField\".\"SearchableClassID\" WHERE \"SearchableClass\".\"Name\" IN ($relevantClassesCSV)";
                 if ($fieldsAllowed) {
                     $fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
                     if (strlen($fieldsAllowedCSV) > 0) {
