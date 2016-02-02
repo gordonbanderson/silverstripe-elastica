@@ -442,7 +442,7 @@ class QueryGenerator
                 if ($fieldsAllowed) {
                     $fieldsAllowedCSV = self::convertToQuotedCSV(array_keys($fieldsAllowed));
                     if (strlen($fieldsAllowedCSV) > 0) {
-                        $sql .= " AND sf.Name IN ($fieldsAllowedCSV)";
+                        $sql .= " AND \"SearchableField\".\"Name\" IN ($fieldsAllowedCSV)";
                     }
                 }
 
