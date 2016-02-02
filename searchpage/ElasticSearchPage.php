@@ -320,9 +320,9 @@ class ElasticSearchPage extends Page
         $quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
         $quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
-        error_log('RELEVANT CLASSES: ' . print_r($relevantClasses, 1);
+        error_log('RELEVANT CLASSES: ' . print_r($relevantClasses, 1));
         error_log('QUOTED CLASSES: ' . print_r($quotedClasses, 1));
-        error_log('QUOTED NAMES: ' . print_r($quotedClasses, 1);
+        error_log('QUOTED NAMES: ' . print_r($quotedClasses, 1));
 
 
         $where = "\"Name\" IN ($quotedNames) AND \"ClazzName\" IN ($quotedClasses)";
