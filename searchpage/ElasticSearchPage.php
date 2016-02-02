@@ -320,7 +320,14 @@ class ElasticSearchPage extends Page
         $quotedClasses = QueryGenerator::convertToQuotedCSV($relevantClasses);
         $quotedNames = QueryGenerator::convertToQuotedCSV($names);
 
-        $where = "\"Name\" in ($quotedNames) AND \"ClazzName\" IN ($quotedClasses)";
+        error_log('RELEVANT CLASSES: ' . $relevantClasses);
+        error_log('QUOTED CLASSES: ' . $quotedClasses);
+        error_log('QUOTED NAMES: ' . $quotedClasses);
+
+
+        $where = "\"Name\" IN ($quotedNames) AND \"ClazzName\" IN ($quotedClasses)";
+
+        error_log('WHERE:' . $where);
 
         // Get the searchfields for the ClassNames searched
         $sfs = SearchableField::get()->where($where);
