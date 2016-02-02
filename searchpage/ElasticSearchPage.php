@@ -270,7 +270,7 @@ class ElasticSearchPage extends Page
             $result->error('The identifier cannot be blank');
         }
 
-        $where = 'ElasticSearchPage'.$suffix.'.ID != '.$this->ID." AND `Identifier` = '{$this->Identifier}'";
+        $where = '"ElasticSearchPage'.$suffix.'".ID != '.$this->ID." AND \"Identifier\" = '{$this->Identifier}'";
         $existing = self::get()->where($where)->count();
         if ($existing > 0) {
             $result->error('The identifier '.$this->Identifier.' already exists');
