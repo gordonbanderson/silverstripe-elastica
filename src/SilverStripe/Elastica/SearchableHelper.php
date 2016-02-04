@@ -27,7 +27,7 @@ class SearchableHelper
                 if (isset($autocomplete) && in_array($name, $autocomplete)) {
                     $autocompleteField = array();
                     $autocompleteField['type'] = 'string';
-                    $autocompleteField['index_analyzer'] = 'autocomplete_index_analyzer';
+                    $autocompleteField['analyzer'] = 'autocomplete_index_analyzer';
                     $autocompleteField['search_analyzer'] = 'autocomplete_search_analyzer';
                     $autocompleteField['term_vector'] = 'yes';
                     $extraFields['autocomplete'] = $autocompleteField;
