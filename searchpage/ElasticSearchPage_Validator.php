@@ -24,7 +24,7 @@ class ElasticSearchPage_Validator extends RequiredFields
         //return false;
         //
 
-        if ($data['ClassesToSearch'] == array()) {
+        if (empty($data['ClassesToSearch'])) {
             $data['ClassesToSearch'] = '';
         }
         $debug = $data['SiteTreeOnly'];
@@ -60,7 +60,7 @@ class ElasticSearchPage_Validator extends RequiredFields
         if ($mode == 'Stage.Live') {
             $suffix = '_Live';
         }
-        $where = 'ElasticSearchPage'.$suffix.'.ID != '.$data['ID']." AND `Identifier` = '".$data['Identifier']."'";
+        $where = '"ElasticSearchPage"'.$suffix.'."ID" != '.$data['ID']." AND \"Identifier\" = '".$data['Identifier']."'";
         $existing = ElasticSearchPage::get()->where($where)->count();
         if ($existing > 0) {
             $valid = false;
